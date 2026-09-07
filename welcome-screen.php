@@ -1,31 +1,53 @@
 <?php
 declare(strict_types=1);
 
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');
+define('DB_PASS', '');
+define('DB_NAME', 'Gig');
+
 $message = "";
 $messageType = "";
 
 try {
-    // "Gig" database stored as SQLite file.
-    $databasePath = __DIR__ . DIRECTORY_SEPARATOR . "Gig.db";
-    $pdo = new PDO("sqlite:" . $databasePath);
+    // Connect to MySQL server and ensure "Gig" database exists.
+    $serverDsn = "mysql:host=" . DB_HOST . ";charset=utf8mb4";
+    $serverPdo = new PDO($serverDsn, DB_USER, DB_PASS);
+    $serverPdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $serverPdo->exec(
+        "CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` " .
+        "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+    );
+
+    // Connect to the target project database.
+    $databaseDsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+    $pdo = new PDO($databaseDsn, DB_USER, DB_PASS);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // Create "Login" table if it does not exist.
     $pdo->exec(
-        "CREATE TABLE IF NOT EXISTS Login (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL UNIQUE,
-            password TEXT NOT NULL
-        )"
+        "CREATE TABLE IF NOT EXISTS `Login` (
+            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `username` VARCHAR(100) NOT NULL UNIQUE,
+            `password` VARCHAR(255) NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     );
 
     // Seed default account once.
     $seedUser = "Tessa";
     $seedPasswordHash = password_hash("12345", PASSWORD_DEFAULT);
-    $seedStmt = $pdo->prepare("INSERT OR IGNORE INTO Login (username, password) VALUES (:username, :password)");
+    $seedStmt = $pdo->prepare(
+        "INSERT INTO `Login` (`username`, `password`)
+         SELECT :username, :password
+         FROM DUAL
+         WHERE NOT EXISTS (
+            SELECT 1 FROM `Login` WHERE `username` = :check_username
+         )"
+    );
     $seedStmt->execute([
         ":username" => $seedUser,
-        ":password" => $seedPasswordHash
+        ":password" => $seedPasswordHash,
+        ":check_username" => $seedUser
     ]);
 
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -36,7 +58,7 @@ try {
             $message = "Please fill in username and password.";
             $messageType = "error";
         } else {
-            $loginStmt = $pdo->prepare("SELECT password FROM Login WHERE username = :username LIMIT 1");
+            $loginStmt = $pdo->prepare("SELECT `password` FROM `Login` WHERE `username` = :username LIMIT 1");
             $loginStmt->execute([":username" => $username]);
             $userRow = $loginStmt->fetch(PDO::FETCH_ASSOC);
 
