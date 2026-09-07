@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+session_start();
 
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
@@ -8,6 +9,11 @@ define('DB_NAME', 'Gig');
 
 $message = "";
 $messageType = "";
+
+if (isset($_SESSION["username"])) {
+    header("Location: dashboard.php");
+    exit;
+}
 
 try {
     // Connect to MySQL server and ensure "Gig" database exists.
@@ -63,8 +69,9 @@ try {
             $userRow = $loginStmt->fetch(PDO::FETCH_ASSOC);
 
             if ($userRow && isset($userRow["password"]) && password_verify($password, $userRow["password"])) {
-                $message = "Login successful. Welcome, " . htmlspecialchars($username, ENT_QUOTES, "UTF-8") . "!";
-                $messageType = "success";
+                $_SESSION["username"] = $username;
+                header("Location: dashboard.php");
+                exit;
             } else {
                 $message = "Invalid username or password.";
                 $messageType = "error";
