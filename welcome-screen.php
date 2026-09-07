@@ -1,3 +1,6 @@
+<?php
+// Welcome Screen page.
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
