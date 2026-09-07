@@ -98,111 +98,136 @@ try {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
     }
 
     body {
       min-height: 100vh;
       display: grid;
       place-items: center;
-      background: linear-gradient(
-        135deg,
-        #ff0000 0%,
-        #ff7f00 16%,
-        #ffff00 32%,
-        #00ff00 48%,
-        #0000ff 64%,
-        #4b0082 80%,
-        #8b00ff 100%
-      );
-      color: #ffffff;
+      background: radial-gradient(circle at 15% 20%, #dbeafe 0%, transparent 40%),
+                  radial-gradient(circle at 85% 80%, #bfdbfe 0%, transparent 40%),
+                  linear-gradient(135deg, #e0f2fe 0%, #bae6fd 45%, #7dd3fc 85%, #38bdf8 100%);
+      background-attachment: fixed;
+      color: #0f172a;
       text-align: center;
       padding: 24px;
     }
 
     .card {
-      background: rgba(0, 0, 0, 0.35);
-      border: 2px solid rgba(255, 255, 255, 0.45);
-      border-radius: 16px;
-      padding: 32px;
-      max-width: 560px;
+      background: rgba(255, 255, 255, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      border-radius: 20px;
+      padding: 36px 32px;
+      max-width: 520px;
       width: 100%;
-      backdrop-filter: blur(3px);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      box-shadow: 0 16px 40px rgba(14, 116, 144, 0.15),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.8);
     }
 
     h1 {
-      font-size: clamp(2rem, 5vw, 3rem);
-      margin-bottom: 12px;
-      letter-spacing: 0.04em;
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+      color: #0c4a6e;
+      font-weight: 800;
     }
 
     p {
       font-size: 1.05rem;
       line-height: 1.5;
-      opacity: 0.96;
+      color: #334155;
     }
 
     form {
       margin-top: 24px;
       display: grid;
-      gap: 12px;
+      gap: 16px;
       text-align: left;
     }
 
     label {
+      display: flex;
+      flex-direction: column;
       font-size: 0.95rem;
-      font-weight: 700;
+      font-weight: 600;
+      color: #1e293b;
+      gap: 6px;
     }
 
     input {
       width: 100%;
-      margin-top: 6px;
-      border: none;
-      border-radius: 10px;
-      padding: 10px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 12px;
+      padding: 12px 14px;
       font-size: 1rem;
+      color: #0f172a;
       outline: none;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s ease;
     }
 
     input:focus {
-      box-shadow: 0 0 0 2px #ffffff99;
+      background: rgba(255, 255, 255, 0.9);
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.35);
     }
 
     button {
+      margin-top: 8px;
       border: none;
-      border-radius: 10px;
-      padding: 12px;
-      font-size: 1rem;
+      border-radius: 12px;
+      padding: 13px;
+      font-size: 1.05rem;
       font-weight: 700;
       cursor: pointer;
-      background: #ffffff;
-      color: #35235a;
-      transition: transform 0.12s ease;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+      transition: all 0.2s ease;
     }
 
     button:hover {
-      transform: translateY(-1px);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(2, 132, 199, 0.45);
+      background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+    }
+
+    button:active {
+      transform: translateY(0);
     }
 
     .message {
-      margin-top: 14px;
-      font-size: 0.98rem;
-      font-weight: 700;
+      margin-top: 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 10px 14px;
+      border-radius: 10px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
 
     .message.success {
-      color: #d0ffd0;
+      background: rgba(34, 197, 94, 0.18);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      color: #166534;
     }
 
     .message.error {
-      color: #ffd1d1;
+      background: rgba(239, 68, 68, 0.18);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #991b1b;
     }
 
     .hint {
-      margin-top: 12px;
-      font-size: 0.9rem;
-      opacity: 0.85;
+      margin-top: 16px;
+      font-size: 0.88rem;
+      color: #475569;
     }
   </style>
 </head>
