@@ -1,5 +1,58 @@
 <?php
-// Welcome Screen page.
+declare(strict_types=1);
+
+$message = "";
+$messageType = "";
+
+try {
+    // "Gig" database stored as SQLite file.
+    $databasePath = __DIR__ . DIRECTORY_SEPARATOR . "Gig.db";
+    $pdo = new PDO("sqlite:" . $databasePath);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Create "Login" table if it does not exist.
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS Login (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL UNIQUE,
+            password TEXT NOT NULL
+        )"
+    );
+
+    // Seed default account once.
+    $seedUser = "Tessa";
+    $seedPasswordHash = password_hash("12345", PASSWORD_DEFAULT);
+    $seedStmt = $pdo->prepare("INSERT OR IGNORE INTO Login (username, password) VALUES (:username, :password)");
+    $seedStmt->execute([
+        ":username" => $seedUser,
+        ":password" => $seedPasswordHash
+    ]);
+
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
+        $username = trim((string)($_POST["username"] ?? ""));
+        $password = (string)($_POST["password"] ?? "");
+
+        if ($username === "" || $password === "") {
+            $message = "Please fill in username and password.";
+            $messageType = "error";
+        } else {
+            $loginStmt = $pdo->prepare("SELECT password FROM Login WHERE username = :username LIMIT 1");
+            $loginStmt->execute([":username" => $username]);
+            $userRow = $loginStmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($userRow && isset($userRow["password"]) && password_verify($password, $userRow["password"])) {
+                $message = "Login successful. Welcome, " . htmlspecialchars($username, ENT_QUOTES, "UTF-8") . "!";
+                $messageType = "success";
+            } else {
+                $message = "Invalid username or password.";
+                $messageType = "error";
+            }
+        }
+    }
+} catch (Throwable $e) {
+    $message = "Database error: " . $e->getMessage();
+    $messageType = "error";
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -60,12 +113,96 @@
       line-height: 1.5;
       opacity: 0.96;
     }
+
+    form {
+      margin-top: 24px;
+      display: grid;
+      gap: 12px;
+      text-align: left;
+    }
+
+    label {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    input {
+      width: 100%;
+      margin-top: 6px;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input:focus {
+      box-shadow: 0 0 0 2px #ffffff99;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: #ffffff;
+      color: #35235a;
+      transition: transform 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .message {
+      margin-top: 14px;
+      font-size: 0.98rem;
+      font-weight: 700;
+    }
+
+    .message.success {
+      color: #d0ffd0;
+    }
+
+    .message.error {
+      color: #ffd1d1;
+    }
+
+    .hint {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      opacity: 0.85;
+    }
   </style>
 </head>
 <body>
   <main class="card" role="main" aria-label="Welcome Screen">
     <h1>Welcome Screen</h1>
-    <p>Glad you're here. Enjoy this rainbow-colored start page!</p>
+    <p>Login to your Gig project account.</p>
+
+    <form method="post" action="">
+      <label for="username">
+        Username
+        <input id="username" name="username" type="text" autocomplete="username" required />
+      </label>
+
+      <label for="password">
+        Password
+        <input id="password" name="password" type="password" autocomplete="current-password" required />
+      </label>
+
+      <button type="submit">Login</button>
+    </form>
+
+    <?php if ($message !== ""): ?>
+      <p class="message <?php echo htmlspecialchars($messageType, ENT_QUOTES, "UTF-8"); ?>">
+        <?php echo htmlspecialchars($message, ENT_QUOTES, "UTF-8"); ?>
+      </p>
+    <?php endif; ?>
+
+    <p class="hint">Seeded account: username <strong>Tessa</strong>, password <strong>12345</strong></p>
   </main>
 </body>
 </html>
