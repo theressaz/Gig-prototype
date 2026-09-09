@@ -651,7 +651,6 @@ $username = (string)$_SESSION["username"];
       <div class="topbar-nav">
         <strong>Employer Admin</strong>
         <a href="#">Dashboard ▾</a>
-        <a href="#">WLLP ▾</a>
         <a href="#">Manajemen Mitra ▾</a>
         <a href="#">API Key ▾</a>
         <a href="#">Settings ▾</a>
@@ -705,7 +704,6 @@ $username = (string)$_SESSION["username"];
         <a href="#" class="header-tab active">Daftar Lowongan</a>
         <a href="#" class="header-tab">Profil Perusahaan ▾</a>
         <a href="#" class="header-tab">Kandidat ▾</a>
-        <a href="#" class="header-tab">WLLP ▾</a>
       </nav>
 
       <div class="user-pill">
@@ -724,11 +722,11 @@ $username = (string)$_SESSION["username"];
         <div>
           <div class="hero-badge">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            WAJIB LAPOR KETENAGAKERJAAN &bull; EMPLOYER
+            KARIRHUB &bull; GIG WORKERS
           </div>
-          <h1 class="hero-title">Ringkasan WLLP & Lowongan</h1>
+          <h1 class="hero-title">Ringkasan Lowongan Gig</h1>
           <p class="hero-desc">
-            Pantau pelaporan WLLP, manajemen lowongan aktif, dan status rekrutmen mitra gig dalam satu dashboard terpadu perusahaan Anda.
+            Pantau manajemen lowongan aktif, dan status rekrutmen mitra gig dalam satu dashboard terpadu perusahaan Anda.
           </p>
         </div>
 
@@ -755,7 +753,7 @@ $username = (string)$_SESSION["username"];
           </div>
         </div>
         <div class="stat-number">14</div>
-        <div class="stat-caption">Total lowongan dalam WLLP</div>
+        <div class="stat-caption">Total lowongan gig</div>
       </article>
 
       <article class="stat-card">
@@ -839,7 +837,7 @@ $username = (string)$_SESSION["username"];
           <span>Akses Cepat</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         </h2>
-        <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: -10px; margin-bottom: 20px;">Fitur layanan WLLP yang paling sering digunakan</p>
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: -10px; margin-bottom: 20px;">Fitur layanan KarirHub Gig yang paling sering digunakan</p>
 
         <div class="quick-access-grid">
           <a href="#" class="quick-access-tile">
@@ -847,8 +845,8 @@ $username = (string)$_SESSION["username"];
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
             <div>
-              <div style="font-size: 0.85rem; font-weight: 700;">Pelaporan WLLP</div>
-              <div style="font-size: 0.72rem; color: var(--text-muted);">Buat laporan tahunan</div>
+              <div style="font-size: 0.85rem; font-weight: 700;">Laporan Lowongan</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Buat laporan lowongan gig</div>
             </div>
           </a>
 
@@ -868,7 +866,7 @@ $username = (string)$_SESSION["username"];
             </div>
             <div>
               <div style="font-size: 0.85rem; font-weight: 700;">Bukti Lapor</div>
-              <div style="font-size: 0.72rem; color: var(--text-muted);">Lihat dokumen pelaporan WLLP</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Lihat dokumen pelaporan lowongan</div>
             </div>
           </a>
 
@@ -889,8 +887,8 @@ $username = (string)$_SESSION["username"];
     <section class="white-card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <div>
-          <h2 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main);">Aktivitas Terbaru WLLP</h2>
-          <p style="font-size: 0.78rem; color: var(--text-muted);">Riwayat manajemen lowongan kerja Anda</p>
+          <h2 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main);">Aktivitas Terbaru</h2>
+          <p style="font-size: 0.78rem; color: var(--text-muted);">Riwayat manajemen lowongan kerja gig Anda</p>
         </div>
         <a href="#" style="font-size: 0.82rem; font-weight: 700; color: var(--primary-blue); text-decoration: none; border: 1px solid var(--border-light); padding: 5px 12px; border-radius: var(--radius-sm);">
           Lihat Semua &rarr;
@@ -909,7 +907,7 @@ $username = (string)$_SESSION["username"];
             </div>
           </div>
           <div class="activity-right">
-            <span class="activity-code">WLLP-2026-09-00124</span>
+            <span class="activity-code">GIG-2026-09-00124</span>
             <span class="status-badge green">Terverifikasi</span>
           </div>
         </div>
@@ -925,7 +923,7 @@ $username = (string)$_SESSION["username"];
             </div>
           </div>
           <div class="activity-right">
-            <span class="activity-code">WLLP-2026-06-00087</span>
+            <span class="activity-code">GIG-2026-06-00087</span>
             <span class="status-badge green">Terisi</span>
           </div>
         </div>
@@ -941,7 +939,7 @@ $username = (string)$_SESSION["username"];
             </div>
           </div>
           <div class="activity-right">
-            <span class="activity-code">WLLP-2026-06-00042</span>
+            <span class="activity-code">GIG-2026-06-00042</span>
             <span class="status-badge blue">Selesai</span>
           </div>
         </div>
