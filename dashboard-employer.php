@@ -2,7 +2,8 @@
 declare(strict_types=1);
 session_start();
 
-if (!isset($_SESSION["username"])) {
+if (!isset($_SESSION["username"]) || !isset($_SESSION["role"]) || $_SESSION["role"] !== 'employer') {
+    // If not logged in as employer, redirect back to login
     header("Location: welcome-screen.php");
     exit;
 }
@@ -33,8 +34,8 @@ $username = (string)$_SESSION["username"];
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Dashboard Ekosistem & Pendataan Gig Worker - Kementerian Ketenagakerjaan RI" />
-  <title>Dashboard | Gig Worker Prototype - Kemnaker RI</title>
+  <meta name="description" content="Dashboard Pemberi Kerja - Kementerian Ketenagakerjaan RI" />
+  <title>Dashboard Employer | Gig Worker Prototype - Kemnaker RI</title>
 
   <!-- Google Fonts: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -648,14 +649,12 @@ $username = (string)$_SESSION["username"];
   <div class="kemnaker-topbar">
     <div class="topbar-inner">
       <div class="topbar-nav">
-        <strong>Job Admin</strong>
+        <strong>Employer Admin</strong>
         <a href="#">Dashboard ▾</a>
-        <a href="#">BLK ▾</a>
-        <a href="#">Jejaring ▾</a>
+        <a href="#">WLLP ▾</a>
+        <a href="#">Manajemen Mitra ▾</a>
         <a href="#">API Key ▾</a>
         <a href="#">Settings ▾</a>
-        <a href="#">Layanan ▾</a>
-        <a href="#">Gig Worker Prototype ▾</a>
       </div>
       <div class="topbar-user">
         <form method="post" action="" style="display:inline;">
@@ -698,15 +697,15 @@ $username = (string)$_SESSION["username"];
         <div class="brand-text">
           <span class="brand-title">KEMENTERIAN KETENAGAKERJAAN</span>
           <span class="brand-title" style="color: #93c5fd;">REPUBLIK INDONESIA</span>
-          <span class="brand-sub">Sistem Informasi Ekosistem Gig Worker</span>
+          <span class="brand-sub">Sistem Informasi Pemberi Kerja Gig Worker</span>
         </div>
       </div>
 
       <nav class="header-tabs">
-        <a href="#" class="header-tab active">Daftar Tugas</a>
-        <a href="#" class="header-tab">Profil ▾</a>
-        <a href="#" class="header-tab">Ulasan Mitra</a>
-        <a href="#" class="header-tab">Laporan ▾</a>
+        <a href="#" class="header-tab active">Daftar Lowongan</a>
+        <a href="#" class="header-tab">Profil Perusahaan ▾</a>
+        <a href="#" class="header-tab">Kandidat ▾</a>
+        <a href="#" class="header-tab">WLLP ▾</a>
       </nav>
 
       <div class="user-pill">
@@ -725,17 +724,17 @@ $username = (string)$_SESSION["username"];
         <div>
           <div class="hero-badge">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            PORTAL KETENAGAKERJAAN &bull; GIG SECTOR
+            WAJIB LAPOR KETENAGAKERJAAN &bull; EMPLOYER
           </div>
-          <h1 class="hero-title">Ringkasan Gig Worker</h1>
+          <h1 class="hero-title">Ringkasan WLLP & Lowongan</h1>
           <p class="hero-desc">
-            Pantau pelaporan, status kepesertaan jaminan sosial, dan bukti kinerja mitra gig dalam satu dashboard terpadu.
+            Pantau pelaporan WLLP, manajemen lowongan aktif, dan status rekrutmen mitra gig dalam satu dashboard terpadu perusahaan Anda.
           </p>
         </div>
 
         <div class="hero-actions">
-          <span class="btn-hero-glass">Dashboard Pengembangan</span>
-          <span class="btn-hero-solid">+ Buat Laporan</span>
+          <span class="btn-hero-glass">Laporan Tahunan</span>
+          <span class="btn-hero-solid">+ Buat Lowongan Baru</span>
         </div>
       </div>
     </section>
@@ -743,83 +742,83 @@ $username = (string)$_SESSION["username"];
     <!-- NOTICE BAR -->
     <div class="notice-bar">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      <span>Halaman ini merupakan prototipe alur Gig Worker Kemnaker dan saat ini aktif dalam sesi login pengguna: <strong><?php echo htmlspecialchars($username, ENT_QUOTES, "UTF-8"); ?></strong></span>
+      <span>Halaman ini merupakan prototipe alur Pemberi Kerja dan saat ini aktif dalam sesi login perusahaan: <strong><?php echo htmlspecialchars($username, ENT_QUOTES, "UTF-8"); ?></strong></span>
     </div>
 
     <!-- 4 STATS CARDS -->
     <section class="stats-grid">
       <article class="stat-card">
         <div class="stat-card-header">
-          <span class="stat-label">TUGAS DISELESAIKAN</span>
+          <span class="stat-label">LOWONGAN DILAPORKAN</span>
           <div class="stat-icon-wrapper blue">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
           </div>
         </div>
         <div class="stat-number">14</div>
-        <div class="stat-caption">Total tugas diselesaikan bulan ini</div>
+        <div class="stat-caption">Total lowongan dalam WLLP</div>
       </article>
 
       <article class="stat-card">
         <div class="stat-card-header">
-          <span class="stat-label">TUGAS AKTIF</span>
+          <span class="stat-label">LOWONGAN AKTIF</span>
           <div class="stat-icon-wrapper cyan">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </div>
         </div>
-        <div class="stat-number">0</div>
-        <div class="stat-caption">Sedang dikerjakan saat ini</div>
+        <div class="stat-number">2</div>
+        <div class="stat-caption">Masih dalam masa berlaku pencarian</div>
       </article>
 
       <article class="stat-card">
         <div class="stat-card-header">
-          <span class="stat-label">MITRA AKTIF</span>
+          <span class="stat-label">SUDAH TERISI</span>
           <div class="stat-icon-wrapper green">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
           </div>
         </div>
-        <div class="stat-number">3</div>
-        <div class="stat-caption">Mitra gig yang sedang aktif</div>
+        <div class="stat-number">12</div>
+        <div class="stat-caption">Kebutuhan mitra telah terpenuhi</div>
       </article>
 
       <article class="stat-card">
         <div class="stat-card-header">
-          <span class="stat-label">MENUNGGU VERIFIKASI</span>
+          <span class="stat-label">KANDIDAT BARU</span>
           <div class="stat-icon-wrapper amber">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           </div>
         </div>
-        <div class="stat-number">0</div>
-        <div class="stat-caption">Mitra yang menunggu persetujuan</div>
+        <div class="stat-number">5</div>
+        <div class="stat-caption">Perlu direview segera</div>
       </article>
     </section>
 
     <!-- MIDDLE ROW: DISTRIBUSI STATUS & AKSES CEPAT -->
     <div class="middle-grid">
-      <!-- LEFT: DISTRIBUSI STATUS TUGAS -->
+      <!-- LEFT: DISTRIBUSI STATUS LOWONGAN -->
       <section class="white-card">
         <h2 class="card-title">
-          <span>Distribusi Status Tugas</span>
+          <span>Distribusi Status Rekrutmen</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         </h2>
-        <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: -10px; margin-bottom: 20px;">Perbandingan terhadap total tugas</p>
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: -10px; margin-bottom: 20px;">Perbandingan terhadap total lowongan dilaporkan</p>
 
         <div class="dist-item">
           <div class="dist-header">
-            <span>Tugas Aktif</span>
-            <span>0 &bull; 0%</span>
+            <span>Lowongan Aktif</span>
+            <span>2 &bull; 14%</span>
           </div>
           <div class="progress-bar-bg">
-            <div class="progress-bar-fill blue" style="width: 0%;"></div>
+            <div class="progress-bar-fill blue" style="width: 14%;"></div>
           </div>
         </div>
 
         <div class="dist-item">
           <div class="dist-header">
-            <span>Selesai</span>
-            <span style="color: #16a34a;">3 &bull; 21%</span>
+            <span>Sudah Terisi</span>
+            <span style="color: #16a34a;">12 &bull; 85%</span>
           </div>
           <div class="progress-bar-bg">
-            <div class="progress-bar-fill green" style="width: 21%;"></div>
+            <div class="progress-bar-fill green" style="width: 85%;"></div>
           </div>
         </div>
 
@@ -840,7 +839,7 @@ $username = (string)$_SESSION["username"];
           <span>Akses Cepat</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         </h2>
-        <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: -10px; margin-bottom: 20px;">Fitur layanan yang paling sering digunakan</p>
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: -10px; margin-bottom: 20px;">Fitur layanan WLLP yang paling sering digunakan</p>
 
         <div class="quick-access-grid">
           <a href="#" class="quick-access-tile">
@@ -848,8 +847,8 @@ $username = (string)$_SESSION["username"];
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
             <div>
-              <div style="font-size: 0.85rem; font-weight: 700;">Pelaporan Insiden</div>
-              <div style="font-size: 0.72rem; color: var(--text-muted);">Buat laporan baru</div>
+              <div style="font-size: 0.85rem; font-weight: 700;">Pelaporan WLLP</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Buat laporan tahunan</div>
             </div>
           </a>
 
@@ -858,8 +857,8 @@ $username = (string)$_SESSION["username"];
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/></svg>
             </div>
             <div>
-              <div style="font-size: 0.85rem; font-weight: 700;">Status Kemitraan</div>
-              <div style="font-size: 0.72rem; color: var(--text-muted);">Perbarui status kemitraan</div>
+              <div style="font-size: 0.85rem; font-weight: 700;">Status Keterisian</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Perbarui status lowongan</div>
             </div>
           </a>
 
@@ -869,7 +868,7 @@ $username = (string)$_SESSION["username"];
             </div>
             <div>
               <div style="font-size: 0.85rem; font-weight: 700;">Bukti Lapor</div>
-              <div style="font-size: 0.72rem; color: var(--text-muted);">Lihat dokumen pelaporan</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Lihat dokumen pelaporan WLLP</div>
             </div>
           </a>
 
@@ -878,8 +877,8 @@ $username = (string)$_SESSION["username"];
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
             </div>
             <div>
-              <div style="font-size: 0.85rem; font-weight: 700;">Bursa Tugas</div>
-              <div style="font-size: 0.72rem; color: var(--text-muted);">Kelola tugas yang tersedia</div>
+              <div style="font-size: 0.85rem; font-weight: 700;">Lowongan Karirhub</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Kelola posting lowongan</div>
             </div>
           </a>
         </div>
@@ -890,8 +889,8 @@ $username = (string)$_SESSION["username"];
     <section class="white-card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <div>
-          <h2 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main);">Aktivitas Terbaru</h2>
-          <p style="font-size: 0.78rem; color: var(--text-muted);">Riwayat aktivitas Anda</p>
+          <h2 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main);">Aktivitas Terbaru WLLP</h2>
+          <p style="font-size: 0.78rem; color: var(--text-muted);">Riwayat manajemen lowongan kerja Anda</p>
         </div>
         <a href="#" style="font-size: 0.82rem; font-weight: 700; color: var(--primary-blue); text-decoration: none; border: 1px solid var(--border-light); padding: 5px 12px; border-radius: var(--radius-sm);">
           Lihat Semua &rarr;
@@ -905,12 +904,12 @@ $username = (string)$_SESSION["username"];
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
             <div>
-              <div class="activity-title">Verifikasi Akun - Mitra Logistik &amp; Kurir</div>
+              <div class="activity-title">Buat Laporan Lowongan - Mitra Logistik &amp; Kurir</div>
               <div class="activity-date">9 September 2026, 11:20 WIB</div>
             </div>
           </div>
           <div class="activity-right">
-            <span class="activity-code">GIG-2026-09-00124</span>
+            <span class="activity-code">WLLP-2026-09-00124</span>
             <span class="status-badge green">Terverifikasi</span>
           </div>
         </div>
@@ -921,12 +920,12 @@ $username = (string)$_SESSION["username"];
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
             <div>
-              <div class="activity-title">Selesai Tugas - Pengemudi On-Demand</div>
+              <div class="activity-title">Buat Laporan Lowongan - Pengemudi On-Demand</div>
               <div class="activity-date">24 Juni 2026, 14:10 WIB</div>
             </div>
           </div>
           <div class="activity-right">
-            <span class="activity-code">GIG-2026-06-00087</span>
+            <span class="activity-code">WLLP-2026-06-00087</span>
             <span class="status-badge green">Terisi</span>
           </div>
         </div>
@@ -937,12 +936,12 @@ $username = (string)$_SESSION["username"];
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
             <div>
-              <div class="activity-title">Pembaruan Status Jamsostek Mitra Mandiri</div>
+              <div class="activity-title">Review Kandidat - Spesialis Pemasaran Lepas</div>
               <div class="activity-date">10 Juni 2026, 09:30 WIB</div>
             </div>
           </div>
           <div class="activity-right">
-            <span class="activity-code">GIG-2026-06-00042</span>
+            <span class="activity-code">WLLP-2026-06-00042</span>
             <span class="status-badge blue">Selesai</span>
           </div>
         </div>

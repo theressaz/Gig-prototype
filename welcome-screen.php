@@ -10,8 +10,12 @@ define('DB_NAME', 'Gig');
 $message = "";
 $messageType = "";
 
-if (isset($_SESSION["username"])) {
-    header("Location: dashboard.php");
+if (isset($_SESSION["username"]) && isset($_SESSION["role"])) {
+    if ($_SESSION["role"] === 'employer') {
+        header("Location: dashboard-employer.php");
+    } else {
+        header("Location: dashboard-worker.php");
+    }
     exit;
 }
 
@@ -37,31 +41,36 @@ try {
         PDO::ATTR_TIMEOUT => 2
     ]);
 
-    // Create "Login" table if it does not exist.
+    // Create "Login" table with 'role' column
     $pdo->exec(
         "CREATE TABLE IF NOT EXISTS `Login` (
             `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             `username` VARCHAR(100) NOT NULL UNIQUE,
-            `password` VARCHAR(255) NOT NULL
+            `password` VARCHAR(255) NOT NULL,
+            `role` ENUM('worker', 'employer') NOT NULL DEFAULT 'worker'
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     );
 
-    // Seed default account once.
-    $seedUser = "Tessa";
+    // Ensure 'role' column exists for existing tables
+    try {
+        $pdo->exec("ALTER TABLE `Login` ADD COLUMN `role` ENUM('worker', 'employer') NOT NULL DEFAULT 'worker'");
+    } catch (Throwable $e) {
+        // Ignore if column already exists
+    }
+
+    // Seed default accounts once
     $seedPasswordHash = password_hash("12345", PASSWORD_DEFAULT);
+    
     $seedStmt = $pdo->prepare(
-        "INSERT INTO `Login` (`username`, `password`)
-         SELECT :username, :password
-         FROM DUAL
-         WHERE NOT EXISTS (
-            SELECT 1 FROM `Login` WHERE `username` = :check_username
-         )"
+        "INSERT IGNORE INTO `Login` (`username`, `password`, `role`) VALUES 
+         ('Tessa', :pass1, 'worker'),
+         ('Perusahaan', :pass2, 'employer')"
     );
     $seedStmt->execute([
-        ":username" => $seedUser,
-        ":password" => $seedPasswordHash,
-        ":check_username" => $seedUser
+        ":pass1" => $seedPasswordHash,
+        ":pass2" => $seedPasswordHash
     ]);
+
 } catch (Throwable $e) {
     $dbOffline = true;
 }
@@ -76,13 +85,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } else {
         if ($pdo !== null) {
             try {
-                $loginStmt = $pdo->prepare("SELECT `password` FROM `Login` WHERE `username` = :username LIMIT 1");
+                $loginStmt = $pdo->prepare("SELECT `password`, `role` FROM `Login` WHERE `username` = :username LIMIT 1");
                 $loginStmt->execute([":username" => $username]);
                 $userRow = $loginStmt->fetch(PDO::FETCH_ASSOC);
 
                 if ($userRow && isset($userRow["password"]) && password_verify($password, $userRow["password"])) {
                     $_SESSION["username"] = $username;
-                    header("Location: dashboard.php");
+                    $_SESSION["role"] = $userRow["role"];
+                    if ($userRow["role"] === 'employer') {
+                        header("Location: dashboard-employer.php");
+                    } else {
+                        header("Location: dashboard-worker.php");
+                    }
                     exit;
                 } else {
                     $message = "Invalid username or password.";
@@ -96,10 +110,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             // Fallback prototype mode when MySQL is offline
             if ($username === "Tessa" && $password === "12345") {
                 $_SESSION["username"] = $username;
-                header("Location: dashboard.php");
+                $_SESSION["role"] = 'worker';
+                header("Location: dashboard-worker.php");
+                exit;
+            } elseif ($username === "Perusahaan" && $password === "12345") {
+                $_SESSION["username"] = $username;
+                $_SESSION["role"] = 'employer';
+                header("Location: dashboard-employer.php");
                 exit;
             } else {
-                $message = "Account not found. Use demo credentials: Tessa / 12345";
+                $message = "Account not found. Use demo credentials: Tessa / 12345 (worker) or Perusahaan / 12345 (employer)";
                 $messageType = "error";
             }
         }
