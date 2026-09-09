@@ -59,16 +59,18 @@ try {
     }
 
     // Seed default accounts once
-    $seedPasswordHash = password_hash("12345", PASSWORD_DEFAULT);
+    // Seed default accounts once
+    $workerPasswordHash = password_hash("12345", PASSWORD_DEFAULT);
+    $employerPasswordHash = password_hash("00000", PASSWORD_DEFAULT);
     
     $seedStmt = $pdo->prepare(
         "INSERT IGNORE INTO `Login` (`username`, `password`, `role`) VALUES 
          ('Tessa', :pass1, 'worker'),
-         ('Perusahaan', :pass2, 'employer')"
+         ('PT ABC', :pass2, 'employer')"
     );
     $seedStmt->execute([
-        ":pass1" => $seedPasswordHash,
-        ":pass2" => $seedPasswordHash
+        ":pass1" => $workerPasswordHash,
+        ":pass2" => $employerPasswordHash
     ]);
 
 } catch (Throwable $e) {
@@ -113,13 +115,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION["role"] = 'worker';
                 header("Location: dashboard-worker.php");
                 exit;
-            } elseif ($username === "Perusahaan" && $password === "12345") {
+            } elseif ($username === "PT ABC" && $password === "00000") {
                 $_SESSION["username"] = $username;
                 $_SESSION["role"] = 'employer';
                 header("Location: dashboard-employer.php");
                 exit;
             } else {
-                $message = "Account not found. Use demo credentials: Tessa / 12345 (worker) or Perusahaan / 12345 (employer)";
+                $message = "Account not found. Use demo credentials: Tessa / 12345 (worker) or PT ABC / 00000 (employer)";
                 $messageType = "error";
             }
         }
