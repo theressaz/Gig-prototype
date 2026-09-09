@@ -1580,6 +1580,9 @@ $username = (string)$_SESSION["username"];
         <div class="user-pill">
           <span class="user-avatar"><?php echo strtoupper(substr($username, 0, 2)); ?></span>
           <span><?php echo htmlspecialchars($username, ENT_QUOTES, "UTF-8"); ?></span>
+          <span style="background: rgba(245, 158, 11, 0.25); color: #fde68a; font-weight: 700; font-size: 0.72rem; padding: 2px 7px; border-radius: var(--radius-pill); display: inline-flex; align-items: center; gap: 3px;" title="Rating Pemberi Kerja dari Mitra Gig Worker">
+            ★ 4.9
+          </span>
         </div>
       </div>
     </div>
@@ -1613,6 +1616,14 @@ $username = (string)$_SESSION["username"];
         </div>
 
         <div class="hero-quick-stats">
+          <div class="hero-stat-pill" style="border-color: rgba(245, 158, 11, 0.45); background: rgba(245, 158, 11, 0.18);">
+            <div style="display: flex; align-items: baseline; gap: 4px;">
+              <span class="hero-stat-val" style="color: #fef08a;">4.9</span>
+              <span style="color: #fbbf24; font-size: 1.1rem; font-weight: 800;">★</span>
+              <span style="font-size: 0.72rem; color: rgba(255,255,255,0.85); font-weight: 600; margin-left: 2px;">/ 5.0</span>
+            </div>
+            <span class="hero-stat-lbl">Rating Employer (18 Ulasan Mitra)</span>
+          </div>
           <div class="hero-stat-pill">
             <span class="hero-stat-val" id="hero-stat-vacancies">3</span>
             <span class="hero-stat-lbl">Lowongan Terbuka</span>
@@ -1670,16 +1681,16 @@ $username = (string)$_SESSION["username"];
         </div>
       </article>
 
-      <article class="stat-card" onclick="openPostProjectModal()">
+      <article class="stat-card" onclick="switchMainTab('applicants')">
         <div class="stat-card-header">
-          <span class="stat-label">TOTAL NILAI PROYEK</span>
+          <span class="stat-label">DITERIMA</span>
           <div class="stat-icon-wrapper amber">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
           </div>
         </div>
-        <div class="stat-number" style="font-size: 1.55rem;">Rp 24,5 Jt</div>
+        <div class="stat-number">5 Pelamar</div>
         <div class="stat-caption">
-          Pembayaran langsung via transfer mitra
+          Pelamar yang disetujui &amp; direkrut
         </div>
       </article>
     </section>
@@ -1738,13 +1749,27 @@ $username = (string)$_SESSION["username"];
             <div class="funnel-step">
               <span class="funnel-step-name">
                 <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
-                Direkrut &amp; Kontrak Aktif
+                Diterima &amp; Kontrak Aktif
               </span>
               <div class="funnel-step-bar-wrap">
                 <div class="funnel-step-bar-fill" style="width: 33%; background: #10b981;"></div>
               </div>
-              <span class="funnel-step-count" id="funnel-hired">2 Freelancer</span>
+              <span class="funnel-step-count" id="funnel-hired">2 Diterima</span>
             </div>
+          </div>
+
+          <!-- Employer Rating Reputation Summary -->
+          <div style="margin-top: 16px; padding: 12px 14px; background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.2rem; color: #d97706;">★</span>
+              <div>
+                <strong style="font-size: 0.84rem; color: #92400e;">Rating Perusahaan: 4.9 / 5.0 (18 Ulasan Gig Worker)</strong>
+                <div style="font-size: 0.74rem; color: #b45309;">Penilaian dari pekerja lepas: <em>Brief Jelas &bull; Komunikasi Responsif &bull; Kerjasama Profesional</em></div>
+              </div>
+            </div>
+            <span style="font-size: 0.72rem; font-weight: 700; color: #059669; background: #ecfdf5; padding: 3px 8px; border-radius: var(--radius-pill); border: 1px solid #a7f3d0;">
+              ✓ Employer Terpercaya
+            </span>
           </div>
         </section>
 
@@ -1871,7 +1896,7 @@ $username = (string)$_SESSION["username"];
             <p>Pantau progres pengerjaan milestone dan koordinasi pengerjaan proyek dengan freelancer</p>
           </div>
           <div style="font-size: 0.82rem; color: var(--text-muted); background: #f1f5f9; padding: 6px 12px; border-radius: var(--radius-pill);">
-            💼 Transaksi &amp; Pembayaran: <strong>Ditransfer Langsung ke Rekening Mitra</strong>
+            🤝 Status Kolaborasi: <strong>Koordinasi Langsung Perusahaan &amp; Mitra</strong>
           </div>
         </div>
 
@@ -1889,8 +1914,8 @@ $username = (string)$_SESSION["username"];
                 </div>
               </div>
               <div style="text-align: right;">
-                <span style="font-size: 0.74rem; color: var(--text-muted); display: block;">Total Nilai Proyek</span>
-                <span style="font-size: 1.15rem; font-weight: 800; color: var(--primary-blue);">Rp 8.500.000</span>
+                <span style="font-size: 0.74rem; color: var(--text-muted); display: block;">Tipe Kesepakatan</span>
+                <span style="font-size: 0.95rem; font-weight: 800; color: var(--primary-blue);">Kontrak Mandiri Lepas</span>
               </div>
             </div>
 
@@ -1922,14 +1947,14 @@ $username = (string)$_SESSION["username"];
                 </div>
               </div>
 
-              <!-- Payment Info -->
+              <!-- Scope / Delivery Info -->
               <div class="payment-direct-box">
                 <span class="payment-direct-label">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                  Pembayaran Mandiri Langsung
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  Status Deliverable
                 </span>
-                <span class="payment-direct-amount">Rp 8.500.000</span>
-                <span style="font-size: 0.72rem; color: var(--text-muted);">Ditransfer langsung ke rekening Tessa</span>
+                <span class="payment-direct-amount" style="font-size: 0.95rem;">Review Prototype</span>
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Sedang pengujian internal perusahaan</span>
               </div>
             </div>
 
@@ -1966,8 +1991,8 @@ $username = (string)$_SESSION["username"];
                 </div>
               </div>
               <div style="text-align: right;">
-                <span style="font-size: 0.74rem; color: var(--text-muted); display: block;">Total Nilai Proyek</span>
-                <span style="font-size: 1.15rem; font-weight: 800; color: var(--primary-blue);">Rp 6.000.000</span>
+                <span style="font-size: 0.74rem; color: var(--text-muted); display: block;">Tipe Kesepakatan</span>
+                <span style="font-size: 0.95rem; font-weight: 800; color: var(--primary-blue);">Kontrak Mandiri Lepas</span>
               </div>
             </div>
 
@@ -1999,14 +2024,14 @@ $username = (string)$_SESSION["username"];
                 </div>
               </div>
 
-              <!-- Payment Info -->
+              <!-- Scope / Delivery Info -->
               <div class="payment-direct-box">
                 <span class="payment-direct-label">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                  Pembayaran Mandiri Langsung
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  Status Deliverable
                 </span>
-                <span class="payment-direct-amount">Rp 6.000.000</span>
-                <span style="font-size: 0.72rem; color: var(--text-muted);">Ditransfer langsung ke rekening Rian</span>
+                <span class="payment-direct-amount" style="font-size: 0.95rem;">UAT &amp; Deploy Selesai</span>
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Menunggu verifikasi akhir</span>
               </div>
             </div>
 
