@@ -352,6 +352,26 @@ $username = (string)$_SESSION["username"];
       gap: 24px;
     }
 
+    /* SYSTEM INFO NOTICE */
+    .system-info-notice {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 0.84rem;
+      color: #1e40af;
+    }
+
+    .notice-icon-text {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     /* HERO BANNER */
     .hero-banner {
       background: linear-gradient(135deg, var(--hero-blue-start) 0%, var(--hero-blue-mid) 55%, var(--hero-blue-end) 100%);
@@ -811,6 +831,7 @@ $username = (string)$_SESSION["username"];
       background: #eff6ff;
       padding: 6px 10px;
       border-radius: var(--radius-pill);
+      cursor: pointer;
     }
 
     .btn-action-sm {
@@ -964,23 +985,23 @@ $username = (string)$_SESSION["username"];
       transition: width 0.3s ease;
     }
 
-    .escrow-status-box {
+    .payment-direct-box {
       display: flex;
       flex-direction: column;
       justify-content: center;
       gap: 4px;
     }
 
-    .escrow-shield-label {
+    .payment-direct-label {
       font-size: 0.75rem;
       font-weight: 700;
-      color: var(--success-green);
+      color: var(--primary-blue);
       display: inline-flex;
       align-items: center;
       gap: 4px;
     }
 
-    .escrow-amount {
+    .payment-direct-amount {
       font-size: 1.05rem;
       font-weight: 800;
       color: var(--text-main);
@@ -1099,6 +1120,26 @@ $username = (string)$_SESSION["username"];
     .applicant-applied-role {
       font-size: 0.82rem;
       color: var(--text-muted);
+    }
+
+    .applicant-contact-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.76rem;
+      color: var(--text-soft);
+      margin-top: 2px;
+    }
+
+    .applicant-contact-tag {
+      background: #f1f5f9;
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: #334155;
+      font-weight: 600;
     }
 
     .applicant-proposal-snippet {
@@ -1547,6 +1588,16 @@ $username = (string)$_SESSION["username"];
   <!-- MAIN CONTENT -->
   <main class="page-main">
 
+    <!-- NOTICE: DIRECT COMMUNICATION & DIRECT PAYMENT -->
+    <div class="system-info-notice">
+      <div class="notice-icon-text">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span>
+          <strong>Informasi Operasional Fitur Gig:</strong> Komunikasi (wawancara/diskusi) dan transaksi pembayaran honor proyek dilakukan <strong>secara langsung di luar sistem</strong> antara Pemberi Kerja dan Gig Worker.
+        </span>
+      </div>
+    </div>
+
     <!-- HERO BANNER -->
     <section class="hero-banner">
       <div class="hero-header">
@@ -1557,7 +1608,7 @@ $username = (string)$_SESSION["username"];
           </div>
           <h1 class="hero-title">Halo, <?php echo htmlspecialchars($username, ENT_QUOTES, "UTF-8"); ?>! 👋</h1>
           <p class="hero-desc">
-            Temukan talenta lepas (freelancer) terverifikasi untuk kebutuhan proyek jangka pendek perusahaan Anda. Kelola lowongan, pantau kemajuan pengerjaan, dan seleksi penawaran terbaik.
+            Temukan talenta lepas (freelancer) terverifikasi untuk kebutuhan proyek jangka pendek perusahaan Anda. Publikasikan lowongan, seleksi proposal, dan hubungi kandidat langsung via kontak resmi.
           </p>
         </div>
 
@@ -1621,14 +1672,14 @@ $username = (string)$_SESSION["username"];
 
       <article class="stat-card" onclick="openPostProjectModal()">
         <div class="stat-card-header">
-          <span class="stat-label">ESTIMASI ANGGARAN</span>
+          <span class="stat-label">TOTAL NILAI PROYEK</span>
           <div class="stat-icon-wrapper amber">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           </div>
         </div>
         <div class="stat-number" style="font-size: 1.55rem;">Rp 24,5 Jt</div>
         <div class="stat-caption">
-          Dana terproteksi dalam Escrow Kemnaker
+          Pembayaran langsung via transfer mitra
         </div>
       </article>
     </section>
@@ -1676,7 +1727,7 @@ $username = (string)$_SESSION["username"];
             <div class="funnel-step">
               <span class="funnel-step-name">
                 <span style="width: 8px; height: 8px; border-radius: 50%; background: #8b5cf6; display: inline-block;"></span>
-                Diskusi / Wawancara Singkat
+                Kontak Eksternal (WA / Email)
               </span>
               <div class="funnel-step-bar-wrap">
                 <div class="funnel-step-bar-fill" style="width: 33%; background: #8b5cf6;"></div>
@@ -1817,10 +1868,10 @@ $username = (string)$_SESSION["username"];
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
               Proyek Aktif Sedang Dikerjakan
             </h2>
-            <p>Pantau progres pengerjaan milestone, deliverable, dan pencairan dana proyek freelancer</p>
+            <p>Pantau progres pengerjaan milestone dan koordinasi pengerjaan proyek dengan freelancer</p>
           </div>
           <div style="font-size: 0.82rem; color: var(--text-muted); background: #f1f5f9; padding: 6px 12px; border-radius: var(--radius-pill);">
-            🛡️ Escrow Kemnaker: <strong>Dana Terproteksi Otomatis</strong>
+            💼 Transaksi &amp; Pembayaran: <strong>Ditransfer Langsung ke Rekening Mitra</strong>
           </div>
         </div>
 
@@ -1871,14 +1922,14 @@ $username = (string)$_SESSION["username"];
                 </div>
               </div>
 
-              <!-- Escrow Status -->
-              <div class="escrow-status-box">
-                <span class="escrow-shield-label">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                  Escrow Terkunci Aman
+              <!-- Payment Info -->
+              <div class="payment-direct-box">
+                <span class="payment-direct-label">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                  Pembayaran Mandiri Langsung
                 </span>
-                <span class="escrow-amount">Rp 4.000.000</span>
-                <span style="font-size: 0.72rem; color: var(--text-muted);">Rp 4.500.000 sudah dicairkan pada M1</span>
+                <span class="payment-direct-amount">Rp 8.500.000</span>
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Ditransfer langsung ke rekening Tessa</span>
               </div>
             </div>
 
@@ -1891,11 +1942,11 @@ $username = (string)$_SESSION["username"];
                 <span class="step-badge" style="background: #f1f5f9; color: #64748b;">⏳ M3: Final Asset &amp; Handover</span>
               </div>
               <div style="display: flex; gap: 8px;">
-                <button class="btn-action-sm" onclick="showToast('Membuka ruang chat dengan freelancer...')">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                  Chat Freelancer
+                <button class="btn-action-sm" onclick="copyContact('Tessa', '0812-3456-7890', 'tessa.design@email.com')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  Kontak Freelancer (WA/Email)
                 </button>
-                <button class="btn-hire" style="padding: 6px 14px; font-size: 0.78rem;" onclick="showToast('Deliverable Milestone 2 telah disetujui! Dana dicairkan.')">
+                <button class="btn-hire" style="padding: 6px 14px; font-size: 0.78rem;" onclick="showToast('Deliverable Milestone 2 telah disetujui secara internal!')">
                   ✓ Setujui Milestone 2
                 </button>
               </div>
@@ -1948,14 +1999,14 @@ $username = (string)$_SESSION["username"];
                 </div>
               </div>
 
-              <!-- Escrow Status -->
-              <div class="escrow-status-box">
-                <span class="escrow-shield-label">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                  Escrow Terkunci Aman
+              <!-- Payment Info -->
+              <div class="payment-direct-box">
+                <span class="payment-direct-label">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                  Pembayaran Mandiri Langsung
                 </span>
-                <span class="escrow-amount">Rp 6.000.000</span>
-                <span style="font-size: 0.72rem; color: var(--text-muted);">Pencairan otomatis setelah UAT selesai</span>
+                <span class="payment-direct-amount">Rp 6.000.000</span>
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Ditransfer langsung ke rekening Rian</span>
               </div>
             </div>
 
@@ -1966,9 +2017,9 @@ $username = (string)$_SESSION["username"];
                 <span class="step-badge" style="background: #eff6ff; color: #2563eb;">🔄 M2: Stress Testing &amp; Production Deploy</span>
               </div>
               <div style="display: flex; gap: 8px;">
-                <button class="btn-action-sm" onclick="showToast('Membuka ruang chat dengan freelancer...')">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                  Chat Freelancer
+                <button class="btn-action-sm" onclick="copyContact('Rian Ardiansyah', '0813-8899-7711', 'rian.dev@email.com')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  Kontak Freelancer (WA/Email)
                 </button>
                 <button class="btn-hire" style="padding: 6px 14px; font-size: 0.78rem;" onclick="showToast('Pekerjaan selesai! Kontrak berhasil diselesaikan.')">
                   ✓ Selesaikan Proyek &amp; Beri Rating
@@ -1989,7 +2040,7 @@ $username = (string)$_SESSION["username"];
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
               Daftar Pelamar Proyek (Gig Worker Applicants)
             </h2>
-            <p>Review proposal penawaran, portofolio kerja, dan rekrut freelancer terbaik untuk proyek Anda</p>
+            <p>Review proposal penawaran, portofolio kerja, dan hubungi freelancer via kontak langsung (WhatsApp / Email)</p>
           </div>
           <div style="font-size: 0.82rem; color: var(--text-muted);">
             Menampilkan <strong id="applicants-visible-count">6</strong> proposal kandidat
@@ -2028,6 +2079,10 @@ $username = (string)$_SESSION["username"];
                 <div class="applicant-applied-role">
                   Melamar untuk proyek: <strong>Redesign UI/UX Dashboard Prototype KarirHub</strong>
                 </div>
+                <div class="applicant-contact-meta">
+                  <span class="applicant-contact-tag">📱 WA: 0812-3456-7890</span>
+                  <span class="applicant-contact-tag">✉️ tessa.design@email.com</span>
+                </div>
                 <div class="applicant-proposal-snippet">
                   "Halo! Saya berpengalaman 4+ tahun dalam merancang antarmuka sistem web pemerintahan dan B2B SaaS dengan design system yang rapi di Figma..."
                 </div>
@@ -2035,7 +2090,6 @@ $username = (string)$_SESSION["username"];
                   <span class="skill-tag-item">Figma Design</span>
                   <span class="skill-tag-item">UI/UX Prototyping</span>
                   <span class="skill-tag-item">Design System</span>
-                  <span class="skill-tag-item">User Research</span>
                 </div>
               </div>
             </div>
@@ -2047,8 +2101,9 @@ $username = (string)$_SESSION["username"];
             </div>
 
             <div class="applicant-right-actions">
-              <button class="btn-outline-blue" onclick="showToast('Membuka portofolio &amp; profil lengkap Tessa...')">
-                Lihat Portofolio
+              <button class="btn-outline-blue" onclick="copyContact('Tessa', '0812-3456-7890', 'tessa.design@email.com')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                Kontak WA/Email
               </button>
               <button class="btn-hire" onclick="hireApplicant('Tessa', 'Redesign UI/UX Dashboard')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -2072,6 +2127,10 @@ $username = (string)$_SESSION["username"];
                 <div class="applicant-applied-role">
                   Melamar untuk proyek: <strong>Integrasi REST API Modul Notifikasi</strong>
                 </div>
+                <div class="applicant-contact-meta">
+                  <span class="applicant-contact-tag">📱 WA: 0813-8899-7711</span>
+                  <span class="applicant-contact-tag">✉️ rian.dev@email.com</span>
+                </div>
                 <div class="applicant-proposal-snippet">
                   "Siap mengintegrasikan webhook gateway dan memastikan load testing API mampu menangani 5000+ request per menit dengan aman..."
                 </div>
@@ -2079,7 +2138,6 @@ $username = (string)$_SESSION["username"];
                   <span class="skill-tag-item">PHP / Laravel</span>
                   <span class="skill-tag-item">REST API</span>
                   <span class="skill-tag-item">MySQL</span>
-                  <span class="skill-tag-item">Redis</span>
                 </div>
               </div>
             </div>
@@ -2091,8 +2149,9 @@ $username = (string)$_SESSION["username"];
             </div>
 
             <div class="applicant-right-actions">
-              <button class="btn-outline-blue" onclick="showToast('Membuka portofolio &amp; profil lengkap Rian...')">
-                Lihat Portofolio
+              <button class="btn-outline-blue" onclick="copyContact('Rian Ardiansyah', '0813-8899-7711', 'rian.dev@email.com')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                Kontak WA/Email
               </button>
               <button class="btn-hire" onclick="hireApplicant('Rian Ardiansyah', 'Integrasi REST API')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -2116,13 +2175,16 @@ $username = (string)$_SESSION["username"];
                 <div class="applicant-applied-role">
                   Melamar untuk proyek: <strong>Kampanye Media Sosial &amp; Copywriting Peluncuran Fitur</strong>
                 </div>
+                <div class="applicant-contact-meta">
+                  <span class="applicant-contact-tag">📱 WA: 0857-1122-3344</span>
+                  <span class="applicant-contact-tag">✉️ siti.marketing@email.com</span>
+                </div>
                 <div class="applicant-proposal-snippet">
                   "Menyediakan paket 20 konten carousel edukatif, naskah reels/TikTok, dan kalender konten terstruktur untuk meningkatkan awareness..."
                 </div>
                 <div class="project-skill-tags" style="margin-top: 6px;">
                   <span class="skill-tag-item">Copywriting</span>
-                  <span class="skill-tag-item">Social Media Strategy</span>
-                  <span class="skill-tag-item">Content Planning</span>
+                  <span class="skill-tag-item">Social Media</span>
                 </div>
               </div>
             </div>
@@ -2134,8 +2196,9 @@ $username = (string)$_SESSION["username"];
             </div>
 
             <div class="applicant-right-actions">
-              <button class="btn-outline-blue" onclick="showToast('Membuka portofolio Siti Nurhaliza...')">
-                Lihat Portofolio
+              <button class="btn-outline-blue" onclick="copyContact('Siti Nurhaliza', '0857-1122-3344', 'siti.marketing@email.com')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                Kontak WA/Email
               </button>
               <button class="btn-hire" onclick="hireApplicant('Siti Nurhaliza', 'Kampanye Media Sosial')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -2159,13 +2222,16 @@ $username = (string)$_SESSION["username"];
                 <div class="applicant-applied-role">
                   Melamar untuk proyek: <strong>Redesign UI/UX Dashboard Prototype KarirHub</strong>
                 </div>
+                <div class="applicant-contact-meta">
+                  <span class="applicant-contact-tag">📱 WA: 0819-2233-4455</span>
+                  <span class="applicant-contact-tag">✉️ budi.design@email.com</span>
+                </div>
                 <div class="applicant-proposal-snippet">
                   "Saya siap membantu deliver cepat dalam 10 hari lengkap dengan usability testing dan panduan style guide..."
                 </div>
                 <div class="project-skill-tags" style="margin-top: 6px;">
                   <span class="skill-tag-item">UI Design</span>
                   <span class="skill-tag-item">Wireframing</span>
-                  <span class="skill-tag-item">Figma</span>
                 </div>
               </div>
             </div>
@@ -2177,8 +2243,9 @@ $username = (string)$_SESSION["username"];
             </div>
 
             <div class="applicant-right-actions">
-              <button class="btn-outline-blue" onclick="showToast('Membuka portofolio Budi Wicaksono...')">
-                Lihat Portofolio
+              <button class="btn-outline-blue" onclick="copyContact('Budi Wicaksono', '0819-2233-4455', 'budi.design@email.com')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                Kontak WA/Email
               </button>
               <button class="btn-hire" onclick="hireApplicant('Budi Wicaksono', 'Redesign UI/UX Dashboard')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -2202,13 +2269,16 @@ $username = (string)$_SESSION["username"];
                 <div class="applicant-applied-role">
                   Melamar untuk proyek: <strong>Integrasi REST API Modul Notifikasi</strong>
                 </div>
+                <div class="applicant-contact-meta">
+                  <span class="applicant-contact-tag">📱 WA: 0821-9988-7766</span>
+                  <span class="applicant-contact-tag">✉️ dimas.code@email.com</span>
+                </div>
                 <div class="applicant-proposal-snippet">
                   "Spesialis integrasi cloud API dan microservices. Telah menyelesaikan puluhan integrasi gateway serupa..."
                 </div>
                 <div class="project-skill-tags" style="margin-top: 6px;">
                   <span class="skill-tag-item">Node.js</span>
                   <span class="skill-tag-item">REST API</span>
-                  <span class="skill-tag-item">Docker</span>
                 </div>
               </div>
             </div>
@@ -2220,8 +2290,9 @@ $username = (string)$_SESSION["username"];
             </div>
 
             <div class="applicant-right-actions">
-              <button class="btn-outline-blue" onclick="showToast('Membuka portofolio Dimas Prasetyo...')">
-                Lihat Portofolio
+              <button class="btn-outline-blue" onclick="copyContact('Dimas Prasetyo', '0821-9988-7766', 'dimas.code@email.com')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                Kontak WA/Email
               </button>
               <button class="btn-hire" onclick="hireApplicant('Dimas Prasetyo', 'Integrasi REST API')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -2245,12 +2316,15 @@ $username = (string)$_SESSION["username"];
                 <div class="applicant-applied-role">
                   Melamar untuk proyek: <strong>Kampanye Media Sosial &amp; Copywriting Peluncuran Fitur</strong>
                 </div>
+                <div class="applicant-contact-meta">
+                  <span class="applicant-contact-tag">📱 WA: 0878-3344-5566</span>
+                  <span class="applicant-contact-tag">✉️ mega.content@email.com</span>
+                </div>
                 <div class="applicant-proposal-snippet">
                   "Portfolio mencakup campaign viral BUMN dan startup teknologi. Siap mulai riset audience segera..."
                 </div>
                 <div class="project-skill-tags" style="margin-top: 6px;">
                   <span class="skill-tag-item">Digital Campaign</span>
-                  <span class="skill-tag-item">Content Creator</span>
                   <span class="skill-tag-item">SEO Writing</span>
                 </div>
               </div>
@@ -2263,8 +2337,9 @@ $username = (string)$_SESSION["username"];
             </div>
 
             <div class="applicant-right-actions">
-              <button class="btn-outline-blue" onclick="showToast('Membuka portofolio Mega Lestari...')">
-                Lihat Portofolio
+              <button class="btn-outline-blue" onclick="copyContact('Mega Lestari', '0878-3344-5566', 'mega.content@email.com')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                Kontak WA/Email
               </button>
               <button class="btn-hire" onclick="hireApplicant('Mega Lestari', 'Kampanye Media Sosial')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -2324,6 +2399,7 @@ $username = (string)$_SESSION["username"];
             <div class="form-row">
               <label for="proj_budget">Anggaran / Fee Proyek (Rp) *</label>
               <input type="text" id="proj_budget" required placeholder="Contoh: Rp 7.500.000" />
+              <span style="font-size: 0.72rem; color: var(--text-muted);">Pembayaran honor ditransfer langsung oleh perusahaan ke freelancer.</span>
             </div>
 
             <div class="form-row">
@@ -2443,7 +2519,7 @@ $username = (string)$_SESSION["username"];
 
             <div class="project-card-metrics">
               <div class="proj-metric-item">
-                <span class="proj-metric-lbl">Anggaran</span>
+                <span class="proj-metric-lbl">Anggaran Proyek</span>
                 <span class="proj-metric-val" style="color: var(--primary-blue);">${proj.budget}</span>
               </div>
               <div class="proj-metric-item">
@@ -2631,9 +2707,18 @@ $username = (string)$_SESSION["username"];
       document.getElementById('applicants-visible-count').innerText = count;
     }
 
+    // Copy Contact Function
+    function copyContact(name, phone, email) {
+      const textToCopy = `Nama: ${name}\nWhatsApp: ${phone}\nEmail: ${email}`;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(textToCopy);
+      }
+      showToast(`📋 Kontak ${name} berhasil disalin! (WA: ${phone} | Email: ${email})`);
+    }
+
     // Hire Applicant Action
     function hireApplicant(name, projTitle) {
-      showToast('🎉 Berhasil merekrut ' + name + '! Kontrak kerja lepas diterbitkan dan masuk ke Proyek Aktif.');
+      showToast('🎉 Berhasil menandai ' + name + ' sebagai mitra terpilih! Silakan lakukan koordinasi kontrak & pembayaran langsung.');
       setTimeout(() => {
         switchMainTab('active-projects');
       }, 1200);
