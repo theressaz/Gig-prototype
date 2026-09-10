@@ -66,16 +66,44 @@ require __DIR__ . '/includes/employer-layout-start.php';
       <section class="white-card">
         <div class="card-header-flex">
           <div class="card-title-group">
-            <h2>Progres Seleksi Pelamar</h2>
-            <p>Tahapan seleksi kandidat di seluruh proyek</p>
+            <h2>Tindakan &amp; Perhatian Utama</h2>
+            <p>Aktivitas lowongan dan proyek yang memerlukan respon Anda</p>
           </div>
-          <a class="btn-action-sm" href="employer-pelamar.php">Lihat Pelamar</a>
+          <a class="btn-action-sm" href="employer-lowongan.php">Kelola Lowongan</a>
         </div>
-        <div class="funnel-container">
-          <div class="funnel-step"><span class="funnel-step-name">Proposal Masuk</span><div class="funnel-step-bar-wrap"><div class="funnel-step-bar-fill" style="width:100%"></div></div><span class="funnel-step-count">6</span></div>
-          <div class="funnel-step"><span class="funnel-step-name">Review Portofolio</span><div class="funnel-step-bar-wrap"><div class="funnel-step-bar-fill" style="width:66%;background:#f59e0b"></div></div><span class="funnel-step-count">4</span></div>
-          <div class="funnel-step"><span class="funnel-step-name">Kesepakatan Kerja</span><div class="funnel-step-bar-wrap"><div class="funnel-step-bar-fill" style="width:33%;background:#8b5cf6"></div></div><span class="funnel-step-count">2</span></div>
-          <div class="funnel-step"><span class="funnel-step-name">Kontrak Aktif</span><div class="funnel-step-bar-wrap"><div class="funnel-step-bar-fill" style="width:33%;background:#10b981"></div></div><span class="funnel-step-count">2</span></div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#eff6ff;border:1px solid #dbeafe;border-radius:10px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="font-size:1.2rem;">📥</span>
+              <div>
+                <div style="font-size:0.86rem;font-weight:700;color:var(--text-dark);">Proposal Pelamar Baru</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);"><?php echo count($workerProfiles); ?> proposal belum ditinjau</div>
+              </div>
+            </div>
+            <a class="btn-action-sm" href="employer-pelamar.php" style="background:#2563eb;color:#fff;border:none;text-decoration:none;">Tinjau Pelamar</a>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#fff7ed;border:1px solid #ffedd5;border-radius:10px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="font-size:1.2rem;">⚠️</span>
+              <div>
+                <div style="font-size:0.86rem;font-weight:700;color:#c2410c;">Lowongan Perlu Revisi</div>
+                <div style="font-size:0.75rem;color:#7c2d12;">1 lowongan memerlukan perbaikan dari Admin</div>
+              </div>
+            </div>
+            <a class="btn-action-sm" href="employer-detail-lowongan.php?id=GIG-2026-09-004" style="background:#ea580c;color:#fff;border:none;text-decoration:none;">Perbaiki Lowongan</a>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f0fdf4;border:1px solid #dcfce7;border-radius:10px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="font-size:1.2rem;">⏱️</span>
+              <div>
+                <div style="font-size:0.86rem;font-weight:700;color:#15803d;">Proyek Berjalan (Countdown)</div>
+                <div style="font-size:0.75rem;color:#166534;">2 proyek dalam masa pengerjaan mitra</div>
+              </div>
+            </div>
+            <a class="btn-action-sm" href="employer-proyek-aktif.php" style="background:#16a34a;color:#fff;border:none;text-decoration:none;">Pantau Durasi</a>
+          </div>
         </div>
       </section>
 
