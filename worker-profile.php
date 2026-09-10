@@ -10,7 +10,8 @@ if ($worker === null) {
     exit;
 }
 
-$contactUnlocked = !empty($worker['agreed']);
+$isActive = !empty($_GET['active']);
+$contactUnlocked = !empty($worker['agreed']) || $isActive;
 $pageTitle = $worker['name'] . ' · Profil Gig Worker';
 $pageKey = 'pelamar';
 $breadcrumbCurrent = $worker['name'];

@@ -37,7 +37,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
             <div class="fl-avatar" style="background:#2563eb;">T</div>
             <div>
               <div class="fl-info-name">
-                <a href="worker-profile.php?id=tessa" style="color:inherit;text-decoration:none;">Tessa</a>
+                <a href="worker-profile.php?active=1&id=tessa" style="color:inherit;text-decoration:none;">Tessa</a>
                 <span class="fl-rating-badge">★ 4.9</span>
               </div>
               <div class="fl-info-sub">Lead UI/UX Designer</div>
@@ -65,7 +65,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
           </div>
           <div style="display:flex;gap:8px;">
             <button class="btn-action-sm" type="button" onclick="copyContact('Tessa','0812-3456-7890','tessa.design@email.com')">Kontak Freelancer</button>
-            <a class="btn-outline-blue" href="worker-profile.php?id=tessa">Lihat Profil</a>
+            <a class="btn-outline-blue" href="worker-profile.php?active=1&id=tessa">Lihat Profil</a>
           </div>
         </div>
       </div>
@@ -91,7 +91,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
             <div class="fl-avatar" style="background:#0891b2;">R</div>
             <div>
               <div class="fl-info-name">
-                <a href="worker-profile.php?id=rian" style="color:inherit;text-decoration:none;">Rian Ardiansyah</a>
+                <a href="worker-profile.php?active=1&id=rian" style="color:inherit;text-decoration:none;">Rian Ardiansyah</a>
                 <span class="fl-rating-badge">★ 4.8</span>
               </div>
               <div class="fl-info-sub">Backend API Developer</div>
@@ -117,7 +117,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
           </div>
           <div style="display:flex;gap:8px;">
             <button class="btn-action-sm" type="button" onclick="copyContact('Rian Ardiansyah','0813-8899-7711','rian.dev@email.com')">Kontak Freelancer</button>
-            <a class="btn-outline-blue" href="worker-profile.php?id=rian">Lihat Profil</a>
+            <a class="btn-outline-blue" href="worker-profile.php?active=1&id=rian">Lihat Profil</a>
           </div>
         </div>
       </div>
