@@ -66,44 +66,49 @@ require __DIR__ . '/includes/employer-layout-start.php';
       <section class="white-card">
         <div class="card-header-flex">
           <div class="card-title-group">
-            <h2>Tindakan &amp; Perhatian Utama</h2>
-            <p>Aktivitas lowongan dan proyek yang memerlukan respon Anda</p>
+            <h2>Countdown Proyek Aktif</h2>
+            <p>Proyek dengan sisa waktu pengerjaan terdekat</p>
           </div>
-          <a class="btn-action-sm" href="employer-lowongan.php">Kelola Lowongan</a>
+          <a class="btn-action-sm" href="employer-proyek-aktif.php">Lihat Semua Proyek</a>
         </div>
-        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#eff6ff;border:1px solid #dbeafe;border-radius:10px;">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <span style="font-size:1.2rem;">📥</span>
-              <div>
-                <div style="font-size:0.86rem;font-weight:700;color:var(--text-dark);">Proposal Pelamar Baru</div>
-                <div style="font-size:0.75rem;color:var(--text-muted);"><?php echo count($workerProfiles); ?> proposal belum ditinjau</div>
-              </div>
-            </div>
-            <a class="btn-action-sm" href="employer-pelamar.php" style="background:#2563eb;color:#fff;border:none;text-decoration:none;">Tinjau Pelamar</a>
+
+        <!-- Featured Project with Shortest Time Left -->
+        <div style="margin-top:14px;padding:14px;background:linear-gradient(135deg, #eff6ff, #f0fdf4);border:1px solid #bfdbfe;border-radius:12px;position:relative;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:0.7rem;font-weight:800;background:#ef4444;color:#fff;padding:3px 8px;border-radius:9999px;letter-spacing:0.5px;">🔥 TENGGAT TERDEKAT</span>
+            <span style="font-size:0.75rem;color:#1e40af;font-weight:700;">Tenggat: 17 Sep 2026</span>
           </div>
 
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#fff7ed;border:1px solid #ffedd5;border-radius:10px;">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <span style="font-size:1.2rem;">⚠️</span>
-              <div>
-                <div style="font-size:0.86rem;font-weight:700;color:#c2410c;">Lowongan Perlu Revisi</div>
-                <div style="font-size:0.75rem;color:#7c2d12;">1 lowongan memerlukan perbaikan dari Admin</div>
-              </div>
-            </div>
-            <a class="btn-action-sm" href="employer-detail-lowongan.php?id=GIG-2026-09-004" style="background:#ea580c;color:#fff;border:none;text-decoration:none;">Perbaiki Lowongan</a>
-          </div>
+          <h3 style="font-size:0.95rem;font-weight:800;color:#1e293b;margin:0 0 4px 0;">Integrasi REST API Modul Notifikasi SMS &amp; WhatsApp</h3>
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:12px;">Mitra Gig: <strong>Rian Ardiansyah</strong> · Backend API Developer</div>
 
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f0fdf4;border:1px solid #dcfce7;border-radius:10px;">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <span style="font-size:1.2rem;">⏱️</span>
-              <div>
-                <div style="font-size:0.86rem;font-weight:700;color:#15803d;">Proyek Berjalan (Countdown)</div>
-                <div style="font-size:0.75rem;color:#166534;">2 proyek dalam masa pengerjaan mitra</div>
-              </div>
+          <div style="display:flex;gap:8px;text-align:center;" id="dash-shortest-countdown">
+            <div style="background:#fff;border:1px solid #93c5fd;padding:6px 10px;border-radius:8px;flex:1;">
+              <span class="c-days" style="font-size:1.2rem;font-weight:800;color:#1e40af;display:block;">07</span>
+              <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Hari</span>
             </div>
-            <a class="btn-action-sm" href="employer-proyek-aktif.php" style="background:#16a34a;color:#fff;border:none;text-decoration:none;">Pantau Durasi</a>
+            <div style="background:#fff;border:1px solid #93c5fd;padding:6px 10px;border-radius:8px;flex:1;">
+              <span class="c-hours" style="font-size:1.2rem;font-weight:800;color:#1e40af;display:block;">08</span>
+              <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Jam</span>
+            </div>
+            <div style="background:#fff;border:1px solid #93c5fd;padding:6px 10px;border-radius:8px;flex:1;">
+              <span class="c-mins" style="font-size:1.2rem;font-weight:800;color:#1e40af;display:block;">15</span>
+              <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Menit</span>
+            </div>
+            <div style="background:#fff;border:1px solid #93c5fd;padding:6px 10px;border-radius:8px;flex:1;">
+              <span class="c-secs" style="font-size:1.2rem;font-weight:800;color:#ef4444;display:block;">20</span>
+              <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Detik</span>
+            </div>
           </div>
+        </div>
+
+        <!-- Other Active Projects -->
+        <div style="margin-top:12px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:0.84rem;font-weight:700;color:var(--text-dark);">Redesign UI/UX Dashboard Prototype KarirHub</div>
+            <div style="font-size:0.74rem;color:var(--text-muted);">Mitra: Tessa · Sisa 12 Hari 14 Jam (Tenggat: 22 Sep 2026)</div>
+          </div>
+          <a class="btn-action-sm" href="employer-proyek-aktif.php" style="text-decoration:none;">Pantau →</a>
         </div>
       </section>
 
@@ -162,5 +167,32 @@ require __DIR__ . '/includes/employer-layout-start.php';
         <?php endforeach; ?>
       </div>
     </section>
+
+    <script>
+      (function startDashboardCountdown() {
+        setInterval(function() {
+          const container = document.getElementById('dash-shortest-countdown');
+          if (!container) return;
+          const secEl = container.querySelector('.c-secs');
+          if (secEl) {
+            let s = parseInt(secEl.innerText, 10);
+            if (s > 0) {
+              s--;
+            } else {
+              s = 59;
+              const minEl = container.querySelector('.c-mins');
+              if (minEl) {
+                let m = parseInt(minEl.innerText, 10);
+                if (m > 0) {
+                  m--;
+                  minEl.innerText = m < 10 ? '0' + m : String(m);
+                }
+              }
+            }
+            secEl.innerText = s < 10 ? '0' + s : String(s);
+          }
+        }, 1000);
+      })();
+    </script>
 
 <?php require __DIR__ . '/includes/employer-layout-end.php'; ?>
