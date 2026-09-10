@@ -4,6 +4,7 @@ declare(strict_types=1);
 /**
  * Shared Gig Worker account profiles.
  * Contact details stay hidden until both sides have agreed to work together.
+ * Ratings are strictly whole numbers (1, 2, 3, 4, 5).
  */
 function gig_worker_profiles(): array
 {
@@ -16,10 +17,9 @@ function gig_worker_profiles(): array
             'photo' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Tessa&backgroundColor=dbeafe',
             'title' => 'Lead UI/UX Designer',
             'location' => 'Jakarta, Indonesia',
-            'rating' => 4.9,
+            'rating' => 5,
             'reviews_count' => 18,
             'completed_projects' => 18,
-            'top_rated' => true,
             'verified' => true,
             'agreed' => false,
             'category' => 'ui-ux',
@@ -54,46 +54,62 @@ function gig_worker_profiles(): array
             ],
             'portfolio' => [
                 [
+                    'id' => 'tessa-port-1',
                     'title' => 'Design System KarirHub',
                     'type' => 'UI Kit & Prototype',
                     'client' => 'Kemnaker RI',
                     'year' => '2026',
                     'deliverable' => 'File Figma, token warna, dan prototype klik-melalui 12 layar.',
+                    'files' => [
+                        ['name' => 'Design_System_KarirHub_v2.fig', 'type' => 'Figma File', 'size' => '24.5 MB', 'url' => '#'],
+                        ['name' => 'Panduan_Interaksi_UI.pdf', 'type' => 'Dokumen PDF', 'size' => '4.8 MB', 'url' => '#'],
+                        ['name' => 'Prototype_Interactive_Flow.url', 'type' => 'Tautan Prototype Figma', 'size' => 'Akses Web', 'url' => '#']
+                    ]
                 ],
                 [
+                    'id' => 'tessa-port-2',
                     'title' => 'Portal Rekrutmen BUMN',
                     'type' => 'Web App UI',
                     'client' => 'PT Talenta Nusantara',
                     'year' => '2025',
                     'deliverable' => 'High-fidelity mockup desktop/mobile dan panduan interaksi.',
+                    'files' => [
+                        ['name' => 'HighFidelity_Mockups_BUMN.zip', 'type' => 'Arsip Desain', 'size' => '48.1 MB', 'url' => '#'],
+                        ['name' => 'Dokumentasi_Desain_Portal.pdf', 'type' => 'Dokumen PDF', 'size' => '3.2 MB', 'url' => '#']
+                    ]
                 ],
                 [
+                    'id' => 'tessa-port-3',
                     'title' => 'Onboarding Gig Worker',
                     'type' => 'UX Flow',
                     'client' => 'Startup Ketenagakerjaan',
                     'year' => '2024',
                     'deliverable' => 'User flow, wireframe, dan hasil usability test 8 partisipan.',
+                    'files' => [
+                        ['name' => 'UserFlow_Onboarding.pdf', 'type' => 'Dokumen PDF', 'size' => '6.5 MB', 'url' => '#'],
+                        ['name' => 'Usability_Testing_Report.xlsx', 'type' => 'Laporan Pengujian', 'size' => '1.2 MB', 'url' => '#']
+                    ]
                 ],
             ],
             'reviews' => [
                 [
                     'employer' => 'PT ABC',
                     'project' => 'Prototype Dashboard Internal',
-                    'rating' => 5.0,
+                    'rating' => 5,
                     'date' => 'Agu 2026',
                     'comment' => 'Hasil desain rapi, komunikatif, dan tepat waktu. Prototype mudah diuji tim internal.',
                 ],
                 [
                     'employer' => 'CV Kreasi Digital',
                     'project' => 'Redesign Aplikasi Lowongan',
-                    'rating' => 4.8,
+                    'rating' => 5,
                     'date' => 'Mei 2026',
                     'comment' => 'Sangat memahami kebutuhan pengguna awam. Iterasi cepat setelah umpan balik.',
                 ],
                 [
                     'employer' => 'Yayasan Kerja Adil',
                     'project' => 'Landing Page Program Pelatihan',
-                    'rating' => 5.0,
+                    'rating' => 5,
                     'date' => 'Jan 2026',
                     'comment' => 'Visual konsisten dan aksesibel. Direkomendasikan untuk proyek pemerintahan.',
                 ],
@@ -107,10 +123,9 @@ function gig_worker_profiles(): array
             'photo' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Rian&backgroundColor=cffafe',
             'title' => 'Fullstack / Backend API Developer',
             'location' => 'Bandung, Indonesia',
-            'rating' => 4.8,
+            'rating' => 5,
             'reviews_count' => 24,
             'completed_projects' => 24,
-            'top_rated' => false,
             'verified' => true,
             'agreed' => false,
             'category' => 'backend',
@@ -145,46 +160,62 @@ function gig_worker_profiles(): array
             ],
             'portfolio' => [
                 [
+                    'id' => 'rian-port-1',
                     'title' => 'Webhook Notification Hub',
                     'type' => 'REST API',
                     'client' => 'PT ABC',
                     'year' => '2026',
                     'deliverable' => 'Endpoint production, dokumentasi Postman, dan laporan stress test.',
+                    'files' => [
+                        ['name' => 'Postman_Collection_Notification.json', 'type' => 'API Specs', 'size' => '850 KB', 'url' => '#'],
+                        ['name' => 'Load_Testing_k6_Report.pdf', 'type' => 'Laporan Stress Test', 'size' => '2.1 MB', 'url' => '#'],
+                        ['name' => 'Source_Code_Webhook_Handler.zip', 'type' => 'Source Code', 'size' => '12.4 MB', 'url' => '#']
+                    ]
                 ],
                 [
+                    'id' => 'rian-port-2',
                     'title' => 'Payment Reconcile Service',
                     'type' => 'Backend Service',
                     'client' => 'Koperasi Digital Mandiri',
                     'year' => '2025',
                     'deliverable' => 'Service Laravel, skema MySQL, dan cron rekonsiliasi.',
+                    'files' => [
+                        ['name' => 'Schema_Database_Reconciliation.sql', 'type' => 'SQL Script', 'size' => '340 KB', 'url' => '#'],
+                        ['name' => 'Dokumentasi_Cronjob.pdf', 'type' => 'Dokumen PDF', 'size' => '1.5 MB', 'url' => '#']
+                    ]
                 ],
                 [
+                    'id' => 'rian-port-3',
                     'title' => 'OpenAPI Ticket Queue',
                     'type' => 'API + Docs',
                     'client' => 'Dinas Layanan Publik',
                     'year' => '2024',
                     'deliverable' => 'Spesifikasi OpenAPI 3.0 dan contoh klien PHP.',
+                    'files' => [
+                        ['name' => 'openapi_v3_spec.yaml', 'type' => 'OpenAPI Spec', 'size' => '120 KB', 'url' => '#'],
+                        ['name' => 'PHP_Client_SDK_Sample.php', 'type' => 'Code Sample', 'size' => '45 KB', 'url' => '#']
+                    ]
                 ],
             ],
             'reviews' => [
                 [
                     'employer' => 'PT ABC',
                     'project' => 'Integrasi Gateway SMS',
-                    'rating' => 4.9,
+                    'rating' => 5,
                     'date' => 'Jul 2026',
                     'comment' => 'Kode bersih, dokumentasi lengkap, dan responsif saat UAT.',
                 ],
                 [
                     'employer' => 'PT Data Prima',
                     'project' => 'API Pelaporan Kinerja',
-                    'rating' => 4.7,
+                    'rating' => 5,
                     'date' => 'Mar 2026',
                     'comment' => 'Performa stabil di traffic tinggi. Komunikasi teknis jelas.',
                 ],
                 [
                     'employer' => 'CV Kode Nusantara',
                     'project' => 'Migrasi Monolith ke API',
-                    'rating' => 4.8,
+                    'rating' => 5,
                     'date' => 'Nov 2025',
                     'comment' => 'Migrasi berjalan tanpa downtime. Timeline terpenuhi.',
                 ],
@@ -198,10 +229,9 @@ function gig_worker_profiles(): array
             'photo' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Siti&backgroundColor=ede9fe',
             'title' => 'Social Media Specialist',
             'location' => 'Surabaya, Indonesia',
-            'rating' => 5.0,
+            'rating' => 5,
             'reviews_count' => 12,
             'completed_projects' => 12,
-            'top_rated' => true,
             'verified' => true,
             'agreed' => false,
             'category' => 'marketing',
@@ -230,32 +260,42 @@ function gig_worker_profiles(): array
             ],
             'portfolio' => [
                 [
+                    'id' => 'siti-port-1',
                     'title' => 'Kalender Konten 30 Hari',
                     'type' => 'Content Plan',
                     'client' => 'Brand F&B Nasional',
                     'year' => '2026',
                     'deliverable' => 'Kalender editorial, 20 carousel, dan 8 naskah reels.',
+                    'files' => [
+                        ['name' => 'Kalender_Editorial_September.pdf', 'type' => 'Dokumen PDF', 'size' => '2.8 MB', 'url' => '#'],
+                        ['name' => 'Asset_Carousel_Pack_20Pcs.zip', 'type' => 'Aset Gambar', 'size' => '35.0 MB', 'url' => '#']
+                    ]
                 ],
                 [
+                    'id' => 'siti-port-2',
                     'title' => 'Kampanye Awareness BPJS',
                     'type' => 'Copy & Visual',
                     'client' => 'Lembaga Sosial',
                     'year' => '2025',
                     'deliverable' => 'Paket copy + visual edukasi dan laporan jangkauan.',
+                    'files' => [
+                        ['name' => 'Copywriting_Content_Sheet.xlsx', 'type' => 'Lembar Kerja', 'size' => '940 KB', 'url' => '#'],
+                        ['name' => 'Laporan_Analitik_Jangkauan.pdf', 'type' => 'Laporan', 'size' => '1.8 MB', 'url' => '#']
+                    ]
                 ],
             ],
             'reviews' => [
                 [
                     'employer' => 'PT Media Cerah',
                     'project' => 'Peluncuran Fitur Mobile',
-                    'rating' => 5.0,
+                    'rating' => 5,
                     'date' => 'Jun 2026',
                     'comment' => 'Copy tajam dan visual konsisten. Deadline selalu tertahankan.',
                 ],
                 [
                     'employer' => 'Kopi Lokal Co.',
                     'project' => 'Konten Instagram 3 Bulan',
-                    'rating' => 5.0,
+                    'rating' => 5,
                     'date' => 'Feb 2026',
                     'comment' => 'Naik follower organik tanpa iklan berlebih. Sangat direkomendasikan.',
                 ],
@@ -269,10 +309,9 @@ function gig_worker_profiles(): array
             'photo' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Budi&backgroundColor=d1fae5',
             'title' => 'UI Designer',
             'location' => 'Yogyakarta, Indonesia',
-            'rating' => 4.7,
+            'rating' => 4,
             'reviews_count' => 9,
             'completed_projects' => 9,
-            'top_rated' => false,
             'verified' => true,
             'agreed' => false,
             'category' => 'ui-ux',
@@ -301,32 +340,41 @@ function gig_worker_profiles(): array
             ],
             'portfolio' => [
                 [
+                    'id' => 'budi-port-1',
                     'title' => 'Style Guide Absensi Mobile',
                     'type' => 'UI Kit',
                     'client' => 'PT Karya Waktu',
                     'year' => '2026',
                     'deliverable' => 'Komponen Figma, ikon set, dan panduan spasi/tipografi.',
+                    'files' => [
+                        ['name' => 'StyleGuide_Absensi_Component.fig', 'type' => 'Figma File', 'size' => '18.2 MB', 'url' => '#'],
+                        ['name' => 'IconSet_Custom_SVG.zip', 'type' => 'Aset Vektor', 'size' => '4.1 MB', 'url' => '#']
+                    ]
                 ],
                 [
+                    'id' => 'budi-port-2',
                     'title' => 'Website Lembaga Pelatihan',
                     'type' => 'Web UI',
                     'client' => 'LPK Mandiri',
                     'year' => '2024',
                     'deliverable' => 'Mockup 9 halaman dan aset ekspor produksi.',
+                    'files' => [
+                        ['name' => 'Mockup_Web_Landing_Dashboard.zip', 'type' => 'Aset Gambar', 'size' => '22.0 MB', 'url' => '#']
+                    ]
                 ],
             ],
             'reviews' => [
                 [
                     'employer' => 'PT Karya Waktu',
                     'project' => 'Redesign Absensi',
-                    'rating' => 4.7,
+                    'rating' => 4,
                     'date' => 'Apr 2026',
                     'comment' => 'Cepat dan rapi. Perlu sedikit arahan di awal, hasil akhir memuaskan.',
                 ],
                 [
                     'employer' => 'LPK Mandiri',
                     'project' => 'Website Lembaga',
-                    'rating' => 4.6,
+                    'rating' => 4,
                     'date' => 'Okt 2024',
                     'comment' => 'Visual bersih. Revisi ditangani dengan baik.',
                 ],
@@ -340,10 +388,9 @@ function gig_worker_profiles(): array
             'photo' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Dimas&backgroundColor=ffedd5',
             'title' => 'Cloud API Engineer',
             'location' => 'Depok, Indonesia',
-            'rating' => 4.9,
+            'rating' => 5,
             'reviews_count' => 31,
             'completed_projects' => 31,
-            'top_rated' => true,
             'verified' => true,
             'agreed' => false,
             'category' => 'backend',
@@ -372,32 +419,41 @@ function gig_worker_profiles(): array
             ],
             'portfolio' => [
                 [
+                    'id' => 'dimas-port-1',
                     'title' => 'Multi-Gateway Adapter',
                     'type' => 'Microservice',
                     'client' => 'PT Cloud Nusantara',
                     'year' => '2026',
                     'deliverable' => 'Service Node.js, tes integrasi, dan runbook operasi.',
+                    'files' => [
+                        ['name' => 'Microservice_Adapter_Node.zip', 'type' => 'Source Code', 'size' => '8.9 MB', 'url' => '#'],
+                        ['name' => 'Ops_Runbook_Deployment.pdf', 'type' => 'Dokumen PDF', 'size' => '1.4 MB', 'url' => '#']
+                    ]
                 ],
                 [
+                    'id' => 'dimas-port-2',
                     'title' => 'Event Queue 2M/day',
                     'type' => 'Infrastructure',
                     'client' => 'Startup Logistik',
                     'year' => '2024',
                     'deliverable' => 'Arsitektur Redis + worker dan dashboard metrik.',
+                    'files' => [
+                        ['name' => 'Redis_Worker_Architecture.pdf', 'type' => 'Dokumen PDF', 'size' => '3.1 MB', 'url' => '#']
+                    ]
                 ],
             ],
             'reviews' => [
                 [
                     'employer' => 'PT Cloud Nusantara',
                     'project' => 'Adapter Notifikasi',
-                    'rating' => 5.0,
+                    'rating' => 5,
                     'date' => 'Agu 2026',
                     'comment' => 'Sangat andal. Dokumentasi operasi memudahkan tim internal.',
                 ],
                 [
                     'employer' => 'PT Logis Cepat',
                     'project' => 'Event Pipeline',
-                    'rating' => 4.8,
+                    'rating' => 5,
                     'date' => 'Des 2025',
                     'comment' => 'Performa sesuai janji. Komunikasi teknis ringkas dan jelas.',
                 ],
@@ -411,10 +467,9 @@ function gig_worker_profiles(): array
             'photo' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Mega&backgroundColor=fce7f3',
             'title' => 'Digital Campaign Strategist',
             'location' => 'Semarang, Indonesia',
-            'rating' => 4.9,
+            'rating' => 5,
             'reviews_count' => 15,
             'completed_projects' => 15,
-            'top_rated' => false,
             'verified' => true,
             'agreed' => false,
             'category' => 'marketing',
@@ -443,32 +498,42 @@ function gig_worker_profiles(): array
             ],
             'portfolio' => [
                 [
+                    'id' => 'mega-port-1',
                     'title' => 'Kampanye Magang Nasional',
                     'type' => 'Campaign Kit',
                     'client' => 'Lembaga Pemerintah',
                     'year' => '2026',
                     'deliverable' => 'Key message, 15 aset visual, dan laporan performa 30 hari.',
+                    'files' => [
+                        ['name' => 'Campaign_Strategy_Deck.pdf', 'type' => 'Dokumen Presentation', 'size' => '12.6 MB', 'url' => '#'],
+                        ['name' => 'Visual_Assets_Kit_15Pcs.zip', 'type' => 'Aset Gambar', 'size' => '40.2 MB', 'url' => '#']
+                    ]
                 ],
                 [
+                    'id' => 'mega-port-2',
                     'title' => 'Seri Artikel SEO Karir',
                     'type' => 'Content SEO',
                     'client' => 'Portal Karir Daerah',
                     'year' => '2025',
                     'deliverable' => '24 artikel long-form dan peta kata kunci.',
+                    'files' => [
+                        ['name' => '24_Artikel_SEO_Karir.zip', 'type' => 'Dokumen Teks', 'size' => '5.4 MB', 'url' => '#'],
+                        ['name' => 'Keyword_Mapping_Matrix.xlsx', 'type' => 'Lembar Kerja', 'size' => '1.1 MB', 'url' => '#']
+                    ]
                 ],
             ],
             'reviews' => [
                 [
                     'employer' => 'BUMN Karya Digital',
                     'project' => 'Kampanye Program Magang',
-                    'rating' => 5.0,
+                    'rating' => 5,
                     'date' => 'Jul 2026',
                     'comment' => 'Narasi kuat dan terukur. Tim internal mudah mengeksekusi asetnya.',
                 ],
                 [
                     'employer' => 'Portal Karir Jateng',
                     'project' => 'Konten SEO 6 Bulan',
-                    'rating' => 4.8,
+                    'rating' => 5,
                     'date' => 'Mar 2025',
                     'comment' => 'Trafik naik signifikan. Penulisan tetap ramah pembaca awam.',
                 ],
@@ -483,16 +548,16 @@ function gig_find_worker(string $id): ?array
     return $profiles[$id] ?? null;
 }
 
-function gig_stars(float $rating): string
+function gig_stars(int|float $rating): string
 {
-    $full = (int) floor($rating);
-    $half = ($rating - $full) >= 0.4;
+    $intRating = (int) round((float)$rating);
+    if ($intRating < 1) $intRating = 1;
+    if ($intRating > 5) $intRating = 5;
+
     $html = '';
     for ($i = 1; $i <= 5; $i++) {
-        if ($i <= $full) {
+        if ($i <= $intRating) {
             $html .= '★';
-        } elseif ($i === $full + 1 && $half) {
-            $html .= '☆';
         } else {
             $html .= '☆';
         }

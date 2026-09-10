@@ -32,8 +32,8 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <p class="hero-desc">Pantau lowongan, pelamar, dan proyek berjalan dari satu tempat.</p>
         </div>
         <div class="hero-quick-stats">
-          <div class="hero-stat-pill"><span class="hero-stat-val">3</span><span class="hero-stat-lbl">Lowongan Terbuka</span></div>
-          <div class="hero-stat-pill"><span class="hero-stat-val">6</span><span class="hero-stat-lbl">Pelamar Masuk</span></div>
+          <div class="hero-stat-pill"><span class="hero-stat-val"><?php echo count($vacancies); ?></span><span class="hero-stat-lbl">Lowongan Terdaftar</span></div>
+          <div class="hero-stat-pill"><span class="hero-stat-val"><?php echo count($workerProfiles); ?></span><span class="hero-stat-lbl">Pelamar Masuk</span></div>
           <div class="hero-stat-pill"><span class="hero-stat-val">2</span><span class="hero-stat-lbl">Proyek Berjalan</span></div>
         </div>
       </div>
@@ -43,7 +43,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
       <a class="stat-card" href="employer-lowongan.php">
         <div class="stat-card-header"><span class="stat-label">LOWONGAN PROYEK</span></div>
         <div class="stat-number"><?php echo count($vacancies); ?></div>
-        <div class="stat-caption"><span class="stat-trend-positive">2 tayang aktif</span> · 1 verifikasi · 1 draft</div>
+        <div class="stat-caption"><span class="stat-trend-positive">2 tayang aktif</span> · 1 verifikasi · 1 revisi</div>
       </a>
       <a class="stat-card" href="employer-pelamar.php">
         <div class="stat-card-header"><span class="stat-label">TOTAL PELAMAR</span></div>
@@ -55,10 +55,10 @@ require __DIR__ . '/includes/employer-layout-start.php';
         <div class="stat-number">2</div>
         <div class="stat-caption">Sedang dikerjakan mitra gig</div>
       </a>
-      <a class="stat-card" href="employer-pelamar.php">
-        <div class="stat-card-header"><span class="stat-label">DITERIMA</span></div>
-        <div class="stat-number">2</div>
-        <div class="stat-caption">Kesepakatan kerja sama aktif</div>
+      <a class="stat-card" href="employer-riwayat-proyek.php">
+        <div class="stat-card-header"><span class="stat-label">RIWAYAT PROYEK</span></div>
+        <div class="stat-number">5</div>
+        <div class="stat-caption">Semua status kontrak kerja</div>
       </a>
     </section>
 
@@ -66,8 +66,8 @@ require __DIR__ . '/includes/employer-layout-start.php';
       <section class="white-card">
         <div class="card-header-flex">
           <div class="card-title-group">
-            <h2>Corong Seleksi</h2>
-            <p>Progres seleksi kandidat di semua proyek</p>
+            <h2>Progres Seleksi Pelamar</h2>
+            <p>Tahapan seleksi kandidat di seluruh proyek</p>
           </div>
           <a class="btn-action-sm" href="employer-pelamar.php">Lihat Pelamar</a>
         </div>
@@ -95,7 +95,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
               </div>
               <div>
                 <div style="font-size:0.88rem;font-weight:800;"><?php echo htmlspecialchars($recent['name'], ENT_QUOTES, 'UTF-8'); ?></div>
-                <div style="font-size:0.74rem;color:var(--text-muted);"><?php echo htmlspecialchars($recent['title'], ENT_QUOTES, 'UTF-8'); ?> · ★ <?php echo number_format((float)$recent['rating'], 1); ?></div>
+                <div style="font-size:0.74rem;color:var(--text-muted);"><?php echo htmlspecialchars($recent['title'], ENT_QUOTES, 'UTF-8'); ?> · ★ <?php echo (int)$recent['rating']; ?></div>
               </div>
             </div>
             <span class="btn-action-sm">Lihat Profil</span>
@@ -109,7 +109,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
       <div class="card-header-flex">
         <div class="card-title-group">
           <h2>Lowongan Terkini</h2>
-          <p>Cuplikan proyek yang sedang Anda kelola</p>
+          <p>Cuplikan proyek yang sedang Anda kelola (Klik untuk rincian detail)</p>
         </div>
         <a class="btn-action-sm" href="employer-lowongan.php">Kelola Semua Lowongan</a>
       </div>
@@ -120,11 +120,15 @@ require __DIR__ . '/includes/employer-layout-start.php';
             <span class="project-category-tag"><?php echo htmlspecialchars($proj['category'], ENT_QUOTES, 'UTF-8'); ?></span>
             <span class="badge-status <?php echo $proj['status'] === 'active' ? 'active' : 'review'; ?>"><?php echo htmlspecialchars($proj['statusLabel'], ENT_QUOTES, 'UTF-8'); ?></span>
           </div>
-          <h3 class="project-card-title"><?php echo htmlspecialchars($proj['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
+          <h3 class="project-card-title">
+            <a href="employer-detail-lowongan.php?id=<?php echo urlencode($proj['id']); ?>" style="color:inherit;text-decoration:none;">
+              <?php echo htmlspecialchars($proj['title'], ENT_QUOTES, 'UTF-8'); ?>
+            </a>
+          </h3>
           <p class="project-card-desc"><?php echo htmlspecialchars($proj['desc'], ENT_QUOTES, 'UTF-8'); ?></p>
           <div class="project-card-footer">
             <a class="applicants-count-badge" href="employer-pelamar.php"><?php echo (int)$proj['applicantsCount']; ?> Pelamar</a>
-            <a class="btn-action-sm" href="employer-lowongan.php">Kelola</a>
+            <a class="btn-action-sm" href="employer-detail-lowongan.php?id=<?php echo urlencode($proj['id']); ?>">Detail →</a>
           </div>
         </article>
         <?php endforeach; ?>

@@ -48,7 +48,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <div class="applicant-details">
             <div class="applicant-name-row">
               <a class="applicant-name" href="worker-profile.php?id=<?php echo urlencode($applicant['id']); ?>"><?php echo htmlspecialchars($applicant['name'], ENT_QUOTES, 'UTF-8'); ?></a>
-              <span class="fl-rating-badge">★ <?php echo number_format((float)$applicant['rating'], 1); ?> (<?php echo (int)$applicant['reviews_count']; ?> ulasan)</span>
+              <span class="fl-rating-badge">★ <?php echo (int)$applicant['rating']; ?> (<?php echo (int)$applicant['reviews_count']; ?> ulasan)</span>
             </div>
             <div class="applicant-applied-role">Melamar: <strong><?php echo htmlspecialchars($applicant['applied_project'], ENT_QUOTES, 'UTF-8'); ?></strong></div>
             <div class="project-skill-tags">
