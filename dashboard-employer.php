@@ -2168,13 +2168,7 @@ $workerProfiles = gig_worker_profiles();
                     <span class="skill-tag-item"><?php echo htmlspecialchars((string)$skillTag, ENT_QUOTES, 'UTF-8'); ?></span>
                   <?php endforeach; ?>
                 </div>
-                <?php if (!empty($applicant['agreed'])): ?>
-                  <div class="applicant-lock-hint" style="color: #059669; font-weight: 600;">
-                    Kontak Terbuka: <?php echo htmlspecialchars($applicant['contact']['wa'], ENT_QUOTES, 'UTF-8'); ?> | <?php echo htmlspecialchars($applicant['contact']['email'], ENT_QUOTES, 'UTF-8'); ?>
-                  </div>
-                <?php else: ?>
-                  <div class="applicant-lock-hint">Kontak dikunci hingga kesepakatan kerja sama</div>
-                <?php endif; ?>
+                <div class="applicant-lock-hint">Kontak dikunci hingga kesepakatan kerja sama</div>
               </div>
             </div>
 
