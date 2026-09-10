@@ -16,60 +16,403 @@ $breadcrumbCurrent = 'Cari Mitra Gig';
 require __DIR__ . '/includes/employer-layout-start.php';
 ?>
 
+<style>
+  /* Marketplace Catalogue Grid Styling */
+  .marketplace-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+    background: #ffffff;
+    padding: 16px 20px;
+    border-radius: 14px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+
+  .marketplace-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .mitra-search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    border: 1px solid var(--border-subtle);
+    border-radius: 9999px;
+    padding: 8px 16px;
+    min-width: 280px;
+    transition: border-color 0.2s, background-color 0.2s;
+  }
+
+  .mitra-search-box:focus-within {
+    border-color: var(--primary-blue);
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(22, 87, 193, 0.12);
+  }
+
+  .mitra-search-box input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    width: 100%;
+  }
+
+  .mitra-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 22px;
+    margin-bottom: 36px;
+  }
+
+  .mitra-box {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease, border-color 0.22s ease;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+  }
+
+  .mitra-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 28px -6px rgba(15, 23, 42, 0.12);
+    border-color: #cbd5e1;
+  }
+
+  .mitra-box-cover {
+    height: 90px;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 16px;
+  }
+
+  .mitra-category-pill {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(4px);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #1e293b;
+    padding: 3px 9px;
+    border-radius: 999px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  .mitra-avatar-wrap {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 3px solid #ffffff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    position: relative;
+    margin-bottom: -32px;
+    flex-shrink: 0;
+    background: #ffffff;
+  }
+
+  .mitra-avatar-wrap img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .mitra-verified-badge {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #0284c7;
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffffff;
+  }
+
+  .mitra-box-body {
+    padding: 40px 18px 16px 18px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mitra-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 3px;
+  }
+
+  .mitra-name {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.3;
+  }
+
+  .mitra-role {
+    font-size: 0.82rem;
+    color: #475569;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .mitra-location {
+    font-size: 0.75rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+
+  .mitra-rating-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .mitra-stars {
+    color: #f59e0b;
+    font-size: 0.88rem;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+  }
+
+  .mitra-rating-num {
+    font-weight: 800;
+    font-size: 0.84rem;
+    color: #0f172a;
+  }
+
+  .mitra-reviews-num {
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+
+  .mitra-skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 14px;
+  }
+
+  .mitra-skill-badge {
+    background: #f1f5f9;
+    color: #334155;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  .mitra-stats-badge {
+    margin-top: auto;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #047857;
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mitra-box-footer {
+    padding: 12px 18px 16px 18px;
+    border-top: 1px solid #f1f5f9;
+    background: #ffffff;
+  }
+
+  .btn-tawarkan-card {
+    width: 100%;
+    padding: 9px 14px;
+    background: var(--primary-blue);
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 9px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: background 0.18s ease, transform 0.12s ease;
+  }
+
+  .btn-tawarkan-card:hover {
+    background: var(--primary-blue-hover);
+    transform: translateY(-1px);
+  }
+
+  .btn-tawarkan-card:active {
+    transform: translateY(0);
+  }
+
+  .btn-tawarkan-card svg {
+    flex-shrink: 0;
+  }
+
+  /* Empty state */
+  .mitra-empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 48px 20px;
+    background: #ffffff;
+    border: 1px dashed #cbd5e1;
+    border-radius: 16px;
+  }
+</style>
+
     <div class="page-toolbar">
       <div>
         <h1>Cari Mitra Gig Worker</h1>
-        <p style="font-size:0.86rem;color:var(--text-muted);margin-top:4px;">Temukan Gig Worker yang sesuai dan tawarkan proyek aktif Anda langsung. Maks. 3 penawaran per lowongan.</p>
+        <p style="font-size:0.86rem;color:var(--text-muted);margin-top:4px;">Jelajahi profil keahlian Gig Worker dan tawarkan lowongan proyek aktif Anda langsung. Klik kartu untuk melihat rincian portofolio lengkap.</p>
       </div>
     </div>
 
-    <div class="toolbar-filter">
-      <button class="filter-btn-pill active" type="button" onclick="filterWorkers('all', this)">Semua Bidang (<?php echo count($workerProfiles); ?>)</button>
-      <button class="filter-btn-pill" type="button" onclick="filterWorkers('ui-ux', this)">UI/UX & Desain (2)</button>
-      <button class="filter-btn-pill" type="button" onclick="filterWorkers('backend', this)">Backend & API (2)</button>
-      <button class="filter-btn-pill" type="button" onclick="filterWorkers('marketing', this)">Pemasaran (2)</button>
-      <div class="search-input-box">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" placeholder="Cari nama, keahlian, atau bidang..." onkeyup="searchWorkers(this.value)" />
+    <!-- Toolbar Filters & Search -->
+    <div class="marketplace-toolbar">
+      <div class="marketplace-filter-group">
+        <button class="filter-btn-pill active" type="button" onclick="filterWorkers('all', this)">Semua Bidang (<?php echo count($workerProfiles); ?>)</button>
+        <button class="filter-btn-pill" type="button" onclick="filterWorkers('ui-ux', this)">UI/UX & Desain</button>
+        <button class="filter-btn-pill" type="button" onclick="filterWorkers('backend', this)">Backend & API</button>
+        <button class="filter-btn-pill" type="button" onclick="filterWorkers('marketing', this)">Pemasaran</button>
+      </div>
+      <div class="mitra-search-box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Cari nama, keahlian, atau bidang..." onkeyup="searchWorkers(this.value)" id="workerSearchInput" />
       </div>
     </div>
 
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px;">Menampilkan <span id="worker-count"><?php echo count($workerProfiles); ?></span> Gig Worker tersedia</p>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding:0 2px;">
+      <p style="font-size:0.82rem;color:var(--text-muted);">
+        Menampilkan <strong id="worker-count" style="color:var(--text-main);"><?php echo count($workerProfiles); ?></strong> Gig Worker siap kerja
+      </p>
+      <span style="font-size:0.75rem;color:#64748b;background:#f1f5f9;padding:4px 10px;border-radius:6px;">
+        💡 Maks. 3 penawaran per lowongan aktif
+      </span>
+    </div>
 
-    <div class="applicants-grid" id="workers-grid">
-      <?php foreach ($workerProfiles as $w): ?>
-      <article class="applicant-card" data-category="<?php echo htmlspecialchars($w['category'], ENT_QUOTES, 'UTF-8'); ?>">
-        <div class="applicant-left-info">
-          <a class="applicant-avatar" href="worker-profile.php?id=<?php echo urlencode($w['id']); ?>" style="background:<?php echo htmlspecialchars($w['color'], ENT_QUOTES, 'UTF-8'); ?>;">
+    <!-- Marketplace Grid of Gig Worker Boxes -->
+    <div class="mitra-grid" id="workers-grid">
+      <?php foreach ($workerProfiles as $w): 
+        // Compute cover banner gradient based on profile color
+        $cardBgColor = !empty($w['color']) ? $w['color'] : '#2563eb';
+        $categoryLabel = match($w['category'] ?? '') {
+          'ui-ux' => 'UI/UX & Desain',
+          'backend' => 'Backend & API',
+          'marketing' => 'Digital Marketing',
+          default => 'Freelancer'
+        };
+      ?>
+      <div class="mitra-box" 
+           data-category="<?php echo htmlspecialchars($w['category'], ENT_QUOTES, 'UTF-8'); ?>"
+           onclick="window.location.href='worker-profile.php?id=<?php echo urlencode($w['id']); ?>&from=cari-mitra'">
+        
+        <!-- Top Cover Banner -->
+        <div class="mitra-box-cover" style="background: linear-gradient(135deg, <?php echo htmlspecialchars($cardBgColor, ENT_QUOTES, 'UTF-8'); ?>cc 0%, <?php echo htmlspecialchars($cardBgColor, ENT_QUOTES, 'UTF-8'); ?> 100%);">
+          <span class="mitra-category-pill"><?php echo htmlspecialchars($categoryLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+          <div class="mitra-avatar-wrap">
             <img src="<?php echo htmlspecialchars($w['photo'], ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($w['name'], ENT_QUOTES, 'UTF-8'); ?>" />
-            <?php if (!empty($w['verified'])): ?><span class="verified-icon-badge">✓</span><?php endif; ?>
-          </a>
-          <div class="applicant-details">
-            <div class="applicant-name-row">
-              <a class="applicant-name" href="worker-profile.php?id=<?php echo urlencode($w['id']); ?>"><?php echo htmlspecialchars($w['name'], ENT_QUOTES, 'UTF-8'); ?></a>
-              <span class="fl-rating-badge">★ <?php echo number_format((float)$w['rating'], 1); ?> (<?php echo (int)$w['reviews_count']; ?> ulasan)</span>
-            </div>
-            <div class="applicant-applied-role"><?php echo htmlspecialchars($w['title'], ENT_QUOTES, 'UTF-8'); ?> · <?php echo htmlspecialchars($w['location'], ENT_QUOTES, 'UTF-8'); ?></div>
-            <div class="project-skill-tags">
-              <?php foreach (array_slice($w['skills'], 0, 3) as $skillTag): ?>
-                <span class="skill-tag-item"><?php echo htmlspecialchars((string)$skillTag, ENT_QUOTES, 'UTF-8'); ?></span>
-              <?php endforeach; ?>
-            </div>
-            <div style="font-size:0.75rem;color:#059669;font-weight:700;margin-top:4px;">
-              <?php echo (int)$w['completed_projects']; ?> dari <?php echo (int)($w['total_projects'] ?? $w['completed_projects']); ?> proyek selesai
-            </div>
+            <?php if (!empty($w['verified'])): ?>
+              <span class="mitra-verified-badge" title="Profil Terverifikasi">✓</span>
+            <?php endif; ?>
           </div>
         </div>
 
-        <div class="applicant-right-actions">
-          <a class="btn-outline-blue" href="worker-profile.php?id=<?php echo urlencode($w['id']); ?>">Lihat Profil</a>
-          <button type="button" class="btn-hire"
+        <!-- Box Body Content -->
+        <div class="mitra-box-body">
+          <div class="mitra-name-row">
+            <div class="mitra-name"><?php echo htmlspecialchars($w['name'], ENT_QUOTES, 'UTF-8'); ?></div>
+          </div>
+          <div class="mitra-role"><?php echo htmlspecialchars($w['title'], ENT_QUOTES, 'UTF-8'); ?></div>
+          
+          <div class="mitra-location">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <?php echo htmlspecialchars($w['location'], ENT_QUOTES, 'UTF-8'); ?>
+          </div>
+
+          <!-- Rating Stars -->
+          <div class="mitra-rating-row">
+            <div class="mitra-stars">
+              <?php
+                $ratingVal = (float)$w['rating'];
+                $fullStars = (int)floor($ratingVal);
+                for ($i = 0; $i < 5; $i++) {
+                  echo $i < $fullStars ? '★' : '☆';
+                }
+              ?>
+            </div>
+            <span class="mitra-rating-num"><?php echo number_format((float)$w['rating'], 1); ?></span>
+            <span class="mitra-reviews-num">(<?php echo (int)$w['reviews_count']; ?> ulasan)</span>
+          </div>
+
+          <!-- Skills / Expertise -->
+          <div class="mitra-skills-list">
+            <?php foreach (array_slice($w['skills'], 0, 3) as $skillTag): ?>
+              <span class="mitra-skill-badge"><?php echo htmlspecialchars((string)$skillTag, ENT_QUOTES, 'UTF-8'); ?></span>
+            <?php endforeach; ?>
+            <?php if (count($w['skills']) > 3): ?>
+              <span class="mitra-skill-badge" style="background:#e2e8f0;color:#475569;">+<?php echo count($w['skills']) - 3; ?></span>
+            <?php endif; ?>
+          </div>
+
+          <!-- Project Stats: Selesai dari Total -->
+          <div class="mitra-stats-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><?php echo (int)$w['completed_projects']; ?> dari <?php echo (int)($w['total_projects'] ?? $w['completed_projects']); ?> proyek selesai</span>
+          </div>
+        </div>
+
+        <!-- Box Footer with Tawarkan Proyek Button -->
+        <div class="mitra-box-footer" onclick="event.stopPropagation();">
+          <button type="button" class="btn-tawarkan-card"
             onclick="openOfferModal('<?php echo htmlspecialchars($w['id'], ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes($w['name']), ENT_QUOTES, 'UTF-8'); ?>')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             Tawarkan Proyek
           </button>
         </div>
-      </article>
+
+      </div>
       <?php endforeach; ?>
+
+      <div id="no-mitra-match" class="mitra-empty-state" style="display:none;">
+        <div style="font-size:2.2rem;margin-bottom:8px;">🔍</div>
+        <div style="font-weight:700;font-size:0.95rem;color:#1e293b;margin-bottom:4px;">Gig Worker Tidak Ditemukan</div>
+        <p style="font-size:0.84rem;color:var(--text-muted);">Coba ubah kata kunci pencarian atau pilih kategori bidang lainnya.</p>
+      </div>
     </div>
 
     <!-- Offer Project Modal -->
@@ -120,30 +463,40 @@ require __DIR__ . '/includes/employer-layout-start.php';
     <script>
       let currentOfferWorkerName = '';
       let offerCounts = {}; // vacancy_id => count of pending offers
+      let currentCategory = 'all';
 
       function filterWorkers(cat, btn) {
-        document.querySelectorAll('.toolbar-filter .filter-btn-pill').forEach(function(b) { b.classList.remove('active'); });
+        currentCategory = cat;
+        document.querySelectorAll('.marketplace-filter-group .filter-btn-pill').forEach(function(b) { b.classList.remove('active'); });
         if (btn) btn.classList.add('active');
-        let count = 0;
-        document.querySelectorAll('#workers-grid .applicant-card').forEach(function(card) {
-          const show = cat === 'all' || card.getAttribute('data-category') === cat;
-          card.style.display = show ? 'grid' : 'none';
-          if (show) count++;
-        });
-        const el = document.getElementById('worker-count');
-        if (el) el.innerText = String(count);
+        applyFilters();
       }
 
       function searchWorkers(query) {
-        const q = (query || '').toLowerCase();
+        applyFilters();
+      }
+
+      function applyFilters() {
+        const query = (document.getElementById('workerSearchInput').value || '').toLowerCase().trim();
         let count = 0;
-        document.querySelectorAll('#workers-grid .applicant-card').forEach(function(card) {
-          const match = card.innerText.toLowerCase().includes(q);
-          card.style.display = match ? 'grid' : 'none';
-          if (match) count++;
+        const boxes = document.querySelectorAll('#workers-grid .mitra-box');
+        
+        boxes.forEach(function(card) {
+          const categoryMatch = currentCategory === 'all' || card.getAttribute('data-category') === currentCategory;
+          const searchMatch = !query || card.innerText.toLowerCase().includes(query);
+          const show = categoryMatch && searchMatch;
+          
+          card.style.display = show ? 'flex' : 'none';
+          if (show) count++;
         });
-        const el = document.getElementById('worker-count');
-        if (el) el.innerText = String(count);
+
+        const countEl = document.getElementById('worker-count');
+        if (countEl) countEl.innerText = String(count);
+
+        const emptyEl = document.getElementById('no-mitra-match');
+        if (emptyEl) {
+          emptyEl.style.display = count === 0 ? 'block' : 'none';
+        }
       }
 
       function openOfferModal(workerId, workerName) {
@@ -163,12 +516,21 @@ require __DIR__ . '/includes/employer-layout-start.php';
         const maxOffers = 3;
 
         if (offerCounts[vacancyId] >= maxOffers) {
-          showToast('Lowongan ini sudah mencapai batas 3 penawaran aktif.');
+          if (typeof showToast === 'function') {
+            showToast('Lowongan ini sudah mencapai batas 3 penawaran aktif.');
+          } else {
+            alert('Lowongan ini sudah mencapai batas 3 penawaran aktif.');
+          }
           return;
         }
 
         offerCounts[vacancyId]++;
-        showToast('Penawaran "' + vacancyTitle + '" dikirim ke ' + currentOfferWorkerName + '. Menunggu konfirmasi Gig Worker.');
+        const msg = 'Penawaran "' + vacancyTitle + '" dikirim ke ' + currentOfferWorkerName + '. Menunggu konfirmasi Gig Worker.';
+        if (typeof showToast === 'function') {
+          showToast(msg);
+        } else {
+          alert(msg);
+        }
 
         if (offerCounts[vacancyId] >= maxOffers && container) {
           const btn = container.querySelector('.offer-send-btn');

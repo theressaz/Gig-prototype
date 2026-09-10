@@ -20,7 +20,14 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
     <div class="page-toolbar">
       <h1><?php echo htmlspecialchars($worker['name'], ENT_QUOTES, 'UTF-8'); ?></h1>
-      <a class="btn-action-sm" href="employer-pelamar.php">← Kembali ke Pelamar</a>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <?php 
+          $from = $_GET['from'] ?? '';
+          $backUrl = $from === 'cari-mitra' ? 'employer-cari-mitra.php' : ($from === 'kandidat' ? 'employer-pelamar.php' : 'javascript:history.back()');
+          $backLabel = $from === 'cari-mitra' ? '← Kembali ke Cari Mitra' : ($from === 'kandidat' ? '← Kembali ke Kandidat' : '← Kembali');
+        ?>
+        <a class="btn-action-sm" href="<?php echo htmlspecialchars($backUrl, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($backLabel, ENT_QUOTES, 'UTF-8'); ?></a>
+      </div>
     </div>
 
     <?php if ($contactUnlocked): ?>
