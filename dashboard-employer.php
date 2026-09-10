@@ -28,6 +28,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])) {
 }
 
 $username = (string)$_SESSION["username"];
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'includes' . DIRECTORY_SEPARATOR . 'worker-profiles.php';
+$workerProfiles = gig_worker_profiles();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -192,7 +194,22 @@ $username = (string)$_SESSION["username"];
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
+      gap: 16px;
+    }
+
+    .nav-tabs-bar {
+      background: var(--kemnaker-navy-light);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .nav-tabs-bar-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: stretch;
+      gap: 4px;
+      overflow-x: auto;
     }
 
     .brand-section {
@@ -253,27 +270,30 @@ $username = (string)$_SESSION["username"];
       color: #cbd5e1;
       background: transparent;
       border: none;
-      font-size: 0.86rem;
+      border-bottom: 2px solid transparent;
+      font-size: 0.84rem;
       font-weight: 600;
-      padding: 8px 14px;
-      border-radius: var(--radius-sm);
+      padding: 11px 14px;
+      border-radius: 0;
       cursor: pointer;
       transition: all 0.2s ease;
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      white-space: nowrap;
     }
 
     .nav-tab-btn:hover {
       color: #ffffff;
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.06);
     }
 
     .nav-tab-btn.active {
       color: #ffffff;
-      background: rgba(255, 255, 255, 0.18);
+      background: transparent;
       font-weight: 700;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+      border-bottom-color: #60a5fa;
+      box-shadow: none;
     }
 
     .tab-badge {
@@ -1035,42 +1055,62 @@ $username = (string)$_SESSION["username"];
     }
 
     /* SECTION 3: APPLICANTS / GIG WORKERS */
+    .privacy-lock-note {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .applicants-grid {
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 10px;
     }
 
     .applicant-card {
       background: #ffffff;
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
-      padding: 18px 20px;
-      display: flex;
+      padding: 16px 18px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) 150px auto;
       align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 18px;
+      gap: 16px;
       transition: all 0.15s ease;
+      text-decoration: none;
+      color: inherit;
     }
 
     .applicant-card:hover {
-      background: #fbfcfe;
+      background: #f8fafc;
       border-color: #93c5fd;
       box-shadow: var(--shadow-sm);
+    }
+
+    @media (max-width: 860px) {
+      .applicant-card {
+        grid-template-columns: 1fr;
+        align-items: flex-start;
+      }
     }
 
     .applicant-left-info {
       display: flex;
       align-items: center;
-      gap: 16px;
-      flex: 1;
-      min-width: 300px;
+      gap: 14px;
+      min-width: 0;
     }
 
     .applicant-avatar {
-      width: 50px;
-      height: 50px;
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
       background: #2563eb;
       color: #ffffff;
@@ -1078,9 +1118,16 @@ $username = (string)$_SESSION["username"];
       align-items: center;
       justify-content: center;
       font-weight: 800;
-      font-size: 1.1rem;
+      font-size: 0.95rem;
       flex-shrink: 0;
       position: relative;
+      overflow: hidden;
+    }
+
+    .applicant-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .verified-icon-badge {
@@ -1102,56 +1149,40 @@ $username = (string)$_SESSION["username"];
     .applicant-details {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
+      min-width: 0;
     }
 
     .applicant-name-row {
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .applicant-name {
-      font-size: 1rem;
+      font-size: 0.98rem;
       font-weight: 800;
       color: var(--text-main);
+      text-decoration: none;
+    }
+
+    .applicant-name:hover {
+      color: var(--primary-blue);
     }
 
     .applicant-applied-role {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .applicant-contact-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 0.76rem;
-      color: var(--text-soft);
-      margin-top: 2px;
-    }
-
-    .applicant-contact-tag {
-      background: #f1f5f9;
-      padding: 2px 8px;
-      border-radius: 4px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      color: #334155;
+    .applicant-lock-hint {
+      font-size: 0.72rem;
+      color: #b45309;
       font-weight: 600;
-    }
-
-    .applicant-proposal-snippet {
-      font-size: 0.82rem;
-      color: var(--text-soft);
-      margin-top: 4px;
-      background: #f8fafc;
-      padding: 6px 10px;
-      border-radius: 6px;
-      border-left: 3px solid #3b82f6;
-      max-width: 500px;
-      font-style: italic;
     }
 
     .applicant-center-meta {
@@ -1175,7 +1206,48 @@ $username = (string)$_SESSION["username"];
     .applicant-right-actions {
       display: flex;
       align-items: center;
+      justify-content: flex-end;
       gap: 8px;
+    }
+
+    .recent-applicant-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: #f8fafc;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      text-decoration: none;
+      color: inherit;
+      gap: 10px;
+    }
+
+    .recent-applicant-row:hover {
+      border-color: #93c5fd;
+      background: #eff6ff;
+    }
+
+    .recent-applicant-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .recent-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: #2563eb;
+    }
+
+    .recent-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .btn-hire {
@@ -1210,6 +1282,7 @@ $username = (string)$_SESSION["username"];
       align-items: center;
       gap: 6px;
       transition: all 0.15s ease;
+      text-decoration: none;
     }
 
     .btn-outline-blue:hover {
@@ -1548,8 +1621,24 @@ $username = (string)$_SESSION["username"];
         </div>
       </div>
 
-      <!-- MAIN TABS NAVIGATION -->
-      <nav class="nav-tabs-container">
+      <!-- HEADER ACTIONS -->
+      <div class="header-actions">
+        <button class="btn-create-post" onclick="openPostProjectModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          + Pasang Proyek Gig
+        </button>
+        <div class="user-pill">
+          <span class="user-avatar"><?php echo strtoupper(substr($username, 0, 2)); ?></span>
+          <span><?php echo htmlspecialchars($username, ENT_QUOTES, "UTF-8"); ?></span>
+          <span style="background: rgba(245, 158, 11, 0.25); color: #fde68a; font-weight: 700; font-size: 0.72rem; padding: 2px 7px; border-radius: var(--radius-pill); display: inline-flex; align-items: center; gap: 3px;" title="Rating Pemberi Kerja dari Mitra Gig Worker">
+            ★ 4.9
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-tabs-bar">
+      <nav class="nav-tabs-bar-inner">
         <button class="nav-tab-btn active" onclick="switchMainTab('overview', this)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
           Ringkasan
@@ -1570,21 +1659,6 @@ $username = (string)$_SESSION["username"];
           <span class="tab-badge" id="badge-applicants-count">6</span>
         </button>
       </nav>
-
-      <!-- HEADER ACTIONS -->
-      <div class="header-actions">
-        <button class="btn-create-post" onclick="openPostProjectModal()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          + Pasang Proyek Gig
-        </button>
-        <div class="user-pill">
-          <span class="user-avatar"><?php echo strtoupper(substr($username, 0, 2)); ?></span>
-          <span><?php echo htmlspecialchars($username, ENT_QUOTES, "UTF-8"); ?></span>
-          <span style="background: rgba(245, 158, 11, 0.25); color: #fde68a; font-weight: 700; font-size: 0.72rem; padding: 2px 7px; border-radius: var(--radius-pill); display: inline-flex; align-items: center; gap: 3px;" title="Rating Pemberi Kerja dari Mitra Gig Worker">
-            ★ 4.9
-          </span>
-        </div>
-      </div>
     </div>
   </header>
 
@@ -1596,7 +1670,7 @@ $username = (string)$_SESSION["username"];
       <div class="notice-icon-text">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
         <span>
-          <strong>Informasi Operasional Fitur Gig:</strong> Komunikasi (wawancara/diskusi) dan transaksi pembayaran honor proyek dilakukan <strong>secara langsung di luar sistem</strong> antara Pemberi Kerja dan Gig Worker.
+          <strong>Privasi pelamar:</strong> Data kontak Gig Worker tidak ditampilkan saat review lamaran. WhatsApp dan email baru terbuka setelah kedua belah pihak menyetujui kerja sama.
         </span>
       </div>
     </div>
@@ -1611,7 +1685,7 @@ $username = (string)$_SESSION["username"];
           </div>
           <h1 class="hero-title">Halo, <?php echo htmlspecialchars($username, ENT_QUOTES, "UTF-8"); ?>! 👋</h1>
           <p class="hero-desc">
-            Temukan talenta lepas (freelancer) terverifikasi untuk kebutuhan proyek jangka pendek perusahaan Anda. Publikasikan lowongan, seleksi proposal, dan hubungi kandidat langsung via kontak resmi.
+            Temukan talenta lepas terverifikasi untuk proyek jangka pendek. Publikasikan lowongan, tinjau profil pelamar, lalu buka kontak hanya setelah kedua belah pihak menyetujui kerja sama.
           </p>
         </div>
 
@@ -1688,7 +1762,7 @@ $username = (string)$_SESSION["username"];
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
           </div>
         </div>
-        <div class="stat-number">5 Pelamar</div>
+        <div class="stat-number">2</div>
         <div class="stat-caption">
           Pelamar yang disetujui &amp; direkrut
         </div>
@@ -1738,7 +1812,7 @@ $username = (string)$_SESSION["username"];
             <div class="funnel-step">
               <span class="funnel-step-name">
                 <span style="width: 8px; height: 8px; border-radius: 50%; background: #8b5cf6; display: inline-block;"></span>
-                Kontak Eksternal (WA / Email)
+                Kesepakatan Kerja Sama
               </span>
               <div class="funnel-step-bar-wrap">
                 <div class="funnel-step-bar-fill" style="width: 33%; background: #8b5cf6;"></div>
@@ -1786,41 +1860,20 @@ $username = (string)$_SESSION["username"];
           </div>
 
           <div style="display: flex; flex-direction: column; gap: 10px;">
-            <!-- Applicant 1 Quick -->
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 36px; height: 36px; border-radius: 50%; background: #2563eb; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem;">T</div>
+            <?php foreach (array_slice($workerProfiles, 0, 3) as $recent): ?>
+            <a class="recent-applicant-row" href="worker-profile.php?id=<?php echo urlencode($recent['id']); ?>">
+              <div class="recent-applicant-left">
+                <div class="recent-avatar" style="background: <?php echo htmlspecialchars($recent['color'], ENT_QUOTES, 'UTF-8'); ?>;">
+                  <img src="<?php echo htmlspecialchars($recent['photo'], ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($recent['name'], ENT_QUOTES, 'UTF-8'); ?>" />
+                </div>
                 <div>
-                  <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-main);">Tessa</div>
-                  <div style="font-size: 0.74rem; color: var(--text-muted);">UI/UX Designer &bull; ⭐ 4.9 (18 Proyek)</div>
+                  <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-main);"><?php echo htmlspecialchars($recent['name'], ENT_QUOTES, 'UTF-8'); ?></div>
+                  <div style="font-size: 0.74rem; color: var(--text-muted);"><?php echo htmlspecialchars($recent['title'], ENT_QUOTES, 'UTF-8'); ?> &bull; ★ <?php echo number_format((float)$recent['rating'], 1); ?> (<?php echo (int)$recent['reviews_count']; ?> ulasan)</div>
                 </div>
               </div>
-              <button class="btn-action-sm" onclick="switchMainTab('applicants')">Review Proposal</button>
-            </div>
-
-            <!-- Applicant 2 Quick -->
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 36px; height: 36px; border-radius: 50%; background: #0891b2; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem;">R</div>
-                <div>
-                  <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-main);">Rian Ardiansyah</div>
-                  <div style="font-size: 0.74rem; color: var(--text-muted);">Fullstack Web Dev &bull; ⭐ 4.8 (24 Proyek)</div>
-                </div>
-              </div>
-              <button class="btn-action-sm" onclick="switchMainTab('applicants')">Review Proposal</button>
-            </div>
-
-            <!-- Applicant 3 Quick -->
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 36px; height: 36px; border-radius: 50%; background: #7c3aed; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem;">S</div>
-                <div>
-                  <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-main);">Siti Nurhaliza</div>
-                  <div style="font-size: 0.74rem; color: var(--text-muted);">Social Media Specialist &bull; ⭐ 5.0 (12 Proyek)</div>
-                </div>
-              </div>
-              <button class="btn-action-sm" onclick="switchMainTab('applicants')">Review Proposal</button>
-            </div>
+              <span class="btn-action-sm">Lihat Profil</span>
+            </a>
+            <?php endforeach; ?>
           </div>
         </section>
       </div>
@@ -1925,7 +1978,7 @@ $username = (string)$_SESSION["username"];
                 <div class="fl-avatar" style="background: #2563eb;">T</div>
                 <div>
                   <div class="fl-info-name">
-                    Tessa
+                    <a href="worker-profile.php?id=tessa" style="color: inherit; text-decoration: none;">Tessa</a>
                     <span class="fl-rating-badge">★ 4.9</span>
                   </div>
                   <div class="fl-info-sub">Lead UI/UX Designer</div>
@@ -2002,7 +2055,7 @@ $username = (string)$_SESSION["username"];
                 <div class="fl-avatar" style="background: #0891b2;">R</div>
                 <div>
                   <div class="fl-info-name">
-                    Rian Ardiansyah
+                    <a href="worker-profile.php?id=rian" style="color: inherit; text-decoration: none;">Rian Ardiansyah</a>
                     <span class="fl-rating-badge">★ 4.8</span>
                   </div>
                   <div class="fl-info-sub">Backend API Developer</div>
@@ -2065,314 +2118,74 @@ $username = (string)$_SESSION["username"];
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
               Daftar Pelamar Proyek (Gig Worker Applicants)
             </h2>
-            <p>Review proposal penawaran, portofolio kerja, dan hubungi freelancer via kontak langsung (WhatsApp / Email)</p>
+            <p>Tinjau profil akun pelamar. Kontak WhatsApp dan email tidak ditampilkan sampai kedua belah pihak menyetujui kerja sama.</p>
           </div>
           <div style="font-size: 0.82rem; color: var(--text-muted);">
-            Menampilkan <strong id="applicants-visible-count">6</strong> proposal kandidat
+            Menampilkan <strong id="applicants-visible-count"><?php echo count($workerProfiles); ?></strong> pelamar
           </div>
+        </div>
+
+        <div class="privacy-lock-note">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Kontak pelamar dikunci. Klik nama atau tombol <strong>Lihat Profil</strong> untuk membuka keterampilan, pengalaman, portofolio, dan ulasan.
         </div>
 
         <!-- Filter bar -->
         <div class="toolbar-filter">
-          <button class="filter-btn-pill active" onclick="filterApplicants('all', this)">Semua Pelamar (6)</button>
+          <button class="filter-btn-pill active" onclick="filterApplicants('all', this)">Semua Pelamar (<?php echo count($workerProfiles); ?>)</button>
           <button class="filter-btn-pill" onclick="filterApplicants('ui-ux', this)">UI/UX Proyek (2)</button>
           <button class="filter-btn-pill" onclick="filterApplicants('backend', this)">Backend &amp; API (2)</button>
           <button class="filter-btn-pill" onclick="filterApplicants('marketing', this)">Pemasaran Konten (2)</button>
 
           <div class="search-input-box">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="Cari nama freelancer atau skill..." id="search-applicant-input" onkeyup="searchApplicants(this.value)" />
+            <input type="text" placeholder="Cari nama atau keterampilan..." id="search-applicant-input" onkeyup="searchApplicants(this.value)" />
           </div>
         </div>
 
         <!-- Applicants Grid / List -->
         <div class="applicants-grid" id="applicants-container">
-          
-          <!-- Applicant 1 -->
-          <div class="applicant-card" data-category="ui-ux">
+          <?php foreach ($workerProfiles as $applicant): ?>
+          <article class="applicant-card" data-category="<?php echo htmlspecialchars($applicant['category'], ENT_QUOTES, 'UTF-8'); ?>">
             <div class="applicant-left-info">
-              <div class="applicant-avatar">
-                T
-                <span class="verified-icon-badge" title="Terverifikasi Kemnaker">✓</span>
-              </div>
+              <a class="applicant-avatar" href="worker-profile.php?id=<?php echo urlencode($applicant['id']); ?>" style="background: <?php echo htmlspecialchars($applicant['color'], ENT_QUOTES, 'UTF-8'); ?>;" aria-label="Lihat profil <?php echo htmlspecialchars($applicant['name'], ENT_QUOTES, 'UTF-8'); ?>">
+                <img src="<?php echo htmlspecialchars($applicant['photo'], ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($applicant['name'], ENT_QUOTES, 'UTF-8'); ?>" />
+                <?php if (!empty($applicant['verified'])): ?><span class="verified-icon-badge" title="Terverifikasi Kemnaker">✓</span><?php endif; ?>
+              </a>
               <div class="applicant-details">
                 <div class="applicant-name-row">
-                  <span class="applicant-name">Tessa</span>
-                  <span class="fl-rating-badge">★ 4.9 (18 Ulasan)</span>
-                  <span class="badge-status active" style="font-size: 0.68rem; padding: 1px 6px;">Top Rated Gig</span>
+                  <a class="applicant-name" href="worker-profile.php?id=<?php echo urlencode($applicant['id']); ?>"><?php echo htmlspecialchars($applicant['name'], ENT_QUOTES, 'UTF-8'); ?></a>
+                  <span class="fl-rating-badge">★ <?php echo number_format((float)$applicant['rating'], 1); ?> (<?php echo (int)$applicant['reviews_count']; ?> ulasan)</span>
+                  <?php if (!empty($applicant['top_rated'])): ?>
+                    <span class="badge-status active" style="font-size: 0.68rem; padding: 1px 6px;">Top Rated</span>
+                  <?php endif; ?>
                 </div>
                 <div class="applicant-applied-role">
-                  Melamar untuk proyek: <strong>Redesign UI/UX Dashboard Prototype KarirHub</strong>
+                  Melamar: <strong><?php echo htmlspecialchars($applicant['applied_project'], ENT_QUOTES, 'UTF-8'); ?></strong>
                 </div>
-                <div class="applicant-contact-meta">
-                  <span class="applicant-contact-tag">📱 WA: 0812-3456-7890</span>
-                  <span class="applicant-contact-tag">✉️ tessa.design@email.com</span>
+                <div class="project-skill-tags">
+                  <?php foreach (array_slice($applicant['skills'], 0, 3) as $skillTag): ?>
+                    <span class="skill-tag-item"><?php echo htmlspecialchars((string)$skillTag, ENT_QUOTES, 'UTF-8'); ?></span>
+                  <?php endforeach; ?>
                 </div>
-                <div class="applicant-proposal-snippet">
-                  "Halo! Saya berpengalaman 4+ tahun dalam merancang antarmuka sistem web pemerintahan dan B2B SaaS dengan design system yang rapi di Figma..."
-                </div>
-                <div class="project-skill-tags" style="margin-top: 6px;">
-                  <span class="skill-tag-item">Figma Design</span>
-                  <span class="skill-tag-item">UI/UX Prototyping</span>
-                  <span class="skill-tag-item">Design System</span>
-                </div>
+                <div class="applicant-lock-hint">Kontak dikunci hingga kesepakatan kerja sama</div>
               </div>
             </div>
 
             <div class="applicant-center-meta">
-              <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Penawaran Biaya</span>
-              <span class="bid-amount">Rp 8.000.000</span>
-              <span class="bid-time">⏱️ Estimasi: 14 Hari Kerja</span>
+              <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Penawaran</span>
+              <span class="bid-amount"><?php echo htmlspecialchars($applicant['bid'], ENT_QUOTES, 'UTF-8'); ?></span>
+              <span class="bid-time"><?php echo htmlspecialchars($applicant['eta'], ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
 
             <div class="applicant-right-actions">
-              <button class="btn-outline-blue" onclick="copyContact('Tessa', '0812-3456-7890', 'tessa.design@email.com')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                Kontak WA/Email
-              </button>
-              <button class="btn-hire" onclick="hireApplicant('Tessa', 'Redesign UI/UX Dashboard')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Rekrut Freelancer
+              <a class="btn-outline-blue" href="worker-profile.php?id=<?php echo urlencode($applicant['id']); ?>">Lihat Profil</a>
+              <button type="button" class="btn-hire" onclick="hireApplicant('<?php echo htmlspecialchars($applicant['name'], ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars($applicant['applied_project'], ENT_QUOTES, 'UTF-8'); ?>')">
+                Undang Kerja Sama
               </button>
             </div>
-          </div>
-
-          <!-- Applicant 2 -->
-          <div class="applicant-card" data-category="backend">
-            <div class="applicant-left-info">
-              <div class="applicant-avatar" style="background: #0891b2;">
-                R
-                <span class="verified-icon-badge" title="Terverifikasi Kemnaker">✓</span>
-              </div>
-              <div class="applicant-details">
-                <div class="applicant-name-row">
-                  <span class="applicant-name">Rian Ardiansyah</span>
-                  <span class="fl-rating-badge">★ 4.8 (24 Ulasan)</span>
-                </div>
-                <div class="applicant-applied-role">
-                  Melamar untuk proyek: <strong>Integrasi REST API Modul Notifikasi</strong>
-                </div>
-                <div class="applicant-contact-meta">
-                  <span class="applicant-contact-tag">📱 WA: 0813-8899-7711</span>
-                  <span class="applicant-contact-tag">✉️ rian.dev@email.com</span>
-                </div>
-                <div class="applicant-proposal-snippet">
-                  "Siap mengintegrasikan webhook gateway dan memastikan load testing API mampu menangani 5000+ request per menit dengan aman..."
-                </div>
-                <div class="project-skill-tags" style="margin-top: 6px;">
-                  <span class="skill-tag-item">PHP / Laravel</span>
-                  <span class="skill-tag-item">REST API</span>
-                  <span class="skill-tag-item">MySQL</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="applicant-center-meta">
-              <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Penawaran Biaya</span>
-              <span class="bid-amount">Rp 6.000.000</span>
-              <span class="bid-time">⏱️ Estimasi: 10 Hari Kerja</span>
-            </div>
-
-            <div class="applicant-right-actions">
-              <button class="btn-outline-blue" onclick="copyContact('Rian Ardiansyah', '0813-8899-7711', 'rian.dev@email.com')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                Kontak WA/Email
-              </button>
-              <button class="btn-hire" onclick="hireApplicant('Rian Ardiansyah', 'Integrasi REST API')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Rekrut Freelancer
-              </button>
-            </div>
-          </div>
-
-          <!-- Applicant 3 -->
-          <div class="applicant-card" data-category="marketing">
-            <div class="applicant-left-info">
-              <div class="applicant-avatar" style="background: #7c3aed;">
-                S
-                <span class="verified-icon-badge" title="Terverifikasi Kemnaker">✓</span>
-              </div>
-              <div class="applicant-details">
-                <div class="applicant-name-row">
-                  <span class="applicant-name">Siti Nurhaliza</span>
-                  <span class="fl-rating-badge">★ 5.0 (12 Ulasan)</span>
-                </div>
-                <div class="applicant-applied-role">
-                  Melamar untuk proyek: <strong>Kampanye Media Sosial &amp; Copywriting Peluncuran Fitur</strong>
-                </div>
-                <div class="applicant-contact-meta">
-                  <span class="applicant-contact-tag">📱 WA: 0857-1122-3344</span>
-                  <span class="applicant-contact-tag">✉️ siti.marketing@email.com</span>
-                </div>
-                <div class="applicant-proposal-snippet">
-                  "Menyediakan paket 20 konten carousel edukatif, naskah reels/TikTok, dan kalender konten terstruktur untuk meningkatkan awareness..."
-                </div>
-                <div class="project-skill-tags" style="margin-top: 6px;">
-                  <span class="skill-tag-item">Copywriting</span>
-                  <span class="skill-tag-item">Social Media</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="applicant-center-meta">
-              <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Penawaran Biaya</span>
-              <span class="bid-amount">Rp 4.500.000</span>
-              <span class="bid-time">⏱️ Estimasi: 20 Hari Kerja</span>
-            </div>
-
-            <div class="applicant-right-actions">
-              <button class="btn-outline-blue" onclick="copyContact('Siti Nurhaliza', '0857-1122-3344', 'siti.marketing@email.com')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                Kontak WA/Email
-              </button>
-              <button class="btn-hire" onclick="hireApplicant('Siti Nurhaliza', 'Kampanye Media Sosial')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Rekrut Freelancer
-              </button>
-            </div>
-          </div>
-
-          <!-- Applicant 4 -->
-          <div class="applicant-card" data-category="ui-ux">
-            <div class="applicant-left-info">
-              <div class="applicant-avatar" style="background: #059669;">
-                B
-                <span class="verified-icon-badge" title="Terverifikasi Kemnaker">✓</span>
-              </div>
-              <div class="applicant-details">
-                <div class="applicant-name-row">
-                  <span class="applicant-name">Budi Wicaksono</span>
-                  <span class="fl-rating-badge">★ 4.7 (9 Ulasan)</span>
-                </div>
-                <div class="applicant-applied-role">
-                  Melamar untuk proyek: <strong>Redesign UI/UX Dashboard Prototype KarirHub</strong>
-                </div>
-                <div class="applicant-contact-meta">
-                  <span class="applicant-contact-tag">📱 WA: 0819-2233-4455</span>
-                  <span class="applicant-contact-tag">✉️ budi.design@email.com</span>
-                </div>
-                <div class="applicant-proposal-snippet">
-                  "Saya siap membantu deliver cepat dalam 10 hari lengkap dengan usability testing dan panduan style guide..."
-                </div>
-                <div class="project-skill-tags" style="margin-top: 6px;">
-                  <span class="skill-tag-item">UI Design</span>
-                  <span class="skill-tag-item">Wireframing</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="applicant-center-meta">
-              <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Penawaran Biaya</span>
-              <span class="bid-amount">Rp 7.500.000</span>
-              <span class="bid-time">⏱️ Estimasi: 10 Hari Kerja</span>
-            </div>
-
-            <div class="applicant-right-actions">
-              <button class="btn-outline-blue" onclick="copyContact('Budi Wicaksono', '0819-2233-4455', 'budi.design@email.com')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                Kontak WA/Email
-              </button>
-              <button class="btn-hire" onclick="hireApplicant('Budi Wicaksono', 'Redesign UI/UX Dashboard')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Rekrut Freelancer
-              </button>
-            </div>
-          </div>
-
-          <!-- Applicant 5 -->
-          <div class="applicant-card" data-category="backend">
-            <div class="applicant-left-info">
-              <div class="applicant-avatar" style="background: #ea580c;">
-                D
-                <span class="verified-icon-badge" title="Terverifikasi Kemnaker">✓</span>
-              </div>
-              <div class="applicant-details">
-                <div class="applicant-name-row">
-                  <span class="applicant-name">Dimas Prasetyo</span>
-                  <span class="fl-rating-badge">★ 4.9 (31 Ulasan)</span>
-                </div>
-                <div class="applicant-applied-role">
-                  Melamar untuk proyek: <strong>Integrasi REST API Modul Notifikasi</strong>
-                </div>
-                <div class="applicant-contact-meta">
-                  <span class="applicant-contact-tag">📱 WA: 0821-9988-7766</span>
-                  <span class="applicant-contact-tag">✉️ dimas.code@email.com</span>
-                </div>
-                <div class="applicant-proposal-snippet">
-                  "Spesialis integrasi cloud API dan microservices. Telah menyelesaikan puluhan integrasi gateway serupa..."
-                </div>
-                <div class="project-skill-tags" style="margin-top: 6px;">
-                  <span class="skill-tag-item">Node.js</span>
-                  <span class="skill-tag-item">REST API</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="applicant-center-meta">
-              <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Penawaran Biaya</span>
-              <span class="bid-amount">Rp 6.500.000</span>
-              <span class="bid-time">⏱️ Estimasi: 7 Hari Kerja</span>
-            </div>
-
-            <div class="applicant-right-actions">
-              <button class="btn-outline-blue" onclick="copyContact('Dimas Prasetyo', '0821-9988-7766', 'dimas.code@email.com')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                Kontak WA/Email
-              </button>
-              <button class="btn-hire" onclick="hireApplicant('Dimas Prasetyo', 'Integrasi REST API')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Rekrut Freelancer
-              </button>
-            </div>
-          </div>
-
-          <!-- Applicant 6 -->
-          <div class="applicant-card" data-category="marketing">
-            <div class="applicant-left-info">
-              <div class="applicant-avatar" style="background: #db2777;">
-                M
-                <span class="verified-icon-badge" title="Terverifikasi Kemnaker">✓</span>
-              </div>
-              <div class="applicant-details">
-                <div class="applicant-name-row">
-                  <span class="applicant-name">Mega Lestari</span>
-                  <span class="fl-rating-badge">★ 4.9 (15 Ulasan)</span>
-                </div>
-                <div class="applicant-applied-role">
-                  Melamar untuk proyek: <strong>Kampanye Media Sosial &amp; Copywriting Peluncuran Fitur</strong>
-                </div>
-                <div class="applicant-contact-meta">
-                  <span class="applicant-contact-tag">📱 WA: 0878-3344-5566</span>
-                  <span class="applicant-contact-tag">✉️ mega.content@email.com</span>
-                </div>
-                <div class="applicant-proposal-snippet">
-                  "Portfolio mencakup campaign viral BUMN dan startup teknologi. Siap mulai riset audience segera..."
-                </div>
-                <div class="project-skill-tags" style="margin-top: 6px;">
-                  <span class="skill-tag-item">Digital Campaign</span>
-                  <span class="skill-tag-item">SEO Writing</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="applicant-center-meta">
-              <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Penawaran Biaya</span>
-              <span class="bid-amount">Rp 5.000.000</span>
-              <span class="bid-time">⏱️ Estimasi: 14 Hari Kerja</span>
-            </div>
-
-            <div class="applicant-right-actions">
-              <button class="btn-outline-blue" onclick="copyContact('Mega Lestari', '0878-3344-5566', 'mega.content@email.com')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                Kontak WA/Email
-              </button>
-              <button class="btn-hire" onclick="hireApplicant('Mega Lestari', 'Kampanye Media Sosial')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Rekrut Freelancer
-              </button>
-            </div>
-          </div>
-
+          </article>
+          <?php endforeach; ?>
         </div>
       </section>
     </div>
@@ -2743,10 +2556,7 @@ $username = (string)$_SESSION["username"];
 
     // Hire Applicant Action
     function hireApplicant(name, projTitle) {
-      showToast('🎉 Berhasil menandai ' + name + ' sebagai mitra terpilih! Silakan lakukan koordinasi kontrak & pembayaran langsung.');
-      setTimeout(() => {
-        switchMainTab('active-projects');
-      }, 1200);
+      showToast('Undangan kerja sama dikirim ke ' + name + '. Kontak akan terbuka setelah Gig Worker menyetujui.');
     }
 
     // Toast Notification System
