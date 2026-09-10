@@ -95,90 +95,256 @@ $workerProfiles = gig_worker_profiles();
       min-height: 100vh;
       background-color: var(--bg-page);
       color: var(--text-main);
-      display: flex;
-      flex-direction: column;
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
     }
 
-    /* TOPBAR */
-    .kemnaker-topbar {
-      background: var(--kemnaker-navy-dark);
-      color: #ffffff;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 7px 24px;
-      font-size: 0.78rem;
-    }
-
-    .topbar-inner {
-      max-width: 1280px;
-      margin: 0 auto;
+    /* APP LAYOUT */
+    .app-layout {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
+      height: 100vh;
+      overflow: hidden;
     }
 
-    .topbar-nav {
+    /* SIDEBAR */
+    .app-sidebar {
+      width: 64px;
+      background-color: #ffffff;
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 0;
+      z-index: 100;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background-color: var(--primary-blue);
+      color: white;
       display: flex;
       align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .topbar-badge {
-      background: rgba(59, 130, 246, 0.25);
-      border: 1px solid rgba(147, 197, 253, 0.3);
-      color: #93c5fd;
-      padding: 2px 8px;
-      border-radius: var(--radius-pill);
-      font-weight: 700;
-      font-size: 0.72rem;
-      letter-spacing: 0.03em;
-    }
-
-    .topbar-nav a {
-      color: #cbd5e1;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.2rem;
+      margin-bottom: 32px;
       text-decoration: none;
-      transition: color 0.15s ease;
-      display: inline-flex;
+    }
+
+    .sidebar-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
       align-items: center;
-      gap: 4px;
     }
 
-    .topbar-nav a:hover {
-      color: #ffffff;
-    }
-
-    .topbar-user {
+    .sidebar-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
-      gap: 12px;
-    }
-
-    .btn-logout {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #ffffff;
-      padding: 4px 12px;
-      border-radius: var(--radius-sm);
-      font-size: 0.74rem;
-      font-weight: 600;
+      justify-content: center;
+      color: var(--text-soft);
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
       transition: all 0.2s ease;
     }
 
-    .btn-logout:hover {
-      background: rgba(239, 68, 68, 0.2);
-      border-color: #ef4444;
-      color: #fca5a5;
+    .sidebar-icon:hover, .sidebar-icon.active {
+      background-color: var(--primary-blue-light);
+      color: var(--primary-blue);
     }
 
-    /* MAIN HEADER */
-    .kemnaker-header {
+    .sidebar-bottom {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .sidebar-user-initials {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: #e2e8f0;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+
+    /* MAIN AREA */
+    .app-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* TOP NAVBAR */
+    .app-navbar {
+      height: 64px;
+      background-color: #ffffff;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      flex-shrink: 0;
+      z-index: 50;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text-soft);
+    }
+
+    .breadcrumbs span.current {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .nav-arrow {
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+    }
+    .nav-arrow:hover {
+      color: var(--text-main);
+    }
+
+    .navbar-center {
+      flex: 1;
+      max-width: 480px;
+      margin: 0 24px;
+    }
+
+    .search-bar {
+      width: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-bar svg {
+      position: absolute;
+      left: 12px;
+      color: var(--text-muted);
+    }
+
+    .search-bar input {
+      width: 100%;
+      height: 38px;
+      padding: 0 16px 0 36px;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-pill);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-bar input:focus {
+      border-color: var(--primary-blue);
+    }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .profile-widget {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+    .profile-widget:hover {
+      background-color: var(--bg-page);
+    }
+
+    .profile-widget img {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      object-fit: cover;
+    }
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .profile-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    
+    .profile-role {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .btn-primary-add {
+      background-color: #06b6d4;
+      color: white;
+      border: none;
+      border-radius: var(--radius-pill);
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-primary-add:hover {
+      background-color: #0891b2;
+    }
+
+    /* APP CONTENT SCROLL AREA */
+    .app-content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 40px;
+      position: relative;
+    }
+
+
+    /* NEW LAYOUT */
+    .app-wrapper {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--bg-page);
+    }
+
+    .kemnaker-header-section {
       background: var(--kemnaker-navy);
       color: #ffffff;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -195,21 +361,6 @@ $workerProfiles = gig_worker_profiles();
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-    }
-
-    .nav-tabs-bar {
-      background: var(--kemnaker-navy-light);
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .nav-tabs-bar-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 24px;
-      display: flex;
-      align-items: stretch;
-      gap: 4px;
-      overflow-x: auto;
     }
 
     .brand-section {
@@ -1563,104 +1714,103 @@ $workerProfiles = gig_worker_profiles();
 </head>
 <body>
 
-  <!-- TOPBAR -->
-  <div class="kemnaker-topbar">
-    <div class="topbar-inner">
-      <div class="topbar-nav">
-        <strong>KarirHub</strong>
-        <span class="topbar-badge">Pemberi Kerja / Employer</span>
-        <a href="#">Beranda ▾</a>
-        <a href="#">Manajemen Talenta ▾</a>
-        <a href="#">Bantuan &amp; Panduan ▾</a>
+<div class="app-layout">
+  <!-- SIDEBAR -->
+  <aside class="app-sidebar">
+    <a href="#" class="sidebar-logo">k</a>
+    <div class="sidebar-menu">
+      <div class="sidebar-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </div>
-      <div class="topbar-user">
-        <span style="color: #94a3b8;">ID Perusahaan: <strong>EMP-99201</strong></span>
-        <form method="post" action="" style="display:inline;">
-          <button type="submit" name="logout" value="1" class="btn-logout" title="Keluar dari sesi">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            Keluar (Logout)
+      <div class="sidebar-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      </div>
+      <div class="sidebar-icon active">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      </div>
+      <div class="sidebar-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <div class="sidebar-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+      </div>
+      <div class="sidebar-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/></svg>
+      </div>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="sidebar-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </div>
+      <div class="sidebar-user-initials">PI</div>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div class="app-main">
+    
+    <!-- TOP NAVBAR -->
+    <header class="app-navbar">
+      <div class="navbar-left">
+        <div class="breadcrumbs">
+          <svg class="nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          <svg class="nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          <span style="margin: 0 4px; color: var(--border-light);">|</span>
+          <span>Beranda</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          <span class="current">Lowongan</span>
+        </div>
+      </div>
+
+      <div class="navbar-center">
+        <div class="search-bar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Cari lowongan pekerjaan dan pelamar..." />
+        </div>
+      </div>
+
+      <div class="navbar-right">
+        <div class="profile-widget">
+          <img src="https://api.dicebear.com/9.x/shapes/svg?seed=PT.PanduJaya" alt="Company Logo" />
+          <div class="profile-info">
+            <span class="profile-name">PT. Pandu Jaya</span>
+            <span class="profile-role">Perusahaan</span>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:4px;"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <button class="btn-primary-add" onclick="openPostProjectModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Tambah
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT SCROLL AREA -->
+    <div class="app-content">
+
+      <div class="nav-tabs-bar" style="background: transparent; border-top: none; border-bottom: 1px solid var(--border-subtle); margin-bottom: 16px;">
+        <nav class="nav-tabs-bar-inner" style="padding-top: 8px;">
+          <button class="nav-tab-btn active" style="color: var(--text-main); border-bottom-color: var(--primary-blue);" onclick="switchMainTab('overview', this)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Ringkasan
           </button>
-        </form>
+          <button class="nav-tab-btn" style="color: var(--text-soft);" onclick="switchMainTab('vacancies', this)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Lowongan Proyek
+            <span class="tab-badge" id="badge-vacancies-count" style="background: var(--bg-page); color: var(--text-main);">3</span>
+          </button>
+          <button class="nav-tab-btn" style="color: var(--text-soft);" onclick="switchMainTab('active-projects', this)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Proyek Aktif
+            <span class="tab-badge" id="badge-active-count" style="background: var(--bg-page); color: var(--text-main);">2</span>
+          </button>
+          <button class="nav-tab-btn" style="color: var(--text-soft);" onclick="switchMainTab('applicants', this)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Pelamar Proyek
+            <span class="tab-badge" id="badge-applicants-count" style="background: var(--bg-page); color: var(--text-main);">6</span>
+          </button>
+        </nav>
       </div>
-    </div>
-  </div>
-
-  <!-- MAIN BRAND HEADER -->
-  <header class="kemnaker-header">
-    <div class="header-inner">
-      <div class="brand-section">
-        <!-- Kemnaker Emblem SVG -->
-        <div class="kemnaker-emblem">
-          <svg width="42" height="42" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="50" cy="50" r="46" fill="#092c4c" stroke="#3b82f6" stroke-width="2.5"/>
-            <g stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">
-              <path d="M50 15 L50 85" stroke="#60a5fa" stroke-width="2.5"/>
-              <path d="M15 50 L85 50" stroke="#60a5fa" stroke-width="2.5"/>
-              <path d="M25 25 L75 75" stroke="#93c5fd" stroke-width="2"/>
-              <path d="M25 75 L75 25" stroke="#93c5fd" stroke-width="2"/>
-            </g>
-            <circle cx="50" cy="50" r="22" stroke="#ffffff" stroke-width="3.5" fill="#134e9e"/>
-            <circle cx="50" cy="50" r="12" fill="#38bdf8"/>
-            <circle cx="50" cy="50" r="5" fill="#ffffff"/>
-            <circle cx="50" cy="20" r="3" fill="#ffffff"/>
-            <circle cx="71" cy="28" r="3" fill="#ffffff"/>
-            <circle cx="80" cy="50" r="3" fill="#ffffff"/>
-            <circle cx="71" cy="72" r="3" fill="#ffffff"/>
-            <circle cx="50" cy="80" r="3" fill="#ffffff"/>
-            <circle cx="29" cy="72" r="3" fill="#ffffff"/>
-            <circle cx="20" cy="50" r="3" fill="#ffffff"/>
-            <circle cx="29" cy="28" r="3" fill="#ffffff"/>
-          </svg>
-        </div>
-        <div class="brand-text">
-          <span class="brand-title">KEMENTERIAN KETENAGAKERJAAN RI</span>
-          <span class="brand-sub">
-            KarirHub Gig Workers
-            <span class="brand-sub-badge">Fitur Baru</span>
-          </span>
-        </div>
-      </div>
-
-      <!-- HEADER ACTIONS -->
-      <div class="header-actions">
-        <button class="btn-create-post" onclick="openPostProjectModal()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          + Pasang Proyek Gig
-        </button>
-        <div class="user-pill">
-          <span class="user-avatar"><?php echo strtoupper(substr($username, 0, 2)); ?></span>
-          <span><?php echo htmlspecialchars($username, ENT_QUOTES, "UTF-8"); ?></span>
-          <span style="background: rgba(245, 158, 11, 0.25); color: #fde68a; font-weight: 700; font-size: 0.72rem; padding: 2px 7px; border-radius: var(--radius-pill); display: inline-flex; align-items: center; gap: 3px;" title="Rating Pemberi Kerja dari Mitra Gig Worker">
-            ★ 4.9
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <div class="nav-tabs-bar">
-      <nav class="nav-tabs-bar-inner">
-        <button class="nav-tab-btn active" onclick="switchMainTab('overview', this)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-          Ringkasan
-        </button>
-        <button class="nav-tab-btn" onclick="switchMainTab('vacancies', this)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Lowongan Proyek
-          <span class="tab-badge" id="badge-vacancies-count">3</span>
-        </button>
-        <button class="nav-tab-btn" onclick="switchMainTab('active-projects', this)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          Proyek Aktif
-          <span class="tab-badge" id="badge-active-count">2</span>
-        </button>
-        <button class="nav-tab-btn" onclick="switchMainTab('applicants', this)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          Pelamar Proyek
-          <span class="tab-badge" id="badge-applicants-count">6</span>
-        </button>
-      </nav>
-    </div>
-  </header>
 
   <!-- MAIN CONTENT -->
   <main class="page-main">
@@ -2582,5 +2732,7 @@ $workerProfiles = gig_worker_profiles();
       renderProjectCards();
     });
   </script>
-</body>
+    </div> <!-- End .app-content -->
+  </div> <!-- End .app-main -->
+</div> <!-- End .app-layout -->
 </html>
