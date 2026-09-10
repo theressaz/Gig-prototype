@@ -4,7 +4,10 @@ declare(strict_types=1);
 /**
  * Shared Gig Worker account profiles.
  * Contact details stay hidden until both sides have agreed to work together.
- * Ratings are strictly whole numbers (1, 2, 3, 4, 5).
+ * Individual review ratings are whole integers (1–5).
+ * The overall 'rating' field is a computed average and may be a decimal.
+ * 'completed_projects' = projects with status Selesai.
+ * 'total_projects' = all projects worked on regardless of status.
  */
 function gig_worker_profiles(): array
 {
@@ -17,9 +20,10 @@ function gig_worker_profiles(): array
             'photo' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Tessa&backgroundColor=dbeafe',
             'title' => 'Lead UI/UX Designer',
             'location' => 'Jakarta, Indonesia',
-            'rating' => 5,
+            'rating' => 5.0, // average of reviews: (5+5+5)/3 = 5.0
             'reviews_count' => 18,
-            'completed_projects' => 18,
+            'completed_projects' => 16, // selesai
+            'total_projects' => 18,     // total dikerjakan
             'verified' => true,
             'agreed' => false,
             'category' => 'ui-ux',
@@ -95,14 +99,14 @@ function gig_worker_profiles(): array
                 [
                     'employer' => 'PT ABC',
                     'project' => 'Prototype Dashboard Internal',
-                    'rating' => 5,
+                    'rating' => 5, // integer
                     'date' => 'Agu 2026',
                     'comment' => 'Hasil desain rapi, komunikatif, dan tepat waktu. Prototype mudah diuji tim internal.',
                 ],
                 [
                     'employer' => 'CV Kreasi Digital',
                     'project' => 'Redesign Aplikasi Lowongan',
-                    'rating' => 5,
+                    'rating' => 5, // integer
                     'date' => 'Mei 2026',
                     'comment' => 'Sangat memahami kebutuhan pengguna awam. Iterasi cepat setelah umpan balik.',
                 ],
@@ -123,9 +127,10 @@ function gig_worker_profiles(): array
             'photo' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Rian&backgroundColor=cffafe',
             'title' => 'Fullstack / Backend API Developer',
             'location' => 'Bandung, Indonesia',
-            'rating' => 5,
+            'rating' => 5.0, // average: (5+5+5)/3 = 5.0
             'reviews_count' => 24,
-            'completed_projects' => 24,
+            'completed_projects' => 22, // selesai
+            'total_projects' => 24,     // total dikerjakan
             'verified' => true,
             'agreed' => false,
             'category' => 'backend',
@@ -229,9 +234,10 @@ function gig_worker_profiles(): array
             'photo' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Siti&backgroundColor=ede9fe',
             'title' => 'Social Media Specialist',
             'location' => 'Surabaya, Indonesia',
-            'rating' => 5,
+            'rating' => 5.0, // average: (5+5)/2 = 5.0
             'reviews_count' => 12,
-            'completed_projects' => 12,
+            'completed_projects' => 11, // selesai
+            'total_projects' => 12,     // total dikerjakan
             'verified' => true,
             'agreed' => false,
             'category' => 'marketing',
@@ -309,9 +315,10 @@ function gig_worker_profiles(): array
             'photo' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Budi&backgroundColor=d1fae5',
             'title' => 'UI Designer',
             'location' => 'Yogyakarta, Indonesia',
-            'rating' => 4,
+            'rating' => 4.0, // average: (4+4)/2 = 4.0
             'reviews_count' => 9,
-            'completed_projects' => 9,
+            'completed_projects' => 7, // selesai
+            'total_projects' => 9,     // total dikerjakan
             'verified' => true,
             'agreed' => false,
             'category' => 'ui-ux',
@@ -388,9 +395,10 @@ function gig_worker_profiles(): array
             'photo' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Dimas&backgroundColor=ffedd5',
             'title' => 'Cloud API Engineer',
             'location' => 'Depok, Indonesia',
-            'rating' => 5,
+            'rating' => 5.0, // average: (5+5)/2 = 5.0
             'reviews_count' => 31,
-            'completed_projects' => 31,
+            'completed_projects' => 29, // selesai
+            'total_projects' => 31,     // total dikerjakan
             'verified' => true,
             'agreed' => false,
             'category' => 'backend',
@@ -467,9 +475,10 @@ function gig_worker_profiles(): array
             'photo' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Mega&backgroundColor=fce7f3',
             'title' => 'Digital Campaign Strategist',
             'location' => 'Semarang, Indonesia',
-            'rating' => 5,
+            'rating' => 5.0, // average: (5+5)/2 = 5.0
             'reviews_count' => 15,
-            'completed_projects' => 15,
+            'completed_projects' => 14, // selesai
+            'total_projects' => 15,     // total dikerjakan
             'verified' => true,
             'agreed' => false,
             'category' => 'marketing',

@@ -39,9 +39,9 @@ require __DIR__ . '/includes/employer-layout-start.php';
         <div class="profile-title"><?php echo htmlspecialchars($worker['title'], ENT_QUOTES, 'UTF-8'); ?> · <?php echo htmlspecialchars($worker['location'], ENT_QUOTES, 'UTF-8'); ?></div>
         <div class="profile-meta">
           <span class="stars"><?php echo gig_stars($worker['rating']); ?></span>
-          <strong><?php echo (int)$worker['rating']; ?></strong>
+          <strong><?php echo number_format((float)$worker['rating'], 1); ?></strong>
           <span class="chip gold"><?php echo (int)$worker['reviews_count']; ?> ulasan pemberi kerja</span>
-          <span class="chip"><?php echo (int)$worker['completed_projects']; ?> proyek selesai</span>
+          <span class="chip"><?php echo (int)$worker['completed_projects']; ?> dari <?php echo (int)($worker['total_projects'] ?? $worker['completed_projects']); ?> proyek selesai</span>
         </div>
       </div>
     </section>
@@ -103,7 +103,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
               </div>
               <div>
                 <span class="stars"><?php echo gig_stars($review['rating']); ?></span>
-                <strong><?php echo (int)$review['rating']; ?></strong>
+                <strong><?php echo (int)$review['rating']; ?>/5</strong>
               </div>
             </div>
             <p><?php echo htmlspecialchars($review['comment'], ENT_QUOTES, 'UTF-8'); ?></p>
@@ -137,7 +137,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <div style="font-size:0.8rem;color:var(--text-muted);" id="deliv-modal-meta">Client · Year</div>
           <p style="margin:10px 0 16px 0;font-size:0.9rem;line-height:1.5;color:var(--text-dark);" id="deliv-modal-desc"></p>
           
-          <h4 style="font-size:0.88rem;font-weight:700;margin-bottom:10px;">Berkas Upload Deliverable:</h4>
+          <h4 style="font-size:0.88rem;font-weight:700;margin-bottom:10px;">Deliverable yang Diunggah Gig Worker:</h4>
           <div id="deliv-modal-files" style="display:flex;flex-direction:column;gap:10px;">
             <!-- Rendered by JS -->
           </div>
@@ -165,16 +165,13 @@ require __DIR__ . '/includes/employer-layout-start.php';
         if (item.files && item.files.length > 0) {
           item.files.forEach(f => {
             const fileRow = document.createElement('div');
-            fileRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;';
+            fileRow.style.cssText = 'display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;';
             fileRow.innerHTML = `
-              <div style="display:flex;align-items:center;gap:10px;">
-                <span style="font-size:1.2rem;">📄</span>
-                <div>
-                  <div style="font-size:0.85rem;font-weight:700;color:var(--text-dark);">${f.name}</div>
-                  <div style="font-size:0.74rem;color:var(--text-muted);">${f.type} · ${f.size}</div>
-                </div>
+              <span style="font-size:1.4rem;line-height:1;">${getFileIcon(f.type)}</span>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:0.86rem;font-weight:700;color:#1e293b;word-break:break-all;">${f.name}</div>
+                <div style="font-size:0.74rem;color:#64748b;margin-top:2px;">${f.type} &bull; ${f.size}</div>
               </div>
-              <button type="button" class="btn-action-sm" onclick="showToast('Mengunduh berkas ${f.name}...')">Unduh Berkas</button>
             `;
             filesContainer.appendChild(fileRow);
           });
@@ -185,6 +182,19 @@ require __DIR__ . '/includes/employer-layout-start.php';
         document.getElementById('deliverableModal').classList.add('open');
       }
 
+      function getFileIcon(type) {
+        if (!type) return '📄';
+        const t = type.toLowerCase();
+        if (t.includes('figma')) return '🎨';
+        if (t.includes('pdf') || t.includes('dokumen')) return '📄';
+        if (t.includes('zip') || t.includes('arsip')) return '📦';
+        if (t.includes('excel') || t.includes('xlsx') || t.includes('lembar')) return '📊';
+        if (t.includes('api') || t.includes('spec') || t.includes('yaml') || t.includes('json')) return '⚙️';
+        if (t.includes('code') || t.includes('php') || t.includes('source')) return '💻';
+        if (t.includes('laporan') || t.includes('report')) return '📋';
+        if (t.includes('aset') || t.includes('gambar') || t.includes('visual')) return '🖼️';
+        return '📄';
+      }
       function closeDeliverableModal() {
         document.getElementById('deliverableModal').classList.remove('open');
       }

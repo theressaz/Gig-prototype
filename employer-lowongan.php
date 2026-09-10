@@ -11,15 +11,13 @@ $rejectedCount = 0;
 $activeCount = 0;
 
 foreach ($vacancies as $vacancy) {
-    if ($vacancy['status'] === 'draft') {
-        $draftCount++;
-    } elseif ($vacancy['status'] === 'review') {
-        $reviewCount++;
-    } elseif ($vacancy['status'] === 'revision') {
-        $revisionCount++;
-    } elseif ($vacancy['status'] === 'rejected') {
-        $rejectedCount++;
-    } elseif ($vacancy['status'] === 'active') {
+    // Only active vacancies can have applicants — enforce this
+    if (in_array($vacancy['status'], ['draft', 'review', 'revision', 'rejected'], true)) {
+        $draftCount += ($vacancy['status'] === 'draft') ? 1 : 0;
+        $reviewCount += ($vacancy['status'] === 'review') ? 1 : 0;
+        $revisionCount += ($vacancy['status'] === 'revision') ? 1 : 0;
+        $rejectedCount += ($vacancy['status'] === 'rejected') ? 1 : 0;
+    } else {
         $activeCount++;
     }
 }
@@ -105,7 +103,7 @@ $colors = ['#2563eb', '#0891b2', '#7c3aed', '#059669', '#ea580c', '#db2777'];
             <th>Lowongan</th>
             <th>Penempatan</th>
             <th>Kuota Tersedia</th>
-            <th>Pelamar</th>
+            <th>Kandidat</th>
             <th>Status Verifikasi</th>
             <th>Aksi</th>
           </tr>
@@ -129,9 +127,15 @@ $colors = ['#2563eb', '#0891b2', '#7c3aed', '#059669', '#ea580c', '#db2777'];
             <td><?php echo htmlspecialchars($job['location'], ENT_QUOTES, 'UTF-8'); ?></td>
             <td><?php echo (int)$job['acceptedCount']; ?>/<?php echo (int)$job['quota']; ?> terisi</td>
             <td>
-              <a href="employer-pelamar.php" style="color:var(--primary-blue);font-weight:700;text-decoration:none;">
-                <?php echo (int)$job['applicantsCount']; ?> pelamar
-              </a>
+              <?php if ($job['status'] === 'active' && (int)$job['applicantsCount'] > 0): ?>
+                <a href="employer-pelamar.php" style="color:var(--primary-blue);font-weight:700;text-decoration:none;">
+                  <?php echo (int)$job['applicantsCount']; ?> kandidat
+                </a>
+              <?php elseif ($job['status'] === 'active'): ?>
+                <span style="color:var(--text-muted);font-size:0.84rem;">0 kandidat</span>
+              <?php else: ?>
+                <span style="color:#cbd5e1;font-size:0.84rem;">— belum tayang</span>
+              <?php endif; ?>
             </td>
             <td>
               <?php if ($job['status'] === 'active'): ?>

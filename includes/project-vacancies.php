@@ -75,7 +75,7 @@ function gig_project_vacancies(): array
             'statusLabel' => 'Perlu Revisi',
             'budget' => 'Rp 3.500.000',
             'duration' => '2 Minggu',
-            'applicantsCount' => 0,
+            'applicantsCount' => 0,  // not active — cannot have applicants
             'acceptedCount' => 0,
             'quota' => 1,
             'location' => 'Remote / Jakarta',
