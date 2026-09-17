@@ -550,19 +550,108 @@ function gig_worker_profiles(): array
         ],
     ];
 
-    if (session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['custom_reviews']) && is_array($_SESSION['custom_reviews'])) {
-        foreach ($_SESSION['custom_reviews'] as $wId => $revList) {
-            if (isset($profiles[$wId]) && is_array($revList)) {
-                foreach ($revList as $r) {
-                    array_unshift($profiles[$wId]['reviews'], $r);
+    // ── Merge reviews from DB (primary source) ───────────────────────────────
+    // db.php is conditionally included here so worker-profiles.php can work
+    // standalone without requiring a DB connection in every consumer.
+    if (function_exists('gig_db')) {
+        $pdo = gig_db();
+        if ($pdo !== null) {
+            try {
+                // Fetch all reviews stored by any employer for any worker
+                $stmt = $pdo->query(
+                    "SELECT `worker_id`, `employer_username`, `project_title`,
+                            `overall_rating`, `comment`, `badges`, `created_at`
+                     FROM `project_reviews`
+                     ORDER BY `created_at` DESC"
+                );
+                $dbRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Group by worker_id and track contracts already merged to avoid
+                // double-inserting if both DB and session have the same review.
+                $mergedContracts = [];
+
+                foreach ($dbRows as $row) {
+                    $wId = $row['worker_id'];
+                    if (!isset($profiles[$wId])) continue;
+
+                    $contractKey = $row['employer_username'] . '||' . $row['project_title'];
+                    if (isset($mergedContracts[$wId][$contractKey])) continue;
+                    $mergedContracts[$wId][$contractKey] = true;
+
+                    $badgesArr = ($row['badges'] !== '')
+                        ? explode('||', $row['badges'])
+                        : [];
+
+                    // Format date as "Sep 2026" style
+                    $reviewDate = date('M Y', strtotime($row['created_at']));
+
+                    array_unshift($profiles[$wId]['reviews'], [
+                        'employer' => $row['employer_username'],
+                        'project'  => $row['project_title'],
+                        'rating'   => (int)$row['overall_rating'],
+                        'date'     => $reviewDate,
+                        'comment'  => $row['comment'],
+                        'badges'   => $badgesArr,
+                    ]);
+
                     $profiles[$wId]['reviews_count']++;
                     $profiles[$wId]['completed_projects']++;
-                    $profiles[$wId]['total_projects'] = max((int)$profiles[$wId]['total_projects'], (int)$profiles[$wId]['completed_projects']);
+                    $profiles[$wId]['total_projects'] = max(
+                        (int)$profiles[$wId]['total_projects'],
+                        (int)$profiles[$wId]['completed_projects']
+                    );
                 }
-                $totalScore = array_sum(array_column($profiles[$wId]['reviews'], 'rating'));
-                $cnt = count($profiles[$wId]['reviews']);
-                $profiles[$wId]['rating'] = $cnt > 0 ? round($totalScore / $cnt, 1) : 5.0;
+
+                // Recalculate average rating for each worker that had new reviews
+                foreach (array_keys($mergedContracts) as $wId) {
+                    if (!isset($profiles[$wId])) continue;
+                    $allRatings = array_column($profiles[$wId]['reviews'], 'rating');
+                    $cnt = count($allRatings);
+                    $profiles[$wId]['rating'] = $cnt > 0
+                        ? round(array_sum($allRatings) / $cnt, 1)
+                        : 5.0;
+                }
+            } catch (Throwable $e) {
+                // DB error – fall through to session fallback
             }
+        }
+    }
+
+    // ── Session fallback (used when DB is offline) ───────────────────────────
+    if (session_status() === PHP_SESSION_ACTIVE
+        && isset($_SESSION['custom_reviews'])
+        && is_array($_SESSION['custom_reviews'])
+    ) {
+        foreach ($_SESSION['custom_reviews'] as $wId => $revList) {
+            if (!isset($profiles[$wId]) || !is_array($revList)) continue;
+            foreach ($revList as $r) {
+                // Avoid duplicating if already merged from DB
+                $contractKey = ($r['employer'] ?? '') . '||' . ($r['project'] ?? '');
+                // Simple check: see if any existing review matches
+                $alreadyIn = false;
+                foreach ($profiles[$wId]['reviews'] as $existing) {
+                    if (($existing['project'] ?? '') === ($r['project'] ?? '')
+                        && ($existing['employer'] ?? '') === ($r['employer'] ?? '')
+                    ) {
+                        $alreadyIn = true;
+                        break;
+                    }
+                }
+                if ($alreadyIn) continue;
+
+                array_unshift($profiles[$wId]['reviews'], $r);
+                $profiles[$wId]['reviews_count']++;
+                $profiles[$wId]['completed_projects']++;
+                $profiles[$wId]['total_projects'] = max(
+                    (int)$profiles[$wId]['total_projects'],
+                    (int)$profiles[$wId]['completed_projects']
+                );
+            }
+            $allRatings = array_column($profiles[$wId]['reviews'], 'rating');
+            $cnt = count($allRatings);
+            $profiles[$wId]['rating'] = $cnt > 0
+                ? round(array_sum($allRatings) / $cnt, 1)
+                : 5.0;
         }
     }
 
@@ -583,11 +672,8 @@ function gig_stars(int|float $rating): string
 
     $html = '';
     for ($i = 1; $i <= 5; $i++) {
-        if ($i <= $intRating) {
-            $html .= '★';
-        } else {
-            $html .= '☆';
-        }
+        $html .= ($i <= $intRating) ? '★' : '☆';
     }
     return $html;
 }
+

@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/includes/employer-auth.php';
+require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
 
 $pageTitle = 'Riwayat Proyek';
@@ -96,21 +97,41 @@ $historyProjects = [
     ],
 ];
 
-// Merge any dynamically completed projects from session
-if (isset($_SESSION['completed_projects']) && is_array($_SESSION['completed_projects'])) {
-    foreach ($historyProjects as &$proj) {
-        $pId = $proj['id'];
-        if (isset($_SESSION['completed_projects'][$pId])) {
-            $sessInfo = $_SESSION['completed_projects'][$pId];
-            $proj['status'] = $sessInfo['status'] ?? 'Selesai';
-            $proj['statusCode'] = $sessInfo['statusCode'] ?? 'completed';
-            $proj['ratingGiven'] = $sessInfo['ratingGiven'] ?? 5;
-            $proj['reviewGiven'] = $sessInfo['reviewGiven'] ?? '';
-            $proj['summary'] = 'Proyek telah selesai dikerjakan, seluruh deliverable diterima dan pembayaran berhasil dituntaskan.';
+// Merge completed status from DB (primary) then session (fallback)
+$pdo = gig_db();
+$dbCompletions = [];
+if ($pdo !== null) {
+    try {
+        $stmt = $pdo->prepare(
+            "SELECT `contract_id`, `rating_given`, `review_given`
+             FROM `project_completions`
+             WHERE `employer_username` = :emp"
+        );
+        $stmt->execute([':emp' => $username]);
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $dbCompletions[$row['contract_id']] = $row;
         }
-    }
-    unset($proj);
+    } catch (Throwable $ignored) {}
 }
+
+foreach ($historyProjects as &$proj) {
+    $pId = $proj['id'];
+    if (isset($dbCompletions[$pId])) {
+        $proj['status']      = 'Selesai';
+        $proj['statusCode']  = 'completed';
+        $proj['ratingGiven'] = (int)$dbCompletions[$pId]['rating_given'];
+        $proj['reviewGiven'] = $dbCompletions[$pId]['review_given'];
+        $proj['summary']     = 'Proyek telah selesai dikerjakan, seluruh deliverable diterima dan pembayaran berhasil dituntaskan.';
+    } elseif (isset($_SESSION['completed_projects'][$pId])) {
+        $sessInfo = $_SESSION['completed_projects'][$pId];
+        $proj['status']      = $sessInfo['status']      ?? 'Selesai';
+        $proj['statusCode']  = $sessInfo['statusCode']  ?? 'completed';
+        $proj['ratingGiven'] = $sessInfo['ratingGiven'] ?? 5;
+        $proj['reviewGiven'] = $sessInfo['reviewGiven'] ?? '';
+        $proj['summary']     = 'Proyek telah selesai dikerjakan, seluruh deliverable diterima dan pembayaran berhasil dituntaskan.';
+    }
+}
+unset($proj);
 
 $activeCount = 0;
 $completedCount = 0;

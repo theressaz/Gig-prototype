@@ -1,7 +1,9 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/includes/employer-auth.php';
+require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
+
 
 $workerId = trim((string)($_GET['id'] ?? ''));
 $worker = $workerId !== '' ? gig_find_worker($workerId) : null;

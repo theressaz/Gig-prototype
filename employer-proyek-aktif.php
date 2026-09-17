@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/includes/employer-auth.php';
+require_once __DIR__ . '/includes/db.php';
 
 $pageTitle = 'Proyek Aktif';
 $pageKey = 'aktif';
@@ -16,9 +17,32 @@ require __DIR__ . '/includes/employer-layout-start.php';
     </div>
 
     <div class="active-projects-list">
-      <?php 
-        $completedP1 = isset($_SESSION['completed_projects']['CTR-GIG-2026-0811']);
-        $completedP2 = isset($_SESSION['completed_projects']['CTR-GIG-2026-0819']);
+      <?php
+        // Load completion status from DB first, fall back to session
+        $pdo = gig_db();
+        $dbCompletions = [];
+        if ($pdo !== null) {
+            try {
+                $stmt = $pdo->prepare(
+                    "SELECT `contract_id`, `rating_given`, `review_given`
+                     FROM `project_completions`
+                     WHERE `employer_username` = :emp"
+                );
+                $stmt->execute([':emp' => $username]);
+                foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                    $dbCompletions[$row['contract_id']] = $row;
+                }
+            } catch (Throwable $ignored) {}
+        }
+
+        $c1Id = 'CTR-GIG-2026-0811';
+        $c2Id = 'CTR-GIG-2026-0819';
+        $completedP1 = isset($dbCompletions[$c1Id]) || isset($_SESSION['completed_projects'][$c1Id]);
+        $completedP2 = isset($dbCompletions[$c2Id]) || isset($_SESSION['completed_projects'][$c2Id]);
+        $ratingP1 = $dbCompletions[$c1Id]['rating_given']
+                    ?? ($_SESSION['completed_projects'][$c1Id]['ratingGiven'] ?? 5);
+        $ratingP2 = $dbCompletions[$c2Id]['rating_given']
+                    ?? ($_SESSION['completed_projects'][$c2Id]['ratingGiven'] ?? 5);
       ?>
 
       <!-- Project 1 -->
@@ -91,7 +115,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <div>
             <?php if ($completedP1): ?>
               <span style="font-size:0.82rem;color:#047857;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
-                <span>⭐</span> Rating Diberikan: <?php echo (int)($_SESSION['completed_projects']['CTR-GIG-2026-0811']['ratingGiven'] ?? 5); ?>/5
+               <span>⭐</span> Rating Diberikan: <?php echo (int)$ratingP1; ?>/5
               </span>
             <?php else: ?>
               <span style="font-size:0.8rem;color:var(--text-muted);">Deliverable siap? Selesaikan proyek dan tinggalkan penilaian.</span>
@@ -184,7 +208,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <div>
             <?php if ($completedP2): ?>
               <span style="font-size:0.82rem;color:#047857;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
-                <span>⭐</span> Rating Diberikan: <?php echo (int)($_SESSION['completed_projects']['CTR-GIG-2026-0819']['ratingGiven'] ?? 5); ?>/5
+               <span>⭐</span> Rating Diberikan: <?php echo (int)$ratingP2; ?>/5
               </span>
             <?php else: ?>
               <span style="font-size:0.8rem;color:var(--text-muted);">Deliverable siap? Selesaikan proyek dan tinggalkan penilaian.</span>
