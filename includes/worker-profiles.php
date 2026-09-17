@@ -549,6 +549,24 @@ function gig_worker_profiles(): array
             ],
         ],
     ];
+
+    if (session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['custom_reviews']) && is_array($_SESSION['custom_reviews'])) {
+        foreach ($_SESSION['custom_reviews'] as $wId => $revList) {
+            if (isset($profiles[$wId]) && is_array($revList)) {
+                foreach ($revList as $r) {
+                    array_unshift($profiles[$wId]['reviews'], $r);
+                    $profiles[$wId]['reviews_count']++;
+                    $profiles[$wId]['completed_projects']++;
+                    $profiles[$wId]['total_projects'] = max((int)$profiles[$wId]['total_projects'], (int)$profiles[$wId]['completed_projects']);
+                }
+                $totalScore = array_sum(array_column($profiles[$wId]['reviews'], 'rating'));
+                $cnt = count($profiles[$wId]['reviews']);
+                $profiles[$wId]['rating'] = $cnt > 0 ? round($totalScore / $cnt, 1) : 5.0;
+            }
+        }
+    }
+
+    return $profiles;
 }
 
 function gig_find_worker(string $id): ?array

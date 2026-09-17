@@ -95,6 +95,31 @@ $historyProjects = [
         'summary' => 'Proyek dibatalkan secara bersama karena perubahan spesifikasi arsitektur internal.',
     ],
 ];
+
+// Merge any dynamically completed projects from session
+if (isset($_SESSION['completed_projects']) && is_array($_SESSION['completed_projects'])) {
+    foreach ($historyProjects as &$proj) {
+        $pId = $proj['id'];
+        if (isset($_SESSION['completed_projects'][$pId])) {
+            $sessInfo = $_SESSION['completed_projects'][$pId];
+            $proj['status'] = $sessInfo['status'] ?? 'Selesai';
+            $proj['statusCode'] = $sessInfo['statusCode'] ?? 'completed';
+            $proj['ratingGiven'] = $sessInfo['ratingGiven'] ?? 5;
+            $proj['reviewGiven'] = $sessInfo['reviewGiven'] ?? '';
+            $proj['summary'] = 'Proyek telah selesai dikerjakan, seluruh deliverable diterima dan pembayaran berhasil dituntaskan.';
+        }
+    }
+    unset($proj);
+}
+
+$activeCount = 0;
+$completedCount = 0;
+$cancelledCount = 0;
+foreach ($historyProjects as $p) {
+    if ($p['statusCode'] === 'active') $activeCount++;
+    elseif ($p['statusCode'] === 'completed') $completedCount++;
+    elseif ($p['statusCode'] === 'cancelled') $cancelledCount++;
+}
 ?>
 
     <div class="page-toolbar">
@@ -106,9 +131,9 @@ $historyProjects = [
 
     <div class="toolbar-filter">
       <button class="filter-btn-pill active" type="button" onclick="filterHistory('all', this)">Semua Status (<?php echo count($historyProjects); ?>)</button>
-      <button class="filter-btn-pill" type="button" onclick="filterHistory('active', this)">Proyek Aktif (2)</button>
-      <button class="filter-btn-pill" type="button" onclick="filterHistory('completed', this)">Selesai (2)</button>
-      <button class="filter-btn-pill" type="button" onclick="filterHistory('cancelled', this)">Tidak Selesai (1)</button>
+      <button class="filter-btn-pill" type="button" onclick="filterHistory('active', this)">Proyek Aktif (<?php echo $activeCount; ?>)</button>
+      <button class="filter-btn-pill" type="button" onclick="filterHistory('completed', this)">Selesai (<?php echo $completedCount; ?>)</button>
+      <button class="filter-btn-pill" type="button" onclick="filterHistory('cancelled', this)">Tidak Selesai (<?php echo $cancelledCount; ?>)</button>
       <div class="search-input-box">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" placeholder="Cari nomor kontrak, judul, atau freelancer..." onkeyup="searchHistory(this.value)" />
@@ -158,12 +183,26 @@ $historyProjects = [
         </div>
 
         <?php if ($item['statusCode'] === 'completed' && $item['ratingGiven'] !== null): ?>
-          <div style="margin-top:12px;padding:10px 14px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;font-size:0.82rem;">
-            <div style="display:flex;align-items:center;gap:8px;">
-              <span style="color:#f59e0b;font-weight:800;"><?php echo gig_stars($item['ratingGiven']); ?></span>
-              <strong style="color:var(--text-dark);">Rating Diberikan: <?php echo (int)$item['ratingGiven']; ?> / 5</strong>
+          <div style="margin-top:12px;padding:12px 16px;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;font-size:0.84rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="color:#f59e0b;font-weight:800;font-size:1rem;"><?php echo gig_stars($item['ratingGiven']); ?></span>
+                <strong style="color:#065f46;">Penilaian Diberikan: <?php echo (int)$item['ratingGiven']; ?> / 5</strong>
+              </div>
+              <a href="worker-profile.php?id=<?php echo urlencode($item['workerId']); ?>" style="font-size:0.78rem;color:var(--primary-blue);text-decoration:none;font-weight:700;">
+                Lihat di Profil <?php echo htmlspecialchars($item['worker'], ENT_QUOTES, 'UTF-8'); ?> →
+              </a>
             </div>
-            <p style="margin:4px 0 0 0;color:var(--text-muted);font-style:italic;">"<?php echo htmlspecialchars($item['reviewGiven'], ENT_QUOTES, 'UTF-8'); ?>"</p>
+            <?php if (!empty($item['reviewGiven'])): ?>
+              <p style="margin:6px 0 0 0;color:#1e293b;font-style:italic;">"<?php echo htmlspecialchars($item['reviewGiven'], ENT_QUOTES, 'UTF-8'); ?>"</p>
+            <?php endif; ?>
+          </div>
+        <?php elseif ($item['statusCode'] === 'active'): ?>
+          <div style="margin-top:12px;padding:10px 14px;background:#eff6ff;border-radius:8px;border:1px solid #bfdbfe;font-size:0.82rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <span style="color:#1e40af;">Proyek ini sedang berjalan aktif. Anda dapat menyelesaikan kontrak dan memberikan rating kapan saja.</span>
+            <a href="employer-rating-worker.php?contract=<?php echo urlencode($item['id']); ?>&worker=<?php echo urlencode($item['workerId']); ?>" class="btn-create-post" style="padding:6px 14px;font-size:0.8rem;text-decoration:none;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);">
+              ★ Beri Ulasan &amp; Selesaikan
+            </a>
           </div>
         <?php elseif ($item['statusCode'] === 'cancelled'): ?>
           <div style="margin-top:12px;padding:10px 14px;background:#fff1f2;border-radius:8px;border:1px solid #fecdd3;font-size:0.8rem;color:#9f1239;">

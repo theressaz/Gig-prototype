@@ -16,12 +16,20 @@ require __DIR__ . '/includes/employer-layout-start.php';
     </div>
 
     <div class="active-projects-list">
+      <?php 
+        $completedP1 = isset($_SESSION['completed_projects']['CTR-GIG-2026-0811']);
+        $completedP2 = isset($_SESSION['completed_projects']['CTR-GIG-2026-0819']);
+      ?>
+
       <!-- Project 1 -->
-      <div class="active-project-card">
+      <div class="active-project-card" style="<?php echo $completedP1 ? 'border-color:#10b981;background:#f0fdf4;' : ''; ?>">
         <div class="active-proj-header">
           <div>
-            <div class="active-proj-title">
-              Redesign UI/UX Dashboard Prototype KarirHub
+            <div class="active-proj-title" style="display:flex;align-items:center;gap:10px;">
+              <span>Redesign UI/UX Dashboard Prototype KarirHub</span>
+              <?php if ($completedP1): ?>
+                <span style="display:inline-block;padding:3px 10px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#d1fae5;color:#047857;">✓ Selesai &amp; Dinilai</span>
+              <?php endif; ?>
             </div>
             <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">
               No. Kontrak: <strong>CTR-GIG-2026-0811</strong> · Durasi Disepakati: <strong>3 Minggu</strong>
@@ -70,25 +78,51 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
           <div class="payment-direct-box">
             <span class="payment-direct-label">Status Deliverable</span>
-            <span class="payment-direct-amount" style="font-size:0.95rem;">Review Prototype</span>
-            <span style="font-size:0.72rem;color:var(--text-muted);">Sedang pengujian internal</span>
+            <span class="payment-direct-amount" style="font-size:0.95rem;">
+              <?php echo $completedP1 ? 'Disetujui & Selesai' : 'Review Prototype'; ?>
+            </span>
+            <span style="font-size:0.72rem;color:var(--text-muted);">
+              <?php echo $completedP1 ? 'Pekerjaan telah dinilai' : 'Sedang pengujian internal'; ?>
+            </span>
           </div>
         </div>
 
-        <div class="active-proj-actions" style="justify-content:flex-end;">
-          <div style="display:flex;gap:8px;">
+        <div class="active-proj-actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <div>
+            <?php if ($completedP1): ?>
+              <span style="font-size:0.82rem;color:#047857;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+                <span>⭐</span> Rating Diberikan: <?php echo (int)($_SESSION['completed_projects']['CTR-GIG-2026-0811']['ratingGiven'] ?? 5); ?>/5
+              </span>
+            <?php else: ?>
+              <span style="font-size:0.8rem;color:var(--text-muted);">Deliverable siap? Selesaikan proyek dan tinggalkan penilaian.</span>
+            <?php endif; ?>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <button class="btn-action-sm" type="button" onclick="copyContact('Tessa','0812-3456-7890','tessa.design@email.com')">Kontak Freelancer</button>
             <a class="btn-outline-blue" href="worker-profile.php?active=1&id=tessa">Lihat Profil</a>
+            
+            <?php if ($completedP1): ?>
+              <a class="btn-create-post" href="employer-riwayat-proyek.php" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:#059669;border-color:#047857;">
+                Buka di Riwayat →
+              </a>
+            <?php else: ?>
+              <a class="btn-create-post" href="employer-rating-worker.php?contract=CTR-GIG-2026-0811&worker=tessa" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 10px rgba(217,119,6,0.35);">
+                ★ Selesaikan &amp; Beri Rating
+              </a>
+            <?php endif; ?>
           </div>
         </div>
       </div>
 
       <!-- Project 2 -->
-      <div class="active-project-card">
+      <div class="active-project-card" style="<?php echo $completedP2 ? 'border-color:#10b981;background:#f0fdf4;' : ''; ?>">
         <div class="active-proj-header">
           <div>
-            <div class="active-proj-title">
-              Integrasi REST API Modul Notifikasi SMS &amp; WhatsApp
+            <div class="active-proj-title" style="display:flex;align-items:center;gap:10px;">
+              <span>Integrasi REST API Modul Notifikasi SMS &amp; WhatsApp</span>
+              <?php if ($completedP2): ?>
+                <span style="display:inline-block;padding:3px 10px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#d1fae5;color:#047857;">✓ Selesai &amp; Dinilai</span>
+              <?php endif; ?>
             </div>
             <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">
               No. Kontrak: <strong>CTR-GIG-2026-0819</strong> · Durasi Disepakati: <strong>2 Minggu</strong>
@@ -137,15 +171,38 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
           <div class="payment-direct-box">
             <span class="payment-direct-label">Status Deliverable</span>
-            <span class="payment-direct-amount" style="font-size:0.95rem;">UAT &amp; Deploy Selesai</span>
-            <span style="font-size:0.72rem;color:var(--text-muted);">Menunggu verifikasi akhir</span>
+            <span class="payment-direct-amount" style="font-size:0.95rem;">
+              <?php echo $completedP2 ? 'Disetujui & Selesai' : 'UAT & Deploy Selesai'; ?>
+            </span>
+            <span style="font-size:0.72rem;color:var(--text-muted);">
+              <?php echo $completedP2 ? 'Pekerjaan telah dinilai' : 'Menunggu verifikasi akhir'; ?>
+            </span>
           </div>
         </div>
 
-        <div class="active-proj-actions" style="justify-content:flex-end;">
-          <div style="display:flex;gap:8px;">
+        <div class="active-proj-actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <div>
+            <?php if ($completedP2): ?>
+              <span style="font-size:0.82rem;color:#047857;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+                <span>⭐</span> Rating Diberikan: <?php echo (int)($_SESSION['completed_projects']['CTR-GIG-2026-0819']['ratingGiven'] ?? 5); ?>/5
+              </span>
+            <?php else: ?>
+              <span style="font-size:0.8rem;color:var(--text-muted);">Deliverable siap? Selesaikan proyek dan tinggalkan penilaian.</span>
+            <?php endif; ?>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <button class="btn-action-sm" type="button" onclick="copyContact('Rian Ardiansyah','0813-8899-7711','rian.dev@email.com')">Kontak Freelancer</button>
             <a class="btn-outline-blue" href="worker-profile.php?active=1&id=rian">Lihat Profil</a>
+            
+            <?php if ($completedP2): ?>
+              <a class="btn-create-post" href="employer-riwayat-proyek.php" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:#059669;border-color:#047857;">
+                Buka di Riwayat →
+              </a>
+            <?php else: ?>
+              <a class="btn-create-post" href="employer-rating-worker.php?contract=CTR-GIG-2026-0819&worker=rian" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 10px rgba(217,119,6,0.35);">
+                ★ Selesaikan &amp; Beri Rating
+              </a>
+            <?php endif; ?>
           </div>
         </div>
       </div>

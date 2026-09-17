@@ -113,7 +113,18 @@ require __DIR__ . '/includes/employer-layout-start.php';
                 <strong><?php echo (int)$review['rating']; ?>/5</strong>
               </div>
             </div>
-            <p><?php echo htmlspecialchars($review['comment'], ENT_QUOTES, 'UTF-8'); ?></p>
+            
+            <?php if (!empty($review['badges']) && is_array($review['badges'])): ?>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;">
+                <?php foreach ($review['badges'] as $b): ?>
+                  <span style="font-size:0.72rem;background:#eff6ff;color:#1e40af;padding:2px 8px;border-radius:9999px;font-weight:700;border:1px solid #bfdbfe;">
+                    <?php echo htmlspecialchars((string)$b, ENT_QUOTES, 'UTF-8'); ?>
+                  </span>
+                <?php endforeach; ?>
+              </div>
+            <?php endif; ?>
+
+            <p style="margin-top:4px;"><?php echo htmlspecialchars($review['comment'], ENT_QUOTES, 'UTF-8'); ?></p>
           </article>
         <?php endforeach; ?>
       </div>
