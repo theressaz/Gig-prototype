@@ -13,13 +13,27 @@ if (!isset($_SESSION["username"]) || !isset($_SESSION["role"]) || $_SESSION["rol
 $username = (string)$_SESSION["username"];
 $siapkerja = gig_get_siapkerja_profile($username);
 $isRegistered = gig_is_worker_registered($username);
+$isEditMode = !empty($_GET['edit']) || $isRegistered;
 
-// Registration page can only be accessed when the user doesn't have a Gig Worker account yet.
+// Registration page can only be accessed when the user doesn't have a Gig Worker account yet (unless editing).
 if ($isRegistered && empty($_GET['edit'])) {
     $profileId = strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $username)[0] ?? $username));
     header("Location: worker-profile.php?id=" . urlencode($profileId));
     exit;
 }
+
+$existingReg = gig_get_worker_registration($username);
+$workerProfile = gig_find_worker($username);
+
+$currentBidang = $_POST['bidang_keahlian'] ?? ($existingReg['bidang_keahlian'] ?? ($workerProfile['title'] ?? ''));
+$currentSkills = $_POST['skills'] ?? (is_array($existingReg['skills'] ?? null) ? implode(', ', $existingReg['skills']) : ($existingReg['skills'] ?? (is_array($workerProfile['skills'] ?? null) ? implode(', ', $workerProfile['skills']) : '')));
+$currentContactChoice = $_POST['contact_choice'] ?? ($existingReg['contact_choice'] ?? 'siapkerja');
+$currentContactEmail = $_POST['contact_email_new'] ?? ($existingReg['contact_email'] ?? '');
+$currentContactWa = $_POST['contact_wa_new'] ?? ($existingReg['contact_wa'] ?? '');
+$currentVideoUrl = $_POST['video_url'] ?? ($existingReg['video_url'] ?? ($workerProfile['video_url'] ?? ''));
+
+$currentPortfolio = !empty($existingReg['portfolio']) && is_array($existingReg['portfolio']) ? $existingReg['portfolio'] : ($workerProfile['portfolio'] ?? []);
+$currentProjects = !empty($existingReg['previous_projects']) && is_array($existingReg['previous_projects']) ? $existingReg['previous_projects'] : ($workerProfile['experience'] ?? []);
 
 $successMessage = "";
 $errorMessage = "";
@@ -99,8 +113,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
         ];
 
         gig_save_worker_registration($username, $registrationData);
-        $isRegistered = true;
-        $successMessage = "Selamat! Akun Gig Worker Anda berhasil didaftarkan dan diverifikasi dengan akun SIAPKerja.";
+        $profileId = strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $username)[0] ?? $username));
+        header("Location: worker-profile.php?id=" . urlencode($profileId) . "&updated=1");
+        exit;
     }
 }
 ?>
@@ -109,7 +124,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pendaftaran Gig Worker &bull; Kemnaker RI</title>
+  <title><?php echo $isEditMode ? 'Edit Profil Gig Worker' : 'Pendaftaran Gig Worker'; ?> &bull; Kemnaker RI</title>
 
   <!-- Google Fonts: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -640,7 +655,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
   <div class="kemnaker-topbar">
     <div class="topbar-inner">
       <div class="topbar-nav">
-        <strong>Pendaftaran Gig Worker Kemnaker</strong>
+        <strong><?php echo $isEditMode ? 'Edit Profil Gig Worker' : 'Pendaftaran Gig Worker'; ?></strong>
         <a href="dashboard-worker.php">Dashboard</a>
         <a href="#">SIAPKerja Integration</a>
       </div>
@@ -665,7 +680,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
         </svg>
         <div class="brand-text">
           <span class="brand-title">KEMENTERIAN KETENAGAKERJAAN RI</span>
-          <span class="brand-sub">Formulir Pendaftaran &bull; Ekosistem Gig Worker</span>
+          <span class="brand-sub"><?php echo $isEditMode ? 'Pembaruan Profil Gig Worker' : 'Formulir Pendaftaran &bull; Ekosistem Gig Worker'; ?></span>
         </div>
       </a>
       <a href="dashboard-worker.php" class="btn-back-dash">← Kembali ke Dashboard</a>
@@ -679,11 +694,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
     <section class="hero-banner">
       <div class="hero-badge">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        Pendaftaran Resmi Gig Worker
+        <?php echo $isEditMode ? 'Pembaruan Profil Gig Worker' : 'Pendaftaran Resmi Gig Worker'; ?>
       </div>
-      <h1 class="hero-title">Bergabung Sebagai Gig Worker Kemnaker</h1>
+      <h1 class="hero-title"><?php echo $isEditMode ? 'Edit Informasi Profil Gig Worker' : 'Bergabung Sebagai Gig Worker Kemnaker'; ?></h1>
       <p class="hero-desc">
-        Gunakan akun SIAPKerja Anda untuk melengkapi profil profesional Gig Worker. Dapatkan akses ke berbagai penawaran proyek dari Pemberi Kerja terverifikasi dan perlindungan ekosistem tenaga kerja mandiri.
+        <?php echo $isEditMode ? 'Perbarui bidang keahlian, skill spesifik, proyek portofolio, dan tautan video profil Anda agar calon Pemberi Kerja mendapatkan informasi terbaru.' : 'Gunakan akun SIAPKerja Anda untuk melengkapi profil profesional Gig Worker. Dapatkan akses ke berbagai penawaran proyek dari Pemberi Kerja terverifikasi dan perlindungan ekosistem tenaga kerja mandiri.'; ?>
       </p>
     </section>
 
@@ -770,8 +785,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
         </p>
 
         <div class="contact-options">
-          <label class="contact-option-card active" id="opt-siapkerja" onclick="selectContactOption('siapkerja')">
-            <input type="radio" name="contact_choice" value="siapkerja" class="contact-radio" checked />
+          <label class="contact-option-card <?php echo $currentContactChoice === 'siapkerja' ? 'active' : ''; ?>" id="opt-siapkerja" onclick="selectContactOption('siapkerja')">
+            <input type="radio" name="contact_choice" value="siapkerja" class="contact-radio" <?php echo $currentContactChoice === 'siapkerja' ? 'checked' : ''; ?> />
             <div>
               <strong style="font-size:0.9rem; color:var(--text-main);">Gunakan Kontak Akun SIAPKerja</strong>
               <div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">
@@ -781,8 +796,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
             </div>
           </label>
 
-          <label class="contact-option-card" id="opt-new" onclick="selectContactOption('new')">
-            <input type="radio" name="contact_choice" value="new" class="contact-radio" />
+          <label class="contact-option-card <?php echo $currentContactChoice === 'new' ? 'active' : ''; ?>" id="opt-new" onclick="selectContactOption('new')">
+            <input type="radio" name="contact_choice" value="new" class="contact-radio" <?php echo $currentContactChoice === 'new' ? 'checked' : ''; ?> />
             <div>
               <strong style="font-size:0.9rem; color:var(--text-main);">Input Informasi Kontak Baru</strong>
               <div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">
@@ -792,15 +807,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
           </label>
         </div>
 
-        <div class="new-contact-fields" id="newContactContainer" style="display: none;">
+        <div class="new-contact-fields" id="newContactContainer" style="display: <?php echo $currentContactChoice === 'new' ? 'grid' : 'none'; ?>;">
           <div class="form-group">
             <label class="form-label" for="contact_email_new">Email Kontak Baru</label>
-            <input type="email" id="contact_email_new" name="contact_email_new" class="form-input" placeholder="contoh: tessa.gig@email.com" />
+            <input type="email" id="contact_email_new" name="contact_email_new" class="form-input" value="<?php echo htmlspecialchars($currentContactEmail, ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: tessa.gig@email.com" />
           </div>
 
           <div class="form-group">
             <label class="form-label" for="contact_wa_new">Nomor WhatsApp / HP Baru</label>
-            <input type="text" id="contact_wa_new" name="contact_wa_new" class="form-input" placeholder="contoh: 0812-9988-7766" />
+            <input type="text" id="contact_wa_new" name="contact_wa_new" class="form-input" value="<?php echo htmlspecialchars($currentContactWa, ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: 0812-9988-7766" />
           </div>
         </div>
       </section>
@@ -815,55 +830,40 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px;">
           <div class="form-group">
             <label class="form-label" for="bidang_keahlian">Bidang Keahlian Utama <span style="color:#ef4444;">*</span></label>
+            <?php 
+              $bidangOpts = [
+                "UI/UX Design & Product Interface",
+                "Web Development (Frontend / Backend / Fullstack)",
+                "Mobile Application Development",
+                "Digital Marketing & Social Media Strategy",
+                "Data Analytics & Data Entry",
+                "Copywriting, Content Writing & Translation",
+                "Graphic Design, Video Editing & Multimedia",
+                "Administrative & Virtual Assistant"
+              ];
+            ?>
             <select id="bidang_keahlian" name="bidang_keahlian" class="form-select" required>
               <option value="">-- Pilih Bidang Keahlian --</option>
-              <option value="UI/UX Design & Product Interface">UI/UX Design &amp; Product Interface</option>
-              <option value="Web Development (Frontend / Backend / Fullstack)">Web Development (Frontend / Backend / Fullstack)</option>
-              <option value="Mobile Application Development">Mobile Application Development</option>
-              <option value="Digital Marketing & Social Media Strategy">Digital Marketing &amp; Social Media Strategy</option>
-              <option value="Data Analytics & Data Entry">Data Analytics &amp; Data Entry</option>
-              <option value="Copywriting, Content Writing & Translation">Copywriting, Content Writing &amp; Translation</option>
-              <option value="Graphic Design, Video Editing & Multimedia">Graphic Design, Video Editing &amp; Multimedia</option>
-              <option value="Administrative & Virtual Assistant">Administrative &amp; Virtual Assistant</option>
+              <?php foreach ($bidangOpts as $bOpt): ?>
+                <option value="<?php echo htmlspecialchars($bOpt, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $currentBidang === $bOpt ? 'selected' : ''; ?>>
+                  <?php echo htmlspecialchars($bOpt, ENT_QUOTES, 'UTF-8'); ?>
+                </option>
+              <?php endforeach; ?>
             </select>
           </div>
 
           <div class="form-group">
             <label class="form-label" for="skills">Skill / Keahlian Spesifik <span style="color:#ef4444;">*</span></label>
-            <input type="text" id="skills" name="skills" class="form-input" placeholder="Contoh: Figma, Wireframing, React, Node.js, Copywriting" required />
+            <input type="text" id="skills" name="skills" class="form-input" value="<?php echo htmlspecialchars($currentSkills, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Contoh: Figma, Wireframing, React, Node.js, Copywriting" required />
             <span class="form-hint">Pisahkan skill dengan tanda koma ( , )</span>
           </div>
         </div>
       </section>
 
-      <!-- BAGIAN 3: PROJECT SEBELUMNYA -->
+      <!-- BAGIAN 3: PORTOFOLIO -->
       <section>
         <h2 class="section-title">
           <span class="section-icon">3</span>
-          Project &amp; Pengalaman Kerja Sebelumnya
-        </h2>
-        <p class="form-hint" style="margin-top: 6px; margin-bottom: 12px;">
-          Anda dapat menyertakan pengalaman SIAPKerja dan menambahkan proyek-proyek independen lainnya.
-        </p>
-
-        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 14px;">
-          <input type="checkbox" name="include_siapkerja_exp" value="1" checked accent-color="var(--primary-blue)" />
-          Sertakan 2 riwayat pengalaman dari akun SIAPKerja ke profil Gig Worker
-        </label>
-
-        <div id="projectContainer">
-          <!-- Additional dynamic project items will be added here -->
-        </div>
-
-        <button type="button" class="btn-add-item" onclick="addProjectItem()">
-          + Tambah Proyek Lainnya
-        </button>
-      </section>
-
-      <!-- BAGIAN 4: PORTOFOLIO -->
-      <section>
-        <h2 class="section-title">
-          <span class="section-icon">4</span>
           Portofolio Hasil Pekerjaan
         </h2>
         <p class="form-hint" style="margin-top: 6px; margin-bottom: 12px;">
@@ -871,28 +871,58 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
         </p>
 
         <div id="portfolioContainer">
-          <div class="dynamic-item">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
-              <div class="form-group">
-                <label class="form-label">Judul Portofolio 1</label>
-                <input type="text" name="portfolio_title[]" class="form-input" placeholder="contoh: Redesign Mobile App E-Commerce" required />
+          <?php if (!empty($currentPortfolio) && is_array($currentPortfolio)): ?>
+            <?php foreach ($currentPortfolio as $pIdx => $pItem): ?>
+              <div class="dynamic-item" id="port-item-<?php echo $pIdx + 1; ?>">
+                <?php if ($pIdx > 0): ?>
+                  <button type="button" class="btn-remove-item" onclick="document.getElementById('port-item-<?php echo $pIdx + 1; ?>').remove()">Hapus</button>
+                <?php endif; ?>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
+                  <div class="form-group">
+                    <label class="form-label">Judul Portofolio <?php echo $pIdx + 1; ?></label>
+                    <input type="text" name="portfolio_title[]" class="form-input" value="<?php echo htmlspecialchars($pItem['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: Redesign Mobile App E-Commerce" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Tipe / Kategori Deliverable</label>
+                    <input type="text" name="portfolio_type[]" class="form-input" value="<?php echo htmlspecialchars($pItem['type'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: Figma UI Kit / Web Prototype" required />
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                  <div class="form-group">
+                    <label class="form-label">Link Berkas / Deliverable (URL)</label>
+                    <input type="url" name="portfolio_url[]" class="form-input" value="<?php echo htmlspecialchars($pItem['url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://figma.com/@project..." />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Deskripsi Singkat Portofolio</label>
+                    <input type="text" name="portfolio_desc[]" class="form-input" value="<?php echo htmlspecialchars($pItem['deliverable'] ?? ($pItem['desc'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" placeholder="Ringkasan deliverable dan peran Anda" />
+                  </div>
+                </div>
               </div>
-              <div class="form-group">
-                <label class="form-label">Tipe / Kategori Deliverable</label>
-                <input type="text" name="portfolio_type[]" class="form-input" placeholder="contoh: Figma UI Kit / Web Prototype" required />
+            <?php endforeach; ?>
+          <?php else: ?>
+            <div class="dynamic-item" id="port-item-1">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
+                <div class="form-group">
+                  <label class="form-label">Judul Portofolio 1</label>
+                  <input type="text" name="portfolio_title[]" class="form-input" placeholder="contoh: Redesign Mobile App E-Commerce" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Tipe / Kategori Deliverable</label>
+                  <input type="text" name="portfolio_type[]" class="form-input" placeholder="contoh: Figma UI Kit / Web Prototype" required />
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                  <label class="form-label">Link Berkas / Deliverable (URL)</label>
+                  <input type="url" name="portfolio_url[]" class="form-input" placeholder="https://figma.com/@project..." />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Deskripsi Singkat Portofolio</label>
+                  <input type="text" name="portfolio_desc[]" class="form-input" placeholder="Ringkasan deliverable dan peran Anda" />
+                </div>
               </div>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-              <div class="form-group">
-                <label class="form-label">Link Berkas / Deliverable (URL)</label>
-                <input type="url" name="portfolio_url[]" class="form-input" placeholder="https://figma.com/@project atau https://github.com/..." />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Deskripsi Singkat Portofolio</label>
-                <input type="text" name="portfolio_desc[]" class="form-input" placeholder="Ringkasan deliverable dan peran Anda" />
-              </div>
-            </div>
-          </div>
+          <?php endif; ?>
         </div>
 
         <button type="button" class="btn-add-item" onclick="addPortfolioItem()">
@@ -900,10 +930,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
         </button>
       </section>
 
-      <!-- BAGIAN 5: LINK VIDEO PROFIL -->
+      <!-- BAGIAN 4: LINK VIDEO PROFIL -->
       <section>
         <h2 class="section-title">
-          <span class="section-icon">5</span>
+          <span class="section-icon">4</span>
           Link Video Profil Gig Worker
         </h2>
         <p class="form-hint" style="margin-top: 6px; margin-bottom: 12px;">
@@ -912,7 +942,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
 
         <div class="form-group">
           <label class="form-label" for="video_url">Tautan / URL Video Profil</label>
-          <input type="url" id="video_url" name="video_url" class="form-input" placeholder="https://www.youtube.com/watch?v=... atau https://www.loom.com/share/..." oninput="checkVideoPreview(this.value)" />
+          <input type="url" id="video_url" name="video_url" class="form-input" value="<?php echo htmlspecialchars($currentVideoUrl, ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://www.youtube.com/watch?v=... atau https://www.loom.com/share/..." oninput="checkVideoPreview(this.value)" />
           <div id="videoPreviewStatus" style="font-size: 0.8rem; margin-top: 4px; display: none;"></div>
         </div>
       </section>
@@ -922,7 +952,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
         <a href="dashboard-worker.php" style="padding: 14px 24px; text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 0.9rem;">Batal</a>
         <button type="submit" class="btn-submit">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          Daftar &amp; Aktifkan Profil Gig Worker
+          <?php echo $isEditMode ? 'Simpan Pembaruan Profil' : 'Daftar & Aktifkan Profil Gig Worker'; ?>
         </button>
       </div>
     </form>

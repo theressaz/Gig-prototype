@@ -37,6 +37,9 @@ if ($role === 'worker') {
     <div class="page-toolbar">
       <h1><?php echo htmlspecialchars($worker['name'], ENT_QUOTES, 'UTF-8'); ?></h1>
       <div style="display:flex;gap:10px;align-items:center;">
+        <?php if ($role === 'worker'): ?>
+          <a class="btn-primary-add" href="worker-register.php?edit=1">✏️ Edit Profil</a>
+        <?php endif; ?>
         <?php 
           $from = $_GET['from'] ?? '';
           $backUrl = $from === 'cari-mitra' ? 'employer-cari-mitra.php' : ($from === 'kandidat' ? 'employer-pelamar.php' : 'javascript:history.back()');
@@ -46,7 +49,15 @@ if ($role === 'worker') {
       </div>
     </div>
 
-    <?php if ($contactUnlocked): ?>
+    <?php if (!empty($_GET['updated'])): ?>
+      <div class="privacy-banner unlocked" style="background:#ecfdf5;color:#065f46;border-color:#a7f3d0;font-weight:700;">
+        ✓ Profil Gig Worker Anda telah berhasil diperbarui.
+      </div>
+    <?php endif; ?>
+
+    <?php if ($role === 'worker'): ?>
+      <div class="privacy-banner unlocked">Ini adalah tampilan profil publik Gig Worker Anda yang dapat dilihat oleh calon Pemberi Kerja.</div>
+    <?php elseif ($contactUnlocked): ?>
       <div class="privacy-banner unlocked">Kedua belah pihak telah menyetujui kerja sama. Informasi kontak dapat dilihat di bawah.</div>
     <?php else: ?>
       <div class="privacy-banner">Kontak disembunyikan sampai Pemberi Kerja dan Gig Worker sama-sama menyetujui kerja sama.</div>
