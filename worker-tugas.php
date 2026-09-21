@@ -152,20 +152,14 @@ $activeProjects = [
               </div>
             </div>
 
-            <!-- DELIVERABLE STATUS & PROGRESS BAR -->
+            <!-- PROGRESS BAR -->
             <div class="payment-direct-box">
-              <span class="payment-direct-label">Status Deliverable</span>
-              <span class="payment-direct-amount" style="font-size:0.95rem;">
-                <?php echo $completed ? 'Disetujui &amp; Selesai' : htmlspecialchars($proj['deliverable_status'], ENT_QUOTES, 'UTF-8'); ?>
-              </span>
-              <div style="margin-top:6px;">
-                <div style="display:flex;justify-content:space-between;font-size:0.72rem;font-weight:700;color:var(--text-dark);margin-bottom:2px;">
-                  <span>Kemajuan Pengerjaan</span>
-                  <span style="color:<?php echo $completed ? '#10b981' : '#2563eb'; ?>;"><?php echo $completed ? '100%' : $proj['progress'] . '%'; ?></span>
-                </div>
-                <div style="background:#e2e8f0;border-radius:9999px;height:6px;overflow:hidden;">
-                  <div style="background:<?php echo $completed ? '#10b981' : '#2563eb'; ?>;height:100%;width:<?php echo $completed ? '100%' : $proj['progress'] . '%'; ?>;border-radius:9999px;transition:width 0.3s;"></div>
-                </div>
+              <div style="display:flex;justify-content:space-between;font-size:0.78rem;font-weight:700;color:var(--text-dark);margin-bottom:4px;">
+                <span>Kemajuan Pengerjaan</span>
+                <span style="color:<?php echo $completed ? '#10b981' : '#2563eb'; ?>;"><?php echo $completed ? '100%' : $proj['progress'] . '%'; ?></span>
+              </div>
+              <div style="background:#e2e8f0;border-radius:9999px;height:6px;overflow:hidden;">
+                <div style="background:<?php echo $completed ? '#10b981' : '#2563eb'; ?>;height:100%;width:<?php echo $completed ? '100%' : $proj['progress'] . '%'; ?>;border-radius:9999px;transition:width 0.3s;"></div>
               </div>
             </div>
           </div>

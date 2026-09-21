@@ -101,13 +101,13 @@ require __DIR__ . '/includes/employer-layout-start.php';
           </div>
 
           <div class="payment-direct-box">
-            <span class="payment-direct-label">Status Deliverable</span>
-            <span class="payment-direct-amount" style="font-size:0.95rem;">
-              <?php echo $completedP1 ? 'Disetujui & Selesai' : 'Review Prototype'; ?>
-            </span>
-            <span style="font-size:0.72rem;color:var(--text-muted);">
-              <?php echo $completedP1 ? 'Pekerjaan telah dinilai' : 'Sedang pengujian internal'; ?>
-            </span>
+            <div style="display:flex;justify-content:space-between;font-size:0.78rem;font-weight:700;color:var(--text-dark);margin-bottom:4px;">
+              <span>Kemajuan Pengerjaan</span>
+              <span style="color:<?php echo $completedP1 ? '#10b981' : '#2563eb'; ?>;"><?php echo $completedP1 ? '100%' : '65%'; ?></span>
+            </div>
+            <div style="background:#e2e8f0;border-radius:9999px;height:6px;overflow:hidden;">
+              <div style="background:<?php echo $completedP1 ? '#10b981' : '#2563eb'; ?>;height:100%;width:<?php echo $completedP1 ? '100%' : '65%'; ?>;border-radius:9999px;transition:width 0.3s;"></div>
+            </div>
           </div>
         </div>
 
@@ -194,13 +194,13 @@ require __DIR__ . '/includes/employer-layout-start.php';
           </div>
 
           <div class="payment-direct-box">
-            <span class="payment-direct-label">Status Deliverable</span>
-            <span class="payment-direct-amount" style="font-size:0.95rem;">
-              <?php echo $completedP2 ? 'Disetujui & Selesai' : 'UAT & Deploy Selesai'; ?>
-            </span>
-            <span style="font-size:0.72rem;color:var(--text-muted);">
-              <?php echo $completedP2 ? 'Pekerjaan telah dinilai' : 'Menunggu verifikasi akhir'; ?>
-            </span>
+            <div style="display:flex;justify-content:space-between;font-size:0.78rem;font-weight:700;color:var(--text-dark);margin-bottom:4px;">
+              <span>Kemajuan Pengerjaan</span>
+              <span style="color:<?php echo $completedP2 ? '#10b981' : '#0891b2'; ?>;"><?php echo $completedP2 ? '100%' : '90%'; ?></span>
+            </div>
+            <div style="background:#e2e8f0;border-radius:9999px;height:6px;overflow:hidden;">
+              <div style="background:<?php echo $completedP2 ? '#10b981' : '#0891b2'; ?>;height:100%;width:<?php echo $completedP2 ? '100%' : '90%'; ?>;border-radius:9999px;transition:width 0.3s;"></div>
+            </div>
           </div>
         </div>
 
