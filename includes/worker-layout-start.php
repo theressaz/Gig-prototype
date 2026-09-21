@@ -1,6 +1,9 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/worker-profiles.php';
+
 $pageTitle = $pageTitle ?? 'Dashboard Gig Worker';
 $pageKey = $pageKey ?? 'overview';
 $breadcrumbCurrent = $breadcrumbCurrent ?? 'Beranda';

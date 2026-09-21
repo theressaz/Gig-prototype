@@ -10,7 +10,7 @@ if (!isset($_SESSION["username"]) || !isset($_SESSION["role"]) || $_SESSION["rol
     exit;
 }
 
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])) {
+if (($_SERVER["REQUEST_METHOD"] ?? "") === "POST" && isset($_POST["logout"])) {
     $_SESSION = [];
     if (ini_get("session.use_cookies")) {
         $params = session_get_cookie_params();

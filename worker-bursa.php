@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/includes/worker-auth.php';
+require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/project-vacancies.php';
 
 $vacancies = array_values(array_filter(gig_project_vacancies(), static function ($job) {
