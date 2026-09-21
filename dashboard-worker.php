@@ -3,12 +3,15 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/worker-auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
+require_once __DIR__ . '/includes/project-vacancies.php';
 
 $siapkerja = gig_get_siapkerja_profile($username);
 $isRegistered = gig_is_worker_registered($username);
 $workerRegData = $isRegistered ? gig_get_worker_registration($username) : null;
 $profileId = strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $username)[0] ?? $username));
 $profileUrl = $isRegistered ? 'worker-profile.php?id=' . urlencode($profileId) : 'worker-register.php';
+
+$activeVacanciesCount = count(array_filter(gig_project_vacancies(), static fn($j) => $j['status'] === 'active'));
 
 $pageTitle = 'Ringkasan';
 $pageKey = 'overview';
@@ -18,7 +21,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
     <div class="page-toolbar">
       <h1>Ringkasan</h1>
-      <a class="btn-primary-add" href="worker-bursa.php">Cari Tugas</a>
+      <a class="btn-primary-add" href="worker-bursa.php">Cari Lowongan</a>
     </div>
 
     <section class="hero-banner">
@@ -88,8 +91,8 @@ require __DIR__ . '/includes/worker-layout-start.php';
       </a>
       <a class="stat-card" href="worker-bursa.php">
         <div class="stat-card-header"><span class="stat-label">LOWONGAN TERBUKA</span></div>
-        <div class="stat-number">3</div>
-        <div class="stat-caption">Siap dilamar di bursa tugas</div>
+        <div class="stat-number"><?php echo $activeVacanciesCount; ?></div>
+        <div class="stat-caption">Siap dilamar di Lowongan Proyek</div>
       </a>
       <a class="stat-card" href="worker-ulasan.php">
         <div class="stat-card-header"><span class="stat-label">RATING</span></div>
@@ -131,7 +134,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <a href="worker-bursa.php" class="quick-access-tile">
             <div class="tile-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/></svg></div>
             <div>
-              <div style="font-size:0.85rem;font-weight:700;">Bursa Tugas</div>
+              <div style="font-size:0.85rem;font-weight:700;">Lowongan Proyek</div>
               <div style="font-size:0.72rem;color:var(--text-muted);">Cari lowongan proyek</div>
             </div>
           </a>
