@@ -5,9 +5,26 @@ require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/project-vacancies.php';
 require_once __DIR__ . '/includes/project-offers.php';
+require_once __DIR__ . '/includes/project-applications.php';
+
+$flashMsg = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_action'])) {
+    $appId  = trim((string)($_POST['app_id'] ?? ''));
+    $action = trim((string)($_POST['confirm_action'] ?? ''));
+    if ($appId !== '' && in_array($action, ['confirm', 'decline'], true)) {
+        $res = gig_worker_confirm_application($appId, $action, $username);
+        if ($res['ok']) {
+            $flashMsg = ($action === 'confirm')
+                ? '🎉 Selamat! Anda RESMI DIREKRUT untuk proyek ini. Pemberi kerja telah diberitahukan dan kesepakatan kini aktif!'
+                : 'Penawaran proyek telah ditolak. Pemberi kerja telah diberitahukan.';
+        }
+    }
+}
 
 gig_seed_demo_offers_if_needed($username);
 $offers = gig_offers_for_worker($username);
+$workerApps = gig_get_applications_for_worker($username);
+?>
 
 function gig_offer_banner_class(string $cat): string
 {
@@ -291,20 +308,26 @@ require __DIR__ . '/includes/worker-layout-start.php';
     <h1>Penawaran Proyek</h1>
   </div>
 
+  <?php if ($flashMsg !== ''): ?>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;padding:12px 16px;border-radius:12px;font-size:0.86rem;margin-bottom:18px;font-weight:700;display:flex;align-items:center;gap:8px;">
+      <span>✓</span> <?php echo htmlspecialchars($flashMsg, ENT_QUOTES, 'UTF-8'); ?>
+    </div>
+  <?php endif; ?>
+
   <div class="penawaran-notice">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    <span>Pemberi kerja dapat menawarkan lowongan yang sudah tayang. Klik penawaran untuk membuka detail proyek.</span>
+    <span>Ketika pemberi kerja menyetujui lamaran Anda, konfirmasi ketersediaan Anda di bawah ini untuk menjadi <strong>Resmi Direkrut</strong>.</span>
   </div>
 
   <?php if (count($offers) === 0): ?>
     <div class="offer-empty-card">
       <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:12px;color:#94a3b8;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
       <h3>Belum ada penawaran</h3>
-      <p>Ketika pemberi kerja menawarkan proyek yang sudah diposting, tawaran itu akan muncul di halaman ini.</p>
+      <p>Ketika pemberi kerja menawarkan proyek atau menyetujui lamaran Anda, undangan konfirmasi akan muncul di halaman ini.</p>
       <a class="btn-primary-add" href="worker-bursa.php" style="display:inline-flex;text-decoration:none;">Cari Proyek Sendiri</a>
     </div>
   <?php else: ?>
-    <div class="penawaran-count">Menampilkan <strong><?php echo count($offers); ?></strong> penawaran proyek</div>
+    <div class="penawaran-count">Menampilkan <strong><?php echo count($offers); ?></strong> penawaran &amp; konfirmasi proyek</div>
     <div class="offer-cards-grid">
       <?php foreach ($offers as $idx => $offer):
           $detailUrl = 'worker-project-detail.php?id=' . urlencode((string)$offer['detail_id']) . '&from=penawaran';
@@ -313,8 +336,18 @@ require __DIR__ . '/includes/worker-layout-start.php';
           $skills = is_array($offer['skills'] ?? null) ? $offer['skills'] : [];
           $skillsToShow = array_slice($skills, 0, 3);
           $remaining = count($skills) - count($skillsToShow);
+          
+          $appMatch = null;
+          foreach ($workerApps as $wa) {
+              if (strtolower((string)$wa['vacancy_id']) === strtolower((string)$offer['detail_id'])) {
+                  $appMatch = $wa;
+                  break;
+              }
+          }
+          $appId = $appMatch['id'] ?? ('APP-' . $offer['detail_id']);
+          $appStatus = $appMatch['status'] ?? 'accepted_by_employer';
       ?>
-        <a class="offer-card-item" href="<?php echo htmlspecialchars($detailUrl, ENT_QUOTES, 'UTF-8'); ?>">
+        <div class="offer-card-item">
           <div class="offer-banner <?php echo htmlspecialchars(gig_offer_banner_class((string)$offer['category']), ENT_QUOTES, 'UTF-8'); ?>">
             <span class="offer-banner-badge"><?php echo htmlspecialchars(gig_offer_category_label((string)$offer['category']), ENT_QUOTES, 'UTF-8'); ?></span>
           </div>
@@ -325,7 +358,11 @@ require __DIR__ . '/includes/worker-layout-start.php';
             </div>
           </div>
           <div class="offer-body">
-            <h3 class="offer-title"><?php echo htmlspecialchars((string)$offer['project_title'], ENT_QUOTES, 'UTF-8'); ?></h3>
+            <h3 class="offer-title">
+              <a href="<?php echo htmlspecialchars($detailUrl, ENT_QUOTES, 'UTF-8'); ?>" style="color:inherit;text-decoration:none;">
+                <?php echo htmlspecialchars((string)$offer['project_title'], ENT_QUOTES, 'UTF-8'); ?>
+              </a>
+            </h3>
             <div class="offer-client">Ditawarkan oleh <strong><?php echo htmlspecialchars((string)$offer['employer_display'], ENT_QUOTES, 'UTF-8'); ?></strong></div>
             <div class="offer-meta">
               <span style="color:#1d4ed8;font-weight:800;font-size:0.92rem;"><?php echo htmlspecialchars((string)$offer['budget'], ENT_QUOTES, 'UTF-8'); ?></span>
@@ -339,13 +376,34 @@ require __DIR__ . '/includes/worker-layout-start.php';
                 <span class="offer-skill">+<?php echo $remaining; ?></span>
               <?php endif; ?>
             </div>
-            <div class="offer-status-box">Menunggu tanggapan · <?php echo htmlspecialchars($createdLabel, ENT_QUOTES, 'UTF-8'); ?></div>
-            <div class="offer-cta">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              Lihat Detail Proyek
-            </div>
+
+            <?php if ($appStatus === 'confirmed_by_worker'): ?>
+              <div style="background:#d1fae5;color:#047857;padding:10px;border-radius:10px;font-weight:800;font-size:0.82rem;text-align:center;margin-bottom:10px;">
+                🎉 Resmi Direkrut &amp; Proyek Aktif
+              </div>
+              <a class="offer-cta" href="worker-tugas.php" style="background:#059669;">
+                Buka di Proyek Aktif &rarr;
+              </a>
+            <?php elseif ($appStatus === 'declined_by_worker'): ?>
+              <div style="background:#f1f5f9;color:#64748b;padding:8px;border-radius:10px;font-weight:700;font-size:0.8rem;text-align:center;">
+                ✕ Penawaran Ditolak
+              </div>
+            <?php else: ?>
+              <div class="offer-status-box" style="margin-bottom:10px;background:#fef3c7;color:#b45309;border-color:#fde68a;">
+                ⏳ Menunggu Konfirmasi Anda · <?php echo htmlspecialchars($createdLabel, ENT_QUOTES, 'UTF-8'); ?>
+              </div>
+              <form method="post" action="" style="display:flex;flex-direction:column;gap:6px;">
+                <input type="hidden" name="app_id" value="<?php echo htmlspecialchars($appId, ENT_QUOTES, 'UTF-8'); ?>" />
+                <button type="submit" name="confirm_action" value="confirm" style="background:#16a34a;color:#ffffff;border:none;padding:10px 14px;border-radius:10px;font-weight:800;font-size:0.84rem;cursor:pointer;box-shadow:0 2px 6px rgba(22,163,74,0.3);">
+                  ✓ Konfirmasi &amp; Terima Proyek
+                </button>
+                <button type="submit" name="confirm_action" value="decline" style="background:#fef2f2;color:#b91c1c;border:1px solid #fecdd3;padding:8px 12px;border-radius:10px;font-weight:700;font-size:0.8rem;cursor:pointer;" onclick="return confirm('Tolak penawaran proyek ini?')">
+                  ✕ Tolak Penawaran
+                </button>
+              </form>
+            <?php endif; ?>
           </div>
-        </a>
+        </div>
       <?php endforeach; ?>
     </div>
   <?php endif; ?>

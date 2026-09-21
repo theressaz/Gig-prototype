@@ -66,7 +66,42 @@ $navItems = [
         </form>
       </div>
 
-      <div class="navbar-right">
+<?php
+require_once __DIR__ . '/project-applications.php';
+$empNotifs = gig_get_employer_notifications();
+$unreadNotifCount = count(array_filter($empNotifs, fn($n) => empty($n['is_read'])));
+?>
+      <div class="navbar-right" style="display:flex;align-items:center;gap:12px;">
+        <!-- NOTIFICATION BELL DROPDOWN -->
+        <div class="profile-menu" style="position:relative;">
+          <button type="button" onclick="document.getElementById('notifDropdown').classList.toggle('open')" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <?php if ($unreadNotifCount > 0): ?>
+              <span style="position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;font-size:0.65rem;font-weight:800;border-radius:9999px;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border:2px solid #fff;"><?php echo $unreadNotifCount; ?></span>
+            <?php endif; ?>
+          </button>
+          
+          <div class="profile-dropdown" id="notifDropdown" style="width:340px;right:0;padding:12px 14px;">
+            <div style="font-size:0.85rem;font-weight:800;color:#0f172a;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+              <span>Notifikasi Perusahaan</span>
+              <span style="font-size:0.72rem;color:#2563eb;font-weight:600;"><?php echo count($empNotifs); ?> Total</span>
+            </div>
+            <div style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;">
+              <?php if (empty($empNotifs)): ?>
+                <div style="font-size:0.8rem;color:#64748b;text-align:center;padding:12px;">Belum ada notifikasi baru.</div>
+              <?php else: ?>
+                <?php foreach (array_slice($empNotifs, 0, 5) as $nf): ?>
+                  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;font-size:0.78rem;">
+                    <div style="font-weight:800;color:#0f172a;margin-bottom:2px;"><?php echo htmlspecialchars($nf['title'], ENT_QUOTES, 'UTF-8'); ?></div>
+                    <div style="color:#475569;line-height:1.3;"><?php echo htmlspecialchars($nf['message'], ENT_QUOTES, 'UTF-8'); ?></div>
+                    <div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;"><?php echo date('d M Y, H:i', strtotime($nf['created_at'])); ?></div>
+                  </div>
+                <?php endforeach; ?>
+              <?php endif; ?>
+            </div>
+          </div>
+        </div>
+
         <div class="profile-menu">
           <div class="profile-widget" onclick="document.getElementById('profileDropdown').classList.toggle('open')">
             <img src="https://api.dicebear.com/9.x/shapes/svg?seed=<?php echo urlencode($username); ?>" alt="Logo perusahaan" />

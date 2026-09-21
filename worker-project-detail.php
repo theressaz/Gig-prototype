@@ -4,8 +4,8 @@ require_once __DIR__ . '/includes/worker-auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/project-vacancies.php';
-
 require_once __DIR__ . '/includes/project-offers.php';
+require_once __DIR__ . '/includes/project-applications.php';
 
 $projectId = trim((string)($_GET['id'] ?? ''));
 $fromOffers = ($_GET['from'] ?? '') === 'penawaran';
@@ -15,6 +15,29 @@ if (!$job) {
     // Fallback to first active project if id not specified
     $activeJobs = array_values(array_filter(gig_project_vacancies(), fn($j) => $j['status'] === 'active'));
     $job = $activeJobs[0] ?? null;
+}
+
+$flashMsg = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_apply']) && $job) {
+    $note = trim((string)($_POST['apply_note'] ?? ''));
+    $workerName = ucfirst($username);
+    $res = gig_apply_for_project($username, $workerName, (string)$job['id'], $note);
+    if ($res['ok']) {
+        $flashMsg = 'Lamaran proyek berhasil dikirimkan ke Pemberi Kerja! Status lamaran dapat dipantau di Penawaran Proyek.';
+    } else {
+        $flashMsg = $res['error'] ?? 'Gagal mengirimkan lamaran.';
+    }
+}
+
+// Check existing application status for this worker and job
+$hasApplied = false;
+if ($job) {
+    foreach (gig_get_applications_for_worker($username) as $ap) {
+        if ((string)$ap['vacancy_id'] === (string)$job['id']) {
+            $hasApplied = true;
+            break;
+        }
+    }
 }
 
 $rawLocation = (string)(($job ?? [])['location'] ?? 'Remote');
@@ -231,11 +254,23 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
       <!-- Header Action Button Right -->
       <div>
-        <button id="btnApplyHeader" type="button" onclick="openApplyModal()" style="padding: 12px 28px; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: #2563eb; color: #ffffff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); transition: all 0.2s;">
-          Lamar Proyek Ini
-        </button>
+        <?php if ($hasApplied): ?>
+          <button type="button" disabled style="padding: 12px 28px; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: #059669; color: #ffffff; border: none; cursor: default; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
+            ✓ Lamaran Proyek Terkirim
+          </button>
+        <?php else: ?>
+          <button id="btnApplyHeader" type="button" onclick="openApplyModal()" style="padding: 12px 28px; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: #2563eb; color: #ffffff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); transition: all 0.2s;">
+            Lamar Proyek Ini
+          </button>
+        <?php endif; ?>
       </div>
     </div>
+
+    <?php if ($flashMsg !== ''): ?>
+      <div style="margin-top:16px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;padding:12px 16px;border-radius:10px;font-size:0.86rem;font-weight:700;">
+        ✓ <?php echo htmlspecialchars($flashMsg, ENT_QUOTES, 'UTF-8'); ?>
+      </div>
+    <?php endif; ?>
 
     <!-- Share Social Row -->
     <div style="margin-top: 20px; padding-top: 14px; border-top: 1px dashed #e2e8f0; display: flex; align-items: center; gap: 12px; font-size: 0.84rem; color: #64748b;">
@@ -370,7 +405,8 @@ require __DIR__ . '/includes/worker-layout-start.php';
         <h3 style="font-size: 1rem; font-weight: 800;">Ajukan Lamaran Proyek</h3>
         <button type="button" onclick="closeApplyModal()" style="background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer;">&times;</button>
       </div>
-      <div class="modal-body">
+      <form method="post" action="" class="modal-body">
+        <input type="hidden" name="do_apply" value="1" />
         <div style="font-size: 0.88rem; color: var(--text-main); font-weight: 700; margin-bottom: 6px;">
           <?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?>
         </div>
@@ -380,18 +416,18 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
         <div class="form-group" style="margin-bottom: 16px;">
           <label class="form-label">Pesan / Catatan Singkat untuk Pemberi Kerja (Opsional)</label>
-          <textarea id="applyNote" class="form-input" rows="3" style="font-size: 0.86rem;" placeholder="Sampaikan pengenalan singkat atau ketersediaan waktu pengerjaan Anda..."></textarea>
+          <textarea name="apply_note" class="form-input" rows="3" style="font-size: 0.86rem;" placeholder="Sampaikan pengenalan singkat atau ketersediaan waktu pengerjaan Anda..."></textarea>
         </div>
 
         <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 12px; font-size: 0.78rem; color: #1e40af; margin-bottom: 20px;">
-          ℹ Profil Gig Worker dan daftar portofolio Anda akan dikirimkan ke Pemberi Kerja. Kontak pribadi Anda tetap terlindungi.
+          ℹ Profil Gig Worker dan portofolio Anda akan dikirimkan ke Pemberi Kerja. Kontak pribadi Anda tetap terlindungi hingga disetujui.
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 10px;">
           <button type="button" class="btn-action-sm" onclick="closeApplyModal()" style="background:#f1f5f9; color:var(--text-main);">Batal</button>
-          <button type="button" class="btn-primary-add" onclick="submitApplication()">Kirim Lamaran Proyek</button>
+          <button type="submit" class="btn-primary-add" style="padding:10px 20px;">Kirim Lamaran Proyek</button>
         </div>
-      </div>
+      </form>
     </div>
   </div>
 
