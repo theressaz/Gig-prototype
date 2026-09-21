@@ -237,6 +237,10 @@ require __DIR__ . '/includes/worker-layout-start.php';
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
         Anggaran: <strong><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></strong>
       </div>
+      <div class="detail-meta-item" style="background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Kuota Freelancer: <strong><?php echo (int)($job['quota'] ?? 1); ?> Orang Pekerja</strong>
+      </div>
       <div class="detail-meta-item">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Estimasi: <strong><?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?></strong>
@@ -308,6 +312,17 @@ require __DIR__ . '/includes/worker-layout-start.php';
         <div style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700;">Nilai Anggaran Proyek</div>
         <div class="budget-highlight"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></div>
         
+        <!-- PROMINENT KUOTA BOX -->
+        <div style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: var(--radius-md); padding: 14px 16px; margin: 14px 0 16px 0;">
+          <div style="font-size: 0.78rem; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: 0.05em;">Kuota Freelancer / Pekerja</div>
+          <div style="font-size: 1.25rem; font-weight: 800; color: #1e3a8a; margin-top: 4px; display: flex; align-items: center; gap: 8px;">
+            <span>👤 <?php echo (int)($job['quota'] ?? 1); ?> Freelancer Dibutuhkan</span>
+          </div>
+          <div style="font-size: 0.78rem; color: #2563eb; margin-top: 4px;">
+            Menerima hingga <strong><?php echo (int)($job['quota'] ?? 1); ?> orang</strong> freelancer yang memenuhi kriteria
+          </div>
+        </div>
+
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; padding: 14px 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); font-size: 0.84rem;">
           <div>
             <div style="color: var(--text-muted);">Durasi Kerja</div>
@@ -315,7 +330,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
           </div>
           <div>
             <div style="color: var(--text-muted);">Kuota Posisi</div>
-            <strong style="color: var(--text-main);"><?php echo (int)($job['quota'] ?? 1); ?> Pekerja</strong>
+            <strong style="color: var(--primary-blue); font-weight: 800;"><?php echo (int)($job['quota'] ?? 1); ?> Freelancer</strong>
           </div>
           <div>
             <div style="color: var(--text-muted);">Jumlah Pelamar</div>

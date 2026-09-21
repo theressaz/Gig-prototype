@@ -126,9 +126,12 @@ require __DIR__ . '/includes/worker-layout-start.php';
         <?php foreach ($vacancies as $job): ?>
         <article class="project-card" style="display: flex; flex-direction: column; justify-content: space-between;">
           <div>
-            <div class="project-top-meta">
+            <div class="project-top-meta" style="flex-wrap: wrap; gap: 8px;">
               <span class="project-category-tag"><?php echo htmlspecialchars($job['category'], ENT_QUOTES, 'UTF-8'); ?></span>
-              <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">📅 <?php echo htmlspecialchars($job['posted'], ENT_QUOTES, 'UTF-8'); ?></span>
+              <span style="font-size: 0.76rem; background: #eff6ff; color: #1d4ed8; font-weight: 700; padding: 3px 10px; border-radius: 9999px; border: 1px solid #bfdbfe; display: inline-flex; align-items: center; gap: 4px;">
+                👤 Kuota: <?php echo (int)($job['quota'] ?? 1); ?> Freelancer
+              </span>
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-left: auto;">📅 <?php echo htmlspecialchars($job['posted'], ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
             
             <a href="worker-project-detail.php?id=<?php echo urlencode($job['id']); ?>" style="text-decoration: none;">
@@ -147,7 +150,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <div class="project-card-footer" style="padding-top: 12px; border-top: 1px dashed var(--border-subtle);">
             <div>
               <span class="job-sub" style="font-weight: 800; color: var(--primary-blue); font-size: 0.95rem;"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></span>
-              <span style="font-size: 0.76rem; color: var(--text-muted); display: block;">Estimasi: <?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?></span>
+              <span style="font-size: 0.76rem; color: var(--text-muted); display: block;">Estimasi: <?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?> &bull; <strong>Kuota: <?php echo (int)($job['quota'] ?? 1); ?> Orang</strong></span>
             </div>
 
             <a href="worker-project-detail.php?id=<?php echo urlencode($job['id']); ?>" class="btn-primary-add" style="font-size: 0.8rem; padding: 7px 14px; text-decoration: none;">
