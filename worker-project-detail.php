@@ -270,9 +270,9 @@ require __DIR__ . '/includes/worker-layout-start.php';
         </p>
       </section>
 
-      <!-- 3. TARGET / DELIVERABLE PROYEK -->
+      <!-- 3. TARGET/DELIVERABLE PROYEK -->
       <section class="detail-section-card">
-        <h3>Target / Deliverable Proyek</h3>
+        <h3>Target/Deliverable Proyek</h3>
         <?php if (!empty($job['deliverables'])): ?>
           <p style="font-size: 0.92rem; line-height: 1.6; color: #334155; margin-bottom: 12px;">
             <?php echo htmlspecialchars($job['deliverables'], ENT_QUOTES, 'UTF-8'); ?>
@@ -284,11 +284,11 @@ require __DIR__ . '/includes/worker-layout-start.php';
         <?php endif; ?>
       </section>
 
-      <!-- 4. KUALIFIKASI YANG DIBUTUHKAN -->
+      <!-- 4. KUALIFIKASI -->
       <section class="detail-section-card">
-        <h3>Kualifikasi yang Dibutuhkan</h3>
+        <h3>Kualifikasi</h3>
         <div style="margin-bottom: 14px;">
-          <div style="font-size: 0.82rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">KEAHILIAN &amp; SKILL UTAMA</div>
+          <div style="font-size: 0.82rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">KEAHLIAN &amp; SKILL UTAMA</div>
           <div style="display: flex; flex-wrap: wrap; gap: 8px;">
             <?php foreach ($job['skills'] as $sk): ?>
               <span style="font-size: 0.84rem; font-weight: 600; padding: 6px 14px; background: #f1f5f9; color: #334155; border-radius: 9999px;">
@@ -319,8 +319,8 @@ require __DIR__ . '/includes/worker-layout-start.php';
           </span>
         </div>
 
-        <a href="#" onclick="event.preventDefault(); alert('Profil pemberi kerja dapat dilihat setelah penawaran disetujui.');" style="font-size: 0.84rem; color: #2563eb; font-weight: 700; text-decoration: none; display: inline-block; margin-bottom: 16px;">
-          Lihat Profil Pemberi Kerja
+        <a href="employer-profile.php?name=<?php echo urlencode($job['employer'] ?? 'PT Talenta Digital Indonesia'); ?>" style="font-size: 0.84rem; color: #2563eb; font-weight: 700; text-decoration: none; display: inline-block; margin-bottom: 16px;">
+          Lihat Profil Pemberi Kerja &rarr;
         </a>
 
         <div style="padding-top: 14px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: #64748b;">
