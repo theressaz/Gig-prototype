@@ -34,6 +34,9 @@ $currentVideoUrl = $_POST['video_url'] ?? ($existingReg['video_url'] ?? ($worker
 
 $currentPortfolio = !empty($existingReg['portfolio']) && is_array($existingReg['portfolio']) ? $existingReg['portfolio'] : ($workerProfile['portfolio'] ?? []);
 $currentProjects = !empty($existingReg['previous_projects']) && is_array($existingReg['previous_projects']) ? $existingReg['previous_projects'] : ($workerProfile['experience'] ?? []);
+if (is_array($currentProjects)) {
+    gig_sort_experience_timeline($currentProjects);
+}
 
 $successMessage = "";
 $errorMessage = "";
@@ -64,29 +67,61 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
     // Include SIAPKerja default experience if selected
     if (!empty($_POST["include_siapkerja_exp"])) {
         foreach ($siapkerja['pengalaman_siapkerja'] as $skExp) {
-            array_unshift($projects, [
+            $projects[] = [
                 'role'    => $skExp['role'],
                 'project' => $skExp['institution'],
                 'period'  => $skExp['period'],
                 'summary' => $skExp['summary'],
-            ]);
+            ];
         }
     }
+    gig_sort_experience_timeline($projects);
 
-    // Process portfolios
+    // Process portfolios with multiple attached files
     $portfolios = [];
     if (!empty($_POST["portfolio_title"]) && is_array($_POST["portfolio_title"])) {
         foreach ($_POST["portfolio_title"] as $idx => $pTitle) {
             $pt = trim((string)$pTitle);
             if ($pt !== "") {
+                $itemFiles = [];
+                if (!empty($_POST["portfolio_file_name"][$idx]) && is_array($_POST["portfolio_file_name"][$idx])) {
+                    foreach ($_POST["portfolio_file_name"][$idx] as $fIdx => $fName) {
+                        $fn = trim((string)$fName);
+                        $fu = trim((string)($_POST["portfolio_file_url"][$idx][$fIdx] ?? '#'));
+                        $ft = trim((string)($_POST["portfolio_file_type"][$idx][$fIdx] ?? 'Dokumen PDF'));
+                        if ($fn !== "" || ($fu !== "" && $fu !== "#")) {
+                            $itemFiles[] = [
+                                'name' => $fn !== "" ? $fn : 'Berkas_' . ($fIdx + 1),
+                                'type' => $ft !== "" ? $ft : 'Dokumen PDF',
+                                'size' => 'Akses Web / File',
+                                'url'  => $fu !== "" ? $fu : '#'
+                            ];
+                        }
+                    }
+                }
+
+                // Fallback if legacy portfolio_url field was filled
+                if (empty($itemFiles) && !empty($_POST["portfolio_url"][$idx])) {
+                    $fu = trim((string)$_POST["portfolio_url"][$idx]);
+                    if ($fu !== "") {
+                        $itemFiles[] = [
+                            'name' => 'Berkas_Deliverable_Utama',
+                            'type' => trim((string)($_POST["portfolio_type"][$idx] ?? 'Dokumen PDF')),
+                            'size' => 'Akses Web',
+                            'url'  => $fu
+                        ];
+                    }
+                }
+
                 $portfolios[] = [
                     'id'          => 'port-' . uniqid(),
                     'title'       => $pt,
                     'type'        => trim((string)($_POST["portfolio_type"][$idx] ?? "Proyek Portfolio")),
                     'deliverable' => trim((string)($_POST["portfolio_desc"][$idx] ?? "")),
-                    'url'         => trim((string)($_POST["portfolio_url"][$idx] ?? "#")),
+                    'url'         => !empty($itemFiles[0]['url']) ? $itemFiles[0]['url'] : '#',
                     'client'      => 'Klien Terverifikasi',
-                    'year'        => date('Y')
+                    'year'        => date('Y'),
+                    'files'       => $itemFiles
                 ];
             }
         }
@@ -873,53 +908,100 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
         <div id="portfolioContainer">
           <?php if (!empty($currentPortfolio) && is_array($currentPortfolio)): ?>
             <?php foreach ($currentPortfolio as $pIdx => $pItem): ?>
-              <div class="dynamic-item" id="port-item-<?php echo $pIdx + 1; ?>">
-                <?php if ($pIdx > 0): ?>
-                  <button type="button" class="btn-remove-item" onclick="document.getElementById('port-item-<?php echo $pIdx + 1; ?>').remove()">Hapus</button>
-                <?php endif; ?>
+              <div class="dynamic-item" id="port-item-<?php echo $pIdx; ?>">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed var(--border-subtle);">
+                  <strong style="font-size: 0.95rem; color: var(--kemnaker-navy);">Portofolio #<?php echo $pIdx + 1; ?></strong>
+                  <?php if ($pIdx > 0): ?>
+                    <button type="button" class="btn-remove-item" onclick="document.getElementById('port-item-<?php echo $pIdx; ?>').remove()">Hapus Portofolio</button>
+                  <?php endif; ?>
+                </div>
+
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
                   <div class="form-group">
-                    <label class="form-label">Judul Portofolio <?php echo $pIdx + 1; ?></label>
+                    <label class="form-label">Judul Portofolio <span style="color:#ef4444;">*</span></label>
                     <input type="text" name="portfolio_title[]" class="form-input" value="<?php echo htmlspecialchars($pItem['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: Redesign Mobile App E-Commerce" required />
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Tipe / Kategori Deliverable</label>
+                    <label class="form-label">Tipe / Kategori Deliverable <span style="color:#ef4444;">*</span></label>
                     <input type="text" name="portfolio_type[]" class="form-input" value="<?php echo htmlspecialchars($pItem['type'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: Figma UI Kit / Web Prototype" required />
                   </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                  <div class="form-group">
-                    <label class="form-label">Link Berkas / Deliverable (URL)</label>
-                    <input type="url" name="portfolio_url[]" class="form-input" value="<?php echo htmlspecialchars($pItem['url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://figma.com/@project..." />
+
+                <div class="form-group" style="margin-bottom: 14px;">
+                  <label class="form-label">Deskripsi Singkat Portofolio</label>
+                  <input type="text" name="portfolio_desc[]" class="form-input" value="<?php echo htmlspecialchars($pItem['deliverable'] ?? ($pItem['desc'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" placeholder="Ringkasan deliverable dan peran Anda" />
+                </div>
+
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 14px; margin-top: 10px;">
+                  <div style="font-size: 0.85rem; font-weight: 700; color: var(--kemnaker-navy); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                    <span>📂 Lampiran Berkas / Link File (Bisa Mengunggah Lebih Dari 1 File)</span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">PDF, Figma, Code Repo, ZIP, Video, dll.</span>
                   </div>
-                  <div class="form-group">
-                    <label class="form-label">Deskripsi Singkat Portofolio</label>
-                    <input type="text" name="portfolio_desc[]" class="form-input" value="<?php echo htmlspecialchars($pItem['deliverable'] ?? ($pItem['desc'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" placeholder="Ringkasan deliverable dan peran Anda" />
+
+                  <div id="file-list-<?php echo $pIdx; ?>">
+                    <?php 
+                      $files = !empty($pItem['files']) && is_array($pItem['files']) ? $pItem['files'] : [];
+                      if (empty($files) && !empty($pItem['url'])) {
+                          $files = [['name' => 'Berkas Deliverable Utama', 'type' => ($pItem['type'] ?? 'Dokumen PDF'), 'url' => $pItem['url']]];
+                      }
+                      if (empty($files)) {
+                          $files = [['name' => '', 'type' => 'Dokumen PDF / Link', 'url' => '']];
+                      }
+                    ?>
+                    <?php foreach ($files as $fIdx => $f): ?>
+                      <div class="file-item-row" style="display: grid; grid-template-columns: 2fr 1.5fr 3fr 30px; gap: 8px; align-items: center; margin-bottom: 8px;">
+                        <input type="text" name="portfolio_file_name[<?php echo $pIdx; ?>][]" class="form-input" style="font-size:0.82rem;" value="<?php echo htmlspecialchars($f['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="Nama Berkas (e.g. Wireframe UI PDF)" />
+                        <input type="text" name="portfolio_file_type[<?php echo $pIdx; ?>][]" class="form-input" style="font-size:0.82rem;" value="<?php echo htmlspecialchars($f['type'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="Tipe (PDF, Figma, Code)" />
+                        <input type="url" name="portfolio_file_url[<?php echo $pIdx; ?>][]" class="form-input" style="font-size:0.82rem;" value="<?php echo htmlspecialchars($f['url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://..." />
+                        <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer;" title="Hapus file ini">&times;</button>
+                      </div>
+                    <?php endforeach; ?>
                   </div>
+
+                  <button type="button" class="btn-add-item" style="font-size: 0.78rem; padding: 5px 12px; margin-top: 4px; background: #eff6ff; color: var(--primary-blue); border: 1px dashed var(--primary-blue);" onclick="addFileToPortfolio(<?php echo $pIdx; ?>)">
+                    + Tambah Berkas / Link File Lainnya
+                  </button>
                 </div>
               </div>
             <?php endforeach; ?>
           <?php else: ?>
-            <div class="dynamic-item" id="port-item-1">
+            <div class="dynamic-item" id="port-item-0">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed var(--border-subtle);">
+                <strong style="font-size: 0.95rem; color: var(--kemnaker-navy);">Portofolio #1</strong>
+              </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
                 <div class="form-group">
-                  <label class="form-label">Judul Portofolio 1</label>
+                  <label class="form-label">Judul Portofolio <span style="color:#ef4444;">*</span></label>
                   <input type="text" name="portfolio_title[]" class="form-input" placeholder="contoh: Redesign Mobile App E-Commerce" required />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Tipe / Kategori Deliverable</label>
+                  <label class="form-label">Tipe / Kategori Deliverable <span style="color:#ef4444;">*</span></label>
                   <input type="text" name="portfolio_type[]" class="form-input" placeholder="contoh: Figma UI Kit / Web Prototype" required />
                 </div>
               </div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                <div class="form-group">
-                  <label class="form-label">Link Berkas / Deliverable (URL)</label>
-                  <input type="url" name="portfolio_url[]" class="form-input" placeholder="https://figma.com/@project..." />
+              <div class="form-group" style="margin-bottom: 14px;">
+                <label class="form-label">Deskripsi Singkat Portofolio</label>
+                <input type="text" name="portfolio_desc[]" class="form-input" placeholder="Ringkasan deliverable dan peran Anda" />
+              </div>
+
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 14px; margin-top: 10px;">
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--kemnaker-navy); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                  <span>📂 Lampiran Berkas / Link File (Bisa Mengunggah Lebih Dari 1 File)</span>
+                  <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">PDF, Figma, Code Repo, ZIP, Video, dll.</span>
                 </div>
-                <div class="form-group">
-                  <label class="form-label">Deskripsi Singkat Portofolio</label>
-                  <input type="text" name="portfolio_desc[]" class="form-input" placeholder="Ringkasan deliverable dan peran Anda" />
+
+                <div id="file-list-0">
+                  <div class="file-item-row" style="display: grid; grid-template-columns: 2fr 1.5fr 3fr 30px; gap: 8px; align-items: center; margin-bottom: 8px;">
+                    <input type="text" name="portfolio_file_name[0][]" class="form-input" style="font-size:0.82rem;" placeholder="Nama Berkas (e.g. Wireframe UI PDF)" />
+                    <input type="text" name="portfolio_file_type[0][]" class="form-input" style="font-size:0.82rem;" placeholder="Tipe (PDF, Figma, Code)" />
+                    <input type="url" name="portfolio_file_url[0][]" class="form-input" style="font-size:0.82rem;" placeholder="https://..." />
+                    <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer;" title="Hapus file ini">&times;</button>
+                  </div>
                 </div>
+
+                <button type="button" class="btn-add-item" style="font-size: 0.78rem; padding: 5px 12px; margin-top: 4px; background: #eff6ff; color: var(--primary-blue); border: 1px dashed var(--primary-blue);" onclick="addFileToPortfolio(0)">
+                  + Tambah Berkas / Link File Lainnya
+                </button>
               </div>
             </div>
           <?php endif; ?>
@@ -1016,37 +1098,68 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
       container.appendChild(div);
     }
 
-    let portfolioCount = 1;
+    let portfolioCount = <?php echo !empty($currentPortfolio) && is_array($currentPortfolio) ? count($currentPortfolio) : 1; ?>;
+
     function addPortfolioItem() {
+      const pIdx = portfolioCount;
       portfolioCount++;
       const container = document.getElementById('portfolioContainer');
       const div = document.createElement('div');
       div.className = 'dynamic-item';
-      div.id = 'port-item-' + portfolioCount;
+      div.id = 'port-item-' + pIdx;
       div.innerHTML = `
-        <button type="button" class="btn-remove-item" onclick="document.getElementById('port-item-${portfolioCount}').remove()">Hapus</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed var(--border-subtle);">
+          <strong style="font-size: 0.95rem; color: var(--kemnaker-navy);">Portofolio #${pIdx + 1}</strong>
+          <button type="button" class="btn-remove-item" onclick="document.getElementById('port-item-${pIdx}').remove()">Hapus Portofolio</button>
+        </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
           <div class="form-group">
-            <label class="form-label">Judul Portofolio ${portfolioCount}</label>
+            <label class="form-label">Judul Portofolio <span style="color:#ef4444;">*</span></label>
             <input type="text" name="portfolio_title[]" class="form-input" placeholder="contoh: Web App Dashboard" required />
           </div>
           <div class="form-group">
-            <label class="form-label">Tipe / Kategori Deliverable</label>
-            <input type="text" name="portfolio_type[]" class="form-input" placeholder="contoh: React Code / Figma Spec" />
+            <label class="form-label">Tipe / Kategori Deliverable <span style="color:#ef4444;">*</span></label>
+            <input type="text" name="portfolio_type[]" class="form-input" placeholder="contoh: React Code / Figma Spec" required />
           </div>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="form-group">
-            <label class="form-label">Link Berkas / Deliverable (URL)</label>
-            <input type="url" name="portfolio_url[]" class="form-input" placeholder="https://..." />
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label">Deskripsi Singkat Portofolio</label>
+          <input type="text" name="portfolio_desc[]" class="form-input" placeholder="Ringkasan deliverable dan fitur utama" />
+        </div>
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 14px; margin-top: 10px;">
+          <div style="font-size: 0.85rem; font-weight: 700; color: var(--kemnaker-navy); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+            <span>📂 Lampiran Berkas / Link File (Bisa Mengunggah Lebih Dari 1 File)</span>
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">PDF, Figma, Code Repo, ZIP, Video, dll.</span>
           </div>
-          <div class="form-group">
-            <label class="form-label">Deskripsi Singkat Portofolio</label>
-            <input type="text" name="portfolio_desc[]" class="form-input" placeholder="Ringkasan deliverable dan fitur utama" />
+          <div id="file-list-${pIdx}">
+            <div class="file-item-row" style="display: grid; grid-template-columns: 2fr 1.5fr 3fr 30px; gap: 8px; align-items: center; margin-bottom: 8px;">
+              <input type="text" name="portfolio_file_name[${pIdx}][]" class="form-input" style="font-size:0.82rem;" placeholder="Nama Berkas (e.g. Dokumen Specs PDF)" />
+              <input type="text" name="portfolio_file_type[${pIdx}][]" class="form-input" style="font-size:0.82rem;" placeholder="Tipe (PDF, Figma, Code)" />
+              <input type="url" name="portfolio_file_url[${pIdx}][]" class="form-input" style="font-size:0.82rem;" placeholder="https://..." />
+              <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer;" title="Hapus file ini">&times;</button>
+            </div>
           </div>
+          <button type="button" class="btn-add-item" style="font-size: 0.78rem; padding: 5px 12px; margin-top: 4px; background: #eff6ff; color: var(--primary-blue); border: 1px dashed var(--primary-blue);" onclick="addFileToPortfolio(${pIdx})">
+            + Tambah Berkas / Link File Lainnya
+          </button>
         </div>
       `;
       container.appendChild(div);
+    }
+
+    function addFileToPortfolio(pIdx) {
+      const fileList = document.getElementById('file-list-' + pIdx);
+      if (!fileList) return;
+      const row = document.createElement('div');
+      row.className = 'file-item-row';
+      row.style.cssText = 'display: grid; grid-template-columns: 2fr 1.5fr 3fr 30px; gap: 8px; align-items: center; margin-bottom: 8px;';
+      row.innerHTML = `
+        <input type="text" name="portfolio_file_name[${pIdx}][]" class="form-input" style="font-size:0.82rem;" placeholder="Nama Berkas (e.g. Dokumen Specs PDF)" />
+        <input type="text" name="portfolio_file_type[${pIdx}][]" class="form-input" style="font-size:0.82rem;" placeholder="Tipe (PDF, Figma, Code)" />
+        <input type="url" name="portfolio_file_url[${pIdx}][]" class="form-input" style="font-size:0.82rem;" placeholder="https://..." />
+        <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer;" title="Hapus file ini">&times;</button>
+      `;
+      fileList.appendChild(row);
     }
 
     function checkVideoPreview(url) {

@@ -2,6 +2,70 @@
 declare(strict_types=1);
 
 /**
+ * Calculates a numeric timeline score for a project period string (newest period = higher score).
+ */
+function gig_parse_period_score(string $period): int
+{
+    $p = strtolower(trim($period));
+    if ($p === '') {
+        return 0;
+    }
+
+    $monthMap = [
+        'jan' => 1, 'feb' => 2, 'mar' => 3, 'apr' => 4,
+        'mei' => 5, 'may' => 5, 'jun' => 6, 'jul' => 7,
+        'agu' => 8, 'aug' => 8, 'sep' => 9, 'okt' => 10,
+        'oct' => 10, 'nov' => 11, 'des' => 12, 'dec' => 12
+    ];
+
+    // Check for ongoing / present / sekarang / berjalan
+    if (preg_match('/(sekarang|present|berjalan|ongoing|current)/i', $p)) {
+        preg_match_all('/\b(19\d\d|20\d\d)\b/', $p, $matches);
+        $startYear = !empty($matches[1]) ? (int)end($matches[1]) : (int)date('Y');
+        
+        $startMonth = 0;
+        foreach ($monthMap as $mStr => $mNum) {
+            if (str_contains($p, $mStr)) {
+                $startMonth = max($startMonth, $mNum);
+            }
+        }
+        return 90000000 + ($startYear * 100) + $startMonth;
+    }
+
+    preg_match_all('/\b(19\d\d|20\d\d)\b/', $p, $matches);
+    if (empty($matches[1])) {
+        return 100000;
+    }
+
+    $years = array_map('intval', $matches[1]);
+    $endYear = max($years);
+    $startYear = min($years);
+
+    $endMonth = 0;
+    foreach ($monthMap as $mStr => $mNum) {
+        if (str_contains($p, $mStr)) {
+            $endMonth = max($endMonth, $mNum);
+        }
+    }
+
+    return ($endYear * 10000) + ($endMonth * 100) + ($startYear % 100);
+}
+
+/**
+ * Sorts an array of experience/project items chronologically by period (newest project first).
+ */
+function gig_sort_experience_timeline(array &$experience): void
+{
+    usort($experience, function ($a, $b) {
+        $periodA = (string)($a['period'] ?? '');
+        $periodB = (string)($b['period'] ?? '');
+        $scoreA = gig_parse_period_score($periodA);
+        $scoreB = gig_parse_period_score($periodB);
+        return $scoreB <=> $scoreA;
+    });
+}
+
+/**
  * Shared Gig Worker account profiles.
  * Contact details stay hidden until both sides have agreed to work together.
  * Individual review ratings are whole integers (1–5).
@@ -655,6 +719,12 @@ function gig_worker_profiles(): array
         }
     }
 
+    foreach (array_keys($profiles) as $wId) {
+        if (!empty($profiles[$wId]['experience']) && is_array($profiles[$wId]['experience'])) {
+            gig_sort_experience_timeline($profiles[$wId]['experience']);
+        }
+    }
+
     return $profiles;
 }
 
@@ -686,6 +756,9 @@ function gig_find_worker(string $id): ?array
                 $profiles[$cleanId]['video_url'] = $reg['video_url'];
             }
         }
+        if (!empty($profiles[$cleanId]['experience']) && is_array($profiles[$cleanId]['experience'])) {
+            gig_sort_experience_timeline($profiles[$cleanId]['experience']);
+        }
         return $profiles[$cleanId];
     }
 
@@ -694,6 +767,10 @@ function gig_find_worker(string $id): ?array
     if ($reg !== null || gig_is_worker_registered($id)) {
         $siapkerja = gig_get_siapkerja_profile($id);
         $reg = $reg ?? [];
+        $exp = $reg['previous_projects'] ?? $siapkerja['pengalaman_siapkerja'];
+        if (is_array($exp)) {
+            gig_sort_experience_timeline($exp);
+        }
         return [
             'id' => $cleanId,
             'name' => $siapkerja['nama'] ?? ucwords($id),
@@ -714,7 +791,7 @@ function gig_find_worker(string $id): ?array
                 'wa' => $reg['contact_wa'] ?? $siapkerja['wa'],
                 'email' => $reg['contact_email'] ?? $siapkerja['email'],
             ],
-            'experience' => $reg['previous_projects'] ?? $siapkerja['pengalaman_siapkerja'],
+            'experience' => $exp,
             'portfolio' => $reg['portfolio'] ?? [],
             'reviews' => [],
             'video_url' => $reg['video_url'] ?? '',
@@ -749,6 +826,22 @@ function gig_get_siapkerja_profile(string $username): array
         $fullName = $formattedName;
     }
 
+    $skExp = [
+        [
+            'role'        => 'UI/UX Designer & Digital Strategist',
+            'institution' => 'PT Teknologi Digital Indonesia (SIAPKerja Verified)',
+            'period'      => 'Jan 2024 — Agu 2026',
+            'summary'     => 'Merancang desain antarmuka dashboard B2B SaaS dan memimpin pengujian ketergunaan bagi 500+ pengguna aktif.'
+        ],
+        [
+            'role'        => 'Frontend & Product Specialist',
+            'institution' => 'Proyek Digital KarirHub Kemnaker RI',
+            'period'      => 'Mei 2025 — Des 2025',
+            'summary'     => 'Mengembangkan komponen antarmuka web responsif dan standar aksesibilitas bagi calon tenaga kerja Indonesia.'
+        ]
+    ];
+    gig_sort_experience_timeline($skExp);
+
     return [
         'username'        => $username,
         'nama'            => $fullName,
@@ -758,20 +851,7 @@ function gig_get_siapkerja_profile(string $username): array
         'wa'              => '0812-3456-7890',
         'lokasi'          => 'Jakarta Selatan, DKI Jakarta',
         'status_akun'     => 'Terverifikasi (KYC Kemnaker RI)',
-        'pengalaman_siapkerja' => [
-            [
-                'role'        => 'UI/UX Designer & Digital Strategist',
-                'institution' => 'PT Teknologi Digital Indonesia (SIAPKerja Verified)',
-                'period'      => 'Jan 2024 — Agu 2026',
-                'summary'     => 'Merancang desain antarmuka dashboard B2B SaaS dan memimpin pengujian ketergunaan bagi 500+ pengguna aktif.'
-            ],
-            [
-                'role'        => 'Frontend & Product Specialist',
-                'institution' => 'Proyek Digital KarirHub Kemnaker RI',
-                'period'      => 'Mei 2025 — Des 2025',
-                'summary'     => 'Mengembangkan komponen antarmuka web responsif dan standar aksesibilitas bagi calon tenaga kerja Indonesia.'
-            ]
-        ]
+        'pengalaman_siapkerja' => $skExp
     ];
 }
 

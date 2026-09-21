@@ -117,7 +117,12 @@ if ($role === 'worker') {
     <section class="section-card">
       <h2>Pengalaman</h2>
       <div class="timeline">
-        <?php foreach ($worker['experience'] as $item): ?>
+        <?php 
+          if (!empty($worker['experience']) && is_array($worker['experience'])) {
+              gig_sort_experience_timeline($worker['experience']);
+          }
+          foreach ($worker['experience'] as $item): 
+        ?>
           <article class="timeline-item">
             <strong><?php echo htmlspecialchars($item['role'], ENT_QUOTES, 'UTF-8'); ?></strong>
             <span class="muted"><?php echo htmlspecialchars($item['project'], ENT_QUOTES, 'UTF-8'); ?> · <?php echo htmlspecialchars($item['period'], ENT_QUOTES, 'UTF-8'); ?></span>
@@ -236,12 +241,16 @@ if ($role === 'worker') {
           item.files.forEach(f => {
             const fileRow = document.createElement('div');
             fileRow.style.cssText = 'display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;';
+            const actionBtn = (f.url && f.url !== '#')
+              ? `<a href="${f.url}" target="_blank" rel="noopener noreferrer" style="background:#2563eb;color:#fff;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:0.78rem;font-weight:700;flex-shrink:0;">Buka Berkas ↗</a>`
+              : `<span style="font-size:0.75rem;color:#94a3b8;">Tersimpan</span>`;
             fileRow.innerHTML = `
               <span style="font-size:1.4rem;line-height:1;">${getFileIcon(f.type)}</span>
               <div style="flex:1;min-width:0;">
                 <div style="font-size:0.86rem;font-weight:700;color:#1e293b;word-break:break-all;">${f.name}</div>
                 <div style="font-size:0.74rem;color:#64748b;margin-top:2px;">${f.type} &bull; ${f.size}</div>
               </div>
+              ${actionBtn}
             `;
             filesContainer.appendChild(fileRow);
           });
