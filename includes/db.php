@@ -88,6 +88,21 @@ function gig_db(): ?PDO
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
 
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS `project_offers` (
+                `id`                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `employer_username`  VARCHAR(100) NOT NULL,
+                `worker_id`          VARCHAR(50)  NOT NULL,
+                `vacancy_id`         VARCHAR(50)  NOT NULL,
+                `message`            VARCHAR(500) NOT NULL DEFAULT '',
+                `status`             VARCHAR(20)  NOT NULL DEFAULT 'pending',
+                `created_at`         DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY `uniq_offer` (`employer_username`, `worker_id`, `vacancy_id`),
+                KEY `idx_worker` (`worker_id`),
+                KEY `idx_vacancy` (`vacancy_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ");
+
     } catch (Throwable $e) {
         $pdo = null;
     }

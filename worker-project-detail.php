@@ -5,7 +5,10 @@ require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/project-vacancies.php';
 
+require_once __DIR__ . '/includes/project-offers.php';
+
 $projectId = trim((string)($_GET['id'] ?? ''));
+$fromOffers = ($_GET['from'] ?? '') === 'penawaran';
 $job = gig_find_vacancy($projectId);
 
 if (!$job) {
@@ -14,12 +17,27 @@ if (!$job) {
     $job = $activeJobs[0] ?? null;
 }
 
-$rawLocation = (string)($job['location'] ?? 'Remote');
+$rawLocation = (string)(($job ?? [])['location'] ?? 'Remote');
 $displayLocation = (stripos($rawLocation, 'remote') !== false) ? 'Remote' : $rawLocation;
+$employerName = (string)(($job ?? [])['employer'] ?? ($job ?? [])['client'] ?? 'Pemberi kerja');
+
+$matchedOffer = null;
+if ($fromOffers && $job) {
+    foreach (gig_offers_for_worker($username) as $offer) {
+        if (strcasecmp((string)$offer['detail_id'], (string)$job['id']) === 0) {
+            $matchedOffer = $offer;
+            $employerName = (string)$offer['employer_display'];
+            break;
+        }
+    }
+}
+
+$backHref = $fromOffers ? 'worker-penawaran.php' : 'worker-bursa.php';
+$backLabel = $fromOffers ? 'Kembali ke Penawaran Proyek' : 'Kembali ke Cari Proyek';
 
 $pageTitle = $job ? $job['title'] : 'Detail Proyek';
-$pageKey = 'bursa';
-$breadcrumbCurrent = 'Detail Proyek';
+$pageKey = $fromOffers ? 'penawaran' : 'bursa';
+$breadcrumbCurrent = $fromOffers ? 'Detail Penawaran' : 'Detail Proyek';
 require __DIR__ . '/includes/worker-layout-start.php';
 ?>
 
@@ -171,13 +189,19 @@ require __DIR__ . '/includes/worker-layout-start.php';
   <div class="detail-section-card" style="text-align: center; padding: 40px 20px;">
     <h2>Proyek Tidak Ditemukan</h2>
     <p>Lowongan proyek yang Anda cari tidak tersedia atau belum dipublikasikan.</p>
-    <a href="worker-bursa.php" class="btn-primary-add" style="display: inline-flex; margin-top: 16px;">Kembali ke Cari Proyek</a>
+    <a href="<?php echo htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="btn-primary-add" style="display: inline-flex; margin-top: 16px;"><?php echo htmlspecialchars($backLabel, ENT_QUOTES, 'UTF-8'); ?></a>
   </div>
 <?php else: ?>
 
   <!-- TOP HEADER CARD -->
   <section class="detail-header-card">
-    <a href="worker-bursa.php" class="detail-back-link">&larr; Kembali ke Cari Proyek</a>
+    <a href="<?php echo htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="detail-back-link">&larr; <?php echo htmlspecialchars($backLabel, ENT_QUOTES, 'UTF-8'); ?></a>
+    <?php if ($fromOffers): ?>
+      <div class="notice-bar" style="margin-bottom:16px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <span>Penawaran dari <strong><?php echo htmlspecialchars($employerName, ENT_QUOTES, 'UTF-8'); ?></strong> untuk proyek yang sudah diposting.</span>
+      </div>
+    <?php endif; ?>
 
     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap;">
       <div style="display: flex; gap: 18px; align-items: flex-start;">

@@ -30,6 +30,7 @@ function gig_project_vacancies(): array
             'desc' => 'Dibutuhkan UI/UX designer berpengalaman untuk merancang prototype interaktif dashboard KarirHub dengan tampilan modern.',
             'deadline' => '20 Sep 2026',
             'adminNote' => 'Lowongan telah diverifikasi dan disetujui oleh Admin KarirHub pada 01 Sep 2026.',
+            'employer' => 'PT ABC',
         ],
         [
             'id' => 'GIG-2026-09-002',
@@ -48,6 +49,7 @@ function gig_project_vacancies(): array
             'desc' => 'Mengembangkan endpoint webhook dan mengintegrasikan provider SMS/WA ke core sistem.',
             'deadline' => '18 Sep 2026',
             'adminNote' => 'Lowongan disetujui Admin pada 03 Sep 2026.',
+            'employer' => 'PT ABC',
         ],
         [
             'id' => 'GIG-2026-09-003',

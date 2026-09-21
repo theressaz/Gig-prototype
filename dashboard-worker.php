@@ -4,14 +4,16 @@ require_once __DIR__ . '/includes/worker-auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/project-vacancies.php';
+require_once __DIR__ . '/includes/project-offers.php';
+
+gig_seed_demo_offers_if_needed($username);
+$offerCount = count(gig_offers_for_worker($username));
 
 $siapkerja = gig_get_siapkerja_profile($username);
 $isRegistered = gig_is_worker_registered($username);
 $workerRegData = $isRegistered ? gig_get_worker_registration($username) : null;
 $profileId = strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $username)[0] ?? $username));
 $profileUrl = $isRegistered ? 'worker-profile.php?id=' . urlencode($profileId) : 'worker-register.php';
-
-$activeVacanciesCount = count(array_filter(gig_project_vacancies(), static fn($j) => $j['status'] === 'active'));
 
 $pageTitle = 'Ringkasan';
 $pageKey = 'overview';
@@ -89,10 +91,10 @@ require __DIR__ . '/includes/worker-layout-start.php';
         <div class="stat-number">2</div>
         <div class="stat-caption">Sedang dikerjakan</div>
       </a>
-      <a class="stat-card" href="worker-bursa.php">
-        <div class="stat-card-header"><span class="stat-label">LOWONGAN TERBUKA</span></div>
-        <div class="stat-number"><?php echo $activeVacanciesCount; ?></div>
-        <div class="stat-caption">Siap dilamar di Cari Proyek</div>
+      <a class="stat-card" href="worker-penawaran.php">
+        <div class="stat-card-header"><span class="stat-label">PENAWARAN PROYEK</span></div>
+        <div class="stat-number"><?php echo $offerCount; ?></div>
+        <div class="stat-caption">Tawaran dari pemberi kerja</div>
       </a>
       <a class="stat-card" href="worker-ulasan.php">
         <div class="stat-card-header"><span class="stat-label">RATING</span></div>
@@ -131,6 +133,13 @@ require __DIR__ . '/includes/worker-layout-start.php';
           </div>
         </div>
         <div class="quick-access-grid">
+          <a href="worker-penawaran.php" class="quick-access-tile">
+            <div class="tile-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+            <div>
+              <div style="font-size:0.85rem;font-weight:700;">Penawaran Proyek</div>
+              <div style="font-size:0.72rem;color:var(--text-muted);">Tawaran dari pemberi kerja</div>
+            </div>
+          </a>
           <a href="worker-bursa.php" class="quick-access-tile">
             <div class="tile-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/></svg></div>
             <div>

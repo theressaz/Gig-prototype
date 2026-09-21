@@ -3,12 +3,18 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/employer-auth.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/project-vacancies.php';
+require_once __DIR__ . '/includes/project-offers.php';
 
 $workerProfiles = gig_worker_profiles();
 $vacancies = gig_project_vacancies();
 
 // Only posted/active vacancies can be offered
 $activeVacancies = array_values(array_filter($vacancies, fn($v) => $v['status'] === 'active'));
+$vacancyOfferCounts = [];
+foreach ($activeVacancies as $v) {
+    $vacancyOfferCounts[$v['id']] = gig_count_vacancy_offers($v['id']);
+}
+$alreadyOfferedMap = gig_employer_offered_map($username);
 
 $pageTitle = 'Cari Mitra Gig Worker';
 $pageKey = 'cari-mitra';
@@ -436,7 +442,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <?php foreach ($activeVacancies as $v): ?>
               <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;"
                    data-vacancy-id="<?php echo htmlspecialchars($v['id'], ENT_QUOTES, 'UTF-8'); ?>"
-                   data-offer-count="0"
+                   data-offer-count="<?php echo (int)($vacancyOfferCounts[$v['id']] ?? 0); ?>"
                    data-quota="<?php echo (int)$v['quota']; ?>">
                 <div>
                   <div style="font-size:0.88rem;font-weight:700;color:#1e293b;"><?php echo htmlspecialchars($v['title'], ENT_QUOTES, 'UTF-8'); ?></div>
@@ -461,8 +467,10 @@ require __DIR__ . '/includes/employer-layout-start.php';
     </div>
 
     <script>
+      let currentOfferWorkerId = '';
       let currentOfferWorkerName = '';
-      let offerCounts = {}; // vacancy_id => count of pending offers
+      let offerCounts = <?php echo json_encode($vacancyOfferCounts, JSON_UNESCAPED_UNICODE); ?> || {};
+      const alreadyOffered = <?php echo json_encode($alreadyOfferedMap, JSON_UNESCAPED_UNICODE); ?> || {};
       let currentCategory = 'all';
 
       function filterWorkers(cat, btn) {
@@ -499,9 +507,48 @@ require __DIR__ . '/includes/employer-layout-start.php';
         }
       }
 
+      function toastOffer(message) {
+        if (typeof showToast === 'function') showToast(message);
+        else alert(message);
+      }
+
+      function setOfferButtonState(container, vacancyId, sentToCurrent) {
+        const btn = container ? container.querySelector('.offer-send-btn') : null;
+        if (!btn) return;
+        const count = offerCounts[vacancyId] || 0;
+        if (sentToCurrent) {
+          btn.disabled = true;
+          btn.style.background = '#94a3b8';
+          btn.style.cursor = 'not-allowed';
+          btn.innerText = 'Sudah Ditawarkan';
+          return;
+        }
+        if (count >= 3) {
+          btn.disabled = true;
+          btn.style.background = '#94a3b8';
+          btn.style.cursor = 'not-allowed';
+          btn.innerText = 'Penawaran Penuh (3/3)';
+          return;
+        }
+        btn.disabled = false;
+        btn.style.background = '';
+        btn.style.cursor = 'pointer';
+        btn.innerText = 'Kirim Tawaran';
+      }
+
+      function refreshOfferButtons() {
+        const sent = alreadyOffered[currentOfferWorkerId] || [];
+        document.querySelectorAll('#offer-vacancy-list [data-vacancy-id]').forEach(function (row) {
+          const vacancyId = row.getAttribute('data-vacancy-id');
+          setOfferButtonState(row, vacancyId, sent.indexOf(vacancyId) !== -1);
+        });
+      }
+
       function openOfferModal(workerId, workerName) {
+        currentOfferWorkerId = workerId;
         currentOfferWorkerName = workerName;
         document.getElementById('offer-worker-name').innerText = workerName;
+        refreshOfferButtons();
         document.getElementById('offerProjectModal').classList.add('open');
       }
 
@@ -510,39 +557,46 @@ require __DIR__ . '/includes/employer-layout-start.php';
       }
 
       function sendOffer(vacancyId, vacancyTitle) {
-        if (!offerCounts[vacancyId]) offerCounts[vacancyId] = 0;
-
-        const container = document.querySelector('[data-vacancy-id="' + vacancyId + '"]');
-        const maxOffers = 3;
-
-        if (offerCounts[vacancyId] >= maxOffers) {
-          if (typeof showToast === 'function') {
-            showToast('Lowongan ini sudah mencapai batas 3 penawaran aktif.');
-          } else {
-            alert('Lowongan ini sudah mencapai batas 3 penawaran aktif.');
-          }
+        if (!currentOfferWorkerId) {
+          toastOffer('Pilih Gig Worker terlebih dahulu.');
           return;
         }
 
-        offerCounts[vacancyId]++;
-        const msg = 'Penawaran "' + vacancyTitle + '" dikirim ke ' + currentOfferWorkerName + '. Menunggu konfirmasi Gig Worker.';
-        if (typeof showToast === 'function') {
-          showToast(msg);
-        } else {
-          alert(msg);
-        }
+        const container = document.querySelector('[data-vacancy-id="' + vacancyId + '"]');
+        const btn = container ? container.querySelector('.offer-send-btn') : null;
+        if (btn) btn.disabled = true;
 
-        if (offerCounts[vacancyId] >= maxOffers && container) {
-          const btn = container.querySelector('.offer-send-btn');
-          if (btn) {
-            btn.disabled = true;
-            btn.style.background = '#94a3b8';
-            btn.style.cursor = 'not-allowed';
-            btn.innerText = 'Penawaran Penuh (3/3)';
-          }
-        }
+        fetch('offer-save.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            worker_id: currentOfferWorkerId,
+            vacancy_id: vacancyId
+          })
+        })
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            if (!data || !data.ok) {
+              toastOffer((data && data.error) ? data.error : 'Penawaran gagal dikirim.');
+              if (btn) btn.disabled = false;
+              refreshOfferButtons();
+              return;
+            }
 
-        closeOfferModal();
+            offerCounts[vacancyId] = data.offer_count || ((offerCounts[vacancyId] || 0) + 1);
+            if (!alreadyOffered[currentOfferWorkerId]) alreadyOffered[currentOfferWorkerId] = [];
+            if (alreadyOffered[currentOfferWorkerId].indexOf(vacancyId) === -1) {
+              alreadyOffered[currentOfferWorkerId].push(vacancyId);
+            }
+
+            toastOffer('Penawaran "' + vacancyTitle + '" dikirim ke ' + currentOfferWorkerName + '. Gig Worker dapat membuka detail proyek dari halaman Penawaran.');
+            refreshOfferButtons();
+            closeOfferModal();
+          })
+          .catch(function () {
+            toastOffer('Koneksi terputus. Coba kirim penawaran lagi.');
+            if (btn) btn.disabled = false;
+          });
       }
     </script>
 
