@@ -25,7 +25,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
     background: #ffffff;
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
-    padding: 24px 28px;
+    padding: 28px;
     box-shadow: var(--shadow-sm);
     margin-bottom: 24px;
   }
@@ -38,7 +38,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
     font-size: 0.85rem;
     font-weight: 700;
     text-decoration: none;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     transition: transform 0.2s;
   }
 
@@ -49,32 +49,10 @@ require __DIR__ . '/includes/worker-layout-start.php';
   .detail-title {
     font-size: 1.5rem;
     font-weight: 800;
-    color: var(--text-main);
+    color: #0f172a;
     line-height: 1.3;
-    margin-bottom: 14px;
-  }
-
-  .detail-meta-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    align-items: center;
-    font-size: 0.86rem;
-    color: var(--text-muted);
-    padding-top: 14px;
-    border-top: 1px dashed var(--border-subtle);
-  }
-
-  .detail-meta-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #f8fafc;
-    padding: 6px 12px;
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--border-subtle);
-    font-weight: 600;
-    color: var(--text-main);
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
   }
 
   .detail-grid {
@@ -98,20 +76,11 @@ require __DIR__ . '/includes/worker-layout-start.php';
     box-shadow: var(--shadow-sm);
   }
 
-  .detail-section-card h2 {
-    font-size: 1.05rem;
+  .detail-section-card h3 {
+    font-size: 1.15rem;
     font-weight: 800;
-    color: var(--text-main);
+    color: #0f172a;
     margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .detail-section-card p {
-    font-size: 0.92rem;
-    line-height: 1.6;
-    color: #334155;
   }
 
   .sidebar-summary-card {
@@ -128,7 +97,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
     font-size: 1.6rem;
     font-weight: 800;
     color: var(--primary-blue);
-    margin: 8px 0;
+    margin: 6px 0;
   }
 
   .btn-apply-hero {
@@ -220,94 +189,185 @@ require __DIR__ . '/includes/worker-layout-start.php';
   </div>
 <?php else: ?>
 
-  <!-- TOP HEADER CARD -->
+  <!-- TOP HEADER CARD (ARRANGED EXACTLY LIKE KARIRHUB REFERENCE IMAGE) -->
   <section class="detail-header-card">
     <a href="worker-bursa.php" class="detail-back-link">&larr; Kembali ke Cari Proyek</a>
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap;">
+      <div style="display: flex; gap: 18px; align-items: flex-start;">
+        <!-- Logo / Avatar Icon Thumbnail -->
+        <div style="width: 64px; height: 64px; border-radius: 12px; background: #f1f5f9; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--primary-blue)" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        </div>
+
+        <div>
+          <h1 class="detail-title"><?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?></h1>
+
+          <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.88rem; color: #64748b;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span>📍</span> <strong><?php echo htmlspecialchars($job['location'], ENT_QUOTES, 'UTF-8'); ?></strong>
+            </div>
+            <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+              <span>📅 Diposting <?php echo htmlspecialchars($job['posted'], ENT_QUOTES, 'UTF-8'); ?></span>
+              <span>&bull;</span>
+              <span>👥 Jumlah lowongan: <strong><?php echo (int)($job['quota'] ?? 1); ?> Pekerja</strong></span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; color: #dc2626; font-weight: 600;">
+              <span>🔔</span> Batas waktu lamaran: <strong><?php echo htmlspecialchars($job['deadline'] ?? '31 Des 2026', ENT_QUOTES, 'UTF-8'); ?></strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Header Action Button Right -->
       <div>
-        <span class="project-category-tag" style="margin-bottom: 8px; display: inline-block;">
-          <?php echo htmlspecialchars($job['category'], ENT_QUOTES, 'UTF-8'); ?>
-        </span>
-        <h1 class="detail-title"><?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?></h1>
+        <button type="button" onclick="openApplyModal()" style="padding: 12px 28px; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: #2563eb; color: #ffffff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); transition: all 0.2s;">
+          Lamar Sekarang
+        </button>
       </div>
     </div>
 
-    <div class="detail-meta-row">
-      <div class="detail-meta-item">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        Anggaran: <strong><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></strong>
-      </div>
-      <div class="detail-meta-item" style="background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Kuota Freelancer: <strong><?php echo (int)($job['quota'] ?? 1); ?> Orang Pekerja</strong>
-      </div>
-      <div class="detail-meta-item">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Estimasi: <strong><?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?></strong>
-      </div>
-      <div class="detail-meta-item">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Lokasi: <strong><?php echo htmlspecialchars($job['location'], ENT_QUOTES, 'UTF-8'); ?></strong>
-      </div>
-      <div class="detail-meta-item">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        Dipublikasikan: <?php echo htmlspecialchars($job['posted'], ENT_QUOTES, 'UTF-8'); ?>
-      </div>
+    <!-- Share Social Row -->
+    <div style="margin-top: 20px; padding-top: 14px; border-top: 1px dashed #e2e8f0; display: flex; align-items: center; gap: 12px; font-size: 0.84rem; color: #64748b;">
+      <span style="font-weight: 600;">Bagikan:</span>
+      <a href="#" onclick="event.preventDefault(); alert('Link lamaran berhasil disalin!');" style="color: #25d366; text-decoration: none; font-size: 1.1rem;" title="WhatsApp">💬</a>
+      <a href="#" onclick="event.preventDefault(); alert('Link lamaran berhasil disalin!');" style="color: #0a66c2; text-decoration: none; font-size: 1.1rem;" title="LinkedIn">🔗</a>
+      <a href="#" onclick="event.preventDefault(); alert('Link lamaran berhasil disalin!');" style="color: #1da1f2; text-decoration: none; font-size: 1.1rem;" title="Twitter / X">❌</a>
+      <a href="#" onclick="event.preventDefault(); alert('Link lamaran berhasil disalin!');" style="color: #1877f2; text-decoration: none; font-size: 1.1rem;" title="Facebook">📘</a>
+      <a href="#" onclick="event.preventDefault(); alert('Link lamaran proyek disalin ke clipboard!');" style="color: #64748b; text-decoration: none; font-size: 0.82rem; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; font-weight: 600; margin-left: 4px;">📋 Salin Link</a>
     </div>
   </section>
 
   <!-- MAIN GRID -->
   <div class="detail-grid">
-    <!-- LEFT CONTENT -->
+    <!-- LEFT CONTENT COLUMN (ARRANGED EXACTLY LIKE KARIRHUB REFERENCE IMAGE) -->
     <div>
+      <!-- 1. TOP QUICK SPECIFICATION GRID -->
       <section class="detail-section-card">
-        <h2>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-blue)" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Deskripsi &amp; Ruang Lingkup Pekerjaan (Scope of Work)
-        </h2>
-        <p><?php echo nl2br(htmlspecialchars($job['desc'], ENT_QUOTES, 'UTF-8')); ?></p>
-        <p style="margin-top: 12px;">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px 16px; font-size: 0.86rem;">
+          <div>
+            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Bidang pekerjaan</div>
+            <strong style="color: #0f172a;"><?php echo htmlspecialchars($job['category'], ENT_QUOTES, 'UTF-8'); ?></strong>
+          </div>
+          <div>
+            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Jenis pekerjaan</div>
+            <strong style="color: #0f172a;">Gig / Freelance</strong>
+          </div>
+          <div>
+            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Tipe pekerjaan</div>
+            <strong style="color: #0f172a;">Lowongan dalam negeri</strong>
+          </div>
+          <div>
+            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Pengalaman</div>
+            <strong style="color: #0f172a;">Sesuai Portofolio</strong>
+          </div>
+          <div>
+            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Rentang gaji / Anggaran</div>
+            <strong style="color: #2563eb; font-weight: 800;"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></strong>
+          </div>
+          <div>
+            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Durasi Pengerjaan</div>
+            <strong style="color: #0f172a;"><?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?></strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. DESKRIPSI PEKERJAAN -->
+      <section class="detail-section-card">
+        <h3>Deskripsi Pekerjaan</h3>
+        <p style="font-size: 0.92rem; line-height: 1.6; color: #334155; margin-bottom: 12px;">
+          <?php echo nl2br(htmlspecialchars($job['desc'], ENT_QUOTES, 'UTF-8')); ?>
+        </p>
+        <p style="font-size: 0.88rem; line-height: 1.6; color: #64748b;">
           Pekerjaan ini dilakukan secara profesional dengan mengacu pada standar kualitas KarirHub Kemnaker RI. Seluruh komunikasi awal dan penyerahan karya dilakukan melalui platform untuk menjamin perlindungan hak kedua belah pihak.
         </p>
       </section>
 
-      <?php if (!empty($job['deliverables'])): ?>
-        <section class="detail-section-card">
-          <h2>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-blue)" stroke-width="2.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-            Deliverable &amp; Hasil Akhir yang Diharapkan
-          </h2>
-          <p><?php echo htmlspecialchars($job['deliverables'], ENT_QUOTES, 'UTF-8'); ?></p>
-        </section>
-      <?php endif; ?>
-
+      <!-- 3. PERSYARATAN KHUSUS & DELIVERABLES -->
       <section class="detail-section-card">
-        <h2>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-blue)" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          Keahlian &amp; Skill yang Dibutuhkan
-        </h2>
-        <div class="project-skill-tags" style="margin-top: 8px;">
+        <h3>Persyaratan Khusus</h3>
+        <div style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">KUALIFIKASI &amp; HASIL AKHIR (DELIVERABLE)</div>
+        <?php if (!empty($job['deliverables'])): ?>
+          <p style="font-size: 0.9rem; line-height: 1.6; color: #334155; margin-bottom: 12px;">
+            <strong>Target Deliverable:</strong> <?php echo htmlspecialchars($job['deliverables'], ENT_QUOTES, 'UTF-8'); ?>
+          </p>
+        <?php endif; ?>
+        <ol style="font-size: 0.9rem; line-height: 1.7; color: #334155; padding-left: 20px; margin: 0;">
+          <li>Memiliki keahlian dan portofolio yang relevan dengan bidang <?php echo htmlspecialchars($job['category'], ENT_QUOTES, 'UTF-8'); ?>.</li>
+          <li>Mampu bekerja mandiri dan menyelesaikan tugas sesuai target durasi (<?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?>).</li>
+          <li>Siap melakukan komunikasi aktif dan pelaporan berkala melalui platform SIAPKerja.</li>
+          <li>Mematuhi etika profesional dan standar kerahasiaan proyek.</li>
+        </ol>
+      </section>
+
+      <!-- 4. PERSYARATAN UMUM -->
+      <section class="detail-section-card">
+        <h3>Persyaratan Umum</h3>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px 16px; font-size: 0.86rem;">
+          <div>
+            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Minimal pendidikan</div>
+            <strong style="color: #0f172a;">SMA atau Sederajat / D3 / S1</strong>
+          </div>
+          <div>
+            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Status Pernikahan</div>
+            <strong style="color: #0f172a;">Tidak ada preferensi</strong>
+          </div>
+          <div>
+            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Minimal pengalaman</div>
+            <strong style="color: #0f172a;">Tidak ditentukan / Terbuka</strong>
+          </div>
+          <div>
+            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Kondisi fisik</div>
+            <strong style="color: #0f172a;">Non disabilitas &amp; Disabilitas</strong>
+          </div>
+          <div>
+            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Status Pekerjaan</div>
+            <strong style="color: #0f172a;">Gig Worker / Freelancer</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. KETERAMPILAN -->
+      <section class="detail-section-card">
+        <h3>Keterampilan</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
           <?php foreach ($job['skills'] as $sk): ?>
-            <span class="skill-tag-item" style="font-size: 0.85rem; padding: 6px 14px; background: #eff6ff; color: var(--primary-blue); border: 1px solid #bfdbfe;">
+            <span style="font-size: 0.84rem; font-weight: 600; padding: 6px 14px; background: #f1f5f9; color: #334155; border-radius: 9999px;">
               <?php echo htmlspecialchars($sk, ENT_QUOTES, 'UTF-8'); ?>
             </span>
           <?php endforeach; ?>
         </div>
       </section>
-
-      <section class="detail-section-card" style="background: #f8fafc; border-left: 4px solid var(--primary-blue);">
-        <h2 style="font-size: 0.95rem; color: var(--kemnaker-navy);">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          Perlindungan &amp; Keamanan Akun SIAPKerja
-        </h2>
-        <p style="font-size: 0.85rem; color: var(--text-muted);">
-          Informasi kontak pribadi Anda (nomor WhatsApp &amp; Email) tidak akan langsung dipublikasikan. Pemberi kerja hanya dapat melihat profil keahlian dan portofolio Anda. Kontak resmi baru akan dibuka setelah kedua belah pihak menyetujui kerja sama proyek ini.
-        </p>
-      </section>
     </div>
 
-    <!-- RIGHT SIDEBAR -->
+    <!-- RIGHT SIDEBAR (ARRANGED EXACTLY LIKE KARIRHUB REFERENCE IMAGE) -->
     <div>
+      <!-- EMPLOYER COMPANY CARD -->
+      <section class="detail-section-card" style="border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; background: #ffffff; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; line-height: 1.3;">
+          <?php echo htmlspecialchars((string)($job['employer'] ?? 'PT Talenta Digital Indonesia'), ENT_QUOTES, 'UTF-8'); ?>
+        </h3>
+        
+        <div style="margin-bottom: 14px;">
+          <span style="font-size: 0.76rem; background: #f1f5f9; color: #475569; font-weight: 600; padding: 4px 10px; border-radius: 6px; display: inline-block;">
+            <?php echo htmlspecialchars($job['category'], ENT_QUOTES, 'UTF-8'); ?>
+          </span>
+        </div>
+
+        <a href="#" onclick="event.preventDefault(); alert('Profil perusahaan dapat dilihat setelah lamaran disetujui.');" style="font-size: 0.84rem; color: #2563eb; font-weight: 700; text-decoration: none; display: inline-block; margin-bottom: 16px;">
+          Lihat Profil Perusahaan
+        </a>
+
+        <div style="padding-top: 12px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: #64748b;">
+          <span>Lowongan dari KarirHub</span>
+          <span style="font-weight: 800; color: #2563eb; display: flex; align-items: center; gap: 4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            KarirHub
+          </span>
+        </div>
+      </section>
+
+      <!-- SIDEBAR SUMMARY CARD & CTA BUTTON -->
       <section class="sidebar-summary-card">
         <div style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700;">Nilai Anggaran Proyek</div>
         <div class="budget-highlight"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></div>
@@ -340,12 +400,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
             <div style="color: var(--text-muted);">Batas Akhir</div>
             <strong style="color: var(--text-main);"><?php echo htmlspecialchars($job['deadline'] ?? 'Sesuai Kuota', ENT_QUOTES, 'UTF-8'); ?></strong>
           </div>
-        </div>
-
-        <div style="background: #f1f5f9; border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 16px;">
-          <div style="font-size: 0.76rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Pemberi Kerja</div>
-          <strong style="font-size: 0.9rem; color: var(--text-main);"><?php echo htmlspecialchars($job['employer'] ?? 'Pemberi Kerja Terverifikasi SIAPKerja', ENT_QUOTES, 'UTF-8'); ?></strong>
-          <div style="font-size: 0.76rem; color: #10b981; font-weight: 700; margin-top: 2px;">&check; Terverifikasi KYC Kemnaker RI</div>
         </div>
 
         <button id="btnApplyMain" class="btn-apply-hero" type="button" onclick="openApplyModal()">
