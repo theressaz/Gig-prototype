@@ -225,7 +225,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <?php if ($message !== ""): ?>
             <div class="message"><?php echo htmlspecialchars($message, ENT_QUOTES, "UTF-8"); ?></div>
         <?php endif; ?>
-        <a href="#" class="register-link">Don't have an account? Register</a>
+        <a href="worker-register.php" class="register-link">Belum menjadi Gig Worker? Daftar</a>
     </div>
 </body>
 </html>
