@@ -31,11 +31,11 @@ require __DIR__ . '/includes/worker-layout-start.php';
         <div>
           <div class="hero-badge">PORTAL GIG WORKER</div>
           <h2 class="hero-title">Halo, <?php echo htmlspecialchars($siapkerja['nama'] ?? $username, ENT_QUOTES, 'UTF-8'); ?></h2>
-          <p class="hero-desc">Pantau tugas, profil, dan aktivitas proyek dari satu tempat.</p>
+          <p class="hero-desc">Pantau proyek, profil, dan aktivitas dari satu tempat.</p>
         </div>
         <div class="hero-quick-stats">
-          <div class="hero-stat-pill"><span class="hero-stat-val">14</span><span class="hero-stat-lbl">Tugas Selesai</span></div>
-          <div class="hero-stat-pill"><span class="hero-stat-val">2</span><span class="hero-stat-lbl">Tugas Aktif</span></div>
+          <div class="hero-stat-pill"><span class="hero-stat-val">14</span><span class="hero-stat-lbl">Proyek Selesai</span></div>
+          <div class="hero-stat-pill"><span class="hero-stat-val">2</span><span class="hero-stat-lbl">Proyek Aktif</span></div>
           <div class="hero-stat-pill"><span class="hero-stat-val">3</span><span class="hero-stat-lbl">Mitra Aktif</span></div>
         </div>
       </div>
@@ -82,12 +82,12 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
     <section class="stats-grid">
       <a class="stat-card" href="worker-tugas.php">
-        <div class="stat-card-header"><span class="stat-label">TUGAS SELESAI</span></div>
+        <div class="stat-card-header"><span class="stat-label">PROYEK SELESAI</span></div>
         <div class="stat-number">14</div>
-        <div class="stat-caption">Total tugas diselesaikan</div>
+        <div class="stat-caption">Total proyek diselesaikan</div>
       </a>
       <a class="stat-card" href="worker-tugas.php">
-        <div class="stat-card-header"><span class="stat-label">TUGAS AKTIF</span></div>
+        <div class="stat-card-header"><span class="stat-label">PROYEK AKTIF</span></div>
         <div class="stat-number">2</div>
         <div class="stat-caption">Sedang dikerjakan</div>
       </a>
@@ -107,12 +107,12 @@ require __DIR__ . '/includes/worker-layout-start.php';
       <section class="white-card">
         <div class="card-header-flex">
           <div class="card-title-group">
-            <h2>Distribusi Status Tugas</h2>
-            <p>Perbandingan terhadap total tugas</p>
+            <h2>Distribusi Status Proyek</h2>
+            <p>Perbandingan terhadap total proyek</p>
           </div>
         </div>
         <div class="dist-item">
-          <div class="dist-header"><span>Tugas Aktif</span><span>2 · 14%</span></div>
+          <div class="dist-header"><span>Proyek Aktif</span><span>2 · 14%</span></div>
           <div class="progress-bar-bg"><div class="progress-bar-fill blue" style="width:14%"></div></div>
         </div>
         <div class="dist-item">
@@ -150,7 +150,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <a href="worker-tugas.php" class="quick-access-tile">
             <div class="tile-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
             <div>
-              <div style="font-size:0.85rem;font-weight:700;">Tugas Aktif</div>
+              <div style="font-size:0.85rem;font-weight:700;">Proyek Aktif</div>
               <div style="font-size:0.72rem;color:var(--text-muted);">Pantau pengerjaan</div>
             </div>
           </a>
