@@ -72,6 +72,22 @@ function gig_db(): ?PDO
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
 
+        // --- gig_worker_registrations table ---
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS `gig_worker_registrations` (
+                `username`          VARCHAR(100) NOT NULL PRIMARY KEY,
+                `bidang_keahlian`   VARCHAR(150) NOT NULL,
+                `skills`            TEXT NOT NULL,
+                `contact_choice`    VARCHAR(20) NOT NULL DEFAULT 'siapkerja',
+                `contact_email`     VARCHAR(150) NOT NULL,
+                `contact_wa`        VARCHAR(50) NOT NULL,
+                `previous_projects` LONGTEXT NOT NULL,
+                `portfolio`         LONGTEXT NOT NULL,
+                `video_url`         VARCHAR(500) NOT NULL,
+                `created_at`        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ");
+
     } catch (Throwable $e) {
         $pdo = null;
     }

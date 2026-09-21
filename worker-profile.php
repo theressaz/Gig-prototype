@@ -64,6 +64,31 @@ require __DIR__ . '/includes/employer-layout-start.php';
       </div>
     </section>
 
+    <?php 
+      $regData = gig_get_worker_registration($worker['id']);
+      $videoUrl = !empty($regData['video_url']) ? $regData['video_url'] : ($worker['video_url'] ?? 'https://www.youtube.com/watch?v=demo-profile-video');
+    ?>
+    <?php if (!empty($videoUrl)): ?>
+      <section class="section-card">
+        <h2>Video Profil Gig Worker</h2>
+        <p style="font-size:0.84rem; color: var(--text-muted); margin-bottom: 12px;">Perkenalan singkat dan paparan keahlian dari Gig Worker.</p>
+        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: #ef4444; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+              ▶
+            </div>
+            <div>
+              <strong style="font-size: 0.9rem; color: #0f172a;">Video Perkenalan &amp; Demo Portofolio</strong>
+              <div style="font-size: 0.78rem; color: #64748b;"><?php echo htmlspecialchars($videoUrl, ENT_QUOTES, 'UTF-8'); ?></div>
+            </div>
+          </div>
+          <a href="<?php echo htmlspecialchars($videoUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" style="background: #2563eb; color: #fff; padding: 8px 16px; border-radius: 9999px; text-decoration: none; font-size: 0.82rem; font-weight: 700; flex-shrink: 0;">
+            Putar Video ↗
+          </a>
+        </div>
+      </section>
+    <?php endif; ?>
+
     <section class="section-card">
       <h2>Pengalaman</h2>
       <div class="timeline">

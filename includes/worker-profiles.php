@@ -677,3 +677,140 @@ function gig_stars(int|float $rating): string
     return $html;
 }
 
+/**
+ * Returns pre-filled profile information from the user's SIAPKerja account.
+ */
+function gig_get_siapkerja_profile(string $username): array
+{
+    $formattedName = ucwords(trim($username));
+    if (strtolower($username) === 'tessa') {
+        $fullName = 'Tessa Kirana';
+    } else {
+        $fullName = $formattedName;
+    }
+
+    return [
+        'username'        => $username,
+        'nama'            => $fullName,
+        'siapkerja_id'    => 'SK-2026-' . strtoupper(substr(md5($username), 0, 6)),
+        'nik'             => '317409' . sprintf('%010d', abs(crc32($username) % 10000000000)),
+        'email'           => strtolower(str_replace(' ', '.', $fullName)) . '@siapkerja.kemnaker.go.id',
+        'wa'              => '0812-3456-7890',
+        'lokasi'          => 'Jakarta Selatan, DKI Jakarta',
+        'status_akun'     => 'Terverifikasi (KYC Kemnaker RI)',
+        'pengalaman_siapkerja' => [
+            [
+                'role'        => 'UI/UX Designer & Digital Strategist',
+                'institution' => 'PT Teknologi Digital Indonesia (SIAPKerja Verified)',
+                'period'      => 'Jan 2024 — Agu 2026',
+                'summary'     => 'Merancang desain antarmuka dashboard B2B SaaS dan memimpin pengujian ketergunaan bagi 500+ pengguna aktif.'
+            ],
+            [
+                'role'        => 'Frontend & Product Specialist',
+                'institution' => 'Proyek Digital KarirHub Kemnaker RI',
+                'period'      => 'Mei 2025 — Des 2025',
+                'summary'     => 'Mengembangkan komponen antarmuka web responsif dan standar aksesibilitas bagi calon tenaga kerja Indonesia.'
+            ]
+        ]
+    ];
+}
+
+/**
+ * Checks whether the logged in user has completed Gig Worker registration.
+ */
+function gig_is_worker_registered(string $username): bool
+{
+    if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['gig_worker_registered_' . $username])) {
+        return true;
+    }
+
+    $db = gig_db();
+    if ($db !== null) {
+        try {
+            $stmt = $db->prepare("SELECT 1 FROM `gig_worker_registrations` WHERE `username` = :u LIMIT 1");
+            $stmt->execute([':u' => $username]);
+            if ($stmt->fetch()) {
+                if (session_status() === PHP_SESSION_ACTIVE) {
+                    $_SESSION['gig_worker_registered_' . $username] = true;
+                }
+                return true;
+            }
+        } catch (Throwable $e) {
+            // fallback check session
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Gets registration details for a Gig Worker.
+ */
+function gig_get_worker_registration(string $username): ?array
+{
+    if (session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['gig_worker_registration_data_' . $username])) {
+        return $_SESSION['gig_worker_registration_data_' . $username];
+    }
+
+    $db = gig_db();
+    if ($db !== null) {
+        try {
+            $stmt = $db->prepare("SELECT * FROM `gig_worker_registrations` WHERE `username` = :u LIMIT 1");
+            $stmt->execute([':u' => $username]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row) {
+                $row['previous_projects'] = json_decode($row['previous_projects'], true) ?: [];
+                $row['portfolio'] = json_decode($row['portfolio'], true) ?: [];
+                $row['skills'] = explode(',', $row['skills']);
+                if (session_status() === PHP_SESSION_ACTIVE) {
+                    $_SESSION['gig_worker_registration_data_' . $username] = $row;
+                    $_SESSION['gig_worker_registered_' . $username] = true;
+                }
+                return $row;
+            }
+        } catch (Throwable $e) {
+            // fallback
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Saves a new Gig Worker registration.
+ */
+function gig_save_worker_registration(string $username, array $data): bool
+{
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        $_SESSION['gig_worker_registered_' . $username] = true;
+        $_SESSION['gig_worker_registration_data_' . $username] = $data;
+    }
+
+    $db = gig_db();
+    if ($db !== null) {
+        try {
+            $stmt = $db->prepare("
+                REPLACE INTO `gig_worker_registrations`
+                (`username`, `bidang_keahlian`, `skills`, `contact_choice`, `contact_email`, `contact_wa`, `previous_projects`, `portfolio`, `video_url`)
+                VALUES (:u, :bidang, :skills, :choice, :email, :wa, :projects, :portfolio, :video)
+            ");
+            $stmt->execute([
+                ':u'        => $username,
+                ':bidang'   => $data['bidang_keahlian'] ?? '',
+                ':skills'   => is_array($data['skills'] ?? null) ? implode(', ', $data['skills']) : ($data['skills'] ?? ''),
+                ':choice'   => $data['contact_choice'] ?? 'siapkerja',
+                ':email'    => $data['contact_email'] ?? '',
+                ':wa'       => $data['contact_wa'] ?? '',
+                ':projects' => json_encode($data['previous_projects'] ?? []),
+                ':portfolio'=> json_encode($data['portfolio'] ?? []),
+                ':video'    => $data['video_url'] ?? '',
+            ]);
+        } catch (Throwable $e) {
+            // fallback saved to session
+        }
+    }
+
+    return true;
+}
+
+

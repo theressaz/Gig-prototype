@@ -2,6 +2,9 @@
 declare(strict_types=1);
 session_start();
 
+require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/worker-profiles.php';
+
 if (!isset($_SESSION["username"]) || !isset($_SESSION["role"]) || $_SESSION["role"] !== 'worker') {
     // If not logged in as worker, redirect back to login
     header("Location: welcome-screen.php");
@@ -28,6 +31,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])) {
 }
 
 $username = (string)$_SESSION["username"];
+$siapkerja = gig_get_siapkerja_profile($username);
+$isRegistered = gig_is_worker_registered($username);
+$workerRegData = $isRegistered ? gig_get_worker_registration($username) : null;
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -740,6 +746,56 @@ $username = (string)$_SESSION["username"];
         </div>
       </div>
     </section>
+
+    <!-- GIG WORKER REGISTRATION STATUS CARD -->
+    <?php if (!$isRegistered): ?>
+      <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1.5px solid #93c5fd; border-radius: var(--radius-lg); padding: 24px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; align-items: flex-start; gap: 16px;">
+          <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--primary-blue); color: #ffffff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 10px rgba(22, 87, 193, 0.3);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="17" y1="11" x2="23" y2="11"/></svg>
+          </div>
+          <div>
+            <div style="display: inline-flex; align-items: center; gap: 6px; background: #dbeafe; color: #1e40af; padding: 2px 10px; border-radius: 9999px; font-size: 0.74rem; font-weight: 700; margin-bottom: 6px;">
+              AKUN SIAPKERJA TERKONEKSI
+            </div>
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--text-main);">Anda Belum Terdaftar Sebagai Gig Worker</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 2px; max-width: 680px;">
+              Gunakan akun SIAPKerja Anda (<strong><?php echo htmlspecialchars($siapkerja['nama'], ENT_QUOTES, 'UTF-8'); ?></strong>) untuk melengkapi formulir aplikasi Gig Worker (Bidang keahlian, skill, kontak SIAPKerja/baru, portofolio &amp; video profil).
+            </p>
+          </div>
+        </div>
+        <a href="worker-register.php" style="display: inline-flex; align-items: center; gap: 8px; background: var(--primary-blue); color: #ffffff; text-decoration: none; padding: 12px 22px; border-radius: var(--radius-pill); font-size: 0.9rem; font-weight: 700; box-shadow: 0 4px 12px rgba(22, 87, 193, 0.3); flex-shrink: 0; transition: all 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Daftar Sebagai Gig Worker
+        </a>
+      </div>
+    <?php else: ?>
+      <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: var(--radius-lg); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: #10b981; color: #ffffff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h3 style="font-size: 1.05rem; font-weight: 800; color: #065f46;">Profil Gig Worker Aktif &amp; Terverifikasi</h3>
+              <span style="font-size: 0.72rem; background: #10b981; color: #ffffff; padding: 2px 8px; border-radius: 9999px; font-weight: 700;">SIAPKerja Verified</span>
+            </div>
+            <p style="font-size: 0.84rem; color: #047857; margin-top: 2px;">
+              <strong>Bidang:</strong> <?php echo htmlspecialchars($workerRegData['bidang_keahlian'] ?? 'Gig Professional', ENT_QUOTES, 'UTF-8'); ?> &bull; 
+              <strong>Kontak:</strong> <?php echo htmlspecialchars($workerRegData['contact_email'] ?? $siapkerja['email'], ENT_QUOTES, 'UTF-8'); ?>
+            </p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <a href="worker-register.php" style="display: inline-flex; align-items: center; gap: 6px; background: #ffffff; border: 1px solid #a7f3d0; color: #047857; text-decoration: none; padding: 8px 16px; border-radius: var(--radius-pill); font-size: 0.82rem; font-weight: 700;">
+            Edit Pendaftaran
+          </a>
+          <a href="worker-profile.php?id=tessa" style="display: inline-flex; align-items: center; gap: 6px; background: #10b981; color: #ffffff; text-decoration: none; padding: 8px 16px; border-radius: var(--radius-pill); font-size: 0.82rem; font-weight: 700;">
+            Lihat Profil Publik &rarr;
+          </a>
+        </div>
+      </div>
+    <?php endif; ?>
 
     <!-- NOTICE BAR -->
     <div class="notice-bar">
