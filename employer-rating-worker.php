@@ -1,6 +1,16 @@
 <?php
 declare(strict_types=1);
-require_once __DIR__ . '/includes/employer-auth.php';
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+if (!isset($_SESSION["username"])) {
+    header("Location: welcome-screen.php");
+    exit;
+}
+$username = $_SESSION["username"];
+$userRole = $_SESSION["role"] ?? 'employer';
+$isWorker = ($userRole === 'worker') || (isset($_GET['from']) && $_GET['from'] === 'worker');
+
 require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/db.php';
 
@@ -44,10 +54,10 @@ $errorMessage = '';
 if (isset($_GET['undo']) && $_GET['undo'] === '1') {
     $undoContract = trim((string)($_GET['contract'] ?? ''));
     if ($undoContract !== '' && $pdo !== null) {
-        $stmt = $pdo->prepare("DELETE FROM `project_reviews` WHERE `contract_id` = :cid AND `employer_username` = :emp");
-        $stmt->execute([':cid' => $undoContract, ':emp' => $username]);
-        $stmt = $pdo->prepare("DELETE FROM `project_completions` WHERE `contract_id` = :cid AND `employer_username` = :emp");
-        $stmt->execute([':cid' => $undoContract, ':emp' => $username]);
+        $stmt = $pdo->prepare("DELETE FROM `project_reviews` WHERE `contract_id` = :cid");
+        $stmt->execute([':cid' => $undoContract]);
+        $stmt = $pdo->prepare("DELETE FROM `project_completions` WHERE `contract_id` = :cid");
+        $stmt->execute([':cid' => $undoContract]);
     }
     // Also clear from session cache
     unset($_SESSION['completed_projects'][$undoContract]);
@@ -57,7 +67,7 @@ if (isset($_GET['undo']) && $_GET['undo'] === '1') {
         }
         unset($revs);
     }
-    header('Location: employer-proyek-aktif.php');
+    header('Location: ' . ($isWorker ? 'worker-tugas.php' : 'employer-proyek-aktif.php'));
     exit;
 }
 
@@ -73,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
     $recommend      = !empty($_POST['recommend_worker']);
 
     if ($comment === '') {
-        $errorMessage = 'Mohon tuliskan ulasan atau testimoni singkat untuk pekerja gig.';
+        $errorMessage = 'Mohon tuliskan ulasan atau testimoni singkat untuk mitra proyek.';
     } else {
         $badgesJson   = implode('||', $selectedBadges);
         $todayDate    = date('Y-m-d');
@@ -151,8 +161,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
 $alreadyRated = false;
 $existingRating = null;
 if ($pdo !== null) {
-    $stmt = $pdo->prepare("SELECT * FROM `project_reviews` WHERE `contract_id` = :cid AND `employer_username` = :emp LIMIT 1");
-    $stmt->execute([':cid' => $projectData['id'], ':emp' => $username]);
+    $stmt = $pdo->prepare("SELECT * FROM `project_reviews` WHERE `contract_id` = :cid LIMIT 1");
+    $stmt->execute([':cid' => $projectData['id']]);
     $existingRating = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     $alreadyRated   = ($existingRating !== null);
 } elseif (isset($_SESSION['completed_projects'][$projectData['id']])) {
@@ -160,20 +170,28 @@ if ($pdo !== null) {
 }
 
 $pageTitle          = 'Beri Ulasan & Selesaikan Proyek';
-$pageKey            = 'aktif';
+$pageKey            = $isWorker ? 'tugas' : 'aktif';
 $breadcrumbCurrent  = 'Beri Ulasan';
-require __DIR__ . '/includes/employer-layout-start.php';
+
+if ($isWorker) {
+    require __DIR__ . '/includes/worker-layout-start.php';
+} else {
+    require __DIR__ . '/includes/employer-layout-start.php';
+}
 ?>
 
 <div class="page-toolbar" style="margin-bottom: 20px;">
   <div>
     <h1>Selesaikan Proyek &amp; Berikan Penilaian</h1>
     <p style="font-size:0.86rem;color:var(--text-muted);margin-top:4px;">
-      Konfirmasi penyelesaian pekerjaan untuk kontrak <strong><?php echo htmlspecialchars($projectData['id'], ENT_QUOTES, 'UTF-8'); ?></strong> dan berikan ulasan objektif bagi mitra gig worker.
+      Konfirmasi penyelesaian pekerjaan untuk kontrak <strong><?php echo htmlspecialchars($projectData['id'], ENT_QUOTES, 'UTF-8'); ?></strong> dan berikan ulasan objektif bagi mitra kerja.
     </p>
   </div>
   <div style="display:flex;gap:10px;align-items:center;">
-    <a class="btn-action-sm" href="employer-proyek-aktif.php" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+    <a class="btn-action-sm" href="<?php echo $isWorker ? 'worker-tugas.php' : 'employer-proyek-aktif.php'; ?>" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12" 19 5 12 12 5"/></svg>
+      Kembali ke Proyek Aktif
+    </a>btn-action-sm" href="employer-proyek-aktif.php" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
       Kembali ke Proyek Aktif
     </a>
@@ -436,4 +454,10 @@ $displayComment = $submitted
 
 <?php endif; ?>
 
-<?php require __DIR__ . '/includes/employer-layout-end.php'; ?>
+<?php 
+if ($isWorker) {
+    require __DIR__ . '/includes/worker-layout-end.php';
+} else {
+    require __DIR__ . '/includes/employer-layout-end.php';
+}
+?>

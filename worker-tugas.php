@@ -10,6 +10,21 @@ $pageKey = 'tugas';
 $breadcrumbCurrent = 'Proyek Aktif';
 require __DIR__ . '/includes/worker-layout-start.php';
 
+// Load completion status from DB / session
+$pdo = gig_db();
+$dbCompletions = [];
+if ($pdo !== null) {
+    try {
+        $stmt = $pdo->prepare(
+            "SELECT `contract_id`, `rating_given`, `review_given` FROM `project_completions`"
+        );
+        $stmt->execute();
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $dbCompletions[$row['contract_id']] = $row;
+        }
+    } catch (Throwable $ignored) {}
+}
+
 // Active projects dataset for worker
 $activeProjects = [
     [
@@ -67,8 +82,12 @@ $activeProjects = [
     </div>
 
     <div class="active-projects-list">
-      <?php foreach ($activeProjects as $idx => $proj): ?>
-        <div class="active-project-card" style="margin-bottom:20px;">
+      <?php foreach ($activeProjects as $idx => $proj): 
+        $cId = $proj['contract_id'];
+        $completed = isset($dbCompletions[$cId]) || isset($_SESSION['completed_projects'][$cId]);
+        $ratingVal = $dbCompletions[$cId]['rating_given'] ?? ($_SESSION['completed_projects'][$cId]['ratingGiven'] ?? 5);
+      ?>
+        <div class="active-project-card" style="margin-bottom:20px;<?php echo $completed ? 'border-color:#10b981;background:#f0fdf4;' : ''; ?>">
           <!-- CARD HEADER -->
           <div class="active-proj-header">
             <div>
@@ -76,7 +95,11 @@ $activeProjects = [
                 <a href="worker-project-detail.php?id=<?php echo urlencode($proj['id']); ?>" style="color:inherit;text-decoration:none;">
                   <?php echo htmlspecialchars($proj['title'], ENT_QUOTES, 'UTF-8'); ?>
                 </a>
-                <span class="<?php echo $proj['status_badge_class']; ?>"><?php echo htmlspecialchars($proj['status_label'], ENT_QUOTES, 'UTF-8'); ?></span>
+                <?php if ($completed): ?>
+                  <span style="display:inline-block;padding:3px 10px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#d1fae5;color:#047857;">✓ Selesai &amp; Dinilai</span>
+                <?php else: ?>
+                  <span class="<?php echo $proj['status_badge_class']; ?>"><?php echo htmlspecialchars($proj['status_label'], ENT_QUOTES, 'UTF-8'); ?></span>
+                <?php endif; ?>
               </div>
               <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">
                 No. Kontrak: <strong><?php echo htmlspecialchars($proj['contract_id'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Durasi Disepakati: <strong><?php echo htmlspecialchars($proj['duration'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Fee Proyek: <strong style="color:var(--primary-blue);"><?php echo htmlspecialchars($proj['budget'], ENT_QUOTES, 'UTF-8'); ?></strong>
@@ -133,15 +156,15 @@ $activeProjects = [
             <div class="payment-direct-box">
               <span class="payment-direct-label">Status Deliverable</span>
               <span class="payment-direct-amount" style="font-size:0.95rem;">
-                <?php echo htmlspecialchars($proj['deliverable_status'], ENT_QUOTES, 'UTF-8'); ?>
+                <?php echo $completed ? 'Disetujui &amp; Selesai' : htmlspecialchars($proj['deliverable_status'], ENT_QUOTES, 'UTF-8'); ?>
               </span>
               <div style="margin-top:6px;">
                 <div style="display:flex;justify-content:space-between;font-size:0.72rem;font-weight:700;color:var(--text-dark);margin-bottom:2px;">
                   <span>Kemajuan Pengerjaan</span>
-                  <span style="color:#2563eb;"><?php echo $proj['progress']; ?>%</span>
+                  <span style="color:<?php echo $completed ? '#10b981' : '#2563eb'; ?>;"><?php echo $completed ? '100%' : $proj['progress'] . '%'; ?></span>
                 </div>
                 <div style="background:#e2e8f0;border-radius:9999px;height:6px;overflow:hidden;">
-                  <div style="background:#2563eb;height:100%;width:<?php echo $proj['progress']; ?>%;border-radius:9999px;transition:width 0.3s;"></div>
+                  <div style="background:<?php echo $completed ? '#10b981' : '#2563eb'; ?>;height:100%;width:<?php echo $completed ? '100%' : $proj['progress'] . '%'; ?>;border-radius:9999px;transition:width 0.3s;"></div>
                 </div>
               </div>
             </div>
@@ -150,9 +173,13 @@ $activeProjects = [
           <!-- CARD ACTIONS FOOTER -->
           <div class="active-proj-actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
             <div>
-              <span style="font-size:0.8rem;color:var(--text-muted);">
-                Kirimkan hasil kerja atau update progress berkala ke pemberi kerja.
-              </span>
+              <?php if ($completed): ?>
+                <span style="font-size:0.82rem;color:#047857;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+                  <span>⭐</span> Rating Diberikan: <?php echo (int)$ratingVal; ?>/5
+                </span>
+              <?php else: ?>
+                <span style="font-size:0.8rem;color:var(--text-muted);">Pengerjaan selesai? Selesaikan proyek dan tinggalkan penilaian.</span>
+              <?php endif; ?>
             </div>
 
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -164,70 +191,25 @@ $activeProjects = [
                 Profil Pemberi Kerja
               </a>
 
-              <button class="btn-create-post" type="button" onclick="openSubmitModal('<?php echo htmlspecialchars(addslashes($proj['title']), ENT_QUOTES, 'UTF-8'); ?>')" style="padding:6px 14px;font-size:0.82rem;background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%);box-shadow:0 4px 10px rgba(37,99,235,0.3);">
-                📤 Kirim Hasil / Deliverable
-              </button>
+              <?php if ($completed): ?>
+                <a class="btn-create-post" href="dashboard-worker.php" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:#059669;border-color:#047857;">
+                  ✓ Selesai &amp; Dinilai
+                </a>
+              <?php else: ?>
+                <a class="btn-create-post" href="employer-rating-worker.php?contract=<?php echo urlencode($proj['contract_id']); ?>&from=worker" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 10px rgba(217,119,6,0.35);">
+                  ★ Selesaikan &amp; Beri Rating
+                </a>
+              <?php endif; ?>
             </div>
           </div>
         </div>
       <?php endforeach; ?>
     </div>
 
-    <!-- SUBMIT DELIVERABLE MODAL -->
-    <div id="submitDeliverableModal" class="modal-backdrop" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;">
-      <div style="background:#fff;border-radius:16px;max-width:520px;width:100%;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1);overflow:hidden;">
-        <div style="background:var(--kemnaker-navy);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
-          <h3 style="font-size:1rem;font-weight:800;margin:0;">Kirim Hasil / Deliverable Proyek</h3>
-          <button type="button" onclick="closeSubmitModal()" style="background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;">&times;</button>
-        </div>
-        <div style="padding:20px;">
-          <div id="modalProjTitle" style="font-size:0.88rem;font-weight:800;color:#0f172a;margin-bottom:12px;"></div>
-          
-          <div style="margin-bottom:14px;">
-            <label style="display:block;font-size:0.8rem;font-weight:700;color:#334155;margin-bottom:4px;">Link Hasil Pengerjaan / Demo / File (Google Drive, GitHub, Figma, dll.)</label>
-            <input type="text" id="deliverableLink" class="form-input" style="width:100%;padding:8px 12px;font-size:0.86rem;border:1px solid #cbd5e1;border-radius:8px;" placeholder="https://drive.google.com/... atau https://figma.com/..." />
-          </div>
-
-          <div style="margin-bottom:16px;">
-            <label style="display:block;font-size:0.8rem;font-weight:700;color:#334155;margin-bottom:4px;">Catatan Tambahan untuk Pemberi Kerja</label>
-            <textarea id="deliverableNote" class="form-input" rows="3" style="width:100%;padding:8px 12px;font-size:0.86rem;border:1px solid #cbd5e1;border-radius:8px;" placeholder="Jelaskan bagian proyek yang diselesaikan atau instruksi peninjauan..."></textarea>
-          </div>
-
-          <div style="display:flex;justify-content:flex-end;gap:10px;">
-            <button type="button" class="btn-action-sm" onclick="closeSubmitModal()" style="background:#f1f5f9;color:#334155;">Batal</button>
-            <button type="button" class="btn-primary-add" onclick="processDeliverableSubmit()" style="padding:8px 18px;font-size:0.85rem;">Kirim ke Pemberi Kerja</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Countdown & Actions Script -->
     <script>
       function copyEmployerContact(name, phone, email) {
         alert("Kontak Resmi Pemberi Kerja (" + name + "):\n\nWhatsApp / Telepon: " + phone + "\nEmail: " + email + "\n\nKontak terbuka karena kesepakatan proyek telah aktif.");
-      }
-
-      function openSubmitModal(title) {
-        document.getElementById('modalProjTitle').innerText = title;
-        document.getElementById('submitDeliverableModal').style.display = 'flex';
-      }
-
-      function closeSubmitModal() {
-        document.getElementById('submitDeliverableModal').style.display = 'none';
-      }
-
-      function processDeliverableSubmit() {
-        const link = document.getElementById('deliverableLink').value.trim();
-        if (!link) {
-          alert('Harap masukkan link hasil pengerjaan atau file proyek.');
-          return;
-        }
-        closeSubmitModal();
-        if (typeof showToast === 'function') {
-          showToast('Hasil deliverable proyek berhasil dikirimkan ke Pemberi Kerja untuk ditinjau!');
-        } else {
-          alert('Hasil deliverable proyek berhasil dikirimkan ke Pemberi Kerja untuk ditinjau!');
-        }
       }
 
       (function startWorkerCountdowns() {
@@ -248,6 +230,16 @@ $activeProjects = [
                   if (m > 0) {
                     m--;
                     minEl.innerText = m < 10 ? '0' + m : String(m);
+                  } else {
+                    minEl.innerText = '59';
+                    const hrEl = container.querySelector('.c-hours');
+                    if (hrEl) {
+                      let h = parseInt(hrEl.innerText, 10);
+                      if (h > 0) {
+                        h--;
+                        hrEl.innerText = h < 10 ? '0' + h : String(h);
+                      }
+                    }
                   }
                 }
               }
@@ -259,4 +251,3 @@ $activeProjects = [
     </script>
 
 <?php require __DIR__ . '/includes/worker-layout-end.php'; ?>
-
