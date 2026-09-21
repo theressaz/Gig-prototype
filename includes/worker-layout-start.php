@@ -7,11 +7,15 @@ $breadcrumbCurrent = $breadcrumbCurrent ?? 'Beranda';
 $userInitials = strtoupper(substr($username, 0, 2));
 $workerLabel = htmlspecialchars($username, ENT_QUOTES, 'UTF-8');
 
+$isRegistered = gig_is_worker_registered($username);
+$profileId = strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $username)[0] ?? $username));
+$profileUrl = $isRegistered ? 'worker-profile.php?id=' . urlencode($profileId) : 'worker-register.php';
+
 $navItems = [
     'overview' => ['href' => 'dashboard-worker.php', 'title' => 'Ringkasan', 'icon' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>'],
     'bursa' => ['href' => 'worker-bursa.php', 'title' => 'Bursa Tugas', 'icon' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>'],
     'tugas' => ['href' => 'worker-tugas.php', 'title' => 'Tugas Aktif', 'icon' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'],
-    'profil' => ['href' => 'worker-register.php', 'title' => 'Profil Saya', 'icon' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'],
+    'profil' => ['href' => $profileUrl, 'title' => 'Profil Saya', 'icon' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'],
     'ulasan' => ['href' => 'worker-ulasan.php', 'title' => 'Ulasan Mitra', 'icon' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'],
 ];
 ?>
@@ -77,7 +81,7 @@ $navItems = [
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
           <div class="profile-dropdown" id="profileDropdown">
-            <a href="worker-register.php">Profil saya</a>
+            <a href="<?php echo htmlspecialchars($profileUrl, ENT_QUOTES, 'UTF-8'); ?>">Profil saya</a>
             <a href="worker-pengaturan.php">Pengaturan akun</a>
             <form method="post" action="">
               <button type="submit" name="logout" value="1">Keluar</button>

@@ -1,23 +1,37 @@
 <?php
 declare(strict_types=1);
-require_once __DIR__ . '/includes/employer-auth.php';
+
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
 
+$role = $_SESSION['role'] ?? 'worker';
+$username = $_SESSION['username'] ?? 'Tessa';
 
 $workerId = trim((string)($_GET['id'] ?? ''));
-$worker = $workerId !== '' ? gig_find_worker($workerId) : null;
+if ($workerId === '') {
+    $workerId = strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $username)[0] ?? $username));
+}
+
+$worker = gig_find_worker($workerId);
 if ($worker === null) {
-    header('Location: employer-pelamar.php');
-    exit;
+    $worker = gig_find_worker('tessa');
 }
 
 $isActive = !empty($_GET['active']);
-$contactUnlocked = !empty($worker['agreed']) || $isActive;
+$contactUnlocked = !empty($worker['agreed']) || $isActive || ($role === 'worker');
 $pageTitle = $worker['name'] . ' · Profil Gig Worker';
-$pageKey = 'pelamar';
+$pageKey = $role === 'worker' ? 'profil' : 'pelamar';
 $breadcrumbCurrent = $worker['name'];
-require __DIR__ . '/includes/employer-layout-start.php';
+
+if ($role === 'worker') {
+    require __DIR__ . '/includes/worker-layout-start.php';
+} else {
+    require __DIR__ . '/includes/employer-layout-start.php';
+}
 ?>
 
     <div class="page-toolbar">
@@ -245,4 +259,10 @@ require __DIR__ . '/includes/employer-layout-start.php';
       }
     </script>
 
-<?php require __DIR__ . '/includes/employer-layout-end.php'; ?>
+<?php 
+if ($role === 'worker') {
+    require __DIR__ . '/includes/worker-layout-end.php';
+} else {
+    require __DIR__ . '/includes/employer-layout-end.php';
+}
+?>

@@ -14,6 +14,13 @@ $username = (string)$_SESSION["username"];
 $siapkerja = gig_get_siapkerja_profile($username);
 $isRegistered = gig_is_worker_registered($username);
 
+// Registration page can only be accessed when the user doesn't have a Gig Worker account yet.
+if ($isRegistered && empty($_GET['edit'])) {
+    $profileId = strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $username)[0] ?? $username));
+    header("Location: worker-profile.php?id=" . urlencode($profileId));
+    exit;
+}
+
 $successMessage = "";
 $errorMessage = "";
 

@@ -661,7 +661,67 @@ function gig_worker_profiles(): array
 function gig_find_worker(string $id): ?array
 {
     $profiles = gig_worker_profiles();
-    return $profiles[$id] ?? null;
+    $cleanId = strtolower(trim($id));
+    if (isset($profiles[$cleanId])) {
+        // If registration data exists for this user, merge registered data
+        $reg = gig_get_worker_registration($cleanId);
+        if ($reg !== null) {
+            if (!empty($reg['bidang_keahlian'])) {
+                $profiles[$cleanId]['title'] = $reg['bidang_keahlian'];
+            }
+            if (!empty($reg['skills'])) {
+                $profiles[$cleanId]['skills'] = is_array($reg['skills']) ? $reg['skills'] : array_map('trim', explode(',', $reg['skills']));
+            }
+            if (!empty($reg['contact_email']) || !empty($reg['contact_wa'])) {
+                $profiles[$cleanId]['contact']['email'] = $reg['contact_email'] ?? $profiles[$cleanId]['contact']['email'];
+                $profiles[$cleanId]['contact']['wa'] = $reg['contact_wa'] ?? $profiles[$cleanId]['contact']['wa'];
+            }
+            if (!empty($reg['portfolio']) && is_array($reg['portfolio'])) {
+                $profiles[$cleanId]['portfolio'] = array_merge($reg['portfolio'], $profiles[$cleanId]['portfolio'] ?? []);
+            }
+            if (!empty($reg['previous_projects']) && is_array($reg['previous_projects'])) {
+                $profiles[$cleanId]['experience'] = array_merge($reg['previous_projects'], $profiles[$cleanId]['experience'] ?? []);
+            }
+            if (!empty($reg['video_url'])) {
+                $profiles[$cleanId]['video_url'] = $reg['video_url'];
+            }
+        }
+        return $profiles[$cleanId];
+    }
+
+    // Check if there is a registration for a user not in preset array
+    $reg = gig_get_worker_registration($id);
+    if ($reg !== null || gig_is_worker_registered($id)) {
+        $siapkerja = gig_get_siapkerja_profile($id);
+        $reg = $reg ?? [];
+        return [
+            'id' => $cleanId,
+            'name' => $siapkerja['nama'] ?? ucwords($id),
+            'initials' => strtoupper(substr($id, 0, 2)),
+            'color' => '#2563eb',
+            'photo' => 'https://api.dicebear.com/9.x/notionists/svg?seed=' . urlencode($id) . '&backgroundColor=dbeafe',
+            'title' => $reg['bidang_keahlian'] ?? 'Gig Worker Professional',
+            'location' => $siapkerja['lokasi'] ?? 'Jakarta, Indonesia',
+            'rating' => 5.0,
+            'reviews_count' => 5,
+            'completed_projects' => 4,
+            'total_projects' => 5,
+            'verified' => true,
+            'agreed' => true,
+            'category' => 'general',
+            'skills' => is_array($reg['skills'] ?? null) ? $reg['skills'] : array_map('trim', explode(',', $reg['skills'] ?? 'Figma, Web Development')),
+            'contact' => [
+                'wa' => $reg['contact_wa'] ?? $siapkerja['wa'],
+                'email' => $reg['contact_email'] ?? $siapkerja['email'],
+            ],
+            'experience' => $reg['previous_projects'] ?? $siapkerja['pengalaman_siapkerja'],
+            'portfolio' => $reg['portfolio'] ?? [],
+            'reviews' => [],
+            'video_url' => $reg['video_url'] ?? '',
+        ];
+    }
+
+    return null;
 }
 
 function gig_stars(int|float $rating): string

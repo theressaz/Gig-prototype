@@ -8,6 +8,7 @@ $siapkerja = gig_get_siapkerja_profile($username);
 $isRegistered = gig_is_worker_registered($username);
 $workerRegData = $isRegistered ? gig_get_worker_registration($username) : null;
 $profileId = strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $username)[0] ?? $username));
+$profileUrl = $isRegistered ? 'worker-profile.php?id=' . urlencode($profileId) : 'worker-register.php';
 
 $pageTitle = 'Ringkasan';
 $pageKey = 'overview';
@@ -141,11 +142,11 @@ require __DIR__ . '/includes/worker-layout-start.php';
               <div style="font-size:0.72rem;color:var(--text-muted);">Pantau pengerjaan</div>
             </div>
           </a>
-          <a href="worker-register.php" class="quick-access-tile">
+          <a href="<?php echo htmlspecialchars($profileUrl, ENT_QUOTES, 'UTF-8'); ?>" class="quick-access-tile">
             <div class="tile-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
             <div>
               <div style="font-size:0.85rem;font-weight:700;">Profil</div>
-              <div style="font-size:0.72rem;color:var(--text-muted);">Lengkapi akun Anda</div>
+              <div style="font-size:0.72rem;color:var(--text-muted);"><?php echo $isRegistered ? 'Lihat profil publik' : 'Lengkapi akun Anda'; ?></div>
             </div>
           </a>
           <a href="worker-ulasan.php" class="quick-access-tile">
