@@ -14,6 +14,9 @@ if (!$job) {
     $job = $activeJobs[0] ?? null;
 }
 
+$rawLocation = (string)($job['location'] ?? 'Remote');
+$displayLocation = (stripos($rawLocation, 'remote') !== false) ? 'Remote' : $rawLocation;
+
 $pageTitle = $job ? $job['title'] : 'Detail Proyek';
 $pageKey = 'bursa';
 $breadcrumbCurrent = 'Detail Proyek';
@@ -81,23 +84,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
     font-weight: 800;
     color: #0f172a;
     margin-bottom: 14px;
-  }
-
-  .sidebar-summary-card {
-    background: #ffffff;
-    border: 1.5px solid #bfdbfe;
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    box-shadow: var(--shadow-sm);
-    position: sticky;
-    top: 90px;
-  }
-
-  .budget-highlight {
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: var(--primary-blue);
-    margin: 6px 0;
   }
 
   .btn-apply-hero {
@@ -205,7 +191,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
           <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.88rem; color: #64748b;">
             <div style="display: flex; align-items: center; gap: 6px;">
-              <span>📍</span> <strong><?php echo htmlspecialchars($job['location'], ENT_QUOTES, 'UTF-8'); ?></strong>
+              <span>📍</span> <strong><?php echo htmlspecialchars($displayLocation, ENT_QUOTES, 'UTF-8'); ?></strong>
             </div>
             <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
               <span>📅 Diposting <?php echo htmlspecialchars($job['posted'], ENT_QUOTES, 'UTF-8'); ?></span>
@@ -221,8 +207,8 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
       <!-- Header Action Button Right -->
       <div>
-        <button type="button" onclick="openApplyModal()" style="padding: 12px 28px; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: #2563eb; color: #ffffff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); transition: all 0.2s;">
-          Lamar Proyek
+        <button id="btnApplyHeader" type="button" onclick="openApplyModal()" style="padding: 12px 28px; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: #2563eb; color: #ffffff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); transition: all 0.2s;">
+          Lamar Proyek Ini
         </button>
       </div>
     </div>
@@ -240,9 +226,9 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
   <!-- MAIN GRID -->
   <div class="detail-grid">
-    <!-- LEFT CONTENT COLUMN (SHOWING EMPLOYER INPUT FIELDS FOR PROJECT OPENING) -->
+    <!-- LEFT CONTENT COLUMN -->
     <div>
-      <!-- 1. RINCIAN PROYEK (CONTAINING EMPLOYER INPUT SPECIFICATIONS) -->
+      <!-- 1. RINCIAN PROYEK -->
       <section class="detail-section-card">
         <h3 style="margin-bottom: 16px;">Rincian Proyek</h3>
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px 16px; font-size: 0.86rem;">
@@ -260,7 +246,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
           </div>
           <div>
             <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Lokasi Penempatan</div>
-            <strong style="color: #0f172a;"><?php echo htmlspecialchars($job['location'], ENT_QUOTES, 'UTF-8'); ?></strong>
+            <strong style="color: #0f172a;"><?php echo htmlspecialchars($displayLocation, ENT_QUOTES, 'UTF-8'); ?></strong>
           </div>
           <div>
             <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Kuota Freelancer</div>
@@ -275,7 +261,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
       <!-- 2. DESKRIPSI PROYEK -->
       <section class="detail-section-card">
-        <h3>Deskripsi &amp; Ruang Lingkup Proyek</h3>
+        <h3>Deskripsi Proyek</h3>
         <p style="font-size: 0.92rem; line-height: 1.6; color: #334155; margin-bottom: 12px;">
           <?php echo nl2br(htmlspecialchars($job['desc'], ENT_QUOTES, 'UTF-8')); ?>
         </p>
@@ -284,34 +270,46 @@ require __DIR__ . '/includes/worker-layout-start.php';
         </p>
       </section>
 
-      <!-- 3. TARGET DELIVERABLE & HASIL AKHIR -->
-      <?php if (!empty($job['deliverables'])): ?>
-        <section class="detail-section-card">
-          <h3>Target Deliverable &amp; Hasil Akhir</h3>
-          <p style="font-size: 0.9rem; line-height: 1.6; color: #334155; margin-bottom: 12px;">
+      <!-- 3. TARGET / DELIVERABLE PROYEK -->
+      <section class="detail-section-card">
+        <h3>Target / Deliverable Proyek</h3>
+        <?php if (!empty($job['deliverables'])): ?>
+          <p style="font-size: 0.92rem; line-height: 1.6; color: #334155; margin-bottom: 12px;">
             <?php echo htmlspecialchars($job['deliverables'], ENT_QUOTES, 'UTF-8'); ?>
           </p>
-        </section>
-      <?php endif; ?>
+        <?php else: ?>
+          <p style="font-size: 0.9rem; line-height: 1.6; color: #334155;">
+            Hasil akhir pengerjaan diserahkan sesuai kesepakatan ruang lingkup proyek dan tenggat waktu yang ditentukan.
+          </p>
+        <?php endif; ?>
+      </section>
 
-      <!-- 4. KEAHLIAN & SKILL YANG DIBUTUHKAN -->
+      <!-- 4. KUALIFIKASI YANG DIBUTUHKAN -->
       <section class="detail-section-card">
-        <h3>Keahlian &amp; Skill yang Dibutuhkan</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-          <?php foreach ($job['skills'] as $sk): ?>
-            <span style="font-size: 0.84rem; font-weight: 600; padding: 6px 14px; background: #f1f5f9; color: #334155; border-radius: 9999px;">
-              <?php echo htmlspecialchars($sk, ENT_QUOTES, 'UTF-8'); ?>
-            </span>
-          <?php endforeach; ?>
+        <h3>Kualifikasi yang Dibutuhkan</h3>
+        <div style="margin-bottom: 14px;">
+          <div style="font-size: 0.82rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">KEAHILIAN &amp; SKILL UTAMA</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <?php foreach ($job['skills'] as $sk): ?>
+              <span style="font-size: 0.84rem; font-weight: 600; padding: 6px 14px; background: #f1f5f9; color: #334155; border-radius: 9999px;">
+                <?php echo htmlspecialchars($sk, ENT_QUOTES, 'UTF-8'); ?>
+              </span>
+            <?php endforeach; ?>
+          </div>
         </div>
+        <ul style="font-size: 0.88rem; line-height: 1.7; color: #334155; padding-left: 20px; margin: 0;">
+          <li>Memiliki portofolio dan rekam jejak pengerjaan proyek di bidang <?php echo htmlspecialchars($job['category'], ENT_QUOTES, 'UTF-8'); ?>.</li>
+          <li>Mampu berkomunikasi dengan baik serta menyelesaikan target sesuai estimasi waktu <?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?>.</li>
+        </ul>
       </section>
     </div>
 
-    <!-- RIGHT SIDEBAR (EMPLOYER & SUMMARY CARD) -->
+    <!-- RIGHT SIDEBAR -->
     <div>
       <!-- EMPLOYER COMPANY CARD -->
-      <section class="detail-section-card" style="border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; background: #ffffff; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-        <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; line-height: 1.3;">
+      <section class="detail-section-card" style="border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; background: #ffffff; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+        <div style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 700; margin-bottom: 8px;">Pemberi Kerja / Perusahaan</div>
+        <h3 style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; line-height: 1.3;">
           <?php echo htmlspecialchars((string)($job['employer'] ?? 'PT Talenta Digital Indonesia'), ENT_QUOTES, 'UTF-8'); ?>
         </h3>
         
@@ -325,51 +323,15 @@ require __DIR__ . '/includes/worker-layout-start.php';
           Lihat Profil Pemberi Kerja
         </a>
 
-        <div style="padding-top: 12px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: #64748b;">
+        <div style="padding-top: 14px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: #64748b;">
           <span>Proyek dari KarirHub</span>
           <span style="font-weight: 800; color: #2563eb; display: flex; align-items: center; gap: 4px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
             KarirHub
           </span>
         </div>
-      </section>
 
-      <!-- SIDEBAR SUMMARY CARD & CTA BUTTON -->
-      <section class="sidebar-summary-card">
-        <div style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700;">Nilai Anggaran Proyek</div>
-        <div class="budget-highlight"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></div>
-        
-        <!-- PROMINENT KUOTA BOX -->
-        <div style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: var(--radius-md); padding: 14px 16px; margin: 14px 0 16px 0;">
-          <div style="font-size: 0.78rem; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: 0.05em;">Kuota Freelancer</div>
-          <div style="font-size: 1.25rem; font-weight: 800; color: #1e3a8a; margin-top: 4px; display: flex; align-items: center; gap: 8px;">
-            <span>👤 <?php echo (int)($job['quota'] ?? 1); ?> Freelancer Dibutuhkan</span>
-          </div>
-          <div style="font-size: 0.78rem; color: #2563eb; margin-top: 4px;">
-            Menerima hingga <strong><?php echo (int)($job['quota'] ?? 1); ?> orang</strong> freelancer yang memenuhi kriteria
-          </div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; padding: 14px 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); font-size: 0.84rem;">
-          <div>
-            <div style="color: var(--text-muted);">Durasi Pengerjaan</div>
-            <strong style="color: var(--text-main);"><?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?></strong>
-          </div>
-          <div>
-            <div style="color: var(--text-muted);">Kuota Posisi</div>
-            <strong style="color: var(--primary-blue); font-weight: 800;"><?php echo (int)($job['quota'] ?? 1); ?> Freelancer</strong>
-          </div>
-          <div>
-            <div style="color: var(--text-muted);">Jumlah Pelamar</div>
-            <strong style="color: var(--text-main);"><?php echo (int)($job['applicantsCount'] ?? 0); ?> Orang</strong>
-          </div>
-          <div>
-            <div style="color: var(--text-muted);">Batas Akhir</div>
-            <strong style="color: var(--text-main);"><?php echo htmlspecialchars($job['deadline'] ?? 'Sesuai Kuota', ENT_QUOTES, 'UTF-8'); ?></strong>
-          </div>
-        </div>
-
-        <button id="btnApplyMain" class="btn-apply-hero" type="button" onclick="openApplyModal()">
+        <button id="btnApplySidebar" class="btn-apply-hero" type="button" onclick="openApplyModal()" style="margin-top: 20px;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           Lamar Proyek Ini
         </button>
@@ -420,10 +382,14 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
     function submitApplication() {
       closeApplyModal();
-      const btn = document.getElementById('btnApplyMain');
-      btn.classList.add('btn-applied-done');
-      btn.disabled = true;
-      btn.innerHTML = '✓ Lamaran Proyek Terkirim';
+      const btns = [document.getElementById('btnApplyHeader'), document.getElementById('btnApplySidebar')];
+      btns.forEach(btn => {
+        if (btn) {
+          btn.classList.add('btn-applied-done');
+          btn.disabled = true;
+          btn.innerHTML = '✓ Lamaran Proyek Terkirim';
+        }
+      });
       
       if (typeof showToast === 'function') {
         showToast('Lamaran proyek berhasil dikirim ke Pemberi Kerja! Anda dapat memantau statusnya di menu Tugas Aktif.');
