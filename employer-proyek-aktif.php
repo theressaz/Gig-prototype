@@ -100,16 +100,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
             </div>
           </div>
 
-          <div class="payment-direct-box">
-            <div style="display:flex;justify-content:space-between;font-size:0.78rem;font-weight:700;color:var(--text-dark);margin-bottom:4px;">
-              <span>Kemajuan Pengerjaan</span>
-              <span style="color:<?php echo $completedP1 ? '#10b981' : '#2563eb'; ?>;"><?php echo $completedP1 ? '100%' : '65%'; ?></span>
-            </div>
-            <div style="background:#e2e8f0;border-radius:9999px;height:6px;overflow:hidden;">
-              <div style="background:<?php echo $completedP1 ? '#10b981' : '#2563eb'; ?>;height:100%;width:<?php echo $completedP1 ? '100%' : '65%'; ?>;border-radius:9999px;transition:width 0.3s;"></div>
-            </div>
           </div>
-        </div>
 
         <div class="active-proj-actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
           <div>
@@ -193,16 +184,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
             </div>
           </div>
 
-          <div class="payment-direct-box">
-            <div style="display:flex;justify-content:space-between;font-size:0.78rem;font-weight:700;color:var(--text-dark);margin-bottom:4px;">
-              <span>Kemajuan Pengerjaan</span>
-              <span style="color:<?php echo $completedP2 ? '#10b981' : '#0891b2'; ?>;"><?php echo $completedP2 ? '100%' : '90%'; ?></span>
-            </div>
-            <div style="background:#e2e8f0;border-radius:9999px;height:6px;overflow:hidden;">
-              <div style="background:<?php echo $completedP2 ? '#10b981' : '#0891b2'; ?>;height:100%;width:<?php echo $completedP2 ? '100%' : '90%'; ?>;border-radius:9999px;transition:width 0.3s;"></div>
-            </div>
           </div>
-        </div>
 
         <div class="active-proj-actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
           <div>
