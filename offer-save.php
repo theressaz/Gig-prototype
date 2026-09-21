@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/includes/employer-auth.php';
 require_once __DIR__ . '/includes/project-offers.php';
+require_once __DIR__ . '/includes/project-applications.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -21,7 +22,16 @@ if ($workerId === '' || $vacancyId === '') {
 }
 
 $result = gig_save_offer($username, $workerId, $vacancyId, $message);
-if (empty($result['ok'])) {
+if (!empty($result['ok'])) {
+    $vacancy = gig_find_vacancy($vacancyId);
+    $projTitle = $vacancy['title'] ?? 'Proyek';
+    gig_add_worker_notification(
+        $workerId,
+        'direct_offer',
+        '📩 Penawaran Proyek Baru!',
+        'Perusahaan ' . $username . ' menawarkan proyek "' . $projTitle . '" secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau detail.'
+    );
+} else {
     http_response_code(422);
 }
 echo json_encode($result);

@@ -24,6 +24,9 @@ function gig_apps_session_start(): void
     if (!isset($_SESSION['gig_employer_notifications']) || !is_array($_SESSION['gig_employer_notifications'])) {
         $_SESSION['gig_employer_notifications'] = [];
     }
+    if (!isset($_SESSION['gig_worker_notifications']) || !is_array($_SESSION['gig_worker_notifications'])) {
+        $_SESSION['gig_worker_notifications'] = [];
+    }
 }
 
 function gig_apps_ensure_tables(?PDO $pdo): void
@@ -60,6 +63,19 @@ function gig_apps_ensure_tables(?PDO $pdo): void
                 `is_read`            TINYINT(1)   NOT NULL DEFAULT 0,
                 `created_at`         DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 KEY `idx_notif_emp` (`employer_username`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ");
+
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS `worker_notifications` (
+                `id`                 VARCHAR(100) PRIMARY KEY,
+                `worker_id`          VARCHAR(50)  NOT NULL,
+                `type`               VARCHAR(50)  NOT NULL DEFAULT 'info',
+                `title`              VARCHAR(150) NOT NULL,
+                `message`            TEXT         NOT NULL,
+                `is_read`            TINYINT(1)   NOT NULL DEFAULT 0,
+                `created_at`         DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                KEY `idx_notif_worker` (`worker_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
     } catch (Throwable $e) {
@@ -136,6 +152,27 @@ function gig_seed_demo_applications_if_needed(): void
         'message'           => 'Rian Ardiansyah telah MENGONFIRMASI dan RESMI DIREKRUT untuk proyek "Integrasi REST API Modul Notifikasi SMS & WhatsApp". Kontrak proyek telah aktif.',
         'is_read'           => 0,
         'created_at'        => date('Y-m-d H:i:s', strtotime('-3 days')),
+    ];
+
+    // Default seed notifications for Gig Worker Tessa
+    $_SESSION['gig_worker_notifications'][] = [
+        'id'         => 'WNOTIF-2026-001',
+        'worker_id'  => 'tessa',
+        'type'       => 'app_approved',
+        'title'      => '🎉 Lamaran Proyek Disetujui!',
+        'message'    => 'PT Talenta Digital Indonesia menyetujui lamaran Anda untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub". Harap lakukan konfirmasi ketersediaan Anda di menu Penawaran.',
+        'is_read'    => 0,
+        'created_at' => date('Y-m-d H:i:s', strtotime('-1 day')),
+    ];
+
+    $_SESSION['gig_worker_notifications'][] = [
+        'id'         => 'WNOTIF-2026-002',
+        'worker_id'  => 'tessa',
+        'type'       => 'direct_offer',
+        'title'      => '📩 Penawaran Proyek Baru!',
+        'message'    => 'PT ABC Indonesia menawarkan proyek secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau rincian proyek.',
+        'is_read'    => 0,
+        'created_at' => date('Y-m-d H:i:s', strtotime('-2 days')),
     ];
 
     $_SESSION['gig_applications_seeded'] = true;
@@ -277,6 +314,9 @@ function gig_employer_respond_application(string $appId, string $decision, strin
         return ['ok' => false, 'error' => 'Lamaran tidak ditemukan.'];
     }
 
+    $vacancy = gig_find_vacancy($app['vacancy_id']);
+    $projectTitle = $vacancy['title'] ?? 'Proyek';
+
     $newStatus = ($decision === 'accept') ? 'accepted_by_employer' : 'rejected_by_employer';
     $app['status'] = $newStatus;
     $app['updated_at'] = date('Y-m-d H:i:s');
@@ -298,6 +338,22 @@ function gig_employer_respond_application(string $appId, string $decision, strin
             'waiting_confirmation',
             '⏳ Menunggu Konfirmasi ' . $app['worker_name'],
             'Persetujuan telah dikirimkan ke ' . $app['worker_name'] . '. Menunggu konfirmasi ketersediaan dari Gig Worker.'
+        );
+
+        // NOTIFY WORKER OF APPROVAL
+        gig_add_worker_notification(
+            $app['worker_id'],
+            'app_approved',
+            '🎉 Lamaran Proyek Disetujui!',
+            'Perusahaan ' . $employerUsername . ' menyetujui lamaran Anda untuk proyek "' . $projectTitle . '". Harap lakukan konfirmasi ketersediaan Anda di menu Penawaran Proyek.'
+        );
+    } else {
+        // NOTIFY WORKER OF REJECTION
+        gig_add_worker_notification(
+            $app['worker_id'],
+            'app_rejected',
+            'Lamaran Proyek Belum Disetujui',
+            'Lamaran Anda untuk proyek "' . $projectTitle . '" belum dapat disetujui oleh ' . $employerUsername . '.'
         );
     }
 
@@ -331,6 +387,14 @@ function gig_worker_confirm_application(string $appId, string $action, string $w
             'Gig Worker ' . $app['worker_name'] . ' telah MENGONFIRMASI persetujuan dan RESMI DIREKRUT untuk proyek "' . $projectTitle . '"! Kontak komunikasi resmi kini terbuka di Proyek Aktif.'
         );
 
+        // Notify Worker of recruitment confirmation
+        gig_add_worker_notification(
+            $workerId,
+            'recruited',
+            '🚀 Resmi Direkrut!',
+            'Anda telah MENGONFIRMASI proyek "' . $projectTitle . '" bersama ' . $app['employer_username'] . '. Selamat bekerja! Rincian proyek kini aktif di menu Proyek Aktif.'
+        );
+
     } else {
         $newStatus = 'declined_by_worker';
         $app['status'] = $newStatus;
@@ -342,6 +406,14 @@ function gig_worker_confirm_application(string $appId, string $action, string $w
             'worker_declined',
             '⚠️ Penawaran Ditolak oleh ' . $app['worker_name'],
             'Gig Worker ' . $app['worker_name'] . ' MENOLAK penawaran/kesepakatan untuk proyek "' . $projectTitle . '". Lowongan proyek tetap dibuka bagi kandidat lain.'
+        );
+
+        // Notify Worker of decline confirmation
+        gig_add_worker_notification(
+            $workerId,
+            'declined',
+            'Penawaran Ditolak',
+            'Anda telah menolak penawaran proyek "' . $projectTitle . '". Pemberi kerja telah diberitahukan.'
         );
     }
 
@@ -426,4 +498,77 @@ function gig_get_employer_notifications(?string $employerUsername = null): array
     $list = array_values($merged);
     usort($list, static fn($a, $b) => strcmp((string)($b['created_at'] ?? ''), (string)($a['created_at'] ?? '')));
     return $list;
+}
+
+function gig_add_worker_notification(string $workerId, string $type, string $title, string $message): void
+{
+    gig_apps_session_start();
+    $cleanId = strtolower(trim($workerId));
+    $notifId = 'WNOTIF-' . date('YmdHis') . '-' . rand(100, 999);
+    $notif = [
+        'id'         => $notifId,
+        'worker_id'  => $cleanId,
+        'type'       => $type,
+        'title'      => $title,
+        'message'    => $message,
+        'is_read'    => 0,
+        'created_at' => date('Y-m-d H:i:s'),
+    ];
+
+    $pdo = gig_db();
+    if ($pdo) {
+        try {
+            gig_apps_ensure_tables($pdo);
+            $stmt = $pdo->prepare("
+                INSERT INTO `worker_notifications`
+                    (`id`, `worker_id`, `type`, `title`, `message`, `is_read`, `created_at`)
+                VALUES
+                    (:id, :wid, :type, :title, :msg, 0, NOW())
+            ");
+            $stmt->execute([
+                ':id'    => $notif['id'],
+                ':wid'   => $notif['worker_id'],
+                ':type'  => $notif['type'],
+                ':title' => $notif['title'],
+                ':msg'   => $notif['message'],
+            ]);
+        } catch (Throwable $ignored) {}
+    }
+
+    $_SESSION['gig_worker_notifications'][] = $notif;
+}
+
+function gig_get_worker_notifications(?string $workerId = null): array
+{
+    gig_apps_session_start();
+    gig_seed_demo_applications_if_needed();
+
+    $cleanId = $workerId ? strtolower(trim($workerId)) : null;
+    $merged = [];
+    $pdo = gig_db();
+    if ($pdo) {
+        try {
+            gig_apps_ensure_tables($pdo);
+            $rows = $pdo->query("SELECT * FROM `worker_notifications` ORDER BY `created_at` DESC")->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rows as $r) {
+                $merged[$r['id']] = $r;
+            }
+        } catch (Throwable $ignored) {}
+    }
+
+    foreach ($_SESSION['gig_worker_notifications'] as $n) {
+        if (!isset($merged[$n['id']])) {
+            $merged[$n['id']] = $n;
+        }
+    }
+
+    $list = array_values($merged);
+    if ($cleanId !== null) {
+        $list = array_values(array_filter($list, function ($n) use ($cleanId) {
+            $w = strtolower(trim((string)($n['worker_id'] ?? '')));
+            return $w === $cleanId || str_contains($cleanId, $w) || str_contains($w, $cleanId);
+        }));
+    }
+    usort($list, static fn($a, $b) => strcmp((string)($b['created_at'] ?? ''), (string)($a['created_at'] ?? '')));
+    return array_values($list);
 }
