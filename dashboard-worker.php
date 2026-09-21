@@ -21,7 +21,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
     <div class="page-toolbar">
       <h1>Ringkasan</h1>
-      <a class="btn-primary-add" href="worker-bursa.php">Cari Lowongan</a>
+      <a class="btn-primary-add" href="worker-bursa.php">Cari Proyek</a>
     </div>
 
     <section class="hero-banner">
@@ -92,7 +92,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
       <a class="stat-card" href="worker-bursa.php">
         <div class="stat-card-header"><span class="stat-label">LOWONGAN TERBUKA</span></div>
         <div class="stat-number"><?php echo $activeVacanciesCount; ?></div>
-        <div class="stat-caption">Siap dilamar di Lowongan Proyek</div>
+        <div class="stat-caption">Siap dilamar di Cari Proyek</div>
       </a>
       <a class="stat-card" href="worker-ulasan.php">
         <div class="stat-card-header"><span class="stat-label">RATING</span></div>
@@ -134,7 +134,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <a href="worker-bursa.php" class="quick-access-tile">
             <div class="tile-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/></svg></div>
             <div>
-              <div style="font-size:0.85rem;font-weight:700;">Lowongan Proyek</div>
+              <div style="font-size:0.85rem;font-weight:700;">Cari Proyek</div>
               <div style="font-size:0.72rem;color:var(--text-muted);">Cari lowongan proyek</div>
             </div>
           </a>

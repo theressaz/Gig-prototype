@@ -14,9 +14,9 @@ if (!$job) {
     $job = $activeJobs[0] ?? null;
 }
 
-$pageTitle = $job ? $job['title'] : 'Detail Lowongan Proyek';
+$pageTitle = $job ? $job['title'] : 'Detail Proyek';
 $pageKey = 'bursa';
-$breadcrumbCurrent = 'Detail Lowongan Proyek';
+$breadcrumbCurrent = 'Detail Proyek';
 require __DIR__ . '/includes/worker-layout-start.php';
 ?>
 
@@ -216,13 +216,13 @@ require __DIR__ . '/includes/worker-layout-start.php';
   <div class="detail-section-card" style="text-align: center; padding: 40px 20px;">
     <h2>Proyek Tidak Ditemukan</h2>
     <p>Lowongan proyek yang Anda cari tidak tersedia atau belum dipublikasikan.</p>
-    <a href="worker-bursa.php" class="btn-primary-add" style="display: inline-flex; margin-top: 16px;">Kembali ke Lowongan Proyek</a>
+    <a href="worker-bursa.php" class="btn-primary-add" style="display: inline-flex; margin-top: 16px;">Kembali ke Cari Proyek</a>
   </div>
 <?php else: ?>
 
   <!-- TOP HEADER CARD -->
   <section class="detail-header-card">
-    <a href="worker-bursa.php" class="detail-back-link">&larr; Kembali ke Daftar Lowongan Proyek</a>
+    <a href="worker-bursa.php" class="detail-back-link">&larr; Kembali ke Cari Proyek</a>
     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
       <div>
         <span class="project-category-tag" style="margin-bottom: 8px; display: inline-block;">
