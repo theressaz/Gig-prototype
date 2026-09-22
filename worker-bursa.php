@@ -56,34 +56,8 @@ if ($selectedBudget !== '' && $selectedBudget !== 'all') {
     }));
 }
 
-// Banner & category label helpers
-function getCategoryBannerClass(string $cat): string {
-    $c = strtolower($cat);
-    if (str_contains($c, 'desain') || str_contains($c, 'ui/ux')) return 'banner-blue';
-    if (str_contains($c, 'it') || str_contains($c, 'backend') || str_contains($c, 'pemrograman')) return 'banner-cyan';
-    if (str_contains($c, 'pemasaran') || str_contains($c, 'konten') || str_contains($c, 'marketing')) return 'banner-purple';
-    if (str_contains($c, 'data')) return 'banner-green';
-    return 'banner-indigo';
-}
+// Banner & category label helpers are loaded from includes/project-vacancies.php
 
-function getCategoryShortLabel(string $cat): string {
-    $c = strtolower($cat);
-    if (str_contains($c, 'desain') || str_contains($c, 'ui/ux')) return 'UI/UX & Desain';
-    if (str_contains($c, 'it') || str_contains($c, 'backend') || str_contains($c, 'pemrograman')) return 'Backend & API';
-    if (str_contains($c, 'pemasaran') || str_contains($c, 'konten') || str_contains($c, 'marketing')) return 'Digital Marketing';
-    if (str_contains($c, 'data')) return 'Data & Analitik';
-    return $cat;
-}
-
-function getProjectAvatarSvg(int $idx): string {
-    $avatars = [
-        '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="50" fill="#e0f2fe"/><circle cx="50" cy="38" r="18" fill="#f87171"/><path d="M50 20c-10 0-18 6-18 15 0 2 1 4 3 5 2-8 7-12 15-12s13 4 15 12c2-1 3-3 3-5 0-9-8-15-18-15z" fill="#1e293b"/><circle cx="43" cy="38" r="2.5" fill="#1e293b"/><circle cx="57" cy="38" r="2.5" fill="#1e293b"/><path d="M46 45q4 3 8 0" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/><path d="M22 82c3-14 15-22 28-22s25 8 28 22" fill="#3b82f6"/></svg>',
-        '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="50" fill="#ccfbf1"/><circle cx="50" cy="40" r="18" fill="#fcd34d"/><path d="M30 36c0-12 9-20 20-20s20 8 20 20v4H30v-4z" fill="#0f766e"/><circle cx="42" cy="40" r="2.5" fill="#1e293b"/><circle cx="58" cy="40" r="2.5" fill="#1e293b"/><path d="M46 47q4 2 8 0" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/><path d="M20 85c4-16 16-23 30-23s26 7 30 23" fill="#0d9488"/></svg>',
-        '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="50" fill="#f3e8ff"/><circle cx="50" cy="38" r="18" fill="#fed7aa"/><path d="M30 30c0-8 8-16 20-16s20 8 20 16v18c0 0-6 4-20 4s-20-4-20-4V30z" fill="#6b21a8"/><circle cx="43" cy="38" r="2.5" fill="#1e293b"/><circle cx="57" cy="38" r="2.5" fill="#1e293b"/><path d="M45 45q5 4 10 0" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/><path d="M22 84c3-15 15-22 28-22s25 7 28 22" fill="#9333ea"/></svg>',
-        '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="50" fill="#dcfce7"/><circle cx="50" cy="38" r="18" fill="#fca5a5"/><path d="M32 24c4-6 11-8 18-8s14 2 18 8v10H32V24z" fill="#14532d"/><circle cx="43" cy="36" r="2.5" fill="#1e293b"/><circle cx="57" cy="36" r="2.5" fill="#1e293b"/><path d="M46 44q4 3 8 0" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/><path d="M20 84c4-15 16-22 30-22s26 7 30 22" fill="#15803d"/></svg>'
-    ];
-    return $avatars[$idx % count($avatars)];
-}
 
 $pageTitle = 'Cari Proyek';
 $pageKey = 'bursa';
@@ -240,11 +214,15 @@ require __DIR__ . '/includes/worker-layout-start.php';
   flex-direction: column;
   justify-content: space-between;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 
-.proyek-card-item:hover {
+a.proyek-card-item:hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  color: inherit;
 }
 
 /* Color banners */
@@ -253,8 +231,9 @@ require __DIR__ . '/includes/worker-layout-start.php';
   position: relative;
   padding: 12px 16px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: flex-start;
+  gap: 8px;
 }
 
 .banner-blue { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
@@ -262,6 +241,17 @@ require __DIR__ . '/includes/worker-layout-start.php';
 .banner-purple { background: linear-gradient(135deg, #a855f7, #7e22ce); }
 .banner-green { background: linear-gradient(135deg, #10b981, #047857); }
 .banner-indigo { background: linear-gradient(135deg, #6366f1, #4338ca); }
+
+.banner-quota {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+}
 
 .banner-badge {
   background: rgba(255, 255, 255, 0.95);
@@ -362,7 +352,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 16px;
+  margin-bottom: 4px;
   min-height: 52px;
   align-content: flex-start;
 }
@@ -385,47 +375,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
   border-radius: 8px;
 }
 
-/* Status Pill box matching screenshot */
-.status-pill-box {
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  color: #047857;
-  font-size: 0.8rem;
-  font-weight: 700;
-  padding: 8px 12px;
-  border-radius: 12px;
-  text-align: center;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-/* CTA Button matching screenshot */
-.btn-tawarkan {
-  background: #1d4ed8;
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 0.88rem;
-  padding: 10px 16px;
-  border-radius: 12px;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-  width: 100%;
-  border: none;
-  box-shadow: 0 2px 6px rgba(29, 78, 216, 0.2);
-}
-
-.btn-tawarkan:hover {
-  background: #1e40af;
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.35);
-}
 </style>
 
 <div class="cari-proyek-container">
@@ -490,16 +439,14 @@ require __DIR__ . '/includes/worker-layout-start.php';
           $badgeLabel = getCategoryShortLabel($job['category']);
           $avatarSvg = getProjectAvatarSvg($idx);
           $quotaNum = (int)($job['quota'] ?? 1);
-          $applicantsCount = 2 + ($idx % 5); // realistic active applicant count display
         ?>
-        <article class="proyek-card-item">
+        <a class="proyek-card-item" href="worker-project-detail.php?id=<?php echo urlencode($job['id']); ?>">
           <div>
-            <!-- Top Banner Header -->
             <div class="card-header-banner <?php echo $bannerClass; ?>">
+              <span class="banner-quota">Kuota <?php echo $quotaNum; ?></span>
               <span class="banner-badge"><?php echo htmlspecialchars($badgeLabel, ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
 
-            <!-- Overlapping Avatar -->
             <div class="avatar-overlap-wrapper">
               <div class="avatar-circle">
                 <?php echo $avatarSvg; ?>
@@ -507,11 +454,8 @@ require __DIR__ . '/includes/worker-layout-start.php';
               </div>
             </div>
 
-            <!-- Card Body -->
             <div class="proyek-card-body">
-              <a href="worker-project-detail.php?id=<?php echo urlencode($job['id']); ?>" style="text-decoration: none;">
-                <h3 class="card-project-title"><?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
-              </a>
+              <h3 class="card-project-title"><?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
 
               <div class="card-project-client">
                 <span>🏢</span> <strong><?php echo htmlspecialchars((string)($job['employer'] ?? ($job['client'] ?? 'PT SIAPKerja Partner')), ENT_QUOTES, 'UTF-8'); ?></strong>
@@ -522,7 +466,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
                 <span style="color: #64748b; font-size: 0.78rem;">⏱️ <?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?></span>
               </div>
 
-              <!-- Skill Tags -->
               <div class="card-skills-row">
                 <?php 
                   $skillsToShow = array_slice($job['skills'], 0, 3);
@@ -535,20 +478,9 @@ require __DIR__ . '/includes/worker-layout-start.php';
                   <span class="skill-pill-more">+<?php echo $remainingCount; ?></span>
                 <?php endif; ?>
               </div>
-
-              <!-- Green Status Pill Box -->
-              <div class="status-pill-box">
-                <span>✓</span> Kuota <?php echo $quotaNum; ?> Pekerja &bull; <?php echo $applicantsCount; ?> Pelamar Terdaftar
-              </div>
-
-              <!-- CTA Button matching screenshot -->
-              <a href="worker-project-detail.php?id=<?php echo urlencode($job['id']); ?>" class="btn-tawarkan">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                Lamar Proyek
-              </a>
             </div>
           </div>
-        </article>
+        </a>
       <?php endforeach; ?>
     </div>
   <?php endif; ?>

@@ -277,3 +277,78 @@ function gig_find_vacancy(string $id): ?array
     }
     return null;
 }
+
+if (!function_exists('getCategoryBannerClass')) {
+    function getCategoryBannerClass(string $cat): string
+    {
+        $c = strtolower($cat);
+        if (str_contains($c, 'desain') || str_contains($c, 'ui/ux')) {
+            return 'banner-blue';
+        }
+        if (str_contains($c, 'it') || str_contains($c, 'backend') || str_contains($c, 'pemrograman')) {
+            return 'banner-cyan';
+        }
+        if (str_contains($c, 'pemasaran') || str_contains($c, 'konten') || str_contains($c, 'marketing')) {
+            return 'banner-purple';
+        }
+        if (str_contains($c, 'data')) {
+            return 'banner-green';
+        }
+        return 'banner-indigo';
+    }
+}
+
+if (!function_exists('gig_offer_banner_class')) {
+    function gig_offer_banner_class(string $cat): string
+    {
+        return getCategoryBannerClass($cat);
+    }
+}
+
+if (!function_exists('getCategoryShortLabel')) {
+    function getCategoryShortLabel(string $cat): string
+    {
+        $c = strtolower($cat);
+        if (str_contains($c, 'desain') || str_contains($c, 'ui/ux')) {
+            return 'UI/UX & Desain';
+        }
+        if (str_contains($c, 'it') || str_contains($c, 'backend') || str_contains($c, 'pemrograman')) {
+            return 'Backend & API';
+        }
+        if (str_contains($c, 'pemasaran') || str_contains($c, 'konten') || str_contains($c, 'marketing')) {
+            return 'Digital Marketing';
+        }
+        if (str_contains($c, 'data')) {
+            return 'Data & Analitik';
+        }
+        return $cat !== '' ? $cat : 'Proyek';
+    }
+}
+
+if (!function_exists('gig_offer_category_label')) {
+    function gig_offer_category_label(string $cat): string
+    {
+        return getCategoryShortLabel($cat);
+    }
+}
+
+if (!function_exists('getProjectAvatarSvg')) {
+    function getProjectAvatarSvg(int $idx): string
+    {
+        $avatars = [
+            '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="50" fill="#e0f2fe"/><circle cx="50" cy="38" r="18" fill="#f87171"/><path d="M50 20c-10 0-18 6-18 15 0 2 1 4 3 5 2-8 7-12 15-12s13 4 15 12c2-1 3-3 3-5 0-9-8-15-18-15z" fill="#1e293b"/><circle cx="43" cy="38" r="2.5" fill="#1e293b"/><circle cx="57" cy="38" r="2.5" fill="#1e293b"/><path d="M46 45q4 3 8 0" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/><path d="M22 82c3-14 15-22 28-22s25 8 28 22" fill="#3b82f6"/></svg>',
+            '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="50" fill="#ccfbf1"/><circle cx="50" cy="40" r="18" fill="#fcd34d"/><path d="M30 36c0-12 9-20 20-20s20 8 20 20v4H30v-4z" fill="#0f766e"/><circle cx="42" cy="40" r="2.5" fill="#1e293b"/><circle cx="58" cy="40" r="2.5" fill="#1e293b"/><path d="M46 47q4 2 8 0" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/><path d="M20 85c4-16 16-23 30-23s26 7 30 23" fill="#0d9488"/></svg>',
+            '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="50" fill="#f3e8ff"/><circle cx="50" cy="38" r="18" fill="#fed7aa"/><path d="M30 30c0-8 8-16 20-16s20 8 20 16v18c0 0-6 4-20 4s-20-4-20-4V30z" fill="#6b21a8"/><circle cx="43" cy="38" r="2.5" fill="#1e293b"/><circle cx="57" cy="38" r="2.5" fill="#1e293b"/><path d="M45 45q5 4 10 0" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/><path d="M22 84c3-15 15-22 28-22s25 7 28 22" fill="#9333ea"/></svg>',
+            '<svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="50" fill="#dcfce7"/><circle cx="50" cy="38" r="18" fill="#fca5a5"/><path d="M32 24c4-6 11-8 18-8s14 2 18 8v10H32V24z" fill="#14532d"/><circle cx="43" cy="36" r="2.5" fill="#1e293b"/><circle cx="57" cy="36" r="2.5" fill="#1e293b"/><path d="M46 44q4 3 8 0" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/><path d="M20 84c4-15 16-22 30-22s26 7 30 22" fill="#15803d"/></svg>',
+        ];
+        return $avatars[$idx % count($avatars)];
+    }
+}
+
+if (!function_exists('gig_offer_avatar_svg')) {
+    function gig_offer_avatar_svg(int $idx): string
+    {
+        return getProjectAvatarSvg($idx);
+    }
+}
+
