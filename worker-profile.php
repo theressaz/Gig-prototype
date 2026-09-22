@@ -7,6 +7,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
+require_once __DIR__ . '/includes/project-applications.php';
 
 $role = $_SESSION['role'] ?? 'worker';
 $username = $_SESSION['username'] ?? 'Tessa';
@@ -23,6 +24,14 @@ if ($worker === null) {
 
 $isActive = !empty($_GET['active']);
 $contactUnlocked = !empty($worker['agreed']) || $isActive || ($role === 'worker');
+if ($role === 'employer' && !$contactUnlocked) {
+    foreach (gig_get_applications_for_worker((string)($worker['id'] ?? $workerId)) as $hiredApp) {
+        if (gig_is_hired_status((string)($hiredApp['status'] ?? ''))) {
+            $contactUnlocked = true;
+            break;
+        }
+    }
+}
 $pageTitle = $worker['name'] . ' · Profil Gig Worker';
 $pageKey = $role === 'worker' ? 'profil' : 'pelamar';
 $breadcrumbCurrent = $worker['name'];
@@ -58,9 +67,9 @@ if ($role === 'worker') {
     <?php if ($role === 'worker'): ?>
       <div class="privacy-banner unlocked">Ini adalah tampilan profil publik Gig Worker Anda yang dapat dilihat oleh calon Pemberi Kerja.</div>
     <?php elseif ($contactUnlocked): ?>
-      <div class="privacy-banner unlocked">Kedua belah pihak telah menyetujui kerja sama. Informasi kontak dapat dilihat di bawah.</div>
+      <div class="privacy-banner unlocked">Kerja sama aktif. Informasi kontak dapat dilihat di bawah.</div>
     <?php else: ?>
-      <div class="privacy-banner">Kontak disembunyikan sampai Pemberi Kerja dan Gig Worker sama-sama menyetujui kerja sama.</div>
+      <div class="privacy-banner">Kontak disembunyikan sampai Pemberi Kerja menerima lamaran Gig Worker, atau sampai Gig Worker menerima penawaran langsung.</div>
     <?php endif; ?>
 
     <section class="profile-hero">
@@ -196,7 +205,7 @@ if ($role === 'worker') {
         </div>
       <?php else: ?>
         <div class="locked-box">
-          Kontak belum dapat dibuka. Setelah Anda dan <?php echo htmlspecialchars($worker['name'], ENT_QUOTES, 'UTF-8'); ?> menyetujui kerja sama, WhatsApp dan email akan ditampilkan di sini.
+          Kontak belum dapat dibuka. Setelah Anda menerima lamaran <?php echo htmlspecialchars($worker['name'], ENT_QUOTES, 'UTF-8'); ?>, atau setelah Gig Worker menerima penawaran langsung, WhatsApp dan email akan ditampilkan di sini.
         </div>
       <?php endif; ?>
     </section>

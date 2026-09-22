@@ -162,7 +162,7 @@ declare(strict_types=1);
     showToast('Kontak ' + name + ' disalin. WA: ' + phone);
   }
   function hireApplicant(name) {
-    showToast('Undangan kerja sama dikirim ke ' + name + '. Kontak terbuka setelah Gig Worker menyetujui.');
+    showToast('Gig Worker ' + name + ' resmi direkrut. Kontak terbuka dan proyek aktif.');
   }
   function showToast(message) {
     const container = document.getElementById('toastContainer');

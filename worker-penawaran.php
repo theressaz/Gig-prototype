@@ -425,12 +425,10 @@ require __DIR__ . '/includes/worker-layout-start.php';
                 </a>
               </h3>
 
-              <?php if ($appStatus === 'confirmed_by_worker'): ?>
+              <?php if (gig_is_hired_status($appStatus)): ?>
                 <span class="penawaran-badge-pill green">✓ Resmi Direkrut · Proyek Aktif</span>
               <?php elseif ($appStatus === 'declined_by_worker'): ?>
                 <span class="penawaran-badge-pill gray">✕ Penawaran Ditolak</span>
-              <?php elseif ($appStatus === 'accepted_by_employer'): ?>
-                <span class="penawaran-badge-pill amber">⚡ Menunggu Konfirmasi Anda</span>
               <?php else: ?>
                 <span class="penawaran-badge-pill blue">📩 Menunggu Tanggapan</span>
               <?php endif; ?>
@@ -471,31 +469,27 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <!-- CARD FOOTER ACTIONS -->
           <div class="penawaran-card-footer">
             <div class="footer-notice-label">
-              <?php if ($appStatus === 'confirmed_by_worker'): ?>
+              <?php if (gig_is_hired_status($appStatus)): ?>
                 Proyek ini sudah resmi aktif dan dapat dipantau di Tugas Aktif.
               <?php elseif ($appStatus === 'declined_by_worker'): ?>
                 Anda telah menolak penawaran proyek ini.
-              <?php elseif ($appStatus === 'accepted_by_employer'): ?>
-                Tinjau rincian proyek dan konfirmasi ketersediaan Anda untuk langsung memulai kerja sama.
               <?php else: ?>
                 Penawaran dikirimkan pemberi kerja. Buka detail proyek untuk meninjau kualifikasi.
               <?php endif; ?>
             </div>
 
             <div class="footer-actions-group">
-              <?php if ($appStatus === 'confirmed_by_worker'): ?>
+              <?php if (gig_is_hired_status($appStatus)): ?>
                 <a class="btn-act-green" href="worker-tugas.php">Buka di Proyek Aktif &rarr;</a>
               <?php elseif ($appStatus === 'declined_by_worker'): ?>
                 <a class="btn-act-outline" href="<?php echo htmlspecialchars($detailUrl, ENT_QUOTES, 'UTF-8'); ?>">Lihat Detail Proyek</a>
-              <?php elseif ($appStatus === 'accepted_by_employer'): ?>
+              <?php else: ?>
                 <form method="post" action="" style="display:inline-flex;gap:8px;align-items:center;margin:0;">
                   <input type="hidden" name="app_id" value="<?php echo htmlspecialchars($appId, ENT_QUOTES, 'UTF-8'); ?>" />
                   <button type="submit" name="confirm_action" value="confirm" class="btn-act-green">Terima Penawaran</button>
                   <a class="btn-act-outline" href="<?php echo htmlspecialchars($detailUrl, ENT_QUOTES, 'UTF-8'); ?>">Profil &amp; Detail Proyek</a>
                   <button type="submit" name="confirm_action" value="decline" class="btn-act-danger" onclick="return confirm('Tolak penawaran proyek ini?')">Tolak Penawaran</button>
                 </form>
-              <?php else: ?>
-                <a class="btn-act-outline" href="<?php echo htmlspecialchars($detailUrl, ENT_QUOTES, 'UTF-8'); ?>">Profil &amp; Detail Proyek</a>
               <?php endif; ?>
             </div>
           </div>

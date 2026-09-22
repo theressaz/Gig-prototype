@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job && !$fromOffers && isset($_POS
     $workerName = ucfirst($username);
     $res = gig_apply_for_project($username, $workerName, (string)$job['id'], $note);
     if (!empty($res['ok'])) {
-        $flashMsg = 'Lamaran proyek berhasil dikirim ke pemberi kerja. Pantau statusnya di Tugas Aktif setelah disetujui.';
+        $flashMsg = 'Lamaran proyek berhasil dikirim ke pemberi kerja. Jika diterima, Anda langsung direkrut dan proyek masuk ke Proyek Aktif.';
     } else {
         $flashMsg = $res['error'] ?? 'Gagal mengirimkan lamaran.';
         $flashError = true;
@@ -295,7 +295,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
       <!-- Header Action Button Right -->
       <div style="flex-shrink: 0; align-self: center;">
         <?php if ($fromOffers): ?>
-          <?php if ($offerStatus === 'confirmed_by_worker'): ?>
+          <?php if (gig_is_hired_status((string)$offerStatus)): ?>
             <a href="worker-tugas.php" style="padding: 12px 24px; font-size: 0.9rem; font-weight: 800; border-radius: 10px; background: #059669; color: #ffffff; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
               ✓ Resmi Direkrut · Proyek Aktif
             </a>
@@ -316,9 +316,15 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <?php endif; ?>
         <?php else: ?>
           <?php if ($hasApplied): ?>
+            <?php if (gig_is_hired_status((string)$offerStatus)): ?>
+              <a href="worker-tugas.php" style="padding: 12px 28px; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: #059669; color: #ffffff; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
+                ✓ Resmi Direkrut · Proyek Aktif
+              </a>
+            <?php else: ?>
             <button type="button" disabled style="padding: 12px 28px; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: #059669; color: #ffffff; border: none; cursor: default; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
               ✓ Lamaran Proyek Terkirim
             </button>
+            <?php endif; ?>
           <?php else: ?>
             <button id="btnApplyHeader" type="button" onclick="openApplyModal()" style="padding: 12px 28px; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: #2563eb; color: #ffffff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); transition: all 0.2s;">
               Lamar Proyek Ini

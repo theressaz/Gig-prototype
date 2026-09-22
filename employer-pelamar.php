@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['app_action'])) {
         $res = gig_employer_respond_application($appId, $act, $username);
         if ($res['ok']) {
             $flashMsg = ($act === 'accept')
-                ? 'Persetujuan lamaran berhasil dikirimkan ke Gig Worker. Menunggu konfirmasi dari Gig Worker.'
+                ? 'Lamaran diterima. Gig Worker resmi direkrut dan proyek kini aktif.'
                 : 'Lamaran kandidat telah ditolak.';
         }
     }
@@ -36,7 +36,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
     <div class="page-toolbar">
       <div>
         <h1>Kandidat Proyek</h1>
-        <p style="font-size:0.86rem;color:var(--text-muted);margin-top:4px;">Kelola kandidat yang melamar proyek Anda. Saat Anda menyetujui pelamar, konfirmasi ketersediaan akan dikirimkan ke Gig Worker untuk perekrutan resmi.</p>
+        <p style="font-size:0.86rem;color:var(--text-muted);margin-top:4px;">Kelola kandidat yang melamar proyek Anda. Menerima lamaran langsung merekrut Gig Worker dan mengaktifkan proyek.</p>
       </div>
       <div style="font-size:0.82rem;color:var(--text-muted);">
         Menampilkan <strong id="applicants-visible-count"><?php echo count($workerProfiles); ?></strong> kandidat
@@ -51,7 +51,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
     <div class="privacy-lock-note">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      Klik <strong>Terima &amp; Setujui Pelamar</strong> untuk mengirim undangan konfirmasi ke Gig Worker. Setelah Gig Worker mengonfirmasi, kontak resmi terbuka &amp; proyek menjadi aktif.
+      Klik <strong>Terima &amp; Setujui</strong> untuk merekrut Gig Worker. Kontak resmi langsung terbuka dan proyek masuk ke Proyek Aktif.
     </div>
 
     <div class="toolbar-filter">
@@ -90,10 +90,10 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <?php endforeach; ?>
             </div>
             <div class="applicant-lock-hint">
-              <?php if ($status === 'confirmed_by_worker'): ?>
+              <?php if (gig_is_hired_status($status)): ?>
                 <span style="color:#047857;font-weight:700;">✓ Kontak resmi terbuka (Kerja sama aktif)</span>
               <?php else: ?>
-                <span>Kontak dikunci hingga kerja sama dikonfirmasi worker</span>
+                <span>Kontak dikunci sampai Anda menerima lamaran kandidat</span>
               <?php endif; ?>
             </div>
           </div>
@@ -106,11 +106,9 @@ require __DIR__ . '/includes/employer-layout-start.php';
         <div class="applicant-right-actions" style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
           <a class="btn-outline-blue" href="worker-profile.php?id=<?php echo urlencode($applicant['id']); ?>" style="padding:4px 12px;font-size:0.8rem;">Lihat Profil</a>
           
-          <?php if ($status === 'confirmed_by_worker'): ?>
+          <?php if (gig_is_hired_status($status)): ?>
             <span style="padding:6px 14px;border-radius:9999px;background:#d1fae5;color:#047857;font-weight:800;font-size:0.8rem;">🎉 Resmi Direkrut</span>
             <a class="btn-action-sm" href="employer-proyek-aktif.php" style="background:#059669;color:#fff;text-decoration:none;font-size:0.78rem;">Buka Proyek Aktif &rarr;</a>
-          <?php elseif ($status === 'accepted_by_employer'): ?>
-            <span style="padding:6px 14px;border-radius:9999px;background:#fef3c7;color:#b45309;font-weight:700;font-size:0.8rem;">⏳ Menunggu Konfirmasi Worker</span>
           <?php elseif ($status === 'declined_by_worker'): ?>
             <span style="padding:6px 14px;border-radius:9999px;background:#f1f5f9;color:#64748b;font-weight:700;font-size:0.8rem;">✕ Dibatalkan oleh Worker</span>
           <?php elseif ($status === 'rejected_by_employer'): ?>

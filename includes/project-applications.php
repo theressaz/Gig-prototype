@@ -3,8 +3,8 @@
  * Application & Recruitment Lifecycle Management for Gig Workers & Employers.
  * Lifecycle:
  *  1. 'applied'                     : Worker applied for vacancy
- *  2. 'accepted_by_employer'        : Employer accepted applicant, waiting worker confirmation
- *  3. 'confirmed_by_worker'         : Worker confirmed -> Officially Recruited! Active contract created.
+ *  2. 'accepted_by_employer'        : Legacy accept status (treated as hired)
+ *  3. 'confirmed_by_worker'         : Officially hired (employer accepted an application, or worker accepted a direct offer)
  *  4. 'declined_by_worker'          : Worker declined confirmation
  *  5. 'rejected_by_employer'        : Employer rejected applicant
  */
@@ -12,6 +12,11 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/project-vacancies.php';
+
+function gig_is_hired_status(string $status): bool
+{
+    return in_array($status, ['confirmed_by_worker', 'accepted_by_employer'], true);
+}
 
 function gig_apps_session_start(): void
 {
@@ -96,7 +101,7 @@ function gig_seed_demo_applications_if_needed(): void
             'worker_name'        => 'Tessa',
             'employer_username'  => 'PT Talenta Digital Indonesia',
             'bid_amount'         => 'Rp 8.500.000',
-            'status'             => 'accepted_by_employer', // Waiting worker confirmation
+            'status'             => 'confirmed_by_worker', // Hired when employer accepted the application
             'note'               => 'Saya memiliki pengalaman 4+ tahun dalam merancang UI/UX dashboard SaaS.',
             'created_at'         => date('Y-m-d H:i:s', strtotime('-2 days')),
             'updated_at'         => date('Y-m-d H:i:s', strtotime('-1 days')),
@@ -135,9 +140,9 @@ function gig_seed_demo_applications_if_needed(): void
     $_SESSION['gig_employer_notifications'][] = [
         'id'                => 'NOTIF-2026-001',
         'employer_username' => 'PT Talenta Digital Indonesia',
-        'type'              => 'worker_accepted',
-        'title'             => 'Persetujuan Dikirimkan ke Tessa',
-        'message'           => 'Anda telah menyetujui lamaran Tessa untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub". Menunggu konfirmasi akhir dari Tessa.',
+        'type'              => 'worker_confirmed',
+        'title'             => '🎉 Tessa RESMI DIREKRUT!',
+        'message'           => 'Anda telah menerima lamaran Tessa untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub". Kerja sama aktif dan kontak resmi terbuka di Proyek Aktif.',
         'vacancy_id'        => 'GIG-2026-09-001',
         'is_read'           => 0,
         'created_at'        => date('Y-m-d H:i:s', strtotime('-1 day')),
@@ -169,9 +174,9 @@ function gig_seed_demo_applications_if_needed(): void
     $_SESSION['gig_worker_notifications'][] = [
         'id'         => 'WNOTIF-2026-001',
         'worker_id'  => 'tessa',
-        'type'       => 'app_approved',
-        'title'      => '🎉 Lamaran Proyek Disetujui!',
-        'message'    => 'PT Talenta Digital Indonesia menyetujui lamaran Anda untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub". Harap lakukan konfirmasi ketersediaan Anda di menu Penawaran.',
+        'type'       => 'recruited',
+        'title'      => '🎉 Anda Resmi Direkrut!',
+        'message'    => 'PT Talenta Digital Indonesia menerima lamaran Anda untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub". Proyek kini aktif. Buka Proyek Aktif untuk melihat countdown dan rincian kerja.',
         'vacancy_id' => 'GIG-2026-09-001',
         'is_read'    => 0,
         'created_at' => date('Y-m-d H:i:s', strtotime('-1 day')),
@@ -383,7 +388,7 @@ function gig_employer_respond_application(string $appId, string $decision, strin
     $vacancy = gig_find_vacancy($app['vacancy_id']);
     $projectTitle = $vacancy['title'] ?? 'Proyek';
 
-    $newStatus = ($decision === 'accept') ? 'accepted_by_employer' : 'rejected_by_employer';
+    $newStatus = ($decision === 'accept') ? 'confirmed_by_worker' : 'rejected_by_employer';
     $app['status'] = $newStatus;
     $app['updated_at'] = date('Y-m-d H:i:s');
 
@@ -401,18 +406,17 @@ function gig_employer_respond_application(string $appId, string $decision, strin
     if ($decision === 'accept') {
         gig_add_employer_notification(
             $employerUsername,
-            'waiting_confirmation',
-            '⏳ Menunggu Konfirmasi ' . $app['worker_name'],
-            'Persetujuan telah dikirimkan ke ' . $app['worker_name'] . '. Menunggu konfirmasi ketersediaan dari Gig Worker.',
+            'worker_confirmed',
+            '🎉 ' . $app['worker_name'] . ' RESMI DIREKRUT!',
+            'Anda menerima lamaran ' . $app['worker_name'] . ' untuk proyek "' . $projectTitle . '". Kerja sama aktif dan kontak resmi terbuka di Proyek Aktif.',
             (string)($app['vacancy_id'] ?? '')
         );
 
-        // NOTIFY WORKER OF APPROVAL
         gig_add_worker_notification(
             $app['worker_id'],
-            'app_approved',
-            '🎉 Lamaran Proyek Disetujui!',
-            'Perusahaan ' . $employerUsername . ' menyetujui lamaran Anda untuk proyek "' . $projectTitle . '". Harap lakukan konfirmasi ketersediaan Anda di menu Penawaran Proyek.',
+            'recruited',
+            '🎉 Anda Resmi Direkrut!',
+            'Perusahaan ' . $employerUsername . ' menerima lamaran Anda untuk proyek "' . $projectTitle . '". Proyek kini aktif. Buka Proyek Aktif untuk melihat countdown dan rincian kerja.',
             (string)($app['vacancy_id'] ?? '')
         );
     } else {
@@ -563,9 +567,9 @@ function gig_notification_href(array $n, string $audience = 'worker'): string
     }
 
     $page = match ($type) {
-        'app_approved', 'direct_offer' => 'worker-penawaran.php',
+        'direct_offer' => 'worker-penawaran.php',
         'app_rejected' => 'worker-bursa.php',
-        'recruited', 'deadline' => 'worker-tugas.php',
+        'app_approved', 'recruited', 'deadline' => 'worker-tugas.php',
         'declined' => 'worker-penawaran.php',
         default => '',
     };
@@ -580,10 +584,10 @@ function gig_notification_href(array $n, string $audience = 'worker'): string
             $page = 'dashboard-worker.php';
         }
     }
-    if ($vacancyId !== '' && in_array($type, ['direct_offer', 'app_approved'], true)) {
+    if ($vacancyId !== '' && $type === 'direct_offer') {
         return 'worker-project-detail.php?id=' . urlencode($vacancyId) . '&from=penawaran';
     }
-    if ($vacancyId !== '' && ($page === 'worker-tugas.php' || in_array($type, ['recruited', 'deadline'], true))) {
+    if ($vacancyId !== '' && ($page === 'worker-tugas.php' || in_array($type, ['recruited', 'deadline', 'app_approved'], true))) {
         return 'worker-tugas.php#project-' . rawurlencode($vacancyId);
     }
     return $page;
