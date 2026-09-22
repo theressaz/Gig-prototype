@@ -11,32 +11,54 @@ $projectId = trim((string)($_GET['id'] ?? ''));
 $fromOffers = ($_GET['from'] ?? '') === 'penawaran';
 $job = gig_find_vacancy($projectId);
 
-if (!$job) {
-    // Fallback to first active project if id not specified
+if (!$job && $projectId === '') {
     $activeJobs = array_values(array_filter(gig_project_vacancies(), fn($j) => $j['status'] === 'active'));
     $job = $activeJobs[0] ?? null;
 }
 
 $flashMsg = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_apply']) && $job) {
-    $note = trim((string)($_POST['apply_note'] ?? ''));
-    $workerName = ucfirst($username);
-    $res = gig_apply_for_project($username, $workerName, (string)$job['id'], $note);
-    if ($res['ok']) {
-        $flashMsg = 'Lamaran proyek berhasil dikirimkan ke Pemberi Kerja! Status lamaran dapat dipantau di Penawaran Proyek.';
-    } else {
-        $flashMsg = $res['error'] ?? 'Gagal mengirimkan lamaran.';
+$flashError = false;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job && $fromOffers && isset($_POST['confirm_action'])) {
+    $appId  = trim((string)($_POST['app_id'] ?? ''));
+    $action = trim((string)($_POST['confirm_action'] ?? ''));
+    if ($appId !== '' && in_array($action, ['confirm', 'decline'], true)) {
+        $res = gig_worker_confirm_application($appId, $action, $username);
+        if (!empty($res['ok'])) {
+            $flashMsg = ($action === 'confirm')
+                ? 'Anda menerima penawaran. Proyek kini aktif.'
+                : 'Penawaran proyek telah ditolak.';
+        } else {
+            $flashMsg = $res['error'] ?? 'Gagal memproses penawaran.';
+            $flashError = true;
+        }
     }
 }
 
-// Check existing application status for this worker and job
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job && !$fromOffers && isset($_POST['do_apply'])) {
+    $note = trim((string)($_POST['apply_note'] ?? ''));
+    $workerName = ucfirst($username);
+    $res = gig_apply_for_project($username, $workerName, (string)$job['id'], $note);
+    if (!empty($res['ok'])) {
+        $flashMsg = 'Lamaran proyek berhasil dikirim ke pemberi kerja. Pantau statusnya di Tugas Aktif setelah disetujui.';
+    } else {
+        $flashMsg = $res['error'] ?? 'Gagal mengirimkan lamaran.';
+        $flashError = true;
+    }
+}
+
 $hasApplied = false;
+$offerStatus = null;
+$offerAppId = null;
 if ($job) {
     foreach (gig_get_applications_for_worker($username) as $ap) {
-        if ((string)$ap['vacancy_id'] === (string)$job['id']) {
-            $hasApplied = true;
-            break;
+        if (strcasecmp((string)$ap['vacancy_id'], (string)$job['id']) !== 0) {
+            continue;
         }
+        $hasApplied = true;
+        $offerAppId = (string)$ap['id'];
+        $offerStatus = (string)($ap['status'] ?? '');
+        break;
     }
 }
 
@@ -44,9 +66,8 @@ $rawLocation = (string)(($job ?? [])['location'] ?? 'Remote');
 $displayLocation = (stripos($rawLocation, 'remote') !== false) ? 'Remote' : $rawLocation;
 $employerName = (string)(($job ?? [])['employer'] ?? ($job ?? [])['client'] ?? 'Pemberi kerja');
 
-$workerApps = gig_get_applications_for_worker($username);
 $matchedOffer = null;
-if ($job) {
+if ($fromOffers && $job) {
     foreach (gig_offers_for_worker($username) as $offer) {
         if (strcasecmp((string)$offer['detail_id'], (string)$job['id']) === 0) {
             $matchedOffer = $offer;
@@ -54,27 +75,12 @@ if ($job) {
             break;
         }
     }
-}
-if ($matchedOffer) {
-    $fromOffers = true;
-}
-
-$offerStatus = null;
-$offerAppId = null;
-if ($job) {
-    foreach ($workerApps as $wa) {
-        if (strtolower((string)($wa['vacancy_id'] ?? '')) === strtolower((string)$job['id'])) {
-            $offerAppId = (string)$wa['id'];
-            $offerStatus = (string)($wa['status'] ?? 'accepted_by_employer');
-            break;
-        }
+    if (!$offerAppId) {
+        $offerAppId = 'APP-' . $job['id'];
     }
-}
-if ($matchedOffer && !$offerAppId) {
-    $offerAppId = 'APP-' . $job['id'];
-}
-if ($matchedOffer && !$offerStatus) {
-    $offerStatus = 'accepted_by_employer';
+    if (!$offerStatus) {
+        $offerStatus = 'pending_offer';
+    }
 }
 
 $backHref = $fromOffers ? 'worker-penawaran.php' : 'worker-bursa.php';
@@ -251,7 +257,12 @@ require __DIR__ . '/includes/worker-layout-start.php';
     <?php if ($fromOffers): ?>
       <div class="notice-bar" style="margin-bottom:16px;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        <span>Penawaran dari <strong><?php echo htmlspecialchars($employerName, ENT_QUOTES, 'UTF-8'); ?></strong> untuk proyek yang sudah diposting.</span>
+        <span>Penawaran dari <strong><?php echo htmlspecialchars($employerName, ENT_QUOTES, 'UTF-8'); ?></strong>. Terima atau tolak tawaran ini.</span>
+      </div>
+    <?php else: ?>
+      <div class="notice-bar" style="margin-bottom:16px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>Lowongan terbuka. Kirim lamaran jika Anda ingin mengerjakan proyek ini.</span>
       </div>
     <?php endif; ?>
 
@@ -293,7 +304,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
               ✕ Penawaran Ditolak
             </span>
           <?php else: ?>
-            <form method="post" action="worker-penawaran.php" style="display:inline-flex;gap:10px;align-items:center;margin:0;">
+            <form method="post" action="worker-project-detail.php?id=<?php echo urlencode((string)$job['id']); ?>&from=penawaran" style="display:inline-flex;gap:10px;align-items:center;margin:0;">
               <input type="hidden" name="app_id" value="<?php echo htmlspecialchars($offerAppId ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
               <button type="submit" name="confirm_action" value="confirm" style="padding: 12px 24px; font-size: 0.9rem; font-weight: 800; border-radius: 10px; background: #2563eb; color: #ffffff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); white-space: nowrap;">
                 Terima Penawaran
@@ -318,8 +329,8 @@ require __DIR__ . '/includes/worker-layout-start.php';
     </div>
 
     <?php if ($flashMsg !== ''): ?>
-      <div style="margin-top:16px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;padding:12px 16px;border-radius:10px;font-size:0.86rem;font-weight:700;">
-        ✓ <?php echo htmlspecialchars($flashMsg, ENT_QUOTES, 'UTF-8'); ?>
+      <div style="margin-top:16px;background:<?php echo $flashError ? '#fef2f2' : '#f0fdf4'; ?>;border:1px solid <?php echo $flashError ? '#fecaca' : '#bbf7d0'; ?>;color:<?php echo $flashError ? '#991b1b' : '#166534'; ?>;padding:12px 16px;border-radius:10px;font-size:0.86rem;font-weight:700;">
+        <?php echo htmlspecialchars($flashMsg, ENT_QUOTES, 'UTF-8'); ?>
       </div>
     <?php endif; ?>
 
@@ -433,22 +444,33 @@ require __DIR__ . '/includes/worker-layout-start.php';
           </span>
         </div>
 
-        <?php if (!$fromOffers): ?>
-          <?php if ($hasApplied): ?>
+        <?php if ($fromOffers): ?>
+          <?php if ($offerStatus === 'confirmed_by_worker'): ?>
+            <a href="worker-tugas.php" class="btn-apply-hero" style="margin-top:20px;background:#059669;text-decoration:none;">Buka di Tugas Aktif</a>
+          <?php elseif ($offerStatus === 'declined_by_worker'): ?>
+            <div style="margin-top:20px;padding:12px;border-radius:10px;background:#f8fafc;color:#64748b;font-weight:700;font-size:0.86rem;text-align:center;">Penawaran ditolak</div>
+          <?php else: ?>
+            <form method="post" action="worker-project-detail.php?id=<?php echo urlencode((string)$job['id']); ?>&from=penawaran" style="margin-top:20px;display:flex;flex-direction:column;gap:8px;">
+              <input type="hidden" name="app_id" value="<?php echo htmlspecialchars($offerAppId ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+              <button type="submit" name="confirm_action" value="confirm" class="btn-apply-hero">Terima Penawaran</button>
+              <button type="submit" name="confirm_action" value="decline" style="padding:10px 16px;border-radius:10px;background:#fef2f2;color:#dc2626;border:1px solid #fecdd3;font-weight:700;cursor:pointer;" onclick="return confirm('Tolak penawaran proyek ini?')">Tolak Penawaran</button>
+            </form>
+          <?php endif; ?>
+        <?php elseif ($hasApplied): ?>
             <button type="button" disabled style="margin-top: 20px; width: 100%; padding: 12px 20px; border-radius: 10px; background: #059669; color: #ffffff; font-weight: 800; font-size: 0.9rem; border: none; cursor: default;">
               ✓ Lamaran Proyek Terkirim
             </button>
-          <?php else: ?>
+        <?php else: ?>
             <button id="btnApplySidebar" class="btn-apply-hero" type="button" onclick="openApplyModal()" style="margin-top: 20px;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               Lamar Proyek Ini
             </button>
-          <?php endif; ?>
         <?php endif; ?>
       </section>
     </div>
   </div>
 
+  <?php if (!$fromOffers): ?>
   <!-- APPLY MODAL -->
   <div class="modal-backdrop" id="applyModal" onclick="if(event.target.id==='applyModal') closeApplyModal();">
     <div class="modal-card">
@@ -481,14 +503,17 @@ require __DIR__ . '/includes/worker-layout-start.php';
       </form>
     </div>
   </div>
+  <?php endif; ?>
 
   <script>
     function openApplyModal() {
-      document.getElementById('applyModal').classList.add('open');
+      const modal = document.getElementById('applyModal');
+      if (modal) modal.classList.add('open');
     }
 
     function closeApplyModal() {
-      document.getElementById('applyModal').classList.remove('open');
+      const modal = document.getElementById('applyModal');
+      if (modal) modal.classList.remove('open');
     }
 
     function submitApplication() {
