@@ -4,6 +4,7 @@ require_once __DIR__ . '/includes/worker-auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/project-vacancies.php';
+require_once __DIR__ . '/includes/project-schedule.php';
 
 $pageTitle = 'Proyek Aktif';
 $pageKey = 'tugas';
@@ -25,53 +26,7 @@ if ($pdo !== null) {
     } catch (Throwable $ignored) {}
 }
 
-// Active projects dataset for worker
-$activeProjects = [
-    [
-        'contract_id' => 'CTR-GIG-2026-0811',
-        'id' => 'GIG-2026-09-001',
-        'title' => 'Redesign UI/UX Dashboard Prototype KarirHub',
-        'employer' => 'PT Talenta Digital Indonesia',
-        'employer_category' => 'IT & Software Partner',
-        'employer_phone' => '0812-9988-7766',
-        'employer_email' => 'hr@talentadigital.co.id',
-        'budget' => 'Rp 8.500.000',
-        'duration' => '3 Minggu',
-        'deadline' => '22 Sep 2026',
-        'days_left' => 12,
-        'hours_left' => 14,
-        'mins_left' => 32,
-        'secs_left' => 45,
-        'progress' => 65,
-        'status_label' => 'Sedang Berjalan',
-        'status_badge_class' => 'badge-status active',
-        'deliverable_status' => 'Review Prototype UI/UX',
-        'deliverable_note' => 'Sedang pengujian internal oleh tim Pemberi Kerja',
-        'is_completed' => false,
-    ],
-    [
-        'contract_id' => 'CTR-GIG-2026-0819',
-        'id' => 'GIG-2026-09-002',
-        'title' => 'Integrasi REST API Modul Notifikasi SMS & WhatsApp',
-        'employer' => 'PT Solusi Awan Indonesia',
-        'employer_category' => 'Cloud & Infrastructure',
-        'employer_phone' => '0813-7766-5544',
-        'employer_email' => 'tech@solusiawan.co.id',
-        'budget' => 'Rp 6.000.000',
-        'duration' => '2 Minggu',
-        'deadline' => '17 Sep 2026',
-        'days_left' => 7,
-        'hours_left' => 8,
-        'mins_left' => 15,
-        'secs_left' => 20,
-        'progress' => 90,
-        'status_label' => 'Revisi Terakhir',
-        'status_badge_class' => 'badge-status active',
-        'deliverable_status' => 'UAT & Endpoint Test Selesai',
-        'deliverable_note' => 'Menunggu verifikasi rilis resmi',
-        'is_completed' => false,
-    ],
-];
+$activeProjects = gig_demo_active_projects();
 ?>
 
     <div class="page-toolbar">
@@ -121,7 +76,7 @@ $activeProjects = [
                 <?php endif; ?>
               </div>
               <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">
-                No. Kontrak: <strong><?php echo htmlspecialchars($proj['contract_id'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Durasi Disepakati: <strong><?php echo htmlspecialchars($proj['duration'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Gaji Proyek: <strong style="color:var(--primary-blue);"><?php echo htmlspecialchars($proj['budget'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                No. Kontrak: <strong><?php echo htmlspecialchars($proj['contract_id'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Mulai: <strong><?php echo htmlspecialchars($proj['hired_label'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Durasi Disepakati: <strong><?php echo htmlspecialchars($proj['duration'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Gaji Proyek: <strong style="color:var(--primary-blue);"><?php echo htmlspecialchars($proj['budget'], ENT_QUOTES, 'UTF-8'); ?></strong>
               </div>
             </div>
           </div>
@@ -151,7 +106,7 @@ $activeProjects = [
                 <span style="font-size:0.78rem;font-weight:700;color:var(--text-dark);">Countdown Durasi Proyek</span>
                 <span style="font-size:0.72rem;color:#2563eb;font-weight:700;">Tenggat: <?php echo htmlspecialchars($proj['deadline'], ENT_QUOTES, 'UTF-8'); ?></span>
               </div>
-              <div style="display:flex;gap:8px;text-align:center;" id="countdown-worker-<?php echo $idx; ?>">
+              <div style="display:flex;gap:8px;text-align:center;" class="js-project-countdown" data-deadline="<?php echo htmlspecialchars($proj['deadline_iso'], ENT_QUOTES, 'UTF-8'); ?>" id="countdown-worker-<?php echo $idx; ?>">
                 <div style="background:#fff;border:1px solid #cbd5e1;padding:4px 8px;border-radius:6px;min-width:44px;">
                   <span class="c-days" style="font-size:1.1rem;font-weight:800;color:#1e293b;display:block;"><?php echo $proj['days_left']; ?></span>
                   <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Hari</span>
@@ -209,40 +164,32 @@ $activeProjects = [
       }
 
       (function startWorkerCountdowns() {
-        setInterval(function() {
-          ['countdown-worker-0', 'countdown-worker-1'].forEach(function(id) {
-            const container = document.getElementById(id);
-            if (!container) return;
-            const secEl = container.querySelector('.c-secs');
-            if (secEl) {
-              let s = parseInt(secEl.innerText, 10);
-              if (s > 0) {
-                s--;
-              } else {
-                s = 59;
-                const minEl = container.querySelector('.c-mins');
-                if (minEl) {
-                  let m = parseInt(minEl.innerText, 10);
-                  if (m > 0) {
-                    m--;
-                    minEl.innerText = m < 10 ? '0' + m : String(m);
-                  } else {
-                    minEl.innerText = '59';
-                    const hrEl = container.querySelector('.c-hours');
-                    if (hrEl) {
-                      let h = parseInt(hrEl.innerText, 10);
-                      if (h > 0) {
-                        h--;
-                        hrEl.innerText = h < 10 ? '0' + h : String(h);
-                      }
-                    }
-                  }
-                }
-              }
-              secEl.innerText = s < 10 ? '0' + s : String(s);
-            }
+        function pad(n) { return n < 10 ? '0' + n : String(n); }
+        function tick() {
+          document.querySelectorAll('.js-project-countdown').forEach(function(container) {
+            const iso = container.getAttribute('data-deadline');
+            if (!iso) return;
+            const end = new Date(iso).getTime();
+            let ms = end - Date.now();
+            if (ms < 0) ms = 0;
+            const days = Math.floor(ms / 86400000);
+            ms -= days * 86400000;
+            const hours = Math.floor(ms / 3600000);
+            ms -= hours * 3600000;
+            const mins = Math.floor(ms / 60000);
+            const secs = Math.floor((ms - mins * 60000) / 1000);
+            const d = container.querySelector('.c-days');
+            const h = container.querySelector('.c-hours');
+            const m = container.querySelector('.c-mins');
+            const s = container.querySelector('.c-secs');
+            if (d) d.textContent = String(days);
+            if (h) h.textContent = pad(hours);
+            if (m) m.textContent = pad(mins);
+            if (s) s.textContent = pad(secs);
           });
-        }, 1000);
+        }
+        tick();
+        setInterval(tick, 1000);
       })();
     </script>
 

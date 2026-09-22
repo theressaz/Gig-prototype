@@ -47,7 +47,7 @@ function gig_project_vacancies(): array
             'posted' => '03 Sep 2026',
             'skills' => ['PHP', 'REST API', 'Webhook', 'MySQL'],
             'desc' => 'Mengembangkan endpoint webhook dan mengintegrasikan provider SMS/WA ke core sistem.',
-            'deadline' => '18 Sep 2026',
+            'deadline' => '20 Sep 2026',
             'adminNote' => 'Lowongan disetujui Admin pada 03 Sep 2026.',
             'employer' => 'PT ABC',
         ],

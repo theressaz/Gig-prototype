@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/project-vacancies.php';
+require_once __DIR__ . '/project-schedule.php';
 
 function gig_is_hired_status(string $status): bool
 {
@@ -103,8 +104,8 @@ function gig_seed_demo_applications_if_needed(): void
             'bid_amount'         => 'Rp 8.500.000',
             'status'             => 'confirmed_by_worker', // Hired when employer accepted the application
             'note'               => 'Saya memiliki pengalaman 4+ tahun dalam merancang UI/UX dashboard SaaS.',
-            'created_at'         => date('Y-m-d H:i:s', strtotime('-2 days')),
-            'updated_at'         => date('Y-m-d H:i:s', strtotime('-1 days')),
+            'created_at'         => '2026-09-18 09:20:00',
+            'updated_at'         => '2026-09-20 11:13:00',
         ],
         [
             'id'                 => 'APP-2026-002',
@@ -115,8 +116,8 @@ function gig_seed_demo_applications_if_needed(): void
             'bid_amount'         => 'Rp 6.000.000',
             'status'             => 'confirmed_by_worker', // Officially recruited
             'note'               => 'Siap mengintegrasikan REST API SMS & WA dengan sertifikasi AWS Backend.',
-            'created_at'         => date('Y-m-d H:i:s', strtotime('-4 days')),
-            'updated_at'         => date('Y-m-d H:i:s', strtotime('-3 days')),
+            'created_at'         => '2026-09-16 10:00:00',
+            'updated_at'         => '2026-09-19 09:00:00',
         ],
         [
             'id'                 => 'APP-2026-003',
@@ -127,8 +128,8 @@ function gig_seed_demo_applications_if_needed(): void
             'bid_amount'         => 'Rp 4.500.000',
             'status'             => 'applied', // Applied, waiting employer decision
             'note'               => 'Portofolio kampanye copywriting sosial media dengan engagement rate > 8%.',
-            'created_at'         => date('Y-m-d H:i:s', strtotime('-1 day')),
-            'updated_at'         => date('Y-m-d H:i:s', strtotime('-1 day')),
+            'created_at'         => '2026-09-21 08:30:00',
+            'updated_at'         => '2026-09-21 08:30:00',
         ],
     ];
 
@@ -145,7 +146,7 @@ function gig_seed_demo_applications_if_needed(): void
         'message'           => 'Anda telah menerima lamaran Tessa untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub". Kerja sama aktif dan kontak resmi terbuka di Proyek Aktif.',
         'vacancy_id'        => 'GIG-2026-09-001',
         'is_read'           => 0,
-        'created_at'        => date('Y-m-d H:i:s', strtotime('-1 day')),
+        'created_at'        => '2026-09-20 11:13:00',
     ];
 
     $_SESSION['gig_employer_notifications'][] = [
@@ -156,7 +157,7 @@ function gig_seed_demo_applications_if_needed(): void
         'message'           => 'Rian Ardiansyah telah MENGONFIRMASI dan RESMI DIREKRUT untuk proyek "Integrasi REST API Modul Notifikasi SMS & WhatsApp". Kontrak proyek telah aktif.',
         'vacancy_id'        => 'GIG-2026-09-002',
         'is_read'           => 0,
-        'created_at'        => date('Y-m-d H:i:s', strtotime('-3 days')),
+        'created_at'        => '2026-09-19 09:00:00',
     ];
 
     $_SESSION['gig_employer_notifications'][] = [
@@ -164,10 +165,10 @@ function gig_seed_demo_applications_if_needed(): void
         'employer_username' => 'PT Talenta Digital Indonesia',
         'type'              => 'deadline',
         'title'             => '⏰ Tenggat proyek semakin dekat',
-        'message'           => 'Countdown proyek "Redesign UI/UX Dashboard Prototype KarirHub" tersisa 12 hari. Buka Proyek Aktif untuk melihat countdown.',
+        'message'           => gig_deadline_notice_message('GIG-2026-09-001'),
         'vacancy_id'        => 'GIG-2026-09-001',
         'is_read'           => 0,
-        'created_at'        => date('Y-m-d H:i:s', strtotime('-3 hours')),
+        'created_at'        => '2026-09-22 08:00:00',
     ];
 
     // Default seed notifications for Gig Worker Tessa
@@ -179,7 +180,7 @@ function gig_seed_demo_applications_if_needed(): void
         'message'    => 'PT Talenta Digital Indonesia menerima lamaran Anda untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub". Proyek kini aktif. Buka Proyek Aktif untuk melihat countdown dan rincian kerja.',
         'vacancy_id' => 'GIG-2026-09-001',
         'is_read'    => 0,
-        'created_at' => date('Y-m-d H:i:s', strtotime('-1 day')),
+        'created_at' => '2026-09-20 11:13:00',
     ];
 
     $_SESSION['gig_worker_notifications'][] = [
@@ -190,7 +191,7 @@ function gig_seed_demo_applications_if_needed(): void
         'message'    => 'PT ABC Indonesia menawarkan proyek secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau rincian proyek.',
         'vacancy_id' => 'GIG-2026-09-003',
         'is_read'    => 0,
-        'created_at' => date('Y-m-d H:i:s', strtotime('-2 days')),
+        'created_at' => '2026-09-20 09:00:00',
     ];
 
     $_SESSION['gig_worker_notifications'][] = [
@@ -198,10 +199,10 @@ function gig_seed_demo_applications_if_needed(): void
         'worker_id'  => 'tessa',
         'type'       => 'deadline',
         'title'      => '⏰ Tenggat proyek semakin dekat',
-        'message'    => 'Countdown proyek "Redesign UI/UX Dashboard Prototype KarirHub" tersisa 12 hari. Buka Proyek Aktif untuk melihat countdown.',
+        'message'    => gig_deadline_notice_message('GIG-2026-09-001'),
         'vacancy_id' => 'GIG-2026-09-001',
         'is_read'    => 0,
-        'created_at' => date('Y-m-d H:i:s', strtotime('-3 hours')),
+        'created_at' => '2026-09-22 08:00:00',
     ];
 
     $_SESSION['gig_applications_seeded'] = true;
@@ -213,38 +214,66 @@ function gig_seed_demo_applications_if_needed(): void
 function gig_ensure_demo_notifications(): void
 {
     gig_apps_session_start();
-    $workerIds = [];
-    foreach ($_SESSION['gig_worker_notifications'] as $n) {
-        $workerIds[(string)($n['id'] ?? '')] = true;
-    }
-    $empIds = [];
-    foreach ($_SESSION['gig_employer_notifications'] as $n) {
-        $empIds[(string)($n['id'] ?? '')] = true;
-    }
+    $deadlineMsg = gig_deadline_notice_message('GIG-2026-09-001');
+    $patches = [
+        'gig_employer_notifications' => [
+            'NOTIF-2026-001' => [
+                'type' => 'worker_confirmed',
+                'title' => '🎉 Tessa RESMI DIREKRUT!',
+                'message' => 'Anda telah menerima lamaran Tessa untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub". Kerja sama aktif (mulai 20 Sep 2026, durasi 3 minggu, tenggat 11 Okt 2026).',
+                'created_at' => '2026-09-20 11:13:00',
+                'vacancy_id' => 'GIG-2026-09-001',
+            ],
+            'NOTIF-2026-003' => [
+                'type' => 'deadline',
+                'title' => '⏰ Tenggat proyek semakin dekat',
+                'message' => $deadlineMsg,
+                'created_at' => '2026-09-22 08:00:00',
+                'vacancy_id' => 'GIG-2026-09-001',
+            ],
+        ],
+        'gig_worker_notifications' => [
+            'WNOTIF-2026-001' => [
+                'type' => 'recruited',
+                'title' => '🎉 Anda Resmi Direkrut!',
+                'message' => 'PT Talenta Digital Indonesia menerima lamaran Anda untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub" pada 20 Sep 2026. Durasi 3 minggu, tenggat pengerjaan 11 Okt 2026. Buka Proyek Aktif untuk melihat countdown.',
+                'created_at' => '2026-09-20 11:13:00',
+                'vacancy_id' => 'GIG-2026-09-001',
+            ],
+            'WNOTIF-2026-003' => [
+                'type' => 'deadline',
+                'title' => '⏰ Tenggat proyek semakin dekat',
+                'message' => $deadlineMsg,
+                'created_at' => '2026-09-22 08:00:00',
+                'vacancy_id' => 'GIG-2026-09-001',
+            ],
+        ],
+    ];
 
-    if (empty($empIds['NOTIF-2026-003'])) {
-        $_SESSION['gig_employer_notifications'][] = [
-            'id'                => 'NOTIF-2026-003',
-            'employer_username' => 'PT Talenta Digital Indonesia',
-            'type'              => 'deadline',
-            'title'             => '⏰ Tenggat proyek semakin dekat',
-            'message'           => 'Countdown proyek "Redesign UI/UX Dashboard Prototype KarirHub" tersisa 12 hari. Buka Proyek Aktif untuk melihat countdown.',
-            'vacancy_id'        => 'GIG-2026-09-001',
-            'is_read'           => 0,
-            'created_at'        => date('Y-m-d H:i:s', strtotime('-3 hours')),
-        ];
-    }
-    if (empty($workerIds['WNOTIF-2026-003'])) {
-        $_SESSION['gig_worker_notifications'][] = [
-            'id'         => 'WNOTIF-2026-003',
-            'worker_id'  => 'tessa',
-            'type'       => 'deadline',
-            'title'      => '⏰ Tenggat proyek semakin dekat',
-            'message'    => 'Countdown proyek "Redesign UI/UX Dashboard Prototype KarirHub" tersisa 12 hari. Buka Proyek Aktif untuk melihat countdown.',
-            'vacancy_id' => 'GIG-2026-09-001',
-            'is_read'    => 0,
-            'created_at' => date('Y-m-d H:i:s', strtotime('-3 hours')),
-        ];
+    foreach ($patches as $bucket => $byId) {
+        if (!isset($_SESSION[$bucket]) || !is_array($_SESSION[$bucket])) {
+            $_SESSION[$bucket] = [];
+        }
+        $seen = [];
+        foreach ($_SESSION[$bucket] as $idx => $n) {
+            $id = (string)($n['id'] ?? '');
+            $seen[$id] = true;
+            if (isset($byId[$id])) {
+                $_SESSION[$bucket][$idx] = array_merge($n, $byId[$id]);
+            }
+        }
+        foreach ($byId as $id => $fields) {
+            if (!empty($seen[$id])) {
+                continue;
+            }
+            $_SESSION[$bucket][] = array_merge([
+                'id' => $id,
+                'is_read' => 0,
+            ], $bucket === 'gig_worker_notifications'
+                ? ['worker_id' => 'tessa']
+                : ['employer_username' => 'PT Talenta Digital Indonesia'],
+            $fields);
+        }
     }
 }
 
@@ -649,9 +678,11 @@ function gig_get_employer_notifications(?string $employerUsername = null): array
     }
 
     foreach ($_SESSION['gig_employer_notifications'] as $n) {
-        if (!isset($merged[$n['id']])) {
-            $merged[$n['id']] = $n;
+        $id = (string)($n['id'] ?? '');
+        if ($id === '') {
+            continue;
         }
+        $merged[$id] = isset($merged[$id]) ? array_merge($merged[$id], $n) : $n;
     }
 
     $list = array_values($merged);
@@ -717,9 +748,11 @@ function gig_get_worker_notifications(?string $workerId = null): array
     }
 
     foreach ($_SESSION['gig_worker_notifications'] as $n) {
-        if (!isset($merged[$n['id']])) {
-            $merged[$n['id']] = $n;
+        $id = (string)($n['id'] ?? '');
+        if ($id === '') {
+            continue;
         }
+        $merged[$id] = isset($merged[$id]) ? array_merge($merged[$id], $n) : $n;
     }
 
     $list = array_values($merged);

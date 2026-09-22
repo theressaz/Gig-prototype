@@ -3,9 +3,15 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/employer-auth.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/project-vacancies.php';
+require_once __DIR__ . '/includes/project-schedule.php';
 
 $workerProfiles = gig_worker_profiles();
 $vacancies = gig_project_vacancies();
+$soonest = gig_demo_soonest_active_project();
+$otherActive = array_values(array_filter(
+    gig_demo_active_projects(),
+    static fn($p) => $soonest && $p['contract_id'] !== $soonest['contract_id']
+));
 $pageTitle = 'Ringkasan';
 $pageKey = 'overview';
 $breadcrumbCurrent = 'Ringkasan';
@@ -72,44 +78,46 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <a class="btn-action-sm" href="employer-proyek-aktif.php">Lihat Semua Proyek</a>
         </div>
 
-        <!-- Featured Project with Shortest Time Left -->
+        <?php if ($soonest): ?>
         <div style="margin-top:14px;padding:14px;background:linear-gradient(135deg, #eff6ff, #f0fdf4);border:1px solid #bfdbfe;border-radius:12px;position:relative;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
             <span style="font-size:0.7rem;font-weight:800;background:#ef4444;color:#fff;padding:3px 8px;border-radius:9999px;letter-spacing:0.5px;">🔥 TENGGAT TERDEKAT</span>
-            <span style="font-size:0.75rem;color:#1e40af;font-weight:700;">Tenggat: 17 Sep 2026</span>
+            <span style="font-size:0.75rem;color:#1e40af;font-weight:700;">Tenggat: <?php echo htmlspecialchars($soonest['deadline'], ENT_QUOTES, 'UTF-8'); ?></span>
           </div>
 
-          <h3 style="font-size:0.95rem;font-weight:800;color:#1e293b;margin:0 0 4px 0;">Integrasi REST API Modul Notifikasi SMS &amp; WhatsApp</h3>
-          <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:12px;">Mitra Gig: <strong>Rian Ardiansyah</strong> · Backend API Developer</div>
+          <h3 style="font-size:0.95rem;font-weight:800;color:#1e293b;margin:0 0 4px 0;"><?php echo htmlspecialchars($soonest['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:12px;">Mitra Gig: <strong><?php echo htmlspecialchars($soonest['worker_name'], ENT_QUOTES, 'UTF-8'); ?></strong> · <?php echo htmlspecialchars($soonest['worker_role'], ENT_QUOTES, 'UTF-8'); ?> · Mulai <?php echo htmlspecialchars($soonest['hired_label'], ENT_QUOTES, 'UTF-8'); ?> (<?php echo htmlspecialchars($soonest['duration'], ENT_QUOTES, 'UTF-8'); ?>)</div>
 
-          <div style="display:flex;gap:8px;text-align:center;" id="dash-shortest-countdown">
+          <div style="display:flex;gap:8px;text-align:center;" class="js-project-countdown" data-deadline="<?php echo htmlspecialchars($soonest['deadline_iso'], ENT_QUOTES, 'UTF-8'); ?>" id="dash-shortest-countdown">
             <div style="background:#fff;border:1px solid #93c5fd;padding:6px 10px;border-radius:8px;flex:1;">
-              <span class="c-days" style="font-size:1.2rem;font-weight:800;color:#1e40af;display:block;">07</span>
+              <span class="c-days" style="font-size:1.2rem;font-weight:800;color:#1e40af;display:block;"><?php echo (int)$soonest['days_left']; ?></span>
               <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Hari</span>
             </div>
             <div style="background:#fff;border:1px solid #93c5fd;padding:6px 10px;border-radius:8px;flex:1;">
-              <span class="c-hours" style="font-size:1.2rem;font-weight:800;color:#1e40af;display:block;">08</span>
+              <span class="c-hours" style="font-size:1.2rem;font-weight:800;color:#1e40af;display:block;"><?php echo sprintf('%02d', (int)$soonest['hours_left']); ?></span>
               <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Jam</span>
             </div>
             <div style="background:#fff;border:1px solid #93c5fd;padding:6px 10px;border-radius:8px;flex:1;">
-              <span class="c-mins" style="font-size:1.2rem;font-weight:800;color:#1e40af;display:block;">15</span>
+              <span class="c-mins" style="font-size:1.2rem;font-weight:800;color:#1e40af;display:block;"><?php echo sprintf('%02d', (int)$soonest['mins_left']); ?></span>
               <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Menit</span>
             </div>
             <div style="background:#fff;border:1px solid #93c5fd;padding:6px 10px;border-radius:8px;flex:1;">
-              <span class="c-secs" style="font-size:1.2rem;font-weight:800;color:#ef4444;display:block;">20</span>
+              <span class="c-secs" style="font-size:1.2rem;font-weight:800;color:#ef4444;display:block;"><?php echo sprintf('%02d', (int)$soonest['secs_left']); ?></span>
               <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Detik</span>
             </div>
           </div>
         </div>
+        <?php endif; ?>
 
-        <!-- Other Active Projects -->
+        <?php foreach ($otherActive as $other): ?>
         <div style="margin-top:12px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;display:flex;justify-content:space-between;align-items:center;">
           <div>
-            <div style="font-size:0.84rem;font-weight:700;color:var(--text-dark);">Redesign UI/UX Dashboard Prototype KarirHub</div>
-            <div style="font-size:0.74rem;color:var(--text-muted);">Mitra: Tessa · Sisa 12 Hari 14 Jam (Tenggat: 22 Sep 2026)</div>
+            <div style="font-size:0.84rem;font-weight:700;color:var(--text-dark);"><?php echo htmlspecialchars($other['title'], ENT_QUOTES, 'UTF-8'); ?></div>
+            <div style="font-size:0.74rem;color:var(--text-muted);">Mitra: <?php echo htmlspecialchars($other['worker_name'], ENT_QUOTES, 'UTF-8'); ?> · Mulai <?php echo htmlspecialchars($other['hired_label'], ENT_QUOTES, 'UTF-8'); ?> · <?php echo htmlspecialchars($other['duration'], ENT_QUOTES, 'UTF-8'); ?> · Sisa <?php echo (int)$other['days_left']; ?> hari (Tenggat: <?php echo htmlspecialchars($other['deadline'], ENT_QUOTES, 'UTF-8'); ?>)</div>
           </div>
           <a class="btn-action-sm" href="employer-proyek-aktif.php" style="text-decoration:none;">Pantau →</a>
         </div>
+        <?php endforeach; ?>
       </section>
 
       <section class="white-card">
@@ -170,28 +178,32 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
     <script>
       (function startDashboardCountdown() {
-        setInterval(function() {
-          const container = document.getElementById('dash-shortest-countdown');
-          if (!container) return;
-          const secEl = container.querySelector('.c-secs');
-          if (secEl) {
-            let s = parseInt(secEl.innerText, 10);
-            if (s > 0) {
-              s--;
-            } else {
-              s = 59;
-              const minEl = container.querySelector('.c-mins');
-              if (minEl) {
-                let m = parseInt(minEl.innerText, 10);
-                if (m > 0) {
-                  m--;
-                  minEl.innerText = m < 10 ? '0' + m : String(m);
-                }
-              }
-            }
-            secEl.innerText = s < 10 ? '0' + s : String(s);
-          }
-        }, 1000);
+        function pad(n) { return n < 10 ? '0' + n : String(n); }
+        function tick() {
+          document.querySelectorAll('.js-project-countdown').forEach(function(container) {
+            const iso = container.getAttribute('data-deadline');
+            if (!iso) return;
+            const end = new Date(iso).getTime();
+            let ms = end - Date.now();
+            if (ms < 0) ms = 0;
+            const days = Math.floor(ms / 86400000);
+            ms -= days * 86400000;
+            const hours = Math.floor(ms / 3600000);
+            ms -= hours * 3600000;
+            const mins = Math.floor(ms / 60000);
+            const secs = Math.floor((ms - mins * 60000) / 1000);
+            const d = container.querySelector('.c-days');
+            const h = container.querySelector('.c-hours');
+            const m = container.querySelector('.c-mins');
+            const s = container.querySelector('.c-secs');
+            if (d) d.textContent = String(days);
+            if (h) h.textContent = pad(hours);
+            if (m) m.textContent = pad(mins);
+            if (s) s.textContent = pad(secs);
+          });
+        }
+        tick();
+        setInterval(tick, 1000);
       })();
     </script>
 

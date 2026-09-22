@@ -2,6 +2,10 @@
 declare(strict_types=1);
 require_once __DIR__ . '/includes/employer-auth.php';
 require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/project-schedule.php';
+
+$p1 = gig_demo_active_project_by_id('GIG-2026-09-001');
+$p2 = gig_demo_active_project_by_id('GIG-2026-09-002');
 
 $pageTitle = 'Proyek Aktif';
 $pageKey = 'aktif';
@@ -66,7 +70,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <?php endif; ?>
             </div>
             <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">
-              No. Kontrak: <strong>CTR-GIG-2026-0811</strong> · Durasi Disepakati: <strong>3 Minggu</strong>
+              No. Kontrak: <strong>CTR-GIG-2026-0811</strong> · Mulai: <strong><?php echo htmlspecialchars($p1['hired_label'], ENT_QUOTES, 'UTF-8'); ?></strong> · Durasi Disepakati: <strong><?php echo htmlspecialchars($p1['duration'], ENT_QUOTES, 'UTF-8'); ?></strong>
             </div>
           </div>
         </div>
@@ -88,23 +92,23 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <div class="countdown-widget-box" style="background:#f8fafc;border:1px solid #e2e8f0;padding:12px 16px;border-radius:10px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
               <span style="font-size:0.78rem;font-weight:700;color:var(--text-dark);">Countdown Durasi Proyek</span>
-              <span style="font-size:0.72rem;color:#2563eb;font-weight:700;">Tenggat: 22 Sep 2026</span>
+              <span style="font-size:0.72rem;color:#2563eb;font-weight:700;">Tenggat: <?php echo htmlspecialchars($p1['deadline'], ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
-            <div style="display:flex;gap:8px;text-align:center;" id="countdown-proj-1">
+            <div style="display:flex;gap:8px;text-align:center;" class="js-project-countdown" data-deadline="<?php echo htmlspecialchars($p1['deadline_iso'], ENT_QUOTES, 'UTF-8'); ?>" id="countdown-proj-1">
               <div style="background:#fff;border:1px solid #cbd5e1;padding:4px 8px;border-radius:6px;min-width:44px;">
-                <span class="c-days" style="font-size:1.1rem;font-weight:800;color:#1e293b;display:block;">12</span>
+                <span class="c-days" style="font-size:1.1rem;font-weight:800;color:#1e293b;display:block;"><?php echo (int)$p1['days_left']; ?></span>
                 <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Hari</span>
               </div>
               <div style="background:#fff;border:1px solid #cbd5e1;padding:4px 8px;border-radius:6px;min-width:44px;">
-                <span class="c-hours" style="font-size:1.1rem;font-weight:800;color:#1e293b;display:block;">14</span>
+                <span class="c-hours" style="font-size:1.1rem;font-weight:800;color:#1e293b;display:block;"><?php echo sprintf('%02d', (int)$p1['hours_left']); ?></span>
                 <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Jam</span>
               </div>
               <div style="background:#fff;border:1px solid #cbd5e1;padding:4px 8px;border-radius:6px;min-width:44px;">
-                <span class="c-mins" style="font-size:1.1rem;font-weight:800;color:#1e293b;display:block;">32</span>
+                <span class="c-mins" style="font-size:1.1rem;font-weight:800;color:#1e293b;display:block;"><?php echo sprintf('%02d', (int)$p1['mins_left']); ?></span>
                 <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Menit</span>
               </div>
               <div style="background:#fff;border:1px solid #cbd5e1;padding:4px 8px;border-radius:6px;min-width:44px;">
-                <span class="c-secs" style="font-size:1.1rem;font-weight:800;color:#2563eb;display:block;">45</span>
+                <span class="c-secs" style="font-size:1.1rem;font-weight:800;color:#2563eb;display:block;"><?php echo sprintf('%02d', (int)$p1['secs_left']); ?></span>
                 <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Detik</span>
               </div>
             </div>
@@ -152,7 +156,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <?php endif; ?>
             </div>
             <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">
-              No. Kontrak: <strong>CTR-GIG-2026-0819</strong> · Durasi Disepakati: <strong>2 Minggu</strong>
+              No. Kontrak: <strong>CTR-GIG-2026-0819</strong> · Mulai: <strong><?php echo htmlspecialchars($p2['hired_label'], ENT_QUOTES, 'UTF-8'); ?></strong> · Durasi Disepakati: <strong><?php echo htmlspecialchars($p2['duration'], ENT_QUOTES, 'UTF-8'); ?></strong>
             </div>
           </div>
         </div>
@@ -174,23 +178,23 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <div class="countdown-widget-box" style="background:#f8fafc;border:1px solid #e2e8f0;padding:12px 16px;border-radius:10px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
               <span style="font-size:0.78rem;font-weight:700;color:var(--text-dark);">Countdown Durasi Proyek</span>
-              <span style="font-size:0.72rem;color:#0891b2;font-weight:700;">Tenggat: 17 Sep 2026</span>
+              <span style="font-size:0.72rem;color:#0891b2;font-weight:700;">Tenggat: <?php echo htmlspecialchars($p2['deadline'], ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
-            <div style="display:flex;gap:8px;text-align:center;" id="countdown-proj-2">
+            <div style="display:flex;gap:8px;text-align:center;" class="js-project-countdown" data-deadline="<?php echo htmlspecialchars($p2['deadline_iso'], ENT_QUOTES, 'UTF-8'); ?>" id="countdown-proj-2">
               <div style="background:#fff;border:1px solid #cbd5e1;padding:4px 8px;border-radius:6px;min-width:44px;">
-                <span class="c-days" style="font-size:1.1rem;font-weight:800;color:#1e293b;display:block;">7</span>
+                <span class="c-days" style="font-size:1.1rem;font-weight:800;color:#1e293b;display:block;"><?php echo (int)$p2['days_left']; ?></span>
                 <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Hari</span>
               </div>
               <div style="background:#fff;border:1px solid #cbd5e1;padding:4px 8px;border-radius:6px;min-width:44px;">
-                <span class="c-hours" style="font-size:1.1rem;font-weight:800;color:#1e293b;display:block;">08</span>
+                <span class="c-hours" style="font-size:1.1rem;font-weight:800;color:#1e293b;display:block;"><?php echo sprintf('%02d', (int)$p2['hours_left']); ?></span>
                 <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Jam</span>
               </div>
               <div style="background:#fff;border:1px solid #cbd5e1;padding:4px 8px;border-radius:6px;min-width:44px;">
-                <span class="c-mins" style="font-size:1.1rem;font-weight:800;color:#1e293b;display:block;">15</span>
+                <span class="c-mins" style="font-size:1.1rem;font-weight:800;color:#1e293b;display:block;"><?php echo sprintf('%02d', (int)$p2['mins_left']); ?></span>
                 <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Menit</span>
               </div>
               <div style="background:#fff;border:1px solid #cbd5e1;padding:4px 8px;border-radius:6px;min-width:44px;">
-                <span class="c-secs" style="font-size:1.1rem;font-weight:800;color:#0891b2;display:block;">20</span>
+                <span class="c-secs" style="font-size:1.1rem;font-weight:800;color:#0891b2;display:block;"><?php echo sprintf('%02d', (int)$p2['secs_left']); ?></span>
                 <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Detik</span>
               </div>
             </div>
@@ -230,30 +234,32 @@ require __DIR__ . '/includes/employer-layout-start.php';
     <!-- Countdown Timer Script -->
     <script>
       (function startCountdowns() {
-        setInterval(function() {
-          ['countdown-proj-1', 'countdown-proj-2'].forEach(function(id) {
-            const container = document.getElementById(id);
-            if (!container) return;
-            const secEl = container.querySelector('.c-secs');
-            if (secEl) {
-              let s = parseInt(secEl.innerText, 10);
-              if (s > 0) {
-                s--;
-              } else {
-                s = 59;
-                const minEl = container.querySelector('.c-mins');
-                if (minEl) {
-                  let m = parseInt(minEl.innerText, 10);
-                  if (m > 0) {
-                    m--;
-                    minEl.innerText = m < 10 ? '0' + m : String(m);
-                  }
-                }
-              }
-              secEl.innerText = s < 10 ? '0' + s : String(s);
-            }
+        function pad(n) { return n < 10 ? '0' + n : String(n); }
+        function tick() {
+          document.querySelectorAll('.js-project-countdown').forEach(function(container) {
+            const iso = container.getAttribute('data-deadline');
+            if (!iso) return;
+            const end = new Date(iso).getTime();
+            let ms = end - Date.now();
+            if (ms < 0) ms = 0;
+            const days = Math.floor(ms / 86400000);
+            ms -= days * 86400000;
+            const hours = Math.floor(ms / 3600000);
+            ms -= hours * 3600000;
+            const mins = Math.floor(ms / 60000);
+            const secs = Math.floor((ms - mins * 60000) / 1000);
+            const d = container.querySelector('.c-days');
+            const h = container.querySelector('.c-hours');
+            const m = container.querySelector('.c-mins');
+            const s = container.querySelector('.c-secs');
+            if (d) d.textContent = String(days);
+            if (h) h.textContent = pad(hours);
+            if (m) m.textContent = pad(mins);
+            if (s) s.textContent = pad(secs);
           });
-        }, 1000);
+        }
+        tick();
+        setInterval(tick, 1000);
       })();
     </script>
 
