@@ -1,26 +1,13 @@
 <?php
 declare(strict_types=1);
-session_start();
 
+require_once __DIR__ . '/includes/worker-auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
 
-if (!isset($_SESSION["username"]) || !isset($_SESSION["role"]) || $_SESSION["role"] !== 'worker') {
-    $_SESSION["username"] = "Tessa";
-    $_SESSION["role"] = "worker";
-}
-
-$username = (string)$_SESSION["username"];
 $siapkerja = gig_get_siapkerja_profile($username);
 $isRegistered = gig_is_worker_registered($username);
 $isEditMode = !empty($_GET['edit']) || $isRegistered;
-
-// Registration page can only be accessed when the user doesn't have a Gig Worker account yet (unless editing).
-if ($isRegistered && empty($_GET['edit'])) {
-    $profileId = strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $username)[0] ?? $username));
-    header("Location: worker-profile.php?id=" . urlencode($profileId));
-    exit;
-}
 
 $existingReg = gig_get_worker_registration($username);
 $workerProfile = gig_find_worker($username);
@@ -153,585 +140,102 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
         exit;
     }
 }
+
+$pageTitle = $isEditMode ? 'Edit Profil Gig Worker' : 'Pendaftaran Gig Worker';
+$pageKey = 'profil';
+$breadcrumbCurrent = $isEditMode ? 'Edit Profil' : 'Pendaftaran';
+require __DIR__ . '/includes/worker-layout-start.php';
+$backHref = $isEditMode
+    ? 'worker-profile.php?id=' . urlencode(strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $username)[0] ?? $username)))
+    : 'dashboard-worker.php';
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><?php echo $isEditMode ? 'Edit Profil Gig Worker' : 'Pendaftaran Gig Worker'; ?> &bull; Kemnaker RI</title>
+<style>
+  .register-form-card { display:flex; flex-direction:column; gap:28px; }
+  .siapkerja-card { position:relative; margin-bottom:20px; }
+  .siapkerja-badge {
+    position:absolute; top:20px; right:24px;
+    display:inline-flex; align-items:center; gap:6px;
+    background:#ecfdf5; color:#047857; border:1px solid #a7f3d0;
+    padding:4px 12px; border-radius:9999px; font-size:0.75rem; font-weight:700;
+  }
+  .siapkerja-header { display:flex; align-items:center; gap:16px; margin-bottom:18px; padding-right:180px; }
+  .siapkerja-avatar {
+    width:56px; height:56px; border-radius:50%;
+    background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.4rem; font-weight:800; flex-shrink:0;
+  }
+  .siapkerja-info h3 { font-size:1.15rem; font-weight:800; color:var(--text-main); }
+  .siapkerja-meta { display:flex; flex-wrap:wrap; gap:12px; font-size:0.84rem; color:var(--text-muted); margin-top:4px; }
+  .siapkerja-exp-box { background:#f8fafc; border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:14px 16px; }
+  .exp-title { font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:8px; }
+  .exp-item { font-size:0.86rem; color:var(--text-main); padding:4px 0; display:flex; align-items:flex-start; gap:8px; }
+  .section-title {
+    font-size:1.08rem; font-weight:800; color:var(--kemnaker-navy);
+    padding-bottom:10px; border-bottom:2px solid #f1f5f9;
+    display:flex; align-items:center; gap:10px;
+  }
+  .section-icon {
+    width:28px; height:28px; border-radius:6px; background:#eff6ff; color:var(--primary-blue);
+    display:flex; align-items:center; justify-content:center; font-size:0.9rem;
+  }
+  .form-group { display:flex; flex-direction:column; gap:8px; }
+  .form-label { font-size:0.88rem; font-weight:700; color:var(--text-main); }
+  .form-hint { font-size:0.78rem; color:var(--text-muted); }
+  .form-input, .form-select, .form-textarea {
+    width:100%; padding:10px 14px; border:1px solid var(--border-light);
+    border-radius:var(--radius-sm); font-size:0.9rem; color:var(--text-main); background:#fff;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline:none; border-color:var(--primary-blue); box-shadow:0 0 0 3px rgba(22,87,193,0.12);
+  }
+  .contact-options { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:4px; }
+  @media (max-width:640px) {
+    .contact-options, .new-contact-fields { grid-template-columns:1fr !important; }
+    .siapkerja-header { padding-right:0; }
+    .siapkerja-badge { position:static; margin-bottom:12px; }
+  }
+  .contact-option-card {
+    border:1.5px solid var(--border-light); border-radius:var(--radius-md); padding:16px;
+    cursor:pointer; display:flex; align-items:flex-start; gap:12px; background:#f8fafc;
+  }
+  .contact-option-card:hover { border-color:#93c5fd; background:#fff; }
+  .contact-option-card.active { border-color:var(--primary-blue); background:#eff6ff; }
+  .contact-radio { margin-top:3px; accent-color:var(--primary-blue); }
+  .new-contact-fields {
+    display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; padding:16px;
+    background:#f8fafc; border:1px dashed #bfdbfe; border-radius:var(--radius-md);
+  }
+  .dynamic-item { background:#f8fafc; border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:18px; position:relative; margin-bottom:12px; }
+  .btn-remove-item { background:#fee2e2; color:#dc2626; border:none; padding:4px 10px; border-radius:var(--radius-sm); font-size:0.75rem; font-weight:700; cursor:pointer; }
+  .btn-add-item {
+    display:inline-flex; align-items:center; gap:6px; background:#eff6ff; color:var(--primary-blue);
+    border:1px dashed #bfdbfe; padding:10px 18px; border-radius:var(--radius-sm); font-size:0.85rem; font-weight:700; cursor:pointer;
+  }
+  .btn-add-item:hover { background:#dbeafe; border-color:var(--primary-blue); }
+  .btn-submit {
+    background:linear-gradient(135deg, var(--hero-blue-mid) 0%, var(--hero-blue-end) 100%);
+    color:#fff; border:none; padding:12px 24px; border-radius:var(--radius-pill);
+    font-size:0.95rem; font-weight:800; cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .alert { padding:14px 18px; border-radius:var(--radius-md); font-size:0.9rem; font-weight:600; display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .alert-success { background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; }
+  .alert-error { background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; }
+  .register-cancel { padding:12px 18px; text-decoration:none; color:var(--text-muted); font-weight:700; font-size:0.9rem; }
+</style>
 
-  <!-- Google Fonts: Plus Jakarta Sans -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-
-  <style>
-    :root {
-      --kemnaker-navy-dark: #061d33;
-      --kemnaker-navy: #092c4c;
-      --kemnaker-navy-light: #0f3d68;
-      --primary-blue: #1657c1;
-      --primary-blue-hover: #1247a3;
-      --hero-blue-start: #0f3d68;
-      --hero-blue-mid: #1657c1;
-      --hero-blue-end: #2563eb;
-      --bg-page: #f8fafc;
-      --bg-surface: #ffffff;
-      --border-subtle: #e2e8f0;
-      --border-light: #cbd5e1;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --success-green: #10b981;
-      --success-bg: #ecfdf5;
-      --amber-badge: #d97706;
-      --amber-bg: #fffbeb;
-      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
-      --shadow-md: 0 4px 14px -1px rgba(15, 23, 42, 0.08);
-      --shadow-lg: 0 12px 28px -4px rgba(9, 44, 76, 0.12);
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
-      --radius-pill: 9999px;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-
-    body {
-      min-height: 100vh;
-      background-color: var(--bg-page);
-      color: var(--text-main);
-      display: flex;
-      flex-direction: column;
-      line-height: 1.5;
-    }
-
-    /* TOPBAR */
-    .kemnaker-topbar {
-      background: var(--kemnaker-navy-dark);
-      color: #ffffff;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 7px 24px;
-      font-size: 0.78rem;
-    }
-
-    .topbar-inner {
-      max-width: 1120px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .topbar-nav {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .topbar-nav a {
-      color: #cbd5e1;
-      text-decoration: none;
-    }
-
-    /* HEADER */
-    .kemnaker-header {
-      background: var(--kemnaker-navy);
-      color: #ffffff;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
-
-    .header-inner {
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 14px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-    }
-
-    .brand-section {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      text-decoration: none;
-      color: #ffffff;
-    }
-
-    .brand-text {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .brand-title {
-      font-size: 0.76rem;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: #ffffff;
-    }
-
-    .brand-sub {
-      font-size: 0.84rem;
-      font-weight: 500;
-      color: #93c5fd;
-    }
-
-    .btn-back-dash {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 6px 14px;
-      border-radius: var(--radius-pill);
-      font-size: 0.82rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-
-    .btn-back-dash:hover {
-      background: rgba(255, 255, 255, 0.22);
-    }
-
-    /* MAIN CONTAINER */
-    .page-main {
-      flex: 1;
-      max-width: 1120px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 28px 24px 60px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    /* BANNER */
-    .hero-banner {
-      background: linear-gradient(135deg, var(--hero-blue-start) 0%, var(--hero-blue-mid) 50%, var(--hero-blue-end) 100%);
-      border-radius: var(--radius-lg);
-      padding: 32px 36px;
-      color: #ffffff;
-      box-shadow: var(--shadow-lg);
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      padding: 4px 14px;
-      border-radius: var(--radius-pill);
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-
-    .hero-title {
-      font-size: clamp(1.5rem, 3vw, 2rem);
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-
-    .hero-desc {
-      font-size: 0.95rem;
-      color: rgba(255, 255, 255, 0.9);
-      max-width: 780px;
-    }
-
-    /* SIAPKERJA ACCOUNT CARD */
-    .siapkerja-card {
-      background: #ffffff;
-      border: 1.5px solid #bfdbfe;
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      box-shadow: var(--shadow-sm);
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      position: relative;
-    }
-
-    .siapkerja-badge {
-      position: absolute;
-      top: 20px;
-      right: 24px;
-      background: #eff6ff;
-      color: var(--primary-blue);
-      border: 1px solid #bfdbfe;
-      padding: 4px 12px;
-      border-radius: var(--radius-pill);
-      font-size: 0.75rem;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .siapkerja-header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .siapkerja-avatar {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.4rem;
-      font-weight: 800;
-      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
-    }
-
-    .siapkerja-info h3 {
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: var(--text-main);
-    }
-
-    .siapkerja-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      font-size: 0.84rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    .siapkerja-meta span {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .siapkerja-exp-box {
-      background: #f8fafc;
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 14px 16px;
-    }
-
-    .exp-title {
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-
-    .exp-item {
-      font-size: 0.86rem;
-      color: var(--text-main);
-      padding: 4px 0;
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-    }
-
-    /* FORM STYLES */
-    .form-card {
-      background: #ffffff;
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: 32px;
-      box-shadow: var(--shadow-md);
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-    }
-
-    .section-title {
-      font-size: 1.08rem;
-      font-weight: 800;
-      color: var(--kemnaker-navy);
-      padding-bottom: 10px;
-      border-bottom: 2px solid #f1f5f9;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .section-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      background: #eff6ff;
-      color: var(--primary-blue);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9rem;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .form-label {
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    .form-hint {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
-
-    .form-input, .form-select, .form-textarea {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-sm);
-      font-size: 0.9rem;
-      color: var(--text-main);
-      background-color: #ffffff;
-      transition: all 0.2s;
-    }
-
-    .form-input:focus, .form-select:focus, .form-textarea:focus {
-      outline: none;
-      border-color: var(--primary-blue);
-      box-shadow: 0 0 0 3px rgba(22, 87, 193, 0.12);
-    }
-
-    /* CONTACT CHOICE OPTIONS */
-    .contact-options {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-top: 4px;
-    }
-
-    @media (max-width: 640px) {
-      .contact-options {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .contact-option-card {
-      border: 1.5px solid var(--border-light);
-      border-radius: var(--radius-md);
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      background: #f8fafc;
-    }
-
-    .contact-option-card:hover {
-      border-color: #93c5fd;
-      background: #ffffff;
-    }
-
-    .contact-option-card.active {
-      border-color: var(--primary-blue);
-      background: #eff6ff;
-    }
-
-    .contact-radio {
-      margin-top: 3px;
-      accent-color: var(--primary-blue);
-    }
-
-    .new-contact-fields {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-top: 14px;
-      padding: 16px;
-      background: #f8fafc;
-      border: 1px dashed #bfdbfe;
-      border-radius: var(--radius-md);
-    }
-
-    @media (max-width: 640px) {
-      .new-contact-fields {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* DYNAMIC PORTFOLIO / EXPERIENCE CARDS */
-    .dynamic-item {
-      background: #f8fafc;
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 18px;
-      position: relative;
-      margin-bottom: 12px;
-    }
-
-    .btn-remove-item {
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      background: #fee2e2;
-      color: #dc2626;
-      border: none;
-      padding: 4px 10px;
-      border-radius: var(--radius-sm);
-      font-size: 0.75rem;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .btn-add-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #eff6ff;
-      color: var(--primary-blue);
-      border: 1px dashed #bfdbfe;
-      padding: 10px 18px;
-      border-radius: var(--radius-sm);
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-add-item:hover {
-      background: #dbeafe;
-      border-color: var(--primary-blue);
-    }
-
-    /* SUBMIT BUTTON */
-    .btn-submit {
-      background: linear-gradient(135deg, var(--hero-blue-mid) 0%, var(--hero-blue-end) 100%);
-      color: #ffffff;
-      border: none;
-      padding: 14px 28px;
-      border-radius: var(--radius-pill);
-      font-size: 1rem;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .btn-submit:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
-    }
-
-    /* MESSAGES */
-    .alert {
-      padding: 14px 18px;
-      border-radius: var(--radius-md);
-      font-size: 0.9rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .alert-success {
-      background: #dcfce7;
-      color: #15803d;
-      border: 1px solid #bbf7d0;
-    }
-
-    .alert-error {
-      background: #fee2e2;
-      color: #b91c1c;
-      border: 1px solid #fca5a5;
-    }
-
-    /* FOOTER */
-    .kemnaker-footer {
-      background: var(--kemnaker-navy-dark);
-      color: #94a3b8;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 24px;
-      margin-top: auto;
-      font-size: 0.82rem;
-    }
-
-    .footer-inner {
-      max-width: 1120px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- TOPBAR -->
-  <div class="kemnaker-topbar">
-    <div class="topbar-inner">
-      <div class="topbar-nav">
-        <strong><?php echo $isEditMode ? 'Edit Profil Gig Worker' : 'Pendaftaran Gig Worker'; ?></strong>
-        <a href="dashboard-worker.php">Dashboard</a>
-        <a href="#">SIAPKerja Integration</a>
-      </div>
-      <div>
-        <span>Pengguna: <strong><?php echo htmlspecialchars($siapkerja['nama'], ENT_QUOTES, 'UTF-8'); ?></strong></span>
-      </div>
+    <div class="page-toolbar">
+      <h1><?php echo $isEditMode ? 'Edit Profil Gig Worker' : 'Pendaftaran Gig Worker'; ?></h1>
+      <a class="btn-secondary" href="<?php echo htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>">Kembali</a>
     </div>
-  </div>
 
-  <!-- HEADER -->
-  <header class="kemnaker-header">
-    <div class="header-inner">
-      <a href="dashboard-worker.php" class="brand-section">
-        <svg width="36" height="36" viewBox="0 0 100 100" fill="none">
-          <circle cx="50" cy="50" r="46" fill="#092c4c" stroke="#3b82f6" stroke-width="2.5"/>
-          <g stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none">
-            <path d="M50 15 L50 85"/>
-            <path d="M15 50 L85 50"/>
-          </g>
-          <circle cx="50" cy="50" r="20" fill="#1657c1" stroke="#ffffff" stroke-width="2"/>
-          <circle cx="50" cy="50" r="8" fill="#38bdf8"/>
-        </svg>
-        <div class="brand-text">
-          <span class="brand-title">KEMENTERIAN KETENAGAKERJAAN RI</span>
-          <span class="brand-sub"><?php echo $isEditMode ? 'Pembaruan Profil Gig Worker' : 'Formulir Pendaftaran &bull; Ekosistem Gig Worker'; ?></span>
-        </div>
-      </a>
-      <a href="dashboard-worker.php" class="btn-back-dash">← Kembali ke Dashboard</a>
-    </div>
-  </header>
-
-  <!-- MAIN -->
-  <main class="page-main">
-
-    <!-- HERO BANNER -->
-    <section class="hero-banner">
+    <section class="hero-banner" style="margin-bottom:20px;">
       <div class="hero-badge">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         <?php echo $isEditMode ? 'Pembaruan Profil Gig Worker' : 'Pendaftaran Resmi Gig Worker'; ?>
       </div>
-      <h1 class="hero-title"><?php echo $isEditMode ? 'Edit Informasi Profil Gig Worker' : 'Bergabung Sebagai Gig Worker Kemnaker'; ?></h1>
+      <h2 class="hero-title"><?php echo $isEditMode ? 'Edit Informasi Profil Gig Worker' : 'Bergabung Sebagai Gig Worker Kemnaker'; ?></h2>
       <p class="hero-desc">
         <?php echo $isEditMode ? 'Perbarui bidang keahlian, skill spesifik, proyek portofolio, dan tautan video profil Anda agar calon Pemberi Kerja mendapatkan informasi terbaru.' : 'Gunakan akun SIAPKerja Anda untuk melengkapi profil profesional Gig Worker. Dapatkan akses ke berbagai penawaran proyek dari Pemberi Kerja terverifikasi dan perlindungan ekosistem tenaga kerja mandiri.'; ?>
       </p>
@@ -740,12 +244,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
     <?php if ($successMessage !== ""): ?>
       <div class="alert alert-success">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        <div>
-          <div><?php echo htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8'); ?></div>
-          <div style="margin-top: 6px;">
-            <a href="dashboard-worker.php" style="color:#15803d; font-weight:800; text-decoration:underline;">Lihat Dashboard Gig Worker Anda &rarr;</a>
-          </div>
-        </div>
+        <div><?php echo htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8'); ?></div>
       </div>
     <?php endif; ?>
 
@@ -756,8 +255,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
       </div>
     <?php endif; ?>
 
-    <!-- SIAPKERJA ACCOUNT PROFILE CARD -->
-    <section class="siapkerja-card">
+    <section class="white-card siapkerja-card">
       <div class="siapkerja-badge">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
         Terintegrasi SIAPKerja
@@ -806,7 +304,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
     </section>
 
     <!-- FORM PENDAFTARAN GIG WORKER -->
-    <form method="POST" action="" class="form-card">
+    <form method="POST" action="" class="white-card register-form-card">
       <input type="hidden" name="action" value="register_gig_worker" />
 
       <!-- BAGIAN 1: PILIHAN KONTAK -->
@@ -1031,22 +529,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
 
       <!-- SUBMIT -->
       <div style="display: flex; justify-content: flex-end; gap: 14px; margin-top: 10px;">
-        <a href="dashboard-worker.php" style="padding: 14px 24px; text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 0.9rem;">Batal</a>
+        <a href="dashboard-worker.php" class="register-cancel">Batal</a>
         <button type="submit" class="btn-submit">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           <?php echo $isEditMode ? 'Simpan Pembaruan Profil' : 'Daftar & Aktifkan Profil Gig Worker'; ?>
         </button>
       </div>
     </form>
-  </main>
 
-  <!-- FOOTER -->
-  <footer class="kemnaker-footer">
-    <div class="footer-inner">
-      <div>&copy; <?php echo date("Y"); ?> Kementerian Ketenagakerjaan Republik Indonesia</div>
-      <div>Ekosistem Digital Gig Worker SIAPKerja</div>
-    </div>
-  </footer>
 
   <script>
     function selectContactOption(choice) {
@@ -1178,5 +668,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
       }
     }
   </script>
-</body>
-</html>
+<?php require __DIR__ . '/includes/worker-layout-end.php'; ?>
