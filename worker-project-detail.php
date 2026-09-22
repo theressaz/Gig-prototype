@@ -443,29 +443,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
             KarirHub
           </span>
         </div>
-
-        <?php if ($fromOffers): ?>
-          <?php if ($offerStatus === 'confirmed_by_worker'): ?>
-            <a href="worker-tugas.php" class="btn-apply-hero" style="margin-top:20px;background:#059669;text-decoration:none;">Buka di Tugas Aktif</a>
-          <?php elseif ($offerStatus === 'declined_by_worker'): ?>
-            <div style="margin-top:20px;padding:12px;border-radius:10px;background:#f8fafc;color:#64748b;font-weight:700;font-size:0.86rem;text-align:center;">Penawaran ditolak</div>
-          <?php else: ?>
-            <form method="post" action="worker-project-detail.php?id=<?php echo urlencode((string)$job['id']); ?>&from=penawaran" style="margin-top:20px;display:flex;flex-direction:column;gap:8px;">
-              <input type="hidden" name="app_id" value="<?php echo htmlspecialchars($offerAppId ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
-              <button type="submit" name="confirm_action" value="confirm" class="btn-apply-hero">Terima Penawaran</button>
-              <button type="submit" name="confirm_action" value="decline" style="padding:10px 16px;border-radius:10px;background:#fef2f2;color:#dc2626;border:1px solid #fecdd3;font-weight:700;cursor:pointer;" onclick="return confirm('Tolak penawaran proyek ini?')">Tolak Penawaran</button>
-            </form>
-          <?php endif; ?>
-        <?php elseif ($hasApplied): ?>
-            <button type="button" disabled style="margin-top: 20px; width: 100%; padding: 12px 20px; border-radius: 10px; background: #059669; color: #ffffff; font-weight: 800; font-size: 0.9rem; border: none; cursor: default;">
-              ✓ Lamaran Proyek Terkirim
-            </button>
-        <?php else: ?>
-            <button id="btnApplySidebar" class="btn-apply-hero" type="button" onclick="openApplyModal()" style="margin-top: 20px;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-              Lamar Proyek Ini
-            </button>
-        <?php endif; ?>
       </section>
     </div>
   </div>
@@ -518,7 +495,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
     function submitApplication() {
       closeApplyModal();
-      const btns = [document.getElementById('btnApplyHeader'), document.getElementById('btnApplySidebar')];
+      const btns = [document.getElementById('btnApplyHeader')];
       btns.forEach(btn => {
         if (btn) {
           btn.classList.add('btn-applied-done');
