@@ -35,7 +35,10 @@ require __DIR__ . '/includes/worker-layout-start.php';
 ?>
 
 <style>
-.penawaran-page { max-width: 1400px; margin: 0 auto; }
+.penawaran-page {
+  max-width: 1400px;
+  margin: 0 auto;
+}
 
 .penawaran-notice {
   background: #eff6ff;
@@ -43,238 +46,274 @@ require __DIR__ . '/includes/worker-layout-start.php';
   color: #1e40af;
   border-radius: 12px;
   padding: 12px 16px;
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 22px;
 }
 
-.subheader-info-row {
+.penawaran-count-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
   font-size: 0.88rem;
+  color: #64748b;
 }
-.subheader-count { color: #64748b; font-weight: 500; }
 
-.proyek-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+.penawaran-list-container {
+  display: flex;
+  flex-direction: column;
   gap: 20px;
 }
-@media (max-width: 1200px) {
-  .proyek-cards-grid { grid-template-columns: repeat(3, 1fr); }
-}
-@media (max-width: 900px) {
-  .proyek-cards-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 600px) {
-  .proyek-cards-grid { grid-template-columns: 1fr; }
-}
 
-.proyek-card-item {
+.penawaran-card-item {
   background: #ffffff;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.05);
-  border: 1px solid #f1f5f9;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.proyek-card-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
-.card-header-banner {
-  height: 85px;
-  position: relative;
-  padding: 12px 16px;
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
-}
-.banner-blue { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
-.banner-cyan { background: linear-gradient(135deg, #06b6d4, #0891b2); }
-.banner-purple { background: linear-gradient(135deg, #a855f7, #7e22ce); }
-.banner-green { background: linear-gradient(135deg, #10b981, #047857); }
-.banner-indigo { background: linear-gradient(135deg, #6366f1, #4338ca); }
-
-.banner-badge {
-  background: rgba(255, 255, 255, 0.95);
-  color: #0f172a;
-  font-weight: 700;
-  font-size: 0.75rem;
-  padding: 4px 12px;
-  border-radius: 9999px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.penawaran-card-item:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+  border-color: #cbd5e1;
 }
 
-.avatar-overlap-wrapper {
-  position: relative;
-  padding: 0 20px;
-  margin-top: -30px;
-  margin-bottom: 12px;
+.penawaran-card-header {
+  margin-bottom: 14px;
 }
-.avatar-circle {
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 3px solid #ffffff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+
+.penawaran-title-group {
   display: flex;
   align-items: center;
-  justify-content: center;
-  position: relative;
-}
-.avatar-circle svg { width: 100%; height: 100%; border-radius: 50%; }
-.verified-check-badge {
-  position: absolute;
-  bottom: 0;
-  right: -2px;
-  background: #0284c7;
-  color: #ffffff;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 2px solid #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: bold;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
 }
 
-.proyek-card-body {
-  padding: 0 20px 20px;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-}
-
-.card-project-title {
-  font-size: 1.05rem;
+.penawaran-title {
+  font-size: 1.15rem;
   font-weight: 800;
   color: #0f172a;
-  margin: 0 0 6px;
-  line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  min-height: 2.6em;
+  margin: 0;
+  line-height: 1.35;
 }
-.card-project-title a {
+
+.penawaran-title a {
   color: inherit;
   text-decoration: none;
 }
-.card-project-title a:hover { color: #1d4ed8; }
 
-.card-project-client {
-  font-size: 0.84rem;
-  color: #64748b;
-  margin-bottom: 10px;
+.penawaran-title a:hover {
+  color: #1d4ed8;
 }
 
-.card-meta-detail {
+.penawaran-badge-pill {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.penawaran-badge-pill.blue {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.penawaran-badge-pill.amber {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.penawaran-badge-pill.green {
+  background: #d1fae5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.penawaran-badge-pill.gray {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.penawaran-meta-sub {
   font-size: 0.82rem;
-  color: #475569;
-  font-weight: 600;
-  margin-bottom: 12px;
+  color: #64748b;
+}
+
+.penawaran-meta-sub strong {
+  color: #334155;
+}
+
+.penawaran-inner-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.employer-info-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.employer-avatar-circle {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #1d4ed8;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.employer-name-row {
+  font-size: 0.94rem;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.card-skills-row {
+.employer-rating-tag {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #d97706;
+  background: #fef3c7;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.employer-sub-info {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.employer-verified-check {
+  font-size: 0.74rem;
+  color: #059669;
+  font-weight: 700;
+  margin-top: 3px;
+}
+
+.offer-skills-list {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 16px;
-  min-height: 52px;
-  align-content: flex-start;
 }
-.skill-pill-sm {
-  background: #f1f5f9;
-  color: #475569;
+
+.skill-pill-tag {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
   font-size: 0.75rem;
   font-weight: 600;
   padding: 4px 10px;
   border-radius: 8px;
 }
-.skill-pill-more {
+
+.skill-pill-tag.more {
   background: #e2e8f0;
-  color: #334155;
-  font-size: 0.75rem;
+  color: #475569;
   font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 8px;
 }
 
-.status-pill-box {
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  color: #1d4ed8;
-  font-size: 0.8rem;
-  font-weight: 700;
-  padding: 8px 12px;
-  border-radius: 12px;
-  text-align: center;
-  margin-bottom: 12px;
+.penawaran-card-footer {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
 }
-.status-pill-box.wait {
-  background: #fef3c7;
-  border-color: #fde68a;
-  color: #b45309;
-}
-.status-pill-box.ok {
-  background: #ecfdf5;
-  border-color: #a7f3d0;
-  color: #047857;
-}
-.status-pill-box.off {
-  background: #f8fafc;
-  border-color: #e2e8f0;
+
+.footer-notice-label {
+  font-size: 0.82rem;
   color: #64748b;
 }
 
-.btn-tawarkan {
-  background: #1d4ed8;
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 0.88rem;
-  padding: 10px 16px;
-  border-radius: 12px;
-  text-decoration: none;
+.footer-actions-group {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-act-green {
+  background: #059669;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.86rem;
+  padding: 9px 18px;
+  border-radius: 10px;
+  text-decoration: none;
   border: none;
-  box-shadow: 0 2px 6px rgba(29, 78, 216, 0.2);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-act-green:hover {
+  background: #047857;
+  color: #ffffff;
+}
+
+.btn-act-outline {
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  font-weight: 700;
+  font-size: 0.86rem;
+  padding: 8px 16px;
+  border-radius: 10px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-act-outline:hover {
+  background: #f8fafc;
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+
+.btn-act-danger {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecdd3;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 8px 14px;
+  border-radius: 10px;
   cursor: pointer;
 }
-.btn-tawarkan:hover { background: #1e40af; color: #ffffff; }
-.btn-tawarkan.green { background: #059669; box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25); }
-.btn-tawarkan.green:hover { background: #047857; }
 
-.offer-actions { display: flex; flex-direction: column; gap: 6px; }
-.offer-decline {
-  background: #fef2f2;
-  color: #b91c1c;
-  border: 1px solid #fecdd3;
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 0.8rem;
-  cursor: pointer;
+.btn-act-danger:hover {
+  background: #fee2e2;
 }
 
 .offer-empty-card {
@@ -285,13 +324,18 @@ require __DIR__ . '/includes/worker-layout-start.php';
   text-align: center;
   color: #64748b;
 }
+
 .offer-empty-card h3 {
   font-size: 1.1rem;
   font-weight: 800;
   color: #0f172a;
   margin-bottom: 6px;
 }
-.offer-empty-card p { font-size: 0.9rem; margin-bottom: 16px; }
+
+.offer-empty-card p {
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
 
 .flash-ok {
   background: #f0fdf4;
@@ -302,6 +346,27 @@ require __DIR__ . '/includes/worker-layout-start.php';
   font-size: 0.86rem;
   margin-bottom: 18px;
   font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .penawaran-inner-box {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .penawaran-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .footer-actions-group {
+    width: 100%;
+    flex-direction: column;
+  }
+  .footer-actions-group .btn-act-green,
+  .footer-actions-group .btn-act-outline,
+  .footer-actions-group .btn-act-danger {
+    width: 100%;
+    justify-content: center;
+  }
 }
 </style>
 
@@ -316,28 +381,28 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
   <div class="penawaran-notice">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    <span>Pemberi kerja dapat menawarkan lowongan yang sudah tayang. Klik judul atau <strong>Lihat Detail Proyek</strong> untuk membuka detailnya.</span>
+    <span>Pemberi kerja dapat menawarkan lowongan yang sudah tayang. Klik judul atau <strong>Detail Proyek</strong> untuk membuka informasi lengkapnya.</span>
   </div>
 
   <?php if (count($offers) === 0): ?>
     <div class="offer-empty-card">
       <h3>Belum ada penawaran</h3>
       <p>Ketika pemberi kerja menawarkan proyek yang sudah diposting, tawaran itu akan muncul di halaman ini.</p>
-      <a class="btn-tawarkan" href="worker-bursa.php" style="max-width:240px;margin:0 auto;">Cari Proyek Sendiri</a>
+      <a class="btn-act-outline" href="worker-bursa.php" style="margin:0 auto;">Cari Proyek Sendiri</a>
     </div>
   <?php else: ?>
-    <div class="subheader-info-row">
-      <div class="subheader-count">Menampilkan <strong><?php echo count($offers); ?></strong> penawaran proyek</div>
+    <div class="penawaran-count-row">
+      <div>Menampilkan <strong><?php echo count($offers); ?></strong> penawaran proyek</div>
     </div>
-    <div class="proyek-cards-grid">
+    
+    <div class="penawaran-list-container">
       <?php foreach ($offers as $idx => $offer):
           $detailUrl = 'worker-project-detail.php?id=' . urlencode((string)$offer['detail_id']) . '&from=penawaran';
           $created = strtotime((string)($offer['created_at'] ?? ''));
           $createdLabel = $created ? date('d M Y', $created) : 'Baru saja';
           $skills = is_array($offer['skills'] ?? null) ? $offer['skills'] : [];
-          $skillsToShow = array_slice($skills, 0, 3);
+          $skillsToShow = array_slice($skills, 0, 4);
           $remaining = count($skills) - count($skillsToShow);
-          $bannerClass = getCategoryBannerClass((string)$offer['category']);
           $badgeLabel = getCategoryShortLabel((string)$offer['category']);
 
           $appMatch = null;
@@ -350,56 +415,87 @@ require __DIR__ . '/includes/worker-layout-start.php';
           $appId = (string)($appMatch['id'] ?? ('APP-' . $offer['detail_id']));
           $appStatus = (string)($appMatch['status'] ?? 'pending');
       ?>
-        <article class="proyek-card-item">
-          <div>
-            <div class="card-header-banner <?php echo htmlspecialchars($bannerClass, ENT_QUOTES, 'UTF-8'); ?>">
-              <span class="banner-badge"><?php echo htmlspecialchars($badgeLabel, ENT_QUOTES, 'UTF-8'); ?></span>
-            </div>
-            <div class="avatar-overlap-wrapper">
-              <div class="avatar-circle">
-                <?php echo getProjectAvatarSvg((int)$idx); ?>
-                <div class="verified-check-badge">✓</div>
-              </div>
-            </div>
-            <div class="proyek-card-body">
-              <h3 class="card-project-title">
+        <article class="penawaran-card-item">
+          <!-- CARD HEADER -->
+          <div class="penawaran-card-header">
+            <div class="penawaran-title-group">
+              <h3 class="penawaran-title">
                 <a href="<?php echo htmlspecialchars($detailUrl, ENT_QUOTES, 'UTF-8'); ?>">
                   <?php echo htmlspecialchars((string)$offer['project_title'], ENT_QUOTES, 'UTF-8'); ?>
                 </a>
               </h3>
-              <div class="card-project-client">
-                Ditawarkan oleh <strong><?php echo htmlspecialchars((string)$offer['employer_display'], ENT_QUOTES, 'UTF-8'); ?></strong>
-              </div>
-              <div class="card-meta-detail">
-                <span style="color:#1d4ed8;font-weight:800;font-size:0.92rem;"><?php echo htmlspecialchars((string)$offer['budget'], ENT_QUOTES, 'UTF-8'); ?></span>
-                <span style="color:#64748b;font-size:0.78rem;"><?php echo htmlspecialchars((string)$offer['duration'], ENT_QUOTES, 'UTF-8'); ?></span>
-              </div>
-              <div class="card-skills-row">
-                <?php foreach ($skillsToShow as $skill): ?>
-                  <span class="skill-pill-sm"><?php echo htmlspecialchars((string)$skill, ENT_QUOTES, 'UTF-8'); ?></span>
-                <?php endforeach; ?>
-                <?php if ($remaining > 0): ?>
-                  <span class="skill-pill-more">+<?php echo $remaining; ?></span>
-                <?php endif; ?>
-              </div>
 
               <?php if ($appStatus === 'confirmed_by_worker'): ?>
-                <div class="status-pill-box ok">Resmi Direkrut · Proyek Aktif</div>
-                <a class="btn-tawarkan green" href="worker-tugas.php">Buka di Tugas Aktif</a>
+                <span class="penawaran-badge-pill green">✓ Resmi Direkrut · Proyek Aktif</span>
               <?php elseif ($appStatus === 'declined_by_worker'): ?>
-                <div class="status-pill-box off">Penawaran ditolak</div>
-                <a class="btn-tawarkan" href="<?php echo htmlspecialchars($detailUrl, ENT_QUOTES, 'UTF-8'); ?>">Lihat Detail Proyek</a>
+                <span class="penawaran-badge-pill gray">✕ Penawaran Ditolak</span>
               <?php elseif ($appStatus === 'accepted_by_employer'): ?>
-                <div class="status-pill-box wait">Menunggu konfirmasi Anda · <?php echo htmlspecialchars($createdLabel, ENT_QUOTES, 'UTF-8'); ?></div>
-                <a class="btn-tawarkan" href="<?php echo htmlspecialchars($detailUrl, ENT_QUOTES, 'UTF-8'); ?>">Lihat Detail Proyek</a>
-                <form method="post" action="" class="offer-actions" style="margin-top:8px;">
+                <span class="penawaran-badge-pill amber">⚡ Menunggu Konfirmasi Anda</span>
+              <?php else: ?>
+                <span class="penawaran-badge-pill blue">📩 Menunggu Tanggapan</span>
+              <?php endif; ?>
+            </div>
+
+            <div class="penawaran-meta-sub">
+              Kategori: <strong><?php echo htmlspecialchars($badgeLabel, ENT_QUOTES, 'UTF-8'); ?></strong> &bull;
+              Durasi: <strong><?php echo htmlspecialchars((string)$offer['duration'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull;
+              Fee Proyek: <strong style="color:#1d4ed8;font-weight:800;"><?php echo htmlspecialchars((string)$offer['budget'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull;
+              Ditawarkan: <strong><?php echo htmlspecialchars($createdLabel, ENT_QUOTES, 'UTF-8'); ?></strong>
+            </div>
+          </div>
+
+          <!-- MIDDLE INNER BOX -->
+          <div class="penawaran-inner-box">
+            <div class="employer-info-group">
+              <div class="employer-avatar-circle">🏢</div>
+              <div>
+                <div class="employer-name-row">
+                  <span><?php echo htmlspecialchars((string)$offer['employer_display'], ENT_QUOTES, 'UTF-8'); ?></span>
+                  <span class="employer-rating-tag">★ 4.9</span>
+                </div>
+                <div class="employer-sub-info">Pemberi Kerja Verifikasi &bull; KarirHub Partner</div>
+                <div class="employer-verified-check">&check; Penawaran resmi dikirimkan ke profil Anda</div>
+              </div>
+            </div>
+
+            <div class="offer-skills-list">
+              <?php foreach ($skillsToShow as $skill): ?>
+                <span class="skill-pill-tag"><?php echo htmlspecialchars((string)$skill, ENT_QUOTES, 'UTF-8'); ?></span>
+              <?php endforeach; ?>
+              <?php if ($remaining > 0): ?>
+                <span class="skill-pill-tag more">+<?php echo $remaining; ?></span>
+              <?php endif; ?>
+            </div>
+          </div>
+
+          <!-- CARD FOOTER ACTIONS -->
+          <div class="penawaran-card-footer">
+            <div class="footer-notice-label">
+              <?php if ($appStatus === 'confirmed_by_worker'): ?>
+                Proyek ini sudah resmi aktif dan dapat dipantau di Tugas Aktif.
+              <?php elseif ($appStatus === 'declined_by_worker'): ?>
+                Anda telah menolak penawaran proyek ini.
+              <?php elseif ($appStatus === 'accepted_by_employer'): ?>
+                Tinjau rincian proyek dan konfirmasi ketersediaan Anda untuk langsung memulai kerja sama.
+              <?php else: ?>
+                Penawaran dikirimkan pemberi kerja. Buka detail proyek untuk meninjau kualifikasi.
+              <?php endif; ?>
+            </div>
+
+            <div class="footer-actions-group">
+              <?php if ($appStatus === 'confirmed_by_worker'): ?>
+                <a class="btn-act-green" href="worker-tugas.php">Buka di Proyek Aktif &rarr;</a>
+              <?php elseif ($appStatus === 'declined_by_worker'): ?>
+                <a class="btn-act-outline" href="<?php echo htmlspecialchars($detailUrl, ENT_QUOTES, 'UTF-8'); ?>">Lihat Detail Proyek</a>
+              <?php elseif ($appStatus === 'accepted_by_employer'): ?>
+                <form method="post" action="" style="display:inline-flex;gap:8px;align-items:center;margin:0;">
                   <input type="hidden" name="app_id" value="<?php echo htmlspecialchars($appId, ENT_QUOTES, 'UTF-8'); ?>" />
-                  <button type="submit" name="confirm_action" value="confirm" class="btn-tawarkan green">Konfirmasi &amp; Terima Proyek</button>
-                  <button type="submit" name="confirm_action" value="decline" class="offer-decline" onclick="return confirm('Tolak penawaran proyek ini?')">Tolak Penawaran</button>
+                  <button type="submit" name="confirm_action" value="confirm" class="btn-act-green">✓ Konfirmasi &amp; Terima Proyek</button>
+                  <a class="btn-act-outline" href="<?php echo htmlspecialchars($detailUrl, ENT_QUOTES, 'UTF-8'); ?>">Profil &amp; Detail Proyek</a>
+                  <button type="submit" name="confirm_action" value="decline" class="btn-act-danger" onclick="return confirm('Tolak penawaran proyek ini?')">Tolak Penawaran</button>
                 </form>
               <?php else: ?>
-                <div class="status-pill-box">Menunggu tanggapan · <?php echo htmlspecialchars($createdLabel, ENT_QUOTES, 'UTF-8'); ?></div>
-                <a class="btn-tawarkan" href="<?php echo htmlspecialchars($detailUrl, ENT_QUOTES, 'UTF-8'); ?>">Lihat Detail Proyek</a>
+                <a class="btn-act-outline" href="<?php echo htmlspecialchars($detailUrl, ENT_QUOTES, 'UTF-8'); ?>">Profil &amp; Detail Proyek</a>
               <?php endif; ?>
             </div>
           </div>
@@ -410,3 +506,4 @@ require __DIR__ . '/includes/worker-layout-start.php';
 </div>
 
 <?php require __DIR__ . '/includes/worker-layout-end.php'; ?>
+
