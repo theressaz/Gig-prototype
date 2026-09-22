@@ -56,7 +56,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
       <?php if (!$completedP1): ?>
       <!-- Project 1 -->
-      <div class="active-project-card" style="<?php echo $completedP1 ? 'border-color:#10b981;background:#f0fdf4;' : ''; ?>">
+      <div class="active-project-card" id="project-GIG-2026-09-001" style="<?php echo $completedP1 ? 'border-color:#10b981;background:#f0fdf4;' : ''; ?>">
         <div class="active-proj-header">
           <div>
             <div class="active-proj-title" style="display:flex;align-items:center;gap:10px;">
@@ -142,7 +142,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
       <?php if (!$completedP2): ?>
       <!-- Project 2 -->
-      <div class="active-project-card" style="<?php echo $completedP2 ? 'border-color:#10b981;background:#f0fdf4;' : ''; ?>">
+      <div class="active-project-card" id="project-GIG-2026-09-002" style="<?php echo $completedP2 ? 'border-color:#10b981;background:#f0fdf4;' : ''; ?>">
         <div class="active-proj-header">
           <div>
             <div class="active-proj-title" style="display:flex;align-items:center;gap:10px;">

@@ -29,7 +29,8 @@ if (!empty($result['ok'])) {
         $workerId,
         'direct_offer',
         '📩 Penawaran Proyek Baru!',
-        'Perusahaan ' . $username . ' menawarkan proyek "' . $projTitle . '" secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau detail.'
+        'Perusahaan ' . $username . ' menawarkan proyek "' . $projTitle . '" secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau detail.',
+        $vacancyId
     );
 } else {
     http_response_code(422);

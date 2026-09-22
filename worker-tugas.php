@@ -106,7 +106,7 @@ $activeProjects = [
         $completed = false;
         $ratingVal = 5;
       ?>
-        <div class="active-project-card" style="margin-bottom:20px;<?php echo $completed ? 'border-color:#10b981;background:#f0fdf4;' : ''; ?>">
+        <div class="active-project-card" id="project-<?php echo htmlspecialchars((string)$proj['id'], ENT_QUOTES, 'UTF-8'); ?>" style="margin-bottom:20px;<?php echo $completed ? 'border-color:#10b981;background:#f0fdf4;' : ''; ?>">
           <!-- CARD HEADER -->
           <div class="active-proj-header">
             <div>

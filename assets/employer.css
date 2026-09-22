@@ -997,10 +997,15 @@
       flex-direction: column;
       gap: 16px;
       transition: border-color 0.2s ease;
+      scroll-margin-top: 18px;
     }
 
     .active-project-card:hover {
       border-color: #93c5fd;
+    }
+
+    .active-project-card:target {
+      box-shadow: 0 0 0 2px #2563eb, var(--shadow-md);
     }
 
     .active-proj-header {
@@ -1785,6 +1790,24 @@
       color: var(--text-main); text-decoration: none; cursor: pointer;
     }
     .profile-dropdown a:hover, .profile-dropdown button:hover { background: #f8fafc; }
+    .profile-dropdown a.notif-item-link {
+      display: block;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: inherit;
+      text-decoration: none;
+      white-space: normal;
+      line-height: 1.35;
+      width: auto;
+    }
+    .profile-dropdown a.notif-item-link:hover {
+      background: #eff6ff;
+      border-color: #93c5fd;
+    }
     .settings-card { max-width: 640px; }
     .settings-row { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border-subtle); }
     .settings-row:last-child { border-bottom: none; }

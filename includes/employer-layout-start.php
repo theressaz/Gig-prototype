@@ -91,11 +91,12 @@ $unreadNotifCount = count(array_filter($empNotifs, fn($n) => empty($n['is_read']
                 <div style="font-size:0.8rem;color:#64748b;text-align:center;padding:12px;">Belum ada notifikasi baru.</div>
               <?php else: ?>
                 <?php foreach (array_slice($empNotifs, 0, 5) as $nf): ?>
-                  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;font-size:0.78rem;">
+                  <?php $nfHref = gig_notification_href($nf, 'employer'); ?>
+                  <a class="notif-item-link" href="<?php echo htmlspecialchars($nfHref, ENT_QUOTES, 'UTF-8'); ?>">
                     <div style="font-weight:800;color:#0f172a;margin-bottom:2px;"><?php echo htmlspecialchars($nf['title'], ENT_QUOTES, 'UTF-8'); ?></div>
                     <div style="color:#475569;line-height:1.3;"><?php echo htmlspecialchars($nf['message'], ENT_QUOTES, 'UTF-8'); ?></div>
                     <div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;"><?php echo date('d M Y, H:i', strtotime($nf['created_at'])); ?></div>
-                  </div>
+                  </a>
                 <?php endforeach; ?>
               <?php endif; ?>
             </div>
