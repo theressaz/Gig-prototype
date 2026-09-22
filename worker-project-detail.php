@@ -295,8 +295,8 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <?php else: ?>
             <form method="post" action="worker-penawaran.php" style="display:inline-flex;gap:10px;align-items:center;margin:0;">
               <input type="hidden" name="app_id" value="<?php echo htmlspecialchars($offerAppId ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
-              <button type="submit" name="confirm_action" value="confirm" style="padding: 12px 24px; font-size: 0.9rem; font-weight: 800; border-radius: 10px; background: #059669; color: #ffffff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25); white-space: nowrap;">
-                ✓ Konfirmasi &amp; Terima Proyek
+              <button type="submit" name="confirm_action" value="confirm" style="padding: 12px 24px; font-size: 0.9rem; font-weight: 800; border-radius: 10px; background: #2563eb; color: #ffffff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); white-space: nowrap;">
+                Terima Penawaran
               </button>
               <button type="submit" name="confirm_action" value="decline" style="padding: 12px 18px; font-size: 0.86rem; font-weight: 700; border-radius: 10px; background: #fef2f2; color: #dc2626; border: 1px solid #fecdd3; cursor: pointer; white-space: nowrap;" onclick="return confirm('Tolak penawaran proyek ini?')">
                 Tolak Penawaran
@@ -347,7 +347,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
             <strong style="color: #0f172a;"><?php echo htmlspecialchars($job['category'], ENT_QUOTES, 'UTF-8'); ?></strong>
           </div>
           <div>
-            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Anggaran / Fee Proyek</div>
+            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Gaji Proyek</div>
             <strong style="color: #2563eb; font-weight: 800;"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></strong>
           </div>
           <div>
@@ -462,7 +462,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?>
         </div>
         <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">
-          Anggaran: <?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?> &bull; Durasi: <?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?>
+          Gaji: <?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?> &bull; Durasi: <?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?>
         </div>
 
         <div class="form-group" style="margin-bottom: 16px;">

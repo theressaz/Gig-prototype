@@ -261,7 +261,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
 }
 
 .btn-act-green {
-  background: #059669;
+  background: #2563eb;
   color: #ffffff;
   font-weight: 700;
   font-size: 0.86rem;
@@ -270,14 +270,14 @@ require __DIR__ . '/includes/worker-layout-start.php';
   text-decoration: none;
   border: none;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
 .btn-act-green:hover {
-  background: #047857;
+  background: #1d4ed8;
   color: #ffffff;
 }
 
@@ -439,7 +439,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
             <div class="penawaran-meta-sub">
               Kategori: <strong><?php echo htmlspecialchars($badgeLabel, ENT_QUOTES, 'UTF-8'); ?></strong> &bull;
               Durasi: <strong><?php echo htmlspecialchars((string)$offer['duration'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull;
-              Fee Proyek: <strong style="color:#1d4ed8;font-weight:800;"><?php echo htmlspecialchars((string)$offer['budget'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull;
+              Gaji Proyek: <strong style="color:#1d4ed8;font-weight:800;"><?php echo htmlspecialchars((string)$offer['budget'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull;
               Ditawarkan: <strong><?php echo htmlspecialchars($createdLabel, ENT_QUOTES, 'UTF-8'); ?></strong>
             </div>
           </div>
@@ -490,7 +490,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
               <?php elseif ($appStatus === 'accepted_by_employer'): ?>
                 <form method="post" action="" style="display:inline-flex;gap:8px;align-items:center;margin:0;">
                   <input type="hidden" name="app_id" value="<?php echo htmlspecialchars($appId, ENT_QUOTES, 'UTF-8'); ?>" />
-                  <button type="submit" name="confirm_action" value="confirm" class="btn-act-green">✓ Konfirmasi &amp; Terima Proyek</button>
+                  <button type="submit" name="confirm_action" value="confirm" class="btn-act-green">Terima Penawaran</button>
                   <a class="btn-act-outline" href="<?php echo htmlspecialchars($detailUrl, ENT_QUOTES, 'UTF-8'); ?>">Profil &amp; Detail Proyek</a>
                   <button type="submit" name="confirm_action" value="decline" class="btn-act-danger" onclick="return confirm('Tolak penawaran proyek ini?')">Tolak Penawaran</button>
                 </form>

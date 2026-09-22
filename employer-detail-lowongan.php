@@ -122,7 +122,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <strong style="font-size:0.9rem;"><?php echo htmlspecialchars($job['statusLabel'], ENT_QUOTES, 'UTF-8'); ?></strong>
             </div>
             <div>
-              <span style="color:var(--text-muted);display:block;">Anggaran / Fee Proyek</span>
+              <span style="color:var(--text-muted);display:block;">Gaji Proyek</span>
               <strong style="font-size:1.05rem;color:var(--primary-blue);"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></strong>
             </div>
             <div>

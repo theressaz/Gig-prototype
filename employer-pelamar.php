@@ -99,7 +99,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
           </div>
         </div>
         <div class="applicant-center-meta">
-          <span style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Penawaran / Fee</span>
+          <span style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Penawaran / Gaji</span>
           <span class="bid-amount"><?php echo htmlspecialchars($applicant['bid'], ENT_QUOTES, 'UTF-8'); ?></span>
           <span class="bid-time"><?php echo htmlspecialchars($applicant['eta'], ENT_QUOTES, 'UTF-8'); ?></span>
         </div>

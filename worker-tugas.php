@@ -102,7 +102,7 @@ $activeProjects = [
                 <?php endif; ?>
               </div>
               <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">
-                No. Kontrak: <strong><?php echo htmlspecialchars($proj['contract_id'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Durasi Disepakati: <strong><?php echo htmlspecialchars($proj['duration'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Fee Proyek: <strong style="color:var(--primary-blue);"><?php echo htmlspecialchars($proj['budget'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                No. Kontrak: <strong><?php echo htmlspecialchars($proj['contract_id'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Durasi Disepakati: <strong><?php echo htmlspecialchars($proj['duration'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Gaji Proyek: <strong style="color:var(--primary-blue);"><?php echo htmlspecialchars($proj['budget'], ENT_QUOTES, 'UTF-8'); ?></strong>
               </div>
             </div>
           </div>

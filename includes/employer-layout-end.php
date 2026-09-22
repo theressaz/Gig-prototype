@@ -100,7 +100,7 @@ declare(strict_types=1);
               </div>
 
               <div class="form-row">
-                <label for="proj_budget">Gaji / Fee Proyek (Rp) *</label>
+                <label for="proj_budget">Gaji Proyek (Rp) *</label>
                 <input type="text" id="proj_budget" required placeholder="Contoh: 7.500.000" />
                 <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-weight:400;font-size:0.85rem;cursor:pointer;">
                   <input type="checkbox" id="proj_show_salary" checked />
