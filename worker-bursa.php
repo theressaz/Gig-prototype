@@ -203,125 +203,92 @@ require __DIR__ . '/includes/worker-layout-start.php';
   }
 }
 
-/* Card Design matching user screenshot */
+/* Clean Professional Card Design for Cari Proyek */
 .proyek-card-item {
   background: #ffffff;
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.05);
-  border: 1px solid #f1f5f9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 20px;
+  transition: all 0.2s ease;
   text-decoration: none;
   color: inherit;
   cursor: pointer;
 }
 
 a.proyek-card-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  transform: translateY(-3px);
+  border-color: #93c5fd;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.08);
   color: inherit;
 }
 
-/* Color banners */
-.card-header-banner {
-  height: 85px;
-  position: relative;
-  padding: 12px 16px;
+.card-employer-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 8px;
+  align-items: center;
+  margin-bottom: 14px;
+  gap: 10px;
 }
 
-.banner-blue { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
-.banner-cyan { background: linear-gradient(135deg, #06b6d4, #0891b2); }
-.banner-purple { background: linear-gradient(135deg, #a855f7, #7e22ce); }
-.banner-green { background: linear-gradient(135deg, #10b981, #047857); }
-.banner-indigo { background: linear-gradient(135deg, #6366f1, #4338ca); }
+.card-employer-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-.banner-quota {
-  background: rgba(255, 255, 255, 0.18);
+/* Same profile picture avatar as Penawaran Proyek */
+.employer-avatar-circle-sm {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #2563eb;
   color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.22);
+}
+
+.card-employer-name {
+  font-size: 0.86rem;
   font-weight: 700;
-  font-size: 0.72rem;
+  color: #0f172a;
+  line-height: 1.25;
+}
+
+.card-employer-sub {
+  font-size: 0.76rem;
+  color: #64748b;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-cat-badge {
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.74rem;
+  font-weight: 700;
   padding: 4px 10px;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
   white-space: nowrap;
-}
-
-.banner-badge {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(4px);
-  color: #0f172a;
-  font-weight: 700;
-  font-size: 0.75rem;
-  padding: 4px 12px;
-  border-radius: 9999px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* Avatar overlapping header banner */
-.avatar-overlap-wrapper {
-  position: relative;
-  padding: 0 20px;
-  margin-top: -30px;
-  margin-bottom: 12px;
-}
-
-.avatar-circle {
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 3px solid #ffffff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.avatar-circle svg {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-}
-
-.verified-check-badge {
-  position: absolute;
-  bottom: 0px;
-  right: -2px;
-  background: #0284c7;
-  color: #ffffff;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 2px solid #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: bold;
-}
-
-/* Card content body */
-.proyek-card-body {
-  padding: 0 20px 20px 20px;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
+  border: 1px solid #e2e8f0;
 }
 
 .card-project-title {
   font-size: 1.05rem;
   font-weight: 800;
   color: #0f172a;
-  margin: 0 0 6px 0;
-  line-height: 1.3;
+  margin: 0 0 14px 0;
+  line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -329,50 +296,65 @@ a.proyek-card-item:hover {
   height: 2.7em;
 }
 
-.card-project-client {
-  font-size: 0.84rem;
-  color: #64748b;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
+/* Metadata box with Salary, Duration, and Kuota moved here */
 .card-meta-detail {
-  font-size: 0.82rem;
-  color: #475569;
-  font-weight: 600;
-  margin-bottom: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  border: 1px solid #f1f5f9;
+}
+
+.card-salary {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #2563eb;
+}
+
+.card-meta-pills {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: #475569;
+  font-weight: 600;
+}
+
+.meta-pill-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .card-skills-row {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 4px;
-  min-height: 52px;
+  min-height: 30px;
   align-content: flex-start;
 }
 
 .skill-pill-sm {
-  background: #f1f5f9;
+  background: #ffffff;
   color: #475569;
   font-size: 0.75rem;
   font-weight: 600;
   padding: 4px 10px;
-  border-radius: 8px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
 }
 
 .skill-pill-more {
-  background: #e2e8f0;
+  background: #f1f5f9;
   color: #334155;
   font-size: 0.75rem;
   font-weight: 700;
   padding: 4px 8px;
-  border-radius: 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
 }
 
 </style>
@@ -435,49 +417,46 @@ a.proyek-card-item:hover {
     <div class="proyek-cards-grid">
       <?php foreach ($vacancies as $idx => $job): ?>
         <?php 
-          $bannerClass = getCategoryBannerClass($job['category']);
           $badgeLabel = getCategoryShortLabel($job['category']);
-          $avatarSvg = getProjectAvatarSvg($idx);
           $quotaNum = (int)($job['quota'] ?? 1);
+          $employerDisplayName = (string)($job['employer'] ?? ($job['client'] ?? 'PT SIAPKerja Partner'));
+          $skillsToShow = array_slice($job['skills'], 0, 3);
+          $remainingCount = count($job['skills']) - count($skillsToShow);
         ?>
         <a class="proyek-card-item" href="worker-project-detail.php?id=<?php echo urlencode($job['id']); ?>">
           <div>
-            <div class="card-header-banner <?php echo $bannerClass; ?>">
-              <span class="banner-quota">Kuota <?php echo $quotaNum; ?></span>
-              <span class="banner-badge"><?php echo htmlspecialchars($badgeLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+            <!-- Employer Avatar + Name + Category Badge -->
+            <div class="card-employer-header">
+              <div class="card-employer-left">
+                <div class="employer-avatar-circle-sm">🏢</div>
+                <div>
+                  <div class="card-employer-name"><?php echo htmlspecialchars($employerDisplayName, ENT_QUOTES, 'UTF-8'); ?></div>
+                  <div class="card-employer-sub">📍 <?php echo htmlspecialchars($job['location'] ?? 'Remote', ENT_QUOTES, 'UTF-8'); ?></div>
+                </div>
+              </div>
+              <span class="card-cat-badge"><?php echo htmlspecialchars($badgeLabel, ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
 
-            <div class="avatar-overlap-wrapper">
-              <div class="avatar-circle">
-                <?php echo $avatarSvg; ?>
-                <div class="verified-check-badge">✓</div>
+            <!-- Project Title -->
+            <h3 class="card-project-title"><?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
+
+            <!-- Salary, Duration, & Kuota -->
+            <div class="card-meta-detail">
+              <div class="card-salary"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></div>
+              <div class="card-meta-pills">
+                <span class="meta-pill-info">⏱️ <?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?></span>
+                <span class="meta-pill-info">👥 Kuota: <?php echo $quotaNum; ?></span>
               </div>
             </div>
 
-            <div class="proyek-card-body">
-              <h3 class="card-project-title"><?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
-
-              <div class="card-project-client">
-                <span>🏢</span> <strong><?php echo htmlspecialchars((string)($job['employer'] ?? ($job['client'] ?? 'PT SIAPKerja Partner')), ENT_QUOTES, 'UTF-8'); ?></strong>
-              </div>
-
-              <div class="card-meta-detail">
-                <span style="color: #1d4ed8; font-weight: 800; font-size: 0.92rem;"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></span>
-                <span style="color: #64748b; font-size: 0.78rem;">⏱️ <?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?></span>
-              </div>
-
-              <div class="card-skills-row">
-                <?php 
-                  $skillsToShow = array_slice($job['skills'], 0, 3);
-                  $remainingCount = count($job['skills']) - count($skillsToShow);
-                ?>
-                <?php foreach ($skillsToShow as $sk): ?>
-                  <span class="skill-pill-sm"><?php echo htmlspecialchars((string)$sk, ENT_QUOTES, 'UTF-8'); ?></span>
-                <?php endforeach; ?>
-                <?php if ($remainingCount > 0): ?>
-                  <span class="skill-pill-more">+<?php echo $remainingCount; ?></span>
-                <?php endif; ?>
-              </div>
+            <!-- Skills List -->
+            <div class="card-skills-row">
+              <?php foreach ($skillsToShow as $sk): ?>
+                <span class="skill-pill-sm"><?php echo htmlspecialchars((string)$sk, ENT_QUOTES, 'UTF-8'); ?></span>
+              <?php endforeach; ?>
+              <?php if ($remainingCount > 0): ?>
+                <span class="skill-pill-more">+<?php echo $remainingCount; ?></span>
+              <?php endif; ?>
             </div>
           </div>
         </a>
