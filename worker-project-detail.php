@@ -255,8 +255,8 @@ require __DIR__ . '/includes/worker-layout-start.php';
       </div>
     <?php endif; ?>
 
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap;">
-      <div style="display: flex; gap: 18px; align-items: flex-start;">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap;">
+      <div style="display: flex; gap: 18px; align-items: flex-start; flex: 1; min-width: 280px;">
         <!-- Logo / Avatar Icon Thumbnail -->
         <div style="width: 64px; height: 64px; border-radius: 12px; background: #f1f5f9; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
           <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--primary-blue)" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
@@ -271,22 +271,18 @@ require __DIR__ . '/includes/worker-layout-start.php';
             </div>
             <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
               <span>📅 Diposting <?php echo htmlspecialchars($job['posted'], ENT_QUOTES, 'UTF-8'); ?></span>
-              <?php if (!$fromOffers): ?>
-                <span>&bull;</span>
-                <span>👥 Kuota: <strong><?php echo (int)($job['quota'] ?? 1); ?> Freelancer</strong></span>
-              <?php endif; ?>
+              <span>&bull;</span>
+              <span>👥 Kuota: <strong><?php echo (int)($job['quota'] ?? 1); ?> Freelancer</strong></span>
             </div>
-            <?php if (!$fromOffers): ?>
-              <div style="display: flex; align-items: center; gap: 6px; color: #dc2626; font-weight: 600;">
-                <span>🔔</span> Batas waktu penawaran: <strong><?php echo htmlspecialchars($job['deadline'] ?? '31 Des 2026', ENT_QUOTES, 'UTF-8'); ?></strong>
-              </div>
-            <?php endif; ?>
+            <div style="display: flex; align-items: center; gap: 6px; color: #dc2626; font-weight: 600;">
+              <span>🔔</span> Batas Lamaran: <strong><?php echo htmlspecialchars($job['deadline'] ?? '31 Des 2026', ENT_QUOTES, 'UTF-8'); ?></strong>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Header Action Button Right -->
-      <div>
+      <div style="flex-shrink: 0; align-self: center;">
         <?php if ($fromOffers): ?>
           <?php if ($offerStatus === 'confirmed_by_worker'): ?>
             <a href="worker-tugas.php" style="padding: 12px 24px; font-size: 0.9rem; font-weight: 800; border-radius: 10px; background: #059669; color: #ffffff; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
@@ -299,10 +295,10 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <?php else: ?>
             <form method="post" action="worker-penawaran.php" style="display:inline-flex;gap:10px;align-items:center;margin:0;">
               <input type="hidden" name="app_id" value="<?php echo htmlspecialchars($offerAppId ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
-              <button type="submit" name="confirm_action" value="confirm" style="padding: 12px 24px; font-size: 0.9rem; font-weight: 800; border-radius: 10px; background: #059669; color: #ffffff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
+              <button type="submit" name="confirm_action" value="confirm" style="padding: 12px 24px; font-size: 0.9rem; font-weight: 800; border-radius: 10px; background: #059669; color: #ffffff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25); white-space: nowrap;">
                 ✓ Konfirmasi &amp; Terima Proyek
               </button>
-              <button type="submit" name="confirm_action" value="decline" style="padding: 12px 18px; font-size: 0.86rem; font-weight: 700; border-radius: 10px; background: #fef2f2; color: #dc2626; border: 1px solid #fecdd3; cursor: pointer;" onclick="return confirm('Tolak penawaran proyek ini?')">
+              <button type="submit" name="confirm_action" value="decline" style="padding: 12px 18px; font-size: 0.86rem; font-weight: 700; border-radius: 10px; background: #fef2f2; color: #dc2626; border: 1px solid #fecdd3; cursor: pointer; white-space: nowrap;" onclick="return confirm('Tolak penawaran proyek ini?')">
                 Tolak Penawaran
               </button>
             </form>
@@ -345,7 +341,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
       <!-- 1. RINCIAN PROYEK -->
       <section class="detail-section-card">
         <h3 style="margin-bottom: 16px;">Rincian Proyek</h3>
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 16px; font-size: 0.86rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 20px 16px; font-size: 0.86rem;">
           <div>
             <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Kategori Proyek</div>
             <strong style="color: #0f172a;"><?php echo htmlspecialchars($job['category'], ENT_QUOTES, 'UTF-8'); ?></strong>
@@ -361,6 +357,14 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <div>
             <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Lokasi Penempatan</div>
             <strong style="color: #0f172a;"><?php echo htmlspecialchars($displayLocation, ENT_QUOTES, 'UTF-8'); ?></strong>
+          </div>
+          <div>
+            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Kuota Proyek</div>
+            <strong style="color: #0f172a;"><?php echo (int)($job['quota'] ?? 1); ?> Freelancer</strong>
+          </div>
+          <div>
+            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Batas Lamaran</div>
+            <strong style="color: #dc2626; font-weight: 700;"><?php echo htmlspecialchars($job['deadline'] ?? '31 Des 2026', ENT_QUOTES, 'UTF-8'); ?></strong>
           </div>
         </div>
       </section>
@@ -437,27 +441,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
           </span>
         </div>
 
-        <?php if ($fromOffers): ?>
-          <?php if ($offerStatus === 'confirmed_by_worker'): ?>
-            <a href="worker-tugas.php" style="margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 20px; border-radius: 10px; background: #059669; color: #ffffff; font-weight: 800; font-size: 0.9rem; text-decoration: none; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
-              ✓ Buka di Proyek Aktif
-            </a>
-          <?php elseif ($offerStatus === 'declined_by_worker'): ?>
-            <div style="margin-top: 20px; padding: 12px 20px; text-align: center; border-radius: 10px; background: #f1f5f9; color: #64748b; font-weight: 700; font-size: 0.88rem;">
-              ✕ Penawaran Ditolak
-            </div>
-          <?php else: ?>
-            <form method="post" action="worker-penawaran.php" style="margin-top: 20px; display: flex; flex-direction: column; gap: 8px;">
-              <input type="hidden" name="app_id" value="<?php echo htmlspecialchars($offerAppId ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
-              <button type="submit" name="confirm_action" value="confirm" style="width: 100%; padding: 12px 20px; border-radius: 10px; background: #059669; color: #ffffff; font-weight: 800; font-size: 0.9rem; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
-                ✓ Konfirmasi &amp; Terima Proyek
-              </button>
-              <button type="submit" name="confirm_action" value="decline" style="width: 100%; padding: 10px 16px; border-radius: 10px; background: #fef2f2; color: #dc2626; border: 1px solid #fecdd3; font-weight: 700; font-size: 0.84rem; cursor: pointer;" onclick="return confirm('Tolak penawaran proyek ini?')">
-                Tolak Penawaran
-              </button>
-            </form>
-          <?php endif; ?>
-        <?php else: ?>
+        <?php if (!$fromOffers): ?>
           <?php if ($hasApplied): ?>
             <button type="button" disabled style="margin-top: 20px; width: 100%; padding: 12px 20px; border-radius: 10px; background: #059669; color: #ffffff; font-weight: 800; font-size: 0.9rem; border: none; cursor: default;">
               ✓ Lamaran Proyek Terkirim
