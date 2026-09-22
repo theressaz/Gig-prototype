@@ -235,7 +235,7 @@ $displayComment = $submitted
       <a href="worker-profile.php?id=<?php echo urlencode($worker['id']); ?>&active=1" class="btn-create-post" style="background:#2563eb;text-decoration:none;padding:10px 24px;font-size:0.9rem;">
         Lihat Profil <?php echo htmlspecialchars($worker['name'], ENT_QUOTES, 'UTF-8'); ?> →
       </a>
-      <a href="employer-riwayat-proyek.php" class="btn-create-post" style="background:#059669;border-color:#047857;text-decoration:none;padding:10px 24px;font-size:0.9rem;">
+      <a href="<?php echo $isWorker ? 'worker-riwayat.php' : 'employer-riwayat-proyek.php'; ?>" class="btn-create-post" style="background:#059669;border-color:#047857;text-decoration:none;padding:10px 24px;font-size:0.9rem;">
         Riwayat Proyek →
       </a>
       <a href="employer-rating-worker.php?contract=<?php echo urlencode($projectData['id']); ?>&worker=<?php echo urlencode($worker['id']); ?>&undo=1"

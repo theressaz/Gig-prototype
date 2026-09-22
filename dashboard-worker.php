@@ -81,10 +81,10 @@ require __DIR__ . '/includes/worker-layout-start.php';
     </div>
 
     <section class="stats-grid">
-      <a class="stat-card" href="worker-tugas.php">
+      <a class="stat-card" href="worker-riwayat.php">
         <div class="stat-card-header"><span class="stat-label">PROYEK SELESAI</span></div>
         <div class="stat-number">14</div>
-        <div class="stat-caption">Total proyek diselesaikan</div>
+        <div class="stat-caption">Lihat di Riwayat Proyek</div>
       </a>
       <a class="stat-card" href="worker-tugas.php">
         <div class="stat-card-header"><span class="stat-label">PROYEK AKTIF</span></div>
@@ -161,11 +161,11 @@ require __DIR__ . '/includes/worker-layout-start.php';
               <div style="font-size:0.72rem;color:var(--text-muted);"><?php echo $isRegistered ? 'Lihat profil publik' : 'Lengkapi akun Anda'; ?></div>
             </div>
           </a>
-          <a href="worker-ulasan.php" class="quick-access-tile">
-            <div class="tile-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+          <a href="worker-riwayat.php" class="quick-access-tile">
+            <div class="tile-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
             <div>
-              <div style="font-size:0.85rem;font-weight:700;">Ulasan Mitra</div>
-              <div style="font-size:0.72rem;color:var(--text-muted);">Lihat rating Anda</div>
+              <div style="font-size:0.85rem;font-weight:700;">Riwayat Proyek</div>
+              <div style="font-size:0.72rem;color:var(--text-muted);">Proyek yang sudah selesai</div>
             </div>
           </a>
         </div>

@@ -43,8 +43,18 @@ require __DIR__ . '/includes/employer-layout-start.php';
                     ?? ($_SESSION['completed_projects'][$c1Id]['ratingGiven'] ?? 5);
         $ratingP2 = $dbCompletions[$c2Id]['rating_given']
                     ?? ($_SESSION['completed_projects'][$c2Id]['ratingGiven'] ?? 5);
+        $hasActive = !$completedP1 || !$completedP2;
       ?>
 
+      <?php if (!$hasActive): ?>
+        <div class="white-card" style="text-align:center;padding:48px 24px;">
+          <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:6px;">Tidak ada proyek aktif</h3>
+          <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:16px;">Semua proyek yang sudah selesai ada di Riwayat Proyek.</p>
+          <a class="btn-create-post" href="employer-riwayat-proyek.php" style="text-decoration:none;display:inline-flex;">Buka Riwayat Proyek</a>
+        </div>
+      <?php endif; ?>
+
+      <?php if (!$completedP1): ?>
       <!-- Project 1 -->
       <div class="active-project-card" style="<?php echo $completedP1 ? 'border-color:#10b981;background:#f0fdf4;' : ''; ?>">
         <div class="active-proj-header">
@@ -128,7 +138,9 @@ require __DIR__ . '/includes/employer-layout-start.php';
           </div>
         </div>
       </div>
+      <?php endif; ?>
 
+      <?php if (!$completedP2): ?>
       <!-- Project 2 -->
       <div class="active-project-card" style="<?php echo $completedP2 ? 'border-color:#10b981;background:#f0fdf4;' : ''; ?>">
         <div class="active-proj-header">
@@ -212,6 +224,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
           </div>
         </div>
       </div>
+      <?php endif; ?>
     </div>
 
     <!-- Countdown Timer Script -->

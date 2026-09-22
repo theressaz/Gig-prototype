@@ -57,8 +57,8 @@ require __DIR__ . '/includes/employer-layout-start.php';
       </a>
       <a class="stat-card" href="employer-riwayat-proyek.php">
         <div class="stat-card-header"><span class="stat-label">RIWAYAT PROYEK</span></div>
-        <div class="stat-number">5</div>
-        <div class="stat-caption">Semua status kontrak kerja</div>
+        <div class="stat-number">3</div>
+        <div class="stat-caption">Kontrak selesai &amp; tidak dilanjutkan</div>
       </a>
     </section>
 

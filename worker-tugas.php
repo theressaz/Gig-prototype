@@ -82,10 +82,29 @@ $activeProjects = [
     </div>
 
     <div class="active-projects-list">
-      <?php foreach ($activeProjects as $idx => $proj): 
+      <?php
+        $ongoingProjects = [];
+        foreach ($activeProjects as $idx => $proj) {
+            $cId = $proj['contract_id'];
+            $completed = isset($dbCompletions[$cId]) || isset($_SESSION['completed_projects'][$cId]);
+            if (!$completed) {
+                $proj['_idx'] = $idx;
+                $ongoingProjects[] = $proj;
+            }
+        }
+      ?>
+      <?php if (count($ongoingProjects) === 0): ?>
+        <div class="white-card" style="text-align:center;padding:48px 24px;">
+          <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:6px;">Tidak ada proyek aktif</h3>
+          <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:16px;">Proyek yang sudah selesai ada di Riwayat Proyek.</p>
+          <a class="btn-primary-add" href="worker-riwayat.php" style="display:inline-flex;text-decoration:none;">Buka Riwayat Proyek</a>
+        </div>
+      <?php endif; ?>
+      <?php foreach ($ongoingProjects as $proj):
+        $idx = (int)$proj['_idx'];
         $cId = $proj['contract_id'];
-        $completed = isset($dbCompletions[$cId]) || isset($_SESSION['completed_projects'][$cId]);
-        $ratingVal = $dbCompletions[$cId]['rating_given'] ?? ($_SESSION['completed_projects'][$cId]['ratingGiven'] ?? 5);
+        $completed = false;
+        $ratingVal = 5;
       ?>
         <div class="active-project-card" style="margin-bottom:20px;<?php echo $completed ? 'border-color:#10b981;background:#f0fdf4;' : ''; ?>">
           <!-- CARD HEADER -->
@@ -174,16 +193,9 @@ $activeProjects = [
               <a class="btn-outline-blue" href="employer-profile.php?name=<?php echo urlencode($proj['employer']); ?>">
                 Profil Pemberi Kerja
               </a>
-
-              <?php if ($completed): ?>
-                <a class="btn-create-post" href="dashboard-worker.php" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:#059669;border-color:#047857;">
-                  ✓ Selesai &amp; Dinilai
-                </a>
-              <?php else: ?>
-                <a class="btn-create-post" href="employer-rating-worker.php?contract=<?php echo urlencode($proj['contract_id']); ?>&from=worker" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 10px rgba(217,119,6,0.35);">
-                  ★ Selesaikan &amp; Beri Rating
-                </a>
-              <?php endif; ?>
+              <a class="btn-create-post" href="employer-rating-worker.php?contract=<?php echo urlencode($proj['contract_id']); ?>&from=worker" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 10px rgba(217,119,6,0.35);">
+                ★ Selesaikan &amp; Beri Rating
+              </a>
             </div>
           </div>
         </div>
