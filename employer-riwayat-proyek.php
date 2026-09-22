@@ -3,140 +3,14 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/employer-auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
+require_once __DIR__ . '/includes/project-history.php';
 
 $pageTitle = 'Riwayat Proyek';
 $pageKey = 'riwayat';
 $breadcrumbCurrent = 'Riwayat Proyek';
 require __DIR__ . '/includes/employer-layout-start.php';
 
-$historyProjects = [
-    [
-        'id' => 'CTR-GIG-2026-0811',
-        'title' => 'Redesign UI/UX Dashboard Prototype KarirHub',
-        'status' => 'Aktif',
-        'statusCode' => 'active',
-        'worker' => 'Tessa',
-        'workerRole' => 'Lead UI/UX Designer',
-        'workerId' => 'tessa',
-        'workerAvatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Tessa&backgroundColor=dbeafe',
-        'duration' => '3 Minggu',
-        'startDate' => '01 Sep 2026',
-        'endDate' => '22 Sep 2026',
-        'budget' => 'Rp 8.000.000',
-        'ratingGiven' => null,
-        'reviewGiven' => null,
-        'summary' => 'Pengerjaan prototype interaktif 12 layar dan pengujian pengguna.',
-    ],
-    [
-        'id' => 'CTR-GIG-2026-0819',
-        'title' => 'Integrasi REST API Modul Notifikasi SMS & WhatsApp',
-        'status' => 'Aktif',
-        'statusCode' => 'active',
-        'worker' => 'Rian Ardiansyah',
-        'workerRole' => 'Backend API Developer',
-        'workerId' => 'rian',
-        'workerAvatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Rian&backgroundColor=cffafe',
-        'duration' => '2 Minggu',
-        'startDate' => '03 Sep 2026',
-        'endDate' => '17 Sep 2026',
-        'budget' => 'Rp 6.000.000',
-        'ratingGiven' => null,
-        'reviewGiven' => null,
-        'summary' => 'Pengembangan endpoint webhook dan stress testing 5000 req/min.',
-    ],
-    [
-        'id' => 'CTR-GIG-2026-0640',
-        'title' => 'Pembuatan Landing Page Kampanye Edukasi Karir',
-        'status' => 'Selesai',
-        'statusCode' => 'completed',
-        'worker' => 'Siti Nurhaliza',
-        'workerRole' => 'Social Media Specialist & Copywriter',
-        'workerId' => 'siti',
-        'workerAvatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Siti&backgroundColor=ede9fe',
-        'duration' => '1 Bulan',
-        'startDate' => '01 Jul 2026',
-        'endDate' => '01 Agu 2026',
-        'budget' => 'Rp 4.500.000',
-        'ratingGiven' => 5,
-        'reviewGiven' => 'Hasil pekerjaan luar biasa! Copywriting komunikatif dan desain landing page meningkatkan konversi pendaftaran.',
-        'summary' => 'Penulisan naskah landing page dan pembuatan 20 aset visual media sosial.',
-    ],
-    [
-        'id' => 'CTR-GIG-2026-0512',
-        'title' => 'Audit Keamanan & PenTesting Microservice Gateway',
-        'status' => 'Selesai',
-        'statusCode' => 'completed',
-        'worker' => 'Dimas Prasetyo',
-        'workerRole' => 'Cloud API Engineer',
-        'workerId' => 'dimas',
-        'workerAvatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Dimas&backgroundColor=ffedd5',
-        'duration' => '2 Minggu',
-        'startDate' => '10 Mei 2026',
-        'endDate' => '24 Mei 2026',
-        'budget' => 'Rp 7.000.000',
-        'ratingGiven' => 5,
-        'reviewGiven' => 'Penetrasi testing komprehensif, laporan celah keamanan sangat lengkap dan solutif.',
-        'summary' => 'Laporan uji keamanan vulnerability assessment dan patching celah API.',
-    ],
-    [
-        'id' => 'CTR-GIG-2026-0305',
-        'title' => 'Migrasi Database Legacy ke PostgreSQL',
-        'status' => 'Tidak Selesai',
-        'statusCode' => 'cancelled',
-        'worker' => 'Budi Wicaksono',
-        'workerRole' => 'UI Designer / Technical Analyst',
-        'workerId' => 'budi',
-        'workerAvatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Budi&backgroundColor=d1fae5',
-        'duration' => '2 Minggu',
-        'startDate' => '01 Mar 2026',
-        'endDate' => '08 Mar 2026',
-        'budget' => 'Rp 5.000.000',
-        'ratingGiven' => null,
-        'reviewGiven' => null,
-        'summary' => 'Proyek dibatalkan secara bersama karena perubahan spesifikasi arsitektur internal.',
-    ],
-];
-
-// Merge completed status from DB (primary) then session (fallback)
-$pdo = gig_db();
-$dbCompletions = [];
-if ($pdo !== null) {
-    try {
-        $stmt = $pdo->prepare(
-            "SELECT `contract_id`, `rating_given`, `review_given`
-             FROM `project_completions`
-             WHERE `employer_username` = :emp"
-        );
-        $stmt->execute([':emp' => $username]);
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $dbCompletions[$row['contract_id']] = $row;
-        }
-    } catch (Throwable $ignored) {}
-}
-
-foreach ($historyProjects as &$proj) {
-    $pId = $proj['id'];
-    if (isset($dbCompletions[$pId])) {
-        $proj['status']      = 'Selesai';
-        $proj['statusCode']  = 'completed';
-        $proj['ratingGiven'] = (int)$dbCompletions[$pId]['rating_given'];
-        $proj['reviewGiven'] = $dbCompletions[$pId]['review_given'];
-        $proj['summary']     = 'Proyek telah selesai dikerjakan, seluruh deliverable diterima dan pembayaran berhasil dituntaskan.';
-    } elseif (isset($_SESSION['completed_projects'][$pId])) {
-        $sessInfo = $_SESSION['completed_projects'][$pId];
-        $proj['status']      = $sessInfo['status']      ?? 'Selesai';
-        $proj['statusCode']  = $sessInfo['statusCode']  ?? 'completed';
-        $proj['ratingGiven'] = $sessInfo['ratingGiven'] ?? 5;
-        $proj['reviewGiven'] = $sessInfo['reviewGiven'] ?? '';
-        $proj['summary']     = 'Proyek telah selesai dikerjakan, seluruh deliverable diterima dan pembayaran berhasil dituntaskan.';
-    }
-}
-unset($proj);
-
-$historyProjects = array_values(array_filter(
-    $historyProjects,
-    static fn(array $p): bool => ($p['statusCode'] ?? '') !== 'active'
-));
+$historyProjects = gig_get_history_for_employer($username);
 
 $completedCount = 0;
 $cancelledCount = 0;

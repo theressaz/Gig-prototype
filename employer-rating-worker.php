@@ -13,6 +13,7 @@ $isWorker = ($userRole === 'worker') || (isset($_GET['from']) && $_GET['from'] =
 
 require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/project-history.php';
 
 // ── Active contracts ─────────────────────────────────────────────────────────
 $activeContracts = [
@@ -140,6 +141,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
                 ':rating' => $overallRating,
                 ':review' => $comment,
                 ':date'   => $todayDate,
+            ]);
+
+            gig_upsert_project_history([
+                'contract_id' => $projectData['id'],
+                'worker_id' => $worker['id'],
+                'worker_name' => $worker['name'] ?? '',
+                'worker_role' => $worker['title'] ?? '',
+                'worker_avatar' => $worker['photo'] ?? '',
+                'employer_username' => $isWorker ? 'PT ABC' : $username,
+                'project_title' => $projectData['title'],
+                'status' => 'completed',
+                'budget' => $projectData['budget'] ?? '',
+                'duration' => $projectData['duration'] ?? '',
+                'start_date' => '',
+                'end_date' => date('d M Y'),
+                'summary' => 'Proyek telah selesai dikerjakan, seluruh deliverable diterima dan pembayaran berhasil dituntaskan.',
             ]);
         }
 

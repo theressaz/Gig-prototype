@@ -1,11 +1,16 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/includes/worker-auth.php';
+require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
+require_once __DIR__ . '/includes/project-history.php';
 
 $profileId = strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $username)[0] ?? $username));
 $worker = gig_find_worker($profileId);
-$reviews = $worker['reviews'] ?? [];
+$reviews = gig_get_reviews_for_worker($username);
+if ($reviews === []) {
+    $reviews = $worker['reviews'] ?? [];
+}
 
 $pageTitle = 'Ulasan Mitra';
 $pageKey = 'ulasan';

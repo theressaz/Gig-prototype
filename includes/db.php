@@ -103,6 +103,10 @@ function gig_db(): ?PDO
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
 
+        require_once __DIR__ . '/project-history.php';
+        gig_history_ensure_table($pdo);
+        gig_seed_project_history($pdo);
+
     } catch (Throwable $e) {
         $pdo = null;
     }

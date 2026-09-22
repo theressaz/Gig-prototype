@@ -638,7 +638,21 @@ function gig_worker_profiles(): array
                     $wId = $row['worker_id'];
                     if (!isset($profiles[$wId])) continue;
 
-                    $contractKey = $row['employer_username'] . '||' . $row['project_title'];
+                    $projectTitle = (string)$row['project_title'];
+                    $alreadyIn = false;
+                    foreach ($profiles[$wId]['reviews'] as $existing) {
+                        if (strcasecmp((string)($existing['project'] ?? ''), $projectTitle) === 0
+                            && strcasecmp((string)($existing['employer'] ?? ''), (string)$row['employer_username']) === 0
+                        ) {
+                            $alreadyIn = true;
+                            break;
+                        }
+                    }
+                    if ($alreadyIn) {
+                        continue;
+                    }
+
+                    $contractKey = $row['employer_username'] . '||' . $projectTitle;
                     if (isset($mergedContracts[$wId][$contractKey])) continue;
                     $mergedContracts[$wId][$contractKey] = true;
 
@@ -646,34 +660,25 @@ function gig_worker_profiles(): array
                         ? explode('||', $row['badges'])
                         : [];
 
-                    // Format date as "Sep 2026" style
                     $reviewDate = date('M Y', strtotime($row['created_at']));
 
                     array_unshift($profiles[$wId]['reviews'], [
                         'employer' => $row['employer_username'],
-                        'project'  => $row['project_title'],
+                        'project'  => $projectTitle,
                         'rating'   => (int)$row['overall_rating'],
                         'date'     => $reviewDate,
                         'comment'  => $row['comment'],
                         'badges'   => $badgesArr,
                     ]);
-
-                    $profiles[$wId]['reviews_count']++;
-                    $profiles[$wId]['completed_projects']++;
-                    $profiles[$wId]['total_projects'] = max(
-                        (int)$profiles[$wId]['total_projects'],
-                        (int)$profiles[$wId]['completed_projects']
-                    );
                 }
 
-                // Recalculate average rating for each worker that had new reviews
-                foreach (array_keys($mergedContracts) as $wId) {
-                    if (!isset($profiles[$wId])) continue;
+                foreach (array_keys($profiles) as $wId) {
                     $allRatings = array_column($profiles[$wId]['reviews'], 'rating');
                     $cnt = count($allRatings);
+                    $profiles[$wId]['reviews_count'] = $cnt;
                     $profiles[$wId]['rating'] = $cnt > 0
                         ? round(array_sum($allRatings) / $cnt, 1)
-                        : 5.0;
+                        : (float)($profiles[$wId]['rating'] ?? 5.0);
                 }
             } catch (Throwable $e) {
                 // DB error – fall through to session fallback

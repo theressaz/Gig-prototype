@@ -3,132 +3,14 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/worker-auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
+require_once __DIR__ . '/includes/project-history.php';
 
 $pageTitle = 'Riwayat Proyek';
 $pageKey = 'riwayat';
 $breadcrumbCurrent = 'Riwayat Proyek';
 require __DIR__ . '/includes/worker-layout-start.php';
 
-$historyProjects = [
-    [
-        'id' => 'CTR-GIG-2026-0640',
-        'title' => 'Portal Rekrutmen BUMN',
-        'status' => 'Selesai',
-        'statusCode' => 'completed',
-        'employer' => 'PT Talenta Nusantara',
-        'duration' => '6 Bulan',
-        'startDate' => '01 Jan 2026',
-        'endDate' => '24 Jun 2026',
-        'budget' => 'Rp 12.000.000',
-        'ratingGiven' => 5,
-        'reviewGiven' => 'Hasil desain rapi, komunikatif, dan tepat waktu. Prototype mudah diuji tim internal.',
-        'summary' => 'High-fidelity mockup desktop/mobile dan panduan interaksi portal rekrutmen.',
-    ],
-    [
-        'id' => 'CTR-GIG-2026-0422',
-        'title' => 'Redesign Aplikasi Lowongan',
-        'status' => 'Selesai',
-        'statusCode' => 'completed',
-        'employer' => 'CV Kreasi Digital',
-        'duration' => '1 Bulan',
-        'startDate' => '01 Mei 2026',
-        'endDate' => '31 Mei 2026',
-        'budget' => 'Rp 7.500.000',
-        'ratingGiven' => 5,
-        'reviewGiven' => 'Sangat memahami kebutuhan pengguna awam. Iterasi cepat setelah umpan balik.',
-        'summary' => 'Perbaikan alur pencarian lowongan dan uji keterbacaan untuk pengguna baru.',
-    ],
-    [
-        'id' => 'CTR-GIG-2026-0118',
-        'title' => 'Landing Page Program Pelatihan',
-        'status' => 'Selesai',
-        'statusCode' => 'completed',
-        'employer' => 'Yayasan Kerja Adil',
-        'duration' => '3 Minggu',
-        'startDate' => '06 Jan 2026',
-        'endDate' => '28 Jan 2026',
-        'budget' => 'Rp 4.500.000',
-        'ratingGiven' => 5,
-        'reviewGiven' => 'Visual konsisten dan aksesibel. Direkomendasikan untuk proyek pemerintahan.',
-        'summary' => 'Landing page kampanye pelatihan dan aset visual pendukung.',
-    ],
-    [
-        'id' => 'CTR-GIG-2025-1102',
-        'title' => 'Aplikasi Pelaporan Pekerja Lepas',
-        'status' => 'Tidak Selesai',
-        'statusCode' => 'cancelled',
-        'employer' => 'Startup Ketenagakerjaan',
-        'duration' => '2 Bulan',
-        'startDate' => '01 Nov 2025',
-        'endDate' => '20 Nov 2025',
-        'budget' => 'Rp 9.000.000',
-        'ratingGiven' => null,
-        'reviewGiven' => null,
-        'summary' => 'Kontrak dihentikan bersama karena perubahan ruang lingkup produk.',
-    ],
-];
-
-$recentContracts = [
-    [
-        'id' => 'CTR-GIG-2026-0811',
-        'title' => 'Redesign UI/UX Dashboard Prototype KarirHub',
-        'employer' => 'PT ABC',
-        'duration' => '3 Minggu',
-        'startDate' => '01 Sep 2026',
-        'endDate' => '22 Sep 2026',
-        'budget' => 'Rp 8.500.000',
-        'summary' => 'Prototype interaktif dashboard pemberi kerja.',
-    ],
-    [
-        'id' => 'CTR-GIG-2026-0819',
-        'title' => 'Integrasi REST API Modul Notifikasi SMS & WhatsApp',
-        'employer' => 'PT ABC',
-        'duration' => '2 Minggu',
-        'startDate' => '03 Sep 2026',
-        'endDate' => '17 Sep 2026',
-        'budget' => 'Rp 6.000.000',
-        'summary' => 'Integrasi webhook SMS/WA ke sistem inti.',
-    ],
-];
-
-$pdo = gig_db();
-$dbCompletions = [];
-if ($pdo !== null) {
-    try {
-        $stmt = $pdo->query("SELECT `contract_id`, `rating_given`, `review_given` FROM `project_completions`");
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $dbCompletions[$row['contract_id']] = $row;
-        }
-    } catch (Throwable $ignored) {
-    }
-}
-
-$moved = [];
-foreach ($recentContracts as $recent) {
-    $pId = $recent['id'];
-    $done = isset($dbCompletions[$pId]) || isset($_SESSION['completed_projects'][$pId]);
-    if (!$done) {
-        continue;
-    }
-    $rating = $dbCompletions[$pId]['rating_given'] ?? ($_SESSION['completed_projects'][$pId]['ratingGiven'] ?? 5);
-    $review = $dbCompletions[$pId]['review_given'] ?? ($_SESSION['completed_projects'][$pId]['reviewGiven'] ?? '');
-    $moved[] = [
-        'id' => $pId,
-        'title' => $recent['title'],
-        'status' => 'Selesai',
-        'statusCode' => 'completed',
-        'employer' => $recent['employer'],
-        'duration' => $recent['duration'],
-        'startDate' => $recent['startDate'],
-        'endDate' => $recent['endDate'],
-        'budget' => $recent['budget'],
-        'ratingGiven' => (int)$rating,
-        'reviewGiven' => (string)$review,
-        'summary' => 'Proyek telah selesai dikerjakan dan penilaian sudah diberikan.',
-    ];
-}
-
-$historyProjects = array_merge($moved, $historyProjects);
+$historyProjects = gig_get_history_for_worker($username);
 
 $completedCount = 0;
 $cancelledCount = 0;
