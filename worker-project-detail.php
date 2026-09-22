@@ -44,8 +44,9 @@ $rawLocation = (string)(($job ?? [])['location'] ?? 'Remote');
 $displayLocation = (stripos($rawLocation, 'remote') !== false) ? 'Remote' : $rawLocation;
 $employerName = (string)(($job ?? [])['employer'] ?? ($job ?? [])['client'] ?? 'Pemberi kerja');
 
+$workerApps = gig_get_applications_for_worker($username);
 $matchedOffer = null;
-if ($fromOffers && $job) {
+if ($job) {
     foreach (gig_offers_for_worker($username) as $offer) {
         if (strcasecmp((string)$offer['detail_id'], (string)$job['id']) === 0) {
             $matchedOffer = $offer;
@@ -53,6 +54,27 @@ if ($fromOffers && $job) {
             break;
         }
     }
+}
+if ($matchedOffer) {
+    $fromOffers = true;
+}
+
+$offerStatus = null;
+$offerAppId = null;
+if ($job) {
+    foreach ($workerApps as $wa) {
+        if (strtolower((string)($wa['vacancy_id'] ?? '')) === strtolower((string)$job['id'])) {
+            $offerAppId = (string)$wa['id'];
+            $offerStatus = (string)($wa['status'] ?? 'accepted_by_employer');
+            break;
+        }
+    }
+}
+if ($matchedOffer && !$offerAppId) {
+    $offerAppId = 'APP-' . $job['id'];
+}
+if ($matchedOffer && !$offerStatus) {
+    $offerStatus = 'accepted_by_employer';
 }
 
 $backHref = $fromOffers ? 'worker-penawaran.php' : 'worker-bursa.php';
@@ -101,11 +123,11 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
   .detail-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr 340px;
     gap: 24px;
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 992px) {
     .detail-grid {
       grid-template-columns: 1fr;
     }
@@ -116,50 +138,60 @@ require __DIR__ . '/includes/worker-layout-start.php';
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
     padding: 24px;
-    margin-bottom: 20px;
     box-shadow: var(--shadow-sm);
+    margin-bottom: 24px;
   }
 
   .detail-section-card h3 {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     font-weight: 800;
     color: #0f172a;
-    margin-bottom: 14px;
+    margin: 0 0 16px 0;
+  }
+
+  .notice-bar {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 0.86rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
   .btn-apply-hero {
     width: 100%;
-    padding: 14px 20px;
-    background: linear-gradient(135deg, var(--primary-blue), #1d4ed8);
-    color: #ffffff;
-    border: none;
-    border-radius: var(--radius-md);
+    padding: 14px 24px;
     font-size: 0.95rem;
     font-weight: 800;
+    border-radius: var(--radius-sm);
+    background: var(--primary-blue);
+    color: #ffffff;
+    border: none;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
     transition: all 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    margin-top: 16px;
+
   }
 
   .btn-apply-hero:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+    background: #1d4ed8;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
   }
 
   .btn-applied-done {
-    background: #ecfdf5 !important;
-    color: #047857 !important;
-    border: 1px solid #6ee7b7 !important;
+    background: #059669 !important;
+    color: #ffffff !important;
     box-shadow: none !important;
     cursor: default !important;
   }
 
-  /* MODAL APPLY */
   .modal-backdrop {
     position: fixed;
     top: 0;
@@ -168,34 +200,31 @@ require __DIR__ . '/includes/worker-layout-start.php';
     bottom: 0;
     background: rgba(15, 23, 42, 0.6);
     backdrop-filter: blur(4px);
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 100;
-    padding: 20px;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
   }
 
   .modal-backdrop.open {
-    display: flex;
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .modal-card {
     background: #ffffff;
-    border-radius: var(--radius-lg);
-    max-width: 540px;
+    border-radius: 16px;
     width: 100%;
-    box-shadow: var(--shadow-lg);
+    max-width: 520px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
     overflow: hidden;
-    animation: modalSlide 0.25s ease-out;
-  }
-
-  @keyframes modalSlide {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
   }
 
   .modal-header {
-    background: var(--kemnaker-navy);
+    background: #1e293b;
     color: #ffffff;
     padding: 16px 24px;
     display: flex;
@@ -242,26 +271,52 @@ require __DIR__ . '/includes/worker-layout-start.php';
             </div>
             <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
               <span>📅 Diposting <?php echo htmlspecialchars($job['posted'], ENT_QUOTES, 'UTF-8'); ?></span>
-              <span>&bull;</span>
-              <span>👥 Kuota: <strong><?php echo (int)($job['quota'] ?? 1); ?> Freelancer</strong></span>
+              <?php if (!$fromOffers): ?>
+                <span>&bull;</span>
+                <span>👥 Kuota: <strong><?php echo (int)($job['quota'] ?? 1); ?> Freelancer</strong></span>
+              <?php endif; ?>
             </div>
-            <div style="display: flex; align-items: center; gap: 6px; color: #dc2626; font-weight: 600;">
-              <span>🔔</span> Batas waktu penawaran: <strong><?php echo htmlspecialchars($job['deadline'] ?? '31 Des 2026', ENT_QUOTES, 'UTF-8'); ?></strong>
-            </div>
+            <?php if (!$fromOffers): ?>
+              <div style="display: flex; align-items: center; gap: 6px; color: #dc2626; font-weight: 600;">
+                <span>🔔</span> Batas waktu penawaran: <strong><?php echo htmlspecialchars($job['deadline'] ?? '31 Des 2026', ENT_QUOTES, 'UTF-8'); ?></strong>
+              </div>
+            <?php endif; ?>
           </div>
         </div>
       </div>
 
       <!-- Header Action Button Right -->
       <div>
-        <?php if ($hasApplied): ?>
-          <button type="button" disabled style="padding: 12px 28px; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: #059669; color: #ffffff; border: none; cursor: default; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
-            ✓ Lamaran Proyek Terkirim
-          </button>
+        <?php if ($fromOffers): ?>
+          <?php if ($offerStatus === 'confirmed_by_worker'): ?>
+            <a href="worker-tugas.php" style="padding: 12px 24px; font-size: 0.9rem; font-weight: 800; border-radius: 10px; background: #059669; color: #ffffff; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
+              ✓ Resmi Direkrut · Proyek Aktif
+            </a>
+          <?php elseif ($offerStatus === 'declined_by_worker'): ?>
+            <span style="padding: 10px 20px; font-size: 0.88rem; font-weight: 700; border-radius: 10px; background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; display: inline-block;">
+              ✕ Penawaran Ditolak
+            </span>
+          <?php else: ?>
+            <form method="post" action="worker-penawaran.php" style="display:inline-flex;gap:10px;align-items:center;margin:0;">
+              <input type="hidden" name="app_id" value="<?php echo htmlspecialchars($offerAppId ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+              <button type="submit" name="confirm_action" value="confirm" style="padding: 12px 24px; font-size: 0.9rem; font-weight: 800; border-radius: 10px; background: #059669; color: #ffffff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
+                ✓ Konfirmasi &amp; Terima Proyek
+              </button>
+              <button type="submit" name="confirm_action" value="decline" style="padding: 12px 18px; font-size: 0.86rem; font-weight: 700; border-radius: 10px; background: #fef2f2; color: #dc2626; border: 1px solid #fecdd3; cursor: pointer;" onclick="return confirm('Tolak penawaran proyek ini?')">
+                Tolak Penawaran
+              </button>
+            </form>
+          <?php endif; ?>
         <?php else: ?>
-          <button id="btnApplyHeader" type="button" onclick="openApplyModal()" style="padding: 12px 28px; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: #2563eb; color: #ffffff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); transition: all 0.2s;">
-            Lamar Proyek Ini
-          </button>
+          <?php if ($hasApplied): ?>
+            <button type="button" disabled style="padding: 12px 28px; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: #059669; color: #ffffff; border: none; cursor: default; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
+              ✓ Lamaran Proyek Terkirim
+            </button>
+          <?php else: ?>
+            <button id="btnApplyHeader" type="button" onclick="openApplyModal()" style="padding: 12px 28px; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: #2563eb; color: #ffffff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); transition: all 0.2s;">
+              Lamar Proyek Ini
+            </button>
+          <?php endif; ?>
         <?php endif; ?>
       </div>
     </div>
@@ -290,7 +345,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
       <!-- 1. RINCIAN PROYEK -->
       <section class="detail-section-card">
         <h3 style="margin-bottom: 16px;">Rincian Proyek</h3>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px 16px; font-size: 0.86rem;">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 16px; font-size: 0.86rem;">
           <div>
             <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Kategori Proyek</div>
             <strong style="color: #0f172a;"><?php echo htmlspecialchars($job['category'], ENT_QUOTES, 'UTF-8'); ?></strong>
@@ -306,14 +361,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <div>
             <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Lokasi Penempatan</div>
             <strong style="color: #0f172a;"><?php echo htmlspecialchars($displayLocation, ENT_QUOTES, 'UTF-8'); ?></strong>
-          </div>
-          <div>
-            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Kuota Freelancer</div>
-            <strong style="color: #0f172a;"><?php echo (int)($job['quota'] ?? 1); ?> Freelancer</strong>
-          </div>
-          <div>
-            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Batas Akhir Penawaran</div>
-            <strong style="color: #dc2626; font-weight: 700;"><?php echo htmlspecialchars($job['deadline'] ?? 'Sesuai Kuota', ENT_QUOTES, 'UTF-8'); ?></strong>
           </div>
         </div>
       </section>
@@ -390,10 +437,38 @@ require __DIR__ . '/includes/worker-layout-start.php';
           </span>
         </div>
 
-        <button id="btnApplySidebar" class="btn-apply-hero" type="button" onclick="openApplyModal()" style="margin-top: 20px;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          Lamar Proyek Ini
-        </button>
+        <?php if ($fromOffers): ?>
+          <?php if ($offerStatus === 'confirmed_by_worker'): ?>
+            <a href="worker-tugas.php" style="margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 20px; border-radius: 10px; background: #059669; color: #ffffff; font-weight: 800; font-size: 0.9rem; text-decoration: none; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
+              ✓ Buka di Proyek Aktif
+            </a>
+          <?php elseif ($offerStatus === 'declined_by_worker'): ?>
+            <div style="margin-top: 20px; padding: 12px 20px; text-align: center; border-radius: 10px; background: #f1f5f9; color: #64748b; font-weight: 700; font-size: 0.88rem;">
+              ✕ Penawaran Ditolak
+            </div>
+          <?php else: ?>
+            <form method="post" action="worker-penawaran.php" style="margin-top: 20px; display: flex; flex-direction: column; gap: 8px;">
+              <input type="hidden" name="app_id" value="<?php echo htmlspecialchars($offerAppId ?? '', ENT_QUOTES, 'UTF-8'); ?>" />
+              <button type="submit" name="confirm_action" value="confirm" style="width: 100%; padding: 12px 20px; border-radius: 10px; background: #059669; color: #ffffff; font-weight: 800; font-size: 0.9rem; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
+                ✓ Konfirmasi &amp; Terima Proyek
+              </button>
+              <button type="submit" name="confirm_action" value="decline" style="width: 100%; padding: 10px 16px; border-radius: 10px; background: #fef2f2; color: #dc2626; border: 1px solid #fecdd3; font-weight: 700; font-size: 0.84rem; cursor: pointer;" onclick="return confirm('Tolak penawaran proyek ini?')">
+                Tolak Penawaran
+              </button>
+            </form>
+          <?php endif; ?>
+        <?php else: ?>
+          <?php if ($hasApplied): ?>
+            <button type="button" disabled style="margin-top: 20px; width: 100%; padding: 12px 20px; border-radius: 10px; background: #059669; color: #ffffff; font-weight: 800; font-size: 0.9rem; border: none; cursor: default;">
+              ✓ Lamaran Proyek Terkirim
+            </button>
+          <?php else: ?>
+            <button id="btnApplySidebar" class="btn-apply-hero" type="button" onclick="openApplyModal()" style="margin-top: 20px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Lamar Proyek Ini
+            </button>
+          <?php endif; ?>
+        <?php endif; ?>
       </section>
     </div>
   </div>
