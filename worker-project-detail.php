@@ -341,7 +341,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
       <!-- 1. RINCIAN PROYEK -->
       <section class="detail-section-card">
         <h3 style="margin-bottom: 16px;">Rincian Proyek</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 20px 16px; font-size: 0.86rem;">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 16px; font-size: 0.86rem;">
           <div>
             <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Kategori Proyek</div>
             <strong style="color: #0f172a;"><?php echo htmlspecialchars($job['category'], ENT_QUOTES, 'UTF-8'); ?></strong>
@@ -357,14 +357,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <div>
             <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Lokasi Penempatan</div>
             <strong style="color: #0f172a;"><?php echo htmlspecialchars($displayLocation, ENT_QUOTES, 'UTF-8'); ?></strong>
-          </div>
-          <div>
-            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Kuota Proyek</div>
-            <strong style="color: #0f172a;"><?php echo (int)($job['quota'] ?? 1); ?> Freelancer</strong>
-          </div>
-          <div>
-            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Batas Lamaran</div>
-            <strong style="color: #dc2626; font-weight: 700;"><?php echo htmlspecialchars($job['deadline'] ?? '31 Des 2026', ENT_QUOTES, 'UTF-8'); ?></strong>
           </div>
         </div>
       </section>
