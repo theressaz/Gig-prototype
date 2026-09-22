@@ -173,19 +173,14 @@ require __DIR__ . '/includes/worker-layout-start.php';
   font-size: 0.85rem;
 }
 
-/* Grid layout matching screenshot */
+/* Grid layout: 3 columns per row for clean spacious layout */
 .proyek-cards-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
 }
 
-@media (max-width: 1200px) {
-  .proyek-cards-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-@media (max-width: 900px) {
+@media (max-width: 992px) {
   .proyek-cards-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -197,7 +192,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
     width: 100%;
   }
 }
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .proyek-cards-grid {
     grid-template-columns: 1fr;
   }
@@ -208,12 +203,12 @@ require __DIR__ . '/includes/worker-layout-start.php';
   background: #ffffff;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
   border: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 20px;
+  padding: 22px;
   transition: all 0.2s ease;
   text-decoration: none;
   color: inherit;
@@ -223,7 +218,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
 a.proyek-card-item:hover {
   transform: translateY(-3px);
   border-color: #93c5fd;
-  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.08);
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.1);
   color: inherit;
 }
 
@@ -232,7 +227,7 @@ a.proyek-card-item:hover {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 14px;
-  gap: 10px;
+  gap: 12px;
 }
 
 .card-employer-left {
@@ -257,14 +252,14 @@ a.proyek-card-item:hover {
 }
 
 .card-employer-name {
-  font-size: 0.86rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: #0f172a;
   line-height: 1.25;
 }
 
 .card-employer-sub {
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   color: #64748b;
   margin-top: 2px;
   display: flex;
@@ -275,41 +270,41 @@ a.proyek-card-item:hover {
 .card-cat-badge {
   background: #f1f5f9;
   color: #475569;
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 9999px;
   white-space: nowrap;
   border: 1px solid #e2e8f0;
 }
 
 .card-project-title {
-  font-size: 1.05rem;
+  font-size: 1.08rem;
   font-weight: 800;
   color: #0f172a;
   margin: 0 0 14px 0;
-  line-height: 1.35;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  height: 2.7em;
+  height: 2.8em;
 }
 
-/* Metadata box with Salary, Duration, and Kuota moved here */
+/* Metadata box with Salary, Duration, and Kuota */
 .card-meta-detail {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: #f8fafc;
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   border: 1px solid #f1f5f9;
 }
 
 .card-salary {
-  font-size: 0.95rem;
+  font-size: 1.02rem;
   font-weight: 800;
   color: #2563eb;
 }
@@ -317,8 +312,8 @@ a.proyek-card-item:hover {
 .card-meta-pills {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 0.78rem;
+  gap: 12px;
+  font-size: 0.8rem;
   color: #475569;
   font-weight: 600;
 }
@@ -332,29 +327,41 @@ a.proyek-card-item:hover {
 .card-skills-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  min-height: 30px;
+  gap: 8px;
+  min-height: 32px;
   align-content: flex-start;
+  margin-bottom: 16px;
 }
 
 .skill-pill-sm {
   background: #ffffff;
   color: #475569;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: 5px 12px;
+  border-radius: 8px;
   border: 1px solid #e2e8f0;
 }
 
 .skill-pill-more {
   background: #f1f5f9;
   color: #334155;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 5px 10px;
+  border-radius: 8px;
   border: 1px solid #cbd5e1;
+}
+
+.card-action-footer {
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #2563eb;
 }
 
 </style>
@@ -458,6 +465,12 @@ a.proyek-card-item:hover {
                 <span class="skill-pill-more">+<?php echo $remainingCount; ?></span>
               <?php endif; ?>
             </div>
+          </div>
+
+          <!-- Card Action Footer -->
+          <div class="card-action-footer">
+            <span>Lihat Detail Proyek</span>
+            <span>&rarr;</span>
           </div>
         </a>
       <?php endforeach; ?>
