@@ -142,7 +142,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
         $_SESSION['role'] = 'worker';
         $_SESSION['worker_registered'] = true;
         $profileId = strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $username)[0] ?? $username));
-        header("Location: dashboard-worker.php?registered=1");
+        header("Location: worker-verification-pending.php");
         exit;
     }
 }
