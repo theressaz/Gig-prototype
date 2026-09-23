@@ -2,21 +2,12 @@
 declare(strict_types=1);
 session_start();
 
-if (isset($_SESSION["username"]) && isset($_SESSION["role"])) {
-    if ($_SESSION["role"] === 'employer') {
-        header("Location: dashboard-employer.php");
-        exit;
-    } elseif ($_SESSION["role"] === 'worker') {
-        header("Location: dashboard-worker.php");
-        exit;
-    }
-}
-
-// Handle Logout action explicitly
+// If logout clicked
 if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     $_SESSION = [];
     session_destroy();
-    session_start();
+    header("Location: welcome-screen.php");
+    exit;
 }
 ?>
 <!DOCTYPE html>
@@ -24,7 +15,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk ke Platform Pemberi Kerja · Karirhub</title>
+    <title>Pemberi Kerja Belum Terdaftar · Karirhub</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -47,42 +38,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             overflow-x: hidden;
         }
 
-        /* Top Brand Header */
-        .page-header {
-            width: 100%;
-            padding-top: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .karirhub-logo-mark {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .karirhub-icon {
-            width: 32px;
-            height: 32px;
-        }
-
-        .karirhub-text {
-            font-size: 24px;
-            font-weight: 800;
-            color: #0f172a;
-            letter-spacing: -0.5px;
-        }
-
-        .karirhub-subtext {
-            font-size: 10px;
-            color: #64748b;
-            font-weight: 500;
-            display: block;
-            line-height: 1;
-        }
-
-        /* Main Container */
         .main-wrapper {
             flex: 1;
             width: 100%;
@@ -93,16 +48,21 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             padding: 20px;
         }
 
-        /* Card Base */
         .auth-card {
             background: #ffffff;
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
             border: 1px solid #f1f5f9;
             width: 100%;
-            max-width: 440px;
-            padding: 36px 32px;
+            max-width: 460px;
+            padding: 40px 36px;
             text-align: center;
+        }
+
+        .card-top-icon {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
         }
 
         .card-title {
@@ -116,8 +76,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
         .card-subtitle {
             font-size: 14px;
             color: #64748b;
-            margin-bottom: 28px;
-            line-height: 1.5;
+            margin-bottom: 30px;
+            line-height: 1.6;
             font-weight: 400;
         }
 
@@ -137,7 +97,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
             box-shadow: 0 2px 6px rgba(24, 181, 234, 0.25);
         }
         .btn-cyan:hover {
@@ -145,21 +104,35 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             box-shadow: 0 4px 12px rgba(24, 181, 234, 0.35);
         }
 
-        .card-link-wrapper {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #64748b;
-        }
-        .card-link-wrapper a {
-            color: #18b5ea;
-            text-decoration: none;
+        .btn-outline {
+            background-color: #ffffff;
+            color: #334155;
+            font-family: inherit;
+            font-size: 15px;
             font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
-        .card-link-wrapper a:hover {
-            text-decoration: underline;
+        .btn-outline:hover {
+            background-color: #f8fafc;
+            border-color: #94a3b8;
         }
 
-        /* Page Footer */
+        .text-divider {
+            margin: 14px 0;
+            font-size: 13px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
         .page-footer {
             padding: 24px;
             text-align: center;
@@ -172,34 +145,31 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
 </head>
 <body>
 
-    <!-- SCREEN 1: MASUK KE PLATFORM PEMBERI KERJA -->
-    <header class="page-header">
-        <div class="karirhub-logo-mark">
-            <svg class="karirhub-icon" viewBox="0 0 40 40" fill="none">
-                <path d="M10 10 H28 Q32 10 32 14 V18 L20 30 H10 Z" fill="#18b5ea"/>
-                <circle cx="28" cy="12" r="3" fill="#38bdf8"/>
-            </svg>
-            <div>
-                <span class="karirhub-text">Karir<span style="color: #18b5ea;">hub</span></span>
-                <span class="karirhub-subtext">oleh Kemnaker</span>
-            </div>
-        </div>
-    </header>
-
+    <!-- SCREEN 3: PEMBERI KERJA BELUM TERDAFTAR -->
     <main class="main-wrapper">
-        <div class="auth-card" style="max-width: 460px;">
-            <h1 class="card-title">Masuk ke Platform Pemberi Kerja</h1>
+        <div class="auth-card">
+            <!-- Karirhub Top Logo Icon -->
+            <div class="card-top-icon">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                    <path d="M10 10 H28 Q32 10 32 14 V18 L20 30 H10 Z" fill="#18b5ea"/>
+                    <circle cx="28" cy="12" r="3" fill="#38bdf8"/>
+                </svg>
+            </div>
+
+            <h1 class="card-title">Pemberi Kerja Belum Terdaftar</h1>
             <p class="card-subtitle">
-                Silakan masuk menggunakan akun SIAPkerja Anda
+                Akun ini belum memiliki data pemberi kerja. Silahkan klik tombol dibawah ini untuk mendaftar sebagai pemberi kerja.
             </p>
 
-            <a href="siapkerja-login.php" class="btn-cyan">
-                Masuk dengan akun SIAPkerja
+            <a href="employer-register.php" class="btn-cyan">
+                Daftar Pemberi Kerja
             </a>
 
-            <div class="card-link-wrapper">
-                Belum punya akun? <a href="siapkerja-login.php">Daftar di sini</a>
-            </div>
+            <div class="text-divider">atau</div>
+
+            <a href="welcome-screen.php?action=logout" class="btn-outline">
+                Keluar
+            </a>
         </div>
     </main>
 
