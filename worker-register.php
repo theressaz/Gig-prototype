@@ -161,10 +161,12 @@ $backHref = $isEditMode
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/employer.css" />
+    <link rel="stylesheet" href="assets/worker.css" />
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: #f8fafc;
             color: #1e293b;
             min-height: 100vh;
@@ -233,20 +235,70 @@ $backHref = $isEditMode
             border-bottom: 1px solid #e2e8f0;
         }
 
+        .form-section-header {
+            margin-top: 32px;
+            margin-bottom: 18px;
+        }
+
         .form-section-title {
             font-size: 14.5px;
             font-weight: 800;
             color: #0f172a;
-            margin-top: 28px;
-            margin-bottom: 4px;
             text-transform: uppercase;
             letter-spacing: 0.02em;
+            margin-bottom: 4px;
         }
 
         .form-section-subtitle {
             font-size: 13px;
             color: #64748b;
-            margin-bottom: 20px;
+        }
+
+        .form-grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .form-hint {
+            font-size: 0.78rem;
+            color: #64748b;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: #0f172a;
+            background: #f8fafc;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #0284c7;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+        }
+
+        .form-divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 32px 0;
         }
 
         .siapkerja-box {
@@ -254,8 +306,7 @@ $backHref = $isEditMode
             border: 1px solid #e2e8f0;
             border-radius: 12px;
             padding: 20px;
-            margin-bottom: 28px;
-            position: relative;
+            margin-bottom: 24px;
         }
 
         .siapkerja-badge {
@@ -269,61 +320,123 @@ $backHref = $isEditMode
             border-radius: 9999px;
             font-size: 0.75rem;
             font-weight: 700;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
-        .register-form-card { display: flex; flex-direction: column; gap: 28px; }
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-label { font-size: 0.88rem; font-weight: 700; color: #1e293b; }
-        .form-hint { font-size: 0.78rem; color: #64748b; }
-        .form-input, .form-select, .form-textarea {
-            width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1;
-            border-radius: 10px; font-size: 0.9rem; color: #0f172a; background: #f8fafc;
-            transition: all 0.2s ease;
+        .contact-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-top: 8px;
         }
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
-        }
-        .contact-options { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 4px; }
+
         .contact-option-card {
-            border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 16px;
-            cursor: pointer; display: flex; align-items: flex-start; gap: 12px; background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: #f8fafc;
+            transition: all 0.2s;
         }
+
         .contact-option-card:hover { border-color: #93c5fd; background: #ffffff; }
         .contact-option-card.active { border-color: #0284c7; background: #eff6ff; }
         .contact-radio { margin-top: 3px; accent-color: #0284c7; }
+
         .new-contact-fields {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; padding: 16px;
-            background: #f8fafc; border: 1px dashed #bfdbfe; border-radius: 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 14px;
+            padding: 16px;
+            background: #f8fafc;
+            border: 1px dashed #bfdbfe;
+            border-radius: 10px;
         }
-        .dynamic-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px; position: relative; margin-bottom: 12px; }
-        .btn-remove-item { background: #fee2e2; color: #dc2626; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+
+        .dynamic-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .btn-remove-item {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
         .btn-add-item {
-            display: inline-flex; align-items: center; gap: 6px; background: #eff6ff; color: #0284c7;
-            border: 1px dashed #bfdbfe; padding: 10px 18px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #eff6ff;
+            color: #0284c7;
+            border: 1px dashed #bfdbfe;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
         }
         .btn-add-item:hover { background: #dbeafe; border-color: #0284c7; }
+
         .btn-submit {
-            background: #0284c7; color: #ffffff; border: none; padding: 14px 32px;
-            border-radius: 9999px; font-size: 0.95rem; font-weight: 800; cursor: pointer;
-            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: #0284c7;
+            color: #ffffff;
+            border: none;
+            padding: 14px 36px;
+            border-radius: 9999px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             transition: background 0.2s ease;
         }
         .btn-submit:hover { background: #0369a1; }
-        .alert { padding: 14px 18px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+
+        .alert {
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
         .alert-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
         .alert-error { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
 
         .page-footer {
-            padding: 24px 20px; text-align: center; font-size: 13.5px; color: #64748b;
-            background-color: #f8fafc; border-top: 1px solid #e2e8f0; margin-top: 40px;
+            padding: 24px 20px;
+            text-align: center;
+            font-size: 13.5px;
+            color: #64748b;
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 40px;
         }
         .page-footer a { color: #0284c7; font-weight: 600; text-decoration: none; }
         .page-footer a:hover { text-decoration: underline; }
 
         @media (max-width: 768px) {
             .reg-card { padding: 24px 20px; }
-            .contact-options { grid-template-columns: 1fr; }
+            .form-grid-2col, .contact-options { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -361,67 +474,50 @@ $backHref = $isEditMode
       </div>
     <?php endif; ?>
 
-    <section class="white-card siapkerja-card">
+    <div class="siapkerja-box">
       <div class="siapkerja-badge">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
         Terintegrasi SIAPKerja
       </div>
       
-      <div class="siapkerja-header">
-        <div class="siapkerja-avatar">
+      <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+        <div style="width:48px; height:48px; border-radius:50%; background:#0284c7; color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.2rem; font-weight:800; flex-shrink:0;">
           <?php echo strtoupper(substr($siapkerja['nama'], 0, 2)); ?>
         </div>
-        <div class="siapkerja-info">
-          <h3><?php echo htmlspecialchars($siapkerja['nama'], ENT_QUOTES, 'UTF-8'); ?></h3>
-          <div class="siapkerja-meta">
-            <span><strong>ID SIAPKerja:</strong> <?php echo htmlspecialchars($siapkerja['siapkerja_id'], ENT_QUOTES, 'UTF-8'); ?></span>
-            <span>&bull;</span>
-            <span><strong>Status Akun:</strong> <?php echo htmlspecialchars($siapkerja['status_akun'], ENT_QUOTES, 'UTF-8'); ?></span>
-            <span>&bull;</span>
-            <span><strong>Domisili:</strong> <?php echo htmlspecialchars($siapkerja['lokasi'], ENT_QUOTES, 'UTF-8'); ?></span>
+        <div>
+          <h3 style="font-size:1.05rem; font-weight:800; color:#0f172a; margin-bottom:2px;"><?php echo htmlspecialchars($siapkerja['nama'], ENT_QUOTES, 'UTF-8'); ?></h3>
+          <div style="font-size:0.82rem; color:#64748b;">
+            ID SIAPKerja: <strong><?php echo htmlspecialchars($siapkerja['siapkerja_id'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Status: <strong><?php echo htmlspecialchars($siapkerja['status_akun'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Domisili: <strong><?php echo htmlspecialchars($siapkerja['lokasi'], ENT_QUOTES, 'UTF-8'); ?></strong>
           </div>
         </div>
       </div>
 
-      <div class="siapkerja-exp-box">
-        <div class="exp-title">Informasi Otomatis Terhubung Dari Akun SIAPKerja</div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
-          <div style="font-size: 0.85rem;">
-            <strong style="color: var(--text-muted);">Nama Lengkap:</strong><br />
+      <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:14px 16px;">
+        <div style="font-size:0.78rem; font-weight:700; text-transform:uppercase; color:#64748b; margin-bottom:8px;">Informasi Terhubung dari Akun SIAPKerja</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size:0.85rem; color:#334155;">
+          <div>
+            <strong>Nama Lengkap:</strong><br />
             <span><?php echo htmlspecialchars($siapkerja['nama'], ENT_QUOTES, 'UTF-8'); ?></span>
           </div>
-          <div style="font-size: 0.85rem;">
-            <strong style="color: var(--text-muted);">Kontak Default SIAPKerja:</strong><br />
+          <div>
+            <strong>Kontak Default:</strong><br />
             <span>WA: <?php echo htmlspecialchars($siapkerja['wa'], ENT_QUOTES, 'UTF-8'); ?> &bull; Email: <?php echo htmlspecialchars($siapkerja['email'], ENT_QUOTES, 'UTF-8'); ?></span>
           </div>
         </div>
-        <div class="exp-title" style="margin-top: 12px;">Pengalaman Kerja / Proyek Tercatat di SIAPKerja:</div>
-        <?php foreach ($siapkerja['pengalaman_siapkerja'] as $exp): ?>
-          <div class="exp-item">
-            <span style="color: var(--primary-blue); font-weight:700;">&bull;</span>
-            <div>
-              <strong><?php echo htmlspecialchars($exp['role'], ENT_QUOTES, 'UTF-8'); ?></strong> &mdash; 
-              <span><?php echo htmlspecialchars($exp['institution'], ENT_QUOTES, 'UTF-8'); ?> (<?php echo htmlspecialchars($exp['period'], ENT_QUOTES, 'UTF-8'); ?>)</span>
-              <div style="font-size:0.8rem; color: var(--text-muted);"><?php echo htmlspecialchars($exp['summary'], ENT_QUOTES, 'UTF-8'); ?></div>
-            </div>
-          </div>
-        <?php endforeach; ?>
       </div>
-    </section>
+    </div>
 
     <!-- FORM PENDAFTARAN GIG WORKER -->
-    <form method="POST" action="" class="white-card register-form-card">
+    <form method="POST" action="" style="display:flex; flex-direction:column;">
       <input type="hidden" name="action" value="register_gig_worker" />
 
       <!-- BAGIAN 1: PILIHAN KONTAK -->
-      <section>
-        <h2 class="section-title">
-          <span class="section-icon">1</span>
-          Informasi Kontak Gig Worker
-        </h2>
-        <p class="form-hint" style="margin-top: 6px; margin-bottom: 12px;">
+      <div class="form-section-header">
+        <h2 class="form-section-title">1. INFORMASI KONTAK GIG WORKER</h2>
+        <p class="form-section-subtitle">
           Pilih apakah Anda ingin menggunakan informasi kontak resmi dari SIAPKerja atau mencantumkan kontak baru khusus layanan Gig Worker.
         </p>
+      </div>
 
         <div class="contact-options">
           <label class="contact-option-card <?php echo $currentContactChoice === 'siapkerja' ? 'active' : ''; ?>" id="opt-siapkerja" onclick="selectContactOption('siapkerja')">
@@ -459,187 +555,183 @@ $backHref = $isEditMode
         </div>
       </section>
 
+      <div class="form-divider"></div>
+
       <!-- BAGIAN 2: BIDANG KEAHLIAN & SKILL -->
-      <section>
-        <h2 class="section-title">
-          <span class="section-icon">2</span>
-          Bidang Keahlian &amp; Skill Spesifik
-        </h2>
+      <div class="form-section-header">
+        <h2 class="form-section-title">2. BIDANG KEAHLIAN &amp; SKILL SPESIFIK</h2>
+        <p class="form-section-subtitle">Tentukan spesialisasi utama dan daftar keahlian teknis Anda.</p>
+      </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px;">
-          <div class="form-group">
-            <label class="form-label" for="bidang_keahlian">Bidang Keahlian Utama <span style="color:#ef4444;">*</span></label>
-            <?php 
-              $bidangOpts = [
-                "UI/UX Design & Product Interface",
-                "Web Development (Frontend / Backend / Fullstack)",
-                "Mobile Application Development",
-                "Digital Marketing & Social Media Strategy",
-                "Data Analytics & Data Entry",
-                "Copywriting, Content Writing & Translation",
-                "Graphic Design, Video Editing & Multimedia",
-                "Administrative & Virtual Assistant"
-              ];
-            ?>
-            <select id="bidang_keahlian" name="bidang_keahlian" class="form-select" required>
-              <option value="">-- Pilih Bidang Keahlian --</option>
-              <?php foreach ($bidangOpts as $bOpt): ?>
-                <option value="<?php echo htmlspecialchars($bOpt, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $currentBidang === $bOpt ? 'selected' : ''; ?>>
-                  <?php echo htmlspecialchars($bOpt, ENT_QUOTES, 'UTF-8'); ?>
-                </option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="skills">Skill / Keahlian Spesifik <span style="color:#ef4444;">*</span></label>
-            <input type="text" id="skills" name="skills" class="form-input" value="<?php echo htmlspecialchars($currentSkills, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Contoh: Figma, Wireframing, React, Node.js, Copywriting" required />
-            <span class="form-hint">Pisahkan skill dengan tanda koma ( , )</span>
-          </div>
+      <div class="form-grid-2col">
+        <div class="form-group">
+          <label class="form-label" for="bidang_keahlian">Bidang Keahlian Utama <span style="color:#ef4444;">*</span></label>
+          <?php 
+            $bidangOpts = [
+              "UI/UX Design & Product Interface",
+              "Web Development (Frontend / Backend / Fullstack)",
+              "Mobile Application Development",
+              "Digital Marketing & Social Media Strategy",
+              "Data Analytics & Data Entry",
+              "Copywriting, Content Writing & Translation",
+              "Graphic Design, Video Editing & Multimedia",
+              "Administrative & Virtual Assistant"
+            ];
+          ?>
+          <select id="bidang_keahlian" name="bidang_keahlian" class="form-select" required>
+            <option value="">-- Pilih Bidang Keahlian --</option>
+            <?php foreach ($bidangOpts as $bOpt): ?>
+              <option value="<?php echo htmlspecialchars($bOpt, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $currentBidang === $bOpt ? 'selected' : ''; ?>>
+                <?php echo htmlspecialchars($bOpt, ENT_QUOTES, 'UTF-8'); ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
         </div>
-      </section>
+
+        <div class="form-group">
+          <label class="form-label" for="skills">Skill / Keahlian Spesifik <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="skills" name="skills" class="form-input" value="<?php echo htmlspecialchars($currentSkills, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Contoh: Figma, React, Node.js" required />
+          <span class="form-hint">Pisahkan skill dengan tanda koma ( , )</span>
+        </div>
+      </div>
+
+      <div class="form-divider"></div>
 
       <!-- BAGIAN 3: PORTOFOLIO -->
-      <section>
-        <h2 class="section-title">
-          <span class="section-icon">3</span>
-          Portofolio Hasil Pekerjaan
-        </h2>
-        <p class="form-hint" style="margin-top: 6px; margin-bottom: 12px;">
+      <div class="form-section-header">
+        <h2 class="form-section-title">3. PORTOFOLIO HASIL PEKERJAAN</h2>
+        <p class="form-section-subtitle">
           Tampilkan contoh hasil proyek terbaik Anda (link berkas, desain Figma, atau repositori code) agar calon Pemberi Kerja dapat menilai kualitas kerja Anda.
         </p>
+      </div>
 
-        <div id="portfolioContainer">
-          <?php if (!empty($currentPortfolio) && is_array($currentPortfolio)): ?>
-            <?php foreach ($currentPortfolio as $pIdx => $pItem): ?>
-              <div class="dynamic-item" id="port-item-<?php echo $pIdx; ?>">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed var(--border-subtle);">
-                  <strong style="font-size: 0.95rem; color: var(--kemnaker-navy);">Portofolio #<?php echo $pIdx + 1; ?></strong>
-                  <?php if ($pIdx > 0): ?>
-                    <button type="button" class="btn-remove-item" onclick="document.getElementById('port-item-<?php echo $pIdx; ?>').remove()">Hapus Portofolio</button>
-                  <?php endif; ?>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
-                  <div class="form-group">
-                    <label class="form-label">Judul Portofolio <span style="color:#ef4444;">*</span></label>
-                    <input type="text" name="portfolio_title[]" class="form-input" value="<?php echo htmlspecialchars($pItem['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: Redesign Mobile App E-Commerce" required />
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Tipe / Kategori Deliverable <span style="color:#ef4444;">*</span></label>
-                    <input type="text" name="portfolio_type[]" class="form-input" value="<?php echo htmlspecialchars($pItem['type'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: Figma UI Kit / Web Prototype" required />
-                  </div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 14px;">
-                  <label class="form-label">Deskripsi Singkat Portofolio</label>
-                  <input type="text" name="portfolio_desc[]" class="form-input" value="<?php echo htmlspecialchars($pItem['deliverable'] ?? ($pItem['desc'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" placeholder="Ringkasan deliverable dan peran Anda" />
-                </div>
-
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 14px; margin-top: 10px;">
-                  <div style="font-size: 0.85rem; font-weight: 700; color: var(--kemnaker-navy); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-                    <span>📂 Lampiran Berkas / Link File (Bisa Mengunggah Lebih Dari 1 File)</span>
-                    <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">PDF, Figma, Code Repo, ZIP, Video, dll.</span>
-                  </div>
-
-                  <div id="file-list-<?php echo $pIdx; ?>">
-                    <?php 
-                      $files = !empty($pItem['files']) && is_array($pItem['files']) ? $pItem['files'] : [];
-                      if (empty($files) && !empty($pItem['url'])) {
-                          $files = [['name' => 'Berkas Deliverable Utama', 'type' => ($pItem['type'] ?? 'Dokumen PDF'), 'url' => $pItem['url']]];
-                      }
-                      if (empty($files)) {
-                          $files = [['name' => '', 'type' => 'Dokumen PDF / Link', 'url' => '']];
-                      }
-                    ?>
-                    <?php foreach ($files as $fIdx => $f): ?>
-                      <div class="file-item-row" style="display: grid; grid-template-columns: 2fr 1.5fr 3fr 30px; gap: 8px; align-items: center; margin-bottom: 8px;">
-                        <input type="text" name="portfolio_file_name[<?php echo $pIdx; ?>][]" class="form-input" style="font-size:0.82rem;" value="<?php echo htmlspecialchars($f['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="Nama Berkas (e.g. Wireframe UI PDF)" />
-                        <input type="text" name="portfolio_file_type[<?php echo $pIdx; ?>][]" class="form-input" style="font-size:0.82rem;" value="<?php echo htmlspecialchars($f['type'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="Tipe (PDF, Figma, Code)" />
-                        <input type="url" name="portfolio_file_url[<?php echo $pIdx; ?>][]" class="form-input" style="font-size:0.82rem;" value="<?php echo htmlspecialchars($f['url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://..." />
-                        <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer;" title="Hapus file ini">&times;</button>
-                      </div>
-                    <?php endforeach; ?>
-                  </div>
-
-                  <button type="button" class="btn-add-item" style="font-size: 0.78rem; padding: 5px 12px; margin-top: 4px; background: #eff6ff; color: var(--primary-blue); border: 1px dashed var(--primary-blue);" onclick="addFileToPortfolio(<?php echo $pIdx; ?>)">
-                    + Tambah Berkas / Link File Lainnya
-                  </button>
-                </div>
+      <div id="portfolioContainer">
+        <?php if (!empty($currentPortfolio) && is_array($currentPortfolio)): ?>
+          <?php foreach ($currentPortfolio as $pIdx => $pItem): ?>
+            <div class="dynamic-item" id="port-item-<?php echo $pIdx; ?>">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed #cbd5e1;">
+                <strong style="font-size: 0.95rem; color: #0f172a;">Portofolio #<?php echo $pIdx + 1; ?></strong>
+                <?php if ($pIdx > 0): ?>
+                  <button type="button" class="btn-remove-item" onclick="document.getElementById('port-item-<?php echo $pIdx; ?>').remove()">Hapus Portofolio</button>
+                <?php endif; ?>
               </div>
-            <?php endforeach; ?>
-          <?php else: ?>
-            <div class="dynamic-item" id="port-item-0">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed var(--border-subtle);">
-                <strong style="font-size: 0.95rem; color: var(--kemnaker-navy);">Portofolio #1</strong>
-              </div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
+
+              <div class="form-grid-2col" style="margin-bottom: 12px;">
                 <div class="form-group">
                   <label class="form-label">Judul Portofolio <span style="color:#ef4444;">*</span></label>
-                  <input type="text" name="portfolio_title[]" class="form-input" placeholder="contoh: Redesign Mobile App E-Commerce" required />
+                  <input type="text" name="portfolio_title[]" class="form-input" value="<?php echo htmlspecialchars($pItem['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: Redesign Mobile App E-Commerce" required />
                 </div>
                 <div class="form-group">
                   <label class="form-label">Tipe / Kategori Deliverable <span style="color:#ef4444;">*</span></label>
-                  <input type="text" name="portfolio_type[]" class="form-input" placeholder="contoh: Figma UI Kit / Web Prototype" required />
+                  <input type="text" name="portfolio_type[]" class="form-input" value="<?php echo htmlspecialchars($pItem['type'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: Figma UI Kit / Web Prototype" required />
                 </div>
               </div>
+
               <div class="form-group" style="margin-bottom: 14px;">
                 <label class="form-label">Deskripsi Singkat Portofolio</label>
-                <input type="text" name="portfolio_desc[]" class="form-input" placeholder="Ringkasan deliverable dan peran Anda" />
+                <input type="text" name="portfolio_desc[]" class="form-input" value="<?php echo htmlspecialchars($pItem['deliverable'] ?? ($pItem['desc'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" placeholder="Ringkasan deliverable dan peran Anda" />
               </div>
 
-              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 14px; margin-top: 10px;">
-                <div style="font-size: 0.85rem; font-weight: 700; color: var(--kemnaker-navy); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-                  <span>📂 Lampiran Berkas / Link File (Bisa Mengunggah Lebih Dari 1 File)</span>
-                  <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">PDF, Figma, Code Repo, ZIP, Video, dll.</span>
+              <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-top: 10px;">
+                <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                  <span>📂 Lampiran Berkas / Link File</span>
+                  <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">PDF, Figma, Code Repo, ZIP, Video, dll.</span>
                 </div>
 
-                <div id="file-list-0">
-                  <div class="file-item-row" style="display: grid; grid-template-columns: 2fr 1.5fr 3fr 30px; gap: 8px; align-items: center; margin-bottom: 8px;">
-                    <input type="text" name="portfolio_file_name[0][]" class="form-input" style="font-size:0.82rem;" placeholder="Nama Berkas (e.g. Wireframe UI PDF)" />
-                    <input type="text" name="portfolio_file_type[0][]" class="form-input" style="font-size:0.82rem;" placeholder="Tipe (PDF, Figma, Code)" />
-                    <input type="url" name="portfolio_file_url[0][]" class="form-input" style="font-size:0.82rem;" placeholder="https://..." />
-                    <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer;" title="Hapus file ini">&times;</button>
-                  </div>
+                <div id="file-list-<?php echo $pIdx; ?>">
+                  <?php 
+                    $files = !empty($pItem['files']) && is_array($pItem['files']) ? $pItem['files'] : [];
+                    if (empty($files) && !empty($pItem['url'])) {
+                        $files = [['name' => 'Berkas Deliverable Utama', 'type' => ($pItem['type'] ?? 'Dokumen PDF'), 'url' => $pItem['url']]];
+                    }
+                    if (empty($files)) {
+                        $files = [['name' => '', 'type' => 'Dokumen PDF / Link', 'url' => '']];
+                    }
+                  ?>
+                  <?php foreach ($files as $fIdx => $f): ?>
+                    <div class="file-item-row" style="display: grid; grid-template-columns: 2fr 1.5fr 3fr 30px; gap: 8px; align-items: center; margin-bottom: 8px;">
+                      <input type="text" name="portfolio_file_name[<?php echo $pIdx; ?>][]" class="form-input" style="font-size:0.82rem;" value="<?php echo htmlspecialchars($f['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="Nama Berkas (e.g. Wireframe UI PDF)" />
+                      <input type="text" name="portfolio_file_type[<?php echo $pIdx; ?>][]" class="form-input" style="font-size:0.82rem;" value="<?php echo htmlspecialchars($f['type'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="Tipe (PDF, Figma, Code)" />
+                      <input type="url" name="portfolio_file_url[<?php echo $pIdx; ?>][]" class="form-input" style="font-size:0.82rem;" value="<?php echo htmlspecialchars($f['url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://..." />
+                      <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer;" title="Hapus file ini">&times;</button>
+                    </div>
+                  <?php endforeach; ?>
                 </div>
 
-                <button type="button" class="btn-add-item" style="font-size: 0.78rem; padding: 5px 12px; margin-top: 4px; background: #eff6ff; color: var(--primary-blue); border: 1px dashed var(--primary-blue);" onclick="addFileToPortfolio(0)">
+                <button type="button" class="btn-add-item" style="font-size: 0.78rem; padding: 5px 12px; margin-top: 4px;" onclick="addFileToPortfolio(<?php echo $pIdx; ?>)">
                   + Tambah Berkas / Link File Lainnya
                 </button>
               </div>
             </div>
-          <?php endif; ?>
-        </div>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <div class="dynamic-item" id="port-item-0">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed #cbd5e1;">
+              <strong style="font-size: 0.95rem; color: #0f172a;">Portofolio #1</strong>
+            </div>
+            <div class="form-grid-2col" style="margin-bottom: 12px;">
+              <div class="form-group">
+                <label class="form-label">Judul Portofolio <span style="color:#ef4444;">*</span></label>
+                <input type="text" name="portfolio_title[]" class="form-input" placeholder="contoh: Redesign Mobile App E-Commerce" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tipe / Kategori Deliverable <span style="color:#ef4444;">*</span></label>
+                <input type="text" name="portfolio_type[]" class="form-input" placeholder="contoh: Figma UI Kit / Web Prototype" required />
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label class="form-label">Deskripsi Singkat Portofolio</label>
+              <input type="text" name="portfolio_desc[]" class="form-input" placeholder="Ringkasan deliverable dan peran Anda" />
+            </div>
 
-        <button type="button" class="btn-add-item" onclick="addPortfolioItem()">
-          + Tambah Portofolio
-        </button>
-      </section>
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-top: 10px;">
+              <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                <span>📂 Lampiran Berkas / Link File</span>
+                <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">PDF, Figma, Code Repo, ZIP, Video, dll.</span>
+              </div>
+
+              <div id="file-list-0">
+                <div class="file-item-row" style="display: grid; grid-template-columns: 2fr 1.5fr 3fr 30px; gap: 8px; align-items: center; margin-bottom: 8px;">
+                  <input type="text" name="portfolio_file_name[0][]" class="form-input" style="font-size:0.82rem;" placeholder="Nama Berkas (e.g. Wireframe UI PDF)" />
+                  <input type="text" name="portfolio_file_type[0][]" class="form-input" style="font-size:0.82rem;" placeholder="Tipe (PDF, Figma, Code)" />
+                  <input type="url" name="portfolio_file_url[0][]" class="form-input" style="font-size:0.82rem;" placeholder="https://..." />
+                  <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer;" title="Hapus file ini">&times;</button>
+                </div>
+              </div>
+
+              <button type="button" class="btn-add-item" style="font-size: 0.78rem; padding: 5px 12px; margin-top: 4px;" onclick="addFileToPortfolio(0)">
+                + Tambah Berkas / Link File Lainnya
+              </button>
+            </div>
+          </div>
+        <?php endif; ?>
+      </div>
+
+      <button type="button" class="btn-add-item" onclick="addPortfolioItem()" style="margin-top: 8px; align-self: flex-start;">
+        + Tambah Portofolio
+      </button>
+
+      <div class="form-divider"></div>
 
       <!-- BAGIAN 4: LINK VIDEO PROFIL -->
-      <section>
-        <h2 class="section-title">
-          <span class="section-icon">4</span>
-          Link Video Profil Gig Worker
-        </h2>
-        <p class="form-hint" style="margin-top: 6px; margin-bottom: 12px;">
+      <div class="form-section-header">
+        <h2 class="form-section-title">4. LINK VIDEO PROFIL GIG WORKER</h2>
+        <p class="form-section-subtitle">
           Sampaikan perkenalan singkat diri dan keahlian Anda melalui video (misal: YouTube, Loom, atau Google Drive Video).
         </p>
+      </div>
 
-        <div class="form-group">
-          <label class="form-label" for="video_url">Tautan / URL Video Profil</label>
-          <input type="url" id="video_url" name="video_url" class="form-input" value="<?php echo htmlspecialchars($currentVideoUrl, ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://www.youtube.com/watch?v=... atau https://www.loom.com/share/..." oninput="checkVideoPreview(this.value)" />
-          <div id="videoPreviewStatus" style="font-size: 0.8rem; margin-top: 4px; display: none;"></div>
-        </div>
-      </section>
+      <div class="form-group">
+        <label class="form-label" for="video_url">Tautan / URL Video Profil</label>
+        <input type="url" id="video_url" name="video_url" class="form-input" value="<?php echo htmlspecialchars($currentVideoUrl, ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://www.youtube.com/watch?v=... atau https://www.loom.com/share/..." oninput="checkVideoPreview(this.value)" />
+        <div id="videoPreviewStatus" style="font-size: 0.8rem; margin-top: 4px; display: none;"></div>
+      </div>
 
       <!-- SUBMIT -->
-      <div style="display: flex; justify-content: flex-end; gap: 14px; margin-top: 10px;">
-        <a href="dashboard-worker.php" class="register-cancel">Batal</a>
+      <div style="display: flex; justify-content: flex-end; gap: 14px; margin-top: 32px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+        <a href="pilih-pendaftaran.php" style="padding:14px 24px; text-decoration:none; color:#64748b; font-weight:700; font-size:0.9rem;">Batal</a>
         <button type="submit" class="btn-submit">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          <?php echo $isEditMode ? 'Simpan Pembaruan Profil' : 'Daftar & Aktifkan Profil Gig Worker'; ?>
-        </button>
+          <?php echo $isEditMode ? 'Simpan Pembaruan Profil' : 'Kirim Pengajuan Verifikasi'; ?>
       </div>
     </form>
 
