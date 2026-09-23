@@ -8,10 +8,10 @@ declare(strict_types=1);
 </div>
 <script>
   document.addEventListener('click', function (e) {
-    const menu = document.querySelector('.profile-menu');
-    if (menu && !menu.contains(e.target)) {
-      const drop = document.getElementById('profileDropdown');
-      if (drop) drop.classList.remove('open');
+    if (!e.target.closest('.profile-menu')) {
+      document.querySelectorAll('.profile-dropdown').forEach(function (drop) {
+        drop.classList.remove('open');
+      });
     }
   });
   function showToast(message) {
