@@ -92,25 +92,69 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $action = $_POST['action'] ?? '';
     
     if ($action === 'siapkerja_login') {
-        $loginTarget = $_POST['simulated_target'] ?? 'employer_registered';
-        $usernameInput = trim((string)($_POST["username"] ?? "theressasilaban@gmail.com"));
+        $usernameInput = trim((string)($_POST["username"] ?? ""));
+        $passwordInput = (string)($_POST["password"] ?? "");
 
-        if ($loginTarget === 'unregistered') {
-            // User has SIAPKerja account, but hasn't registered as Pemberi Kerja -> leads to Picture 3
-            header("Location: welcome-screen.php?step=unregistered");
-            exit;
-        } elseif ($loginTarget === 'worker') {
-            // Log in as Gig Worker
-            $_SESSION["username"] = $usernameInput !== "" ? $usernameInput : "Tessa";
-            $_SESSION["role"] = 'worker';
-            header("Location: dashboard-worker.php");
-            exit;
+        if ($usernameInput === "") {
+            $message = "Silakan isi email atau nomor handphone.";
+            $messageType = "error";
+            $step = 'siapkerja';
         } else {
-            // Default: Log in as Registered Employer
-            $_SESSION["username"] = "PT ABC";
-            $_SESSION["role"] = 'employer';
-            header("Location: dashboard-employer.php");
-            exit;
+            $userFound = false;
+            $userRole = null;
+            $resolvedUsername = $usernameInput;
+            
+            // 1. Check in MySQL Database if available
+            if ($pdo !== null) {
+                try {
+                    $loginStmt = $pdo->prepare("SELECT `username`, `password`, `role` FROM `Login` WHERE `username` = :u LIMIT 1");
+                    $loginStmt->execute([":u" => $usernameInput]);
+                    $userRow = $loginStmt->fetch(PDO::FETCH_ASSOC);
+
+                    if ($userRow) {
+                        $userFound = true;
+                        $userRole = $userRow["role"];
+                        $resolvedUsername = $userRow["username"];
+                    }
+                } catch (Throwable $e) {
+                    // Ignore DB exception & use fallback rule
+                }
+            }
+
+            // 2. Fallback checking for prototype accounts if DB query did not match
+            if (!$userFound) {
+                $lowerInput = strtolower($usernameInput);
+                if ($lowerInput === 'pt abc' || str_contains($lowerInput, 'pt ') || str_contains($lowerInput, 'employer')) {
+                    $userFound = true;
+                    $userRole = 'employer';
+                    $resolvedUsername = 'PT ABC';
+                } elseif ($lowerInput === 'tessa' || str_contains($lowerInput, 'worker') || str_contains($lowerInput, 'gig')) {
+                    $userFound = true;
+                    $userRole = 'worker';
+                    $resolvedUsername = 'Tessa';
+                }
+            }
+
+            // 3. Dynamic SIAPKerja Account Verification & Routing
+            if ($userFound && $userRole === 'employer') {
+                // Registered Employer -> Log in and redirect to Employer Dashboard
+                $_SESSION["username"] = $resolvedUsername;
+                $_SESSION["role"] = 'employer';
+                header("Location: dashboard-employer.php");
+                exit;
+            } elseif ($userFound && $userRole === 'worker') {
+                // Registered Gig Worker -> Log in and redirect to Worker Dashboard
+                $_SESSION["username"] = $resolvedUsername;
+                $_SESSION["role"] = 'worker';
+                header("Location: dashboard-worker.php");
+                exit;
+            } else {
+                // User has a SIAPkerja Account, BUT has NOT registered as a Pemberi Kerja yet
+                // Directs to Screen 3 ("Pemberi Kerja Belum Terdaftar")
+                $_SESSION["siapkerja_email"] = $usernameInput;
+                header("Location: welcome-screen.php?step=unregistered");
+                exit;
+            }
         }
     }
 }
@@ -147,57 +191,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             overflow-x: hidden;
         }
 
-        /* Demo Navigation Bar */
-        .demo-nav-bar {
-            position: fixed;
-            top: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(15, 23, 42, 0.88);
-            backdrop-filter: blur(8px);
-            padding: 6px 14px;
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 9999;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .demo-nav-label {
-            color: #94a3b8;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding-right: 6px;
-        }
-        .demo-nav-btn {
-            color: #e2e8f0;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 5px 12px;
-            border-radius: 20px;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .demo-nav-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            color: #ffffff;
-        }
-        .demo-nav-btn.active {
-            background: #18b5ea;
-            color: #ffffff;
-            font-weight: 700;
-        }
-
         /* Top Brand Header */
         .page-header {
             width: 100%;
-            padding-top: 60px;
+            padding-top: 50px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -442,37 +439,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             justify-content: center;
         }
 
-        /* Demo Mode Box inside Form */
-        .demo-simulation-box {
-            background: #f8fafc;
-            border: 1px dashed #cbd5e1;
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        .demo-simulation-title {
-            font-size: 11px;
-            font-weight: 700;
-            color: #475569;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
-        }
-        .demo-sim-radio {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            font-size: 12.5px;
-            color: #334155;
-        }
-        .demo-sim-radio label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-        }
-
         /* Step 2 Full Background Vector Graphic Container */
         .siapkerja-bg-wrapper {
             position: absolute;
@@ -501,11 +467,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             width: 100%;
         }
 
+        .error-message-box {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
         @media (max-width: 640px) {
-            .demo-nav-bar {
-                width: 92%;
-                justify-content: center;
-            }
             .auth-card {
                 padding: 28px 20px;
             }
@@ -516,20 +489,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </style>
 </head>
 <body>
-
-    <!-- Demo Interactive Navigation Bar -->
-    <div class="demo-nav-bar">
-        <span class="demo-nav-label">Simulasi Tampilan:</span>
-        <a href="welcome-screen.php?step=gateway" class="demo-nav-btn <?php echo $step === 'gateway' ? 'active' : ''; ?>">
-            1. Gateway Pemberi Kerja
-        </a>
-        <a href="welcome-screen.php?step=siapkerja" class="demo-nav-btn <?php echo $step === 'siapkerja' ? 'active' : ''; ?>">
-            2. Form SIAPkerja ID
-        </a>
-        <a href="welcome-screen.php?step=unregistered" class="demo-nav-btn <?php echo $step === 'unregistered' ? 'active' : ''; ?>">
-            3. Belum Terdaftar
-        </a>
-    </div>
 
     <!-- MAIN BODY CONTENT BASED ON STEP -->
     <?php if ($step === 'siapkerja'): ?>
@@ -588,12 +547,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="auth-card">
                 <h1 class="card-title" style="margin-bottom: 24px;">Masuk</h1>
                 
+                <?php if ($message !== ""): ?>
+                    <div class="error-message-box"><?php echo htmlspecialchars($message, ENT_QUOTES, "UTF-8"); ?></div>
+                <?php endif; ?>
+
                 <form method="POST" action="welcome-screen.php">
                     <input type="hidden" name="action" value="siapkerja_login">
                     
                     <div class="form-group">
                         <label class="form-label" for="username">Email atau nomor handphone</label>
-                        <input type="text" id="username" name="username" class="input-control" value="theressasilaban@gmail.com" required>
+                        <input type="text" id="username" name="username" class="input-control" placeholder="theressasilaban@gmail.com" required>
                     </div>
 
                     <div class="form-group">
@@ -602,32 +565,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <a href="#" class="link-teal">Kendala Masuk ke Akun?</a>
                         </div>
                         <div class="password-wrapper">
-                            <input type="password" id="password" name="password" class="input-control" value="00000" required>
+                            <input type="password" id="password" name="password" class="input-control" placeholder="••••••••••••" required>
                             <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility()" aria-label="Toggle Password">
                                 <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                                     <circle cx="12" cy="12" r="3"/>
                                 </svg>
                             </button>
-                        </div>
-                    </div>
-
-                    <!-- Simulated Target Selector for Prototype Testing -->
-                    <div class="demo-simulation-box">
-                        <div class="demo-simulation-title">Simulasi Status Akun saat Login:</div>
-                        <div class="demo-sim-radio">
-                            <label>
-                                <input type="radio" name="simulated_target" value="employer_registered" checked>
-                                <strong>Pemberi Kerja Terdaftar</strong> (Masuk ke Dashboard)
-                            </label>
-                            <label>
-                                <input type="radio" name="simulated_target" value="unregistered">
-                                <strong>Belum Terdaftar Pemberi Kerja</strong> (Menuju Gambar 3)
-                            </label>
-                            <label>
-                                <input type="radio" name="simulated_target" value="worker">
-                                <strong>Gig Worker</strong> (Masuk Dashboard Worker)
-                            </label>
                         </div>
                     </div>
 
