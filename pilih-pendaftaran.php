@@ -256,9 +256,9 @@ session_start();
             <h1 class="card-header-title">Pilih pendaftaran</h1>
             <p class="card-header-subtitle">Pilih pendaftaran yang Anda inginkan pada akun Anda.</p>
 
-            <!-- Option 1: Pencari Kerja (Directs to worker-register.php to register as Gig Worker) -->
+            <!-- Option 1: Pencari Kerja -->
             <div class="option-item-box">
-                <a href="worker-register.php" class="option-item-link">
+                <a href="#" class="option-item-link">
                     <div class="option-icon-box">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -279,6 +279,36 @@ session_start();
                 </a>
                 <div class="option-footer-link">
                     Apa itu Pencari Kerja ?
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Option 1.5: Gig Workers (New) -->
+            <div class="option-item-box">
+                <a href="worker-register.php" class="option-item-link">
+                    <div class="option-icon-box">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 9.36l-7.1 7.1a1 1 0 0 1-1.42 0l-1.4-1.4a1 1 0 0 1 0-1.42l7.1-7.1a6 6 0 0 1 9.36-7.94l-3.77 3.77a1 1 0 0 0 0 1.4z"></path>
+                        </svg>
+                    </div>
+                    <div class="option-content-body">
+                        <div class="option-item-title">Gig Workers</div>
+                        <div class="option-item-desc">
+                            Pekerja lepas atau profesional independen yang menawarkan jasa untuk proyek jangka pendek.
+                        </div>
+                    </div>
+                    <div class="option-chevron">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </div>
+                </a>
+                <div class="option-footer-link">
+                    Apa itu Gig Workers ?
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"></circle>
                         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
