@@ -237,11 +237,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
                 Proses verifikasi membutuhkan waktu 1-3 hari kerja. Setelah verifikasi selesai, akun Anda akan aktif sepenuhnya untuk melamar proyek dan menerima tawaran pekerjaan dari Pemberi Kerja.
             </div>
 
-            <a href="dashboard-worker.php" class="btn-primary">
-                Masuk ke Dasbor Gig Worker &rarr;
-            </a>
-
-            <a href="welcome-screen.php" class="btn-outline">
+            <a href="welcome-screen.php" class="btn-primary">
                 Kembali ke Halaman Utama
             </a>
         </div>
