@@ -23,7 +23,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
     <div class="page-toolbar">
       <h1>Ringkasan</h1>
-      <a class="btn-primary-add" href="worker-bursa.php">Cari Proyek</a>
     </div>
 
     <section class="hero-banner">

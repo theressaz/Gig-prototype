@@ -407,9 +407,6 @@ a.proyek-card-item:hover {
     <div class="subheader-count">
       Menampilkan <strong><?php echo count($vacancies); ?></strong> Proyek siap dilamar
     </div>
-    <div class="subheader-badge">
-      <span>💡</span> Maks. 3 penawaran per lowongan aktif
-    </div>
   </div>
 
   <!-- PROJECT GRID -->
