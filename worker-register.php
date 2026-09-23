@@ -148,104 +148,204 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
 }
 
 $pageTitle = $isEditMode ? 'Edit Profil Gig Worker' : 'Pendaftaran Gig Worker';
-$pageKey = 'profil';
-$breadcrumbCurrent = $isEditMode ? 'Edit Profil' : 'Pendaftaran';
-require __DIR__ . '/includes/worker-layout-start.php';
 $backHref = $isEditMode
     ? 'worker-profile.php?id=' . urlencode(strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $username)[0] ?? $username)))
-    : 'dashboard-worker.php';
+    : 'pilih-pendaftaran.php';
 ?>
-<style>
-  .register-form-card { display:flex; flex-direction:column; gap:28px; }
-  .siapkerja-card { position:relative; margin-bottom:20px; }
-  .siapkerja-badge {
-    position:absolute; top:20px; right:24px;
-    display:inline-flex; align-items:center; gap:6px;
-    background:#ecfdf5; color:#047857; border:1px solid #a7f3d0;
-    padding:4px 12px; border-radius:9999px; font-size:0.75rem; font-weight:700;
-  }
-  .siapkerja-header { display:flex; align-items:center; gap:16px; margin-bottom:18px; padding-right:180px; }
-  .siapkerja-avatar {
-    width:56px; height:56px; border-radius:50%;
-    background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff;
-    display:flex; align-items:center; justify-content:center;
-    font-size:1.4rem; font-weight:800; flex-shrink:0;
-  }
-  .siapkerja-info h3 { font-size:1.15rem; font-weight:800; color:var(--text-main); }
-  .siapkerja-meta { display:flex; flex-wrap:wrap; gap:12px; font-size:0.84rem; color:var(--text-muted); margin-top:4px; }
-  .siapkerja-exp-box { background:#f8fafc; border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:14px 16px; }
-  .exp-title { font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:8px; }
-  .exp-item { font-size:0.86rem; color:var(--text-main); padding:4px 0; display:flex; align-items:flex-start; gap:8px; }
-  .section-title {
-    font-size:1.08rem; font-weight:800; color:var(--kemnaker-navy);
-    padding-bottom:10px; border-bottom:2px solid #f1f5f9;
-    display:flex; align-items:center; gap:10px;
-  }
-  .section-icon {
-    width:28px; height:28px; border-radius:6px; background:#eff6ff; color:var(--primary-blue);
-    display:flex; align-items:center; justify-content:center; font-size:0.9rem;
-  }
-  .form-group { display:flex; flex-direction:column; gap:8px; }
-  .form-label { font-size:0.88rem; font-weight:700; color:var(--text-main); }
-  .form-hint { font-size:0.78rem; color:var(--text-muted); }
-  .form-input, .form-select, .form-textarea {
-    width:100%; padding:10px 14px; border:1px solid var(--border-light);
-    border-radius:var(--radius-sm); font-size:0.9rem; color:var(--text-main); background:#fff;
-  }
-  .form-input:focus, .form-select:focus, .form-textarea:focus {
-    outline:none; border-color:var(--primary-blue); box-shadow:0 0 0 3px rgba(22,87,193,0.12);
-  }
-  .contact-options { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:4px; }
-  @media (max-width:640px) {
-    .contact-options, .new-contact-fields { grid-template-columns:1fr !important; }
-    .siapkerja-header { padding-right:0; }
-    .siapkerja-badge { position:static; margin-bottom:12px; }
-  }
-  .contact-option-card {
-    border:1.5px solid var(--border-light); border-radius:var(--radius-md); padding:16px;
-    cursor:pointer; display:flex; align-items:flex-start; gap:12px; background:#f8fafc;
-  }
-  .contact-option-card:hover { border-color:#93c5fd; background:#fff; }
-  .contact-option-card.active { border-color:var(--primary-blue); background:#eff6ff; }
-  .contact-radio { margin-top:3px; accent-color:var(--primary-blue); }
-  .new-contact-fields {
-    display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; padding:16px;
-    background:#f8fafc; border:1px dashed #bfdbfe; border-radius:var(--radius-md);
-  }
-  .dynamic-item { background:#f8fafc; border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:18px; position:relative; margin-bottom:12px; }
-  .btn-remove-item { background:#fee2e2; color:#dc2626; border:none; padding:4px 10px; border-radius:var(--radius-sm); font-size:0.75rem; font-weight:700; cursor:pointer; }
-  .btn-add-item {
-    display:inline-flex; align-items:center; gap:6px; background:#eff6ff; color:var(--primary-blue);
-    border:1px dashed #bfdbfe; padding:10px 18px; border-radius:var(--radius-sm); font-size:0.85rem; font-weight:700; cursor:pointer;
-  }
-  .btn-add-item:hover { background:#dbeafe; border-color:var(--primary-blue); }
-  .btn-submit {
-    background:linear-gradient(135deg, var(--hero-blue-mid) 0%, var(--hero-blue-end) 100%);
-    color:#fff; border:none; padding:12px 24px; border-radius:var(--radius-pill);
-    font-size:0.95rem; font-weight:800; cursor:pointer;
-    display:inline-flex; align-items:center; justify-content:center; gap:8px;
-  }
-  .alert { padding:14px 18px; border-radius:var(--radius-md); font-size:0.9rem; font-weight:600; display:flex; align-items:center; gap:10px; margin-bottom:16px; }
-  .alert-success { background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; }
-  .alert-error { background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; }
-  .register-cancel { padding:12px 18px; text-decoration:none; color:var(--text-muted); font-weight:700; font-size:0.9rem; }
-</style>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORM PROFIL GIG WORKER · Karirhub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-    <div class="page-toolbar">
-      <h1><?php echo $isEditMode ? 'Edit Profil Gig Worker' : 'Pendaftaran Gig Worker'; ?></h1>
-      <a class="btn-secondary" href="<?php echo htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>">Kembali</a>
-    </div>
+        .header-nav {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 16px 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-    <section class="hero-banner" style="margin-bottom:20px;">
-      <div class="hero-badge">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        <?php echo $isEditMode ? 'Pembaruan Profil Gig Worker' : 'Pendaftaran Resmi Gig Worker'; ?>
-      </div>
-      <h2 class="hero-title"><?php echo $isEditMode ? 'Edit Informasi Profil Gig Worker' : 'Bergabung Sebagai Gig Worker Kemnaker'; ?></h2>
-      <p class="hero-desc">
-        <?php echo $isEditMode ? 'Perbarui bidang keahlian, skill spesifik, proyek portofolio, dan tautan video profil Anda agar calon Pemberi Kerja mendapatkan informasi terbaru.' : 'Gunakan akun SIAPKerja Anda untuk melengkapi profil profesional Gig Worker. Dapatkan akses ke berbagai penawaran proyek dari Pemberi Kerja terverifikasi dan perlindungan ekosistem tenaga kerja mandiri.'; ?>
-      </p>
-    </section>
+        .nav-center-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .nav-center-logo .logo-text {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+        }
+        .nav-center-logo .logo-subtext {
+            font-size: 10px;
+            color: #64748b;
+            display: block;
+            line-height: 1;
+        }
+
+        .main-container {
+            flex: 1;
+            max-width: 860px;
+            width: 100%;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .reg-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+            padding: 40px 44px;
+        }
+
+        .form-header-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.2px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .form-header-subtitle {
+            font-size: 13.5px;
+            color: #64748b;
+            margin-bottom: 32px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .form-section-title {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-top: 28px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .form-section-subtitle {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+
+        .siapkerja-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 28px;
+            position: relative;
+        }
+
+        .siapkerja-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .register-form-card { display: flex; flex-direction: column; gap: 28px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-label { font-size: 0.88rem; font-weight: 700; color: #1e293b; }
+        .form-hint { font-size: 0.78rem; color: #64748b; }
+        .form-input, .form-select, .form-textarea {
+            width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1;
+            border-radius: 10px; font-size: 0.9rem; color: #0f172a; background: #f8fafc;
+            transition: all 0.2s ease;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+        }
+        .contact-options { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 4px; }
+        .contact-option-card {
+            border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 16px;
+            cursor: pointer; display: flex; align-items: flex-start; gap: 12px; background: #f8fafc;
+        }
+        .contact-option-card:hover { border-color: #93c5fd; background: #ffffff; }
+        .contact-option-card.active { border-color: #0284c7; background: #eff6ff; }
+        .contact-radio { margin-top: 3px; accent-color: #0284c7; }
+        .new-contact-fields {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; padding: 16px;
+            background: #f8fafc; border: 1px dashed #bfdbfe; border-radius: 10px;
+        }
+        .dynamic-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px; position: relative; margin-bottom: 12px; }
+        .btn-remove-item { background: #fee2e2; color: #dc2626; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+        .btn-add-item {
+            display: inline-flex; align-items: center; gap: 6px; background: #eff6ff; color: #0284c7;
+            border: 1px dashed #bfdbfe; padding: 10px 18px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer;
+        }
+        .btn-add-item:hover { background: #dbeafe; border-color: #0284c7; }
+        .btn-submit {
+            background: #0284c7; color: #ffffff; border: none; padding: 14px 32px;
+            border-radius: 9999px; font-size: 0.95rem; font-weight: 800; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            transition: background 0.2s ease;
+        }
+        .btn-submit:hover { background: #0369a1; }
+        .alert { padding: 14px 18px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+        .alert-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .alert-error { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+
+        .page-footer {
+            padding: 24px 20px; text-align: center; font-size: 13.5px; color: #64748b;
+            background-color: #f8fafc; border-top: 1px solid #e2e8f0; margin-top: 40px;
+        }
+        .page-footer a { color: #0284c7; font-weight: 600; text-decoration: none; }
+        .page-footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            .reg-card { padding: 24px 20px; }
+            .contact-options { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header-nav">
+        <a href="welcome-screen.php" class="nav-center-logo">
+            <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                <path d="M10 10 H28 Q32 10 32 14 V18 L20 30 H10 Z" fill="#18b5ea"/>
+                <circle cx="28" cy="12" r="3" fill="#38bdf8"/>
+            </svg>
+            <div>
+                <span class="logo-text">Karir<span style="color: #18b5ea;">hub</span></span>
+                <span class="logo-subtext">oleh Kemnaker</span>
+            </div>
+        </a>
+    </header>
+
+    <main class="main-container">
+        <div class="reg-card">
+            <h1 class="form-header-title">FORM PROFIL GIG WORKER</h1>
+            <p class="form-header-subtitle">Lengkapi biodata individu untuk pengajuan verifikasi Hak Akses Gig Worker.</p>
 
     <?php if ($successMessage !== ""): ?>
       <div class="alert alert-success">
@@ -674,4 +774,12 @@ $backHref = $isEditMode
       }
     }
   </script>
-<?php require __DIR__ . '/includes/worker-layout-end.php'; ?>
+        </div>
+    </main>
+
+    <footer class="page-footer">
+        Butuh bantuan? <a href="#">Kunjungi Pusat Bantuan</a> atau hubungi kami
+    </footer>
+
+</body>
+</html>
