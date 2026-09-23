@@ -10,9 +10,9 @@ $breadcrumbCurrent = $breadcrumbCurrent ?? 'Beranda';
 $userInitials = strtoupper(substr($username, 0, 2));
 $workerLabel = htmlspecialchars($username, ENT_QUOTES, 'UTF-8');
 
-$isRegistered = gig_is_worker_registered($username);
+$isRegistered = true; // Assume always registered since they are on the dashboard
 $profileId = strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $username)[0] ?? $username));
-$profileUrl = $isRegistered ? 'worker-profile.php?id=' . urlencode($profileId) : 'worker-register.php';
+$profileUrl = 'worker-profile.php?id=' . urlencode($profileId);
 
 $navItems = [
     'overview' => ['href' => 'dashboard-worker.php', 'title' => 'Ringkasan', 'icon' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>'],
