@@ -24,7 +24,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk ke Platform Pemberi Kerja · Karirhub</title>
+    <title>Masuk atau Daftar · Karirhub</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -63,8 +63,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
         }
 
         .karirhub-icon {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
         }
 
         .karirhub-text {
@@ -100,13 +100,13 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
             border: 1px solid #f1f5f9;
             width: 100%;
-            max-width: 440px;
-            padding: 36px 32px;
+            max-width: 460px;
+            padding: 40px 36px;
             text-align: center;
         }
 
         .card-title {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
             color: #0f172a;
             margin-bottom: 8px;
@@ -116,18 +116,18 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
         .card-subtitle {
             font-size: 14px;
             color: #64748b;
-            margin-bottom: 28px;
+            margin-bottom: 30px;
             line-height: 1.5;
             font-weight: 400;
         }
 
-        .btn-cyan {
+        .btn-action-primary {
             background-color: #18b5ea;
             color: #ffffff;
             font-family: inherit;
             font-size: 15px;
             font-weight: 600;
-            padding: 13px 20px;
+            padding: 14px 20px;
             border-radius: 10px;
             border: none;
             width: 100%;
@@ -139,14 +139,44 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             justify-content: center;
             gap: 8px;
             box-shadow: 0 2px 6px rgba(24, 181, 234, 0.25);
+            margin-bottom: 12px;
         }
-        .btn-cyan:hover {
+        .btn-action-primary:hover {
             background-color: #0fa1d2;
             box-shadow: 0 4px 12px rgba(24, 181, 234, 0.35);
         }
 
+        .btn-action-secondary {
+            background-color: #ffffff;
+            color: #18b5ea;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 13px 20px;
+            border-radius: 10px;
+            border: 2px solid #18b5ea;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-action-secondary:hover {
+            background-color: #f0f9ff;
+        }
+
+        .text-divider {
+            margin: 16px 0;
+            font-size: 13px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
         .card-link-wrapper {
-            margin-top: 20px;
+            margin-top: 24px;
             font-size: 14px;
             color: #64748b;
         }
@@ -172,7 +202,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
 </head>
 <body>
 
-    <!-- SCREEN 1: MASUK KE PLATFORM PEMBERI KERJA -->
     <header class="page-header">
         <div class="karirhub-logo-mark">
             <svg class="karirhub-icon" viewBox="0 0 40 40" fill="none">
@@ -187,18 +216,24 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     </header>
 
     <main class="main-wrapper">
-        <div class="auth-card" style="max-width: 460px;">
+        <div class="auth-card">
             <h1 class="card-title">Masuk ke Platform Pemberi Kerja</h1>
             <p class="card-subtitle">
-                Silakan masuk menggunakan akun SIAPkerja Anda
+                Pilih apakah Anda ingin langsung masuk dengan akun yang sudah ada atau melakukan pendaftaran baru.
             </p>
 
-            <a href="siapkerja-login.php" class="btn-cyan">
-                Masuk dengan akun SIAPkerja
+            <a href="siapkerja-login.php" class="btn-action-primary">
+                Masuk Langsung dengan SIAPkerja
+            </a>
+
+            <div class="text-divider">atau</div>
+
+            <a href="pilih-pendaftaran.php" class="btn-action-secondary">
+                Daftar Akun Baru
             </a>
 
             <div class="card-link-wrapper">
-                Belum punya akun? <a href="siapkerja-login.php">Daftar di sini</a>
+                Belum punya akun? <a href="pilih-pendaftaran.php">Daftar akun di sini</a>
             </div>
         </div>
     </main>
