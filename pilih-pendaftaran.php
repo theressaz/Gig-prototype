@@ -230,9 +230,7 @@ session_start();
 <body>
 
     <!-- Header Bar -->
-    <header class="top-navbar">
-        <a href="welcome-screen.php" class="nav-link-left">Kembali ke Halaman Utama</a>
-
+    <header class="top-navbar" style="justify-content: center;">
         <a href="welcome-screen.php" class="nav-center-logo">
             <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
                 <path d="M10 10 H28 Q32 10 32 14 V18 L20 30 H10 Z" fill="#18b5ea"/>
@@ -243,11 +241,6 @@ session_start();
                 <span class="logo-subtext">oleh Kemnaker</span>
             </div>
         </a>
-
-        <div class="nav-user-right">
-            <span class="nav-user-label">Dasbor Pengelola</span>
-            <img class="nav-user-avatar" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&auto=format&fit=crop&q=80" alt="User Profile">
-        </div>
     </header>
 
     <!-- Main Container -->

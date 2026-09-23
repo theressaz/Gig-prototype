@@ -1,9 +1,13 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/includes/worker-auth.php';
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
+
+$username = $_SESSION['username'] ?? $_SESSION['siapkerja_name'] ?? 'Tessa';
 
 $siapkerja = gig_get_siapkerja_profile($username);
 $isRegistered = gig_is_worker_registered($username);
