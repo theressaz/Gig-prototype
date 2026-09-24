@@ -124,7 +124,7 @@ if ($role === 'worker') {
     <?php endif; ?>
 
     <section class="section-card">
-      <h2>Pengalaman</h2>
+      <h2>Pengalaman &amp; Rekam Jejak Proyek</h2>
       <div class="timeline">
         <?php 
           if (!empty($worker['experience']) && is_array($worker['experience'])) {
@@ -133,9 +133,21 @@ if ($role === 'worker') {
           foreach ($worker['experience'] as $item): 
         ?>
           <article class="timeline-item">
-            <strong><?php echo htmlspecialchars($item['role'], ENT_QUOTES, 'UTF-8'); ?></strong>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+              <strong><?php echo htmlspecialchars($item['role'], ENT_QUOTES, 'UTF-8'); ?></strong>
+              <?php if (!empty($item['rating'])): ?>
+                <span style="font-size:0.78rem;color:#f59e0b;font-weight:700;background:#fffbeb;padding:2px 8px;border-radius:6px;border:1px solid #fde68a;">
+                  <?php echo gig_stars((float)$item['rating']); ?> <?php echo number_format((float)$item['rating'], 1); ?>/5
+                </span>
+              <?php endif; ?>
+            </div>
             <span class="muted"><?php echo htmlspecialchars($item['project'], ENT_QUOTES, 'UTF-8'); ?> · <?php echo htmlspecialchars($item['period'], ENT_QUOTES, 'UTF-8'); ?></span>
             <p><?php echo htmlspecialchars($item['summary'], ENT_QUOTES, 'UTF-8'); ?></p>
+            <?php if (!empty($item['employer_comment'])): ?>
+              <div style="margin-top:8px;font-size:0.8rem;color:#047857;background:#f0fdf4;padding:8px 12px;border-radius:8px;border:1px solid #bbf7d0;font-style:italic;">
+                💬 Ulasan Pemberi Kerja<?php echo !empty($item['employer']) ? ' (' . htmlspecialchars($item['employer'], ENT_QUOTES, 'UTF-8') . ')' : ''; ?>: "<?php echo htmlspecialchars($item['employer_comment'], ENT_QUOTES, 'UTF-8'); ?>"
+              </div>
+            <?php endif; ?>
           </article>
         <?php endforeach; ?>
       </div>

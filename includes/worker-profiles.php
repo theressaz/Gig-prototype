@@ -727,19 +727,66 @@ function gig_worker_profiles(): array
         }
     }
 
-    // ── Final normalisation: ensure stats always match actual array sizes ────
+    // ── Final normalisation: ensure stats and experience always match ───────
     foreach (array_keys($profiles) as $wId) {
+        // Ensure reviews are merged into experience timeline with ratings and employer comments
+        if (!empty($profiles[$wId]['reviews']) && is_array($profiles[$wId]['reviews'])) {
+            foreach ($profiles[$wId]['reviews'] as $rev) {
+                $revProj = (string)($rev['project'] ?? '');
+                $revEmp  = (string)($rev['employer'] ?? '');
+                $alreadyInExp = false;
+                foreach ($profiles[$wId]['experience'] as &$exp) {
+                    if (str_contains(strtolower($exp['project'] ?? ''), strtolower($revProj))) {
+                        $exp['rating'] = $rev['rating'] ?? 5;
+                        $exp['employer'] = $revEmp;
+                        $exp['employer_comment'] = $rev['comment'] ?? '';
+                        $alreadyInExp = true;
+                        break;
+                    }
+                }
+                unset($exp);
+
+                if (!$alreadyInExp && $revProj !== '') {
+                    $profiles[$wId]['experience'][] = [
+                        'role'             => $profiles[$wId]['title'] ?? 'Gig Worker Professional',
+                        'project'          => $revProj . ($revEmp ? ' · ' . $revEmp : ''),
+                        'period'           => $rev['date'] ?? date('M Y'),
+                        'summary'          => 'Proyek selesai dikerjakan untuk pemberi kerja dengan hasil memuaskan.',
+                        'rating'           => $rev['rating'] ?? 5,
+                        'employer'         => $revEmp,
+                        'employer_comment' => $rev['comment'] ?? '',
+                    ];
+                }
+            }
+        }
+
         if (!empty($profiles[$wId]['experience']) && is_array($profiles[$wId]['experience'])) {
             gig_sort_experience_timeline($profiles[$wId]['experience']);
         }
 
-        // reviews_count must equal the number of review entries
-        $profiles[$wId]['reviews_count'] = count($profiles[$wId]['reviews'] ?? []);
+        // Calculate reviews_count and average rating
+        $allRatings = array_column($profiles[$wId]['reviews'] ?? [], 'rating');
+        $cnt = count($allRatings);
+        $profiles[$wId]['reviews_count'] = $cnt;
+        if ($cnt > 0) {
+            $profiles[$wId]['rating'] = round(array_sum($allRatings) / $cnt, 1);
+        }
 
-        // completed_projects / total_projects must equal the number of portfolio entries
-        $portCount = count($profiles[$wId]['portfolio'] ?? []);
-        $profiles[$wId]['completed_projects'] = $portCount;
-        $profiles[$wId]['total_projects']     = $portCount;
+        // Calculate completed_projects & total_projects dynamically from history catalog
+        if (function_exists('gig_get_history_for_worker')) {
+            $historyRows = gig_get_history_for_worker($wId);
+            if (!empty($historyRows)) {
+                $compCount = 0;
+                $totCount = count($historyRows);
+                foreach ($historyRows as $h) {
+                    if (($h['statusCode'] ?? '') === 'completed') {
+                        $compCount++;
+                    }
+                }
+                $profiles[$wId]['completed_projects'] = $compCount;
+                $profiles[$wId]['total_projects']     = $totCount;
+            }
+        }
     }
 
     return $profiles;

@@ -10,9 +10,18 @@ require_once __DIR__ . '/project-vacancies.php';
 
 function gig_offer_worker_key(string $value): string
 {
-    $first = explode(' ', trim($value))[0] ?? $value;
-    $clean = strtolower(preg_replace('/[^a-z0-9]+/i', '', $first) ?: $value);
-    return $clean;
+    $cleanId = strtolower(trim($value));
+    if ($cleanId === 'theressaz@pasker.id' || $cleanId === 'theressaz' || str_contains($cleanId, 'theressa') || $cleanId === 'tessa' || $cleanId === 'pencaker') {
+        return 'tessa';
+    }
+    if (str_contains($cleanId, 'rian')) return 'rian';
+    if (str_contains($cleanId, 'siti')) return 'siti';
+    if (str_contains($cleanId, 'budi')) return 'budi';
+    if (str_contains($cleanId, 'dimas')) return 'dimas';
+    if (str_contains($cleanId, 'mega')) return 'mega';
+
+    $first = explode(' ', $cleanId)[0] ?? $cleanId;
+    return strtolower(preg_replace('/[^a-z0-9]+/i', '', $first) ?: $cleanId);
 }
 
 function gig_offers_session_start(): void
@@ -239,6 +248,7 @@ function gig_seed_demo_offers_if_needed(string $username): void
         return;
     }
 
-    gig_insert_offer_raw('PT ABC', 'tessa', 'GIG-2026-09-001');
-    gig_insert_offer_raw('PT ABC', 'tessa', 'GIG-2026-09-002');
+    gig_insert_offer_raw('PT Talenta Digital Indonesia', 'tessa', 'GIG-2026-09-001', 'Halo Theressa, kami sangat terkesan dengan portofolio UI/UX Anda dan ingin menawarkan proyek redesign dashboard ini secara langsung.');
+    gig_insert_offer_raw('PT Solusi Awan Indonesia', 'tessa', 'GIG-2026-09-002', 'Kami mengundang Anda untuk bergabung dalam tim desain antarmuka modul integrasi API kami.');
+    gig_insert_offer_raw('PT Media Digital Nusantara', 'tessa', 'GIG-2026-09-003', 'Tertarik untuk berkolaborasi merancang aset visual dan kampanye media sosial.');
 }
