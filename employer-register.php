@@ -26,8 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['username'] = $namaPic !== '' ? $namaPic : $userName;
     $_SESSION['role'] = 'employer';
     $_SESSION['company_registered'] = true;
+    $_SESSION['employer_industry'] = $industry;
 
-    header("Location: dashboard-employer.php?registered=1");
+    header("Location: employer-verification-pending.php");
     exit;
 }
 ?>
@@ -402,7 +403,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <!-- Action Buttons -->
                 <div class="btn-row">
                     <a href="pilih-jenis-pemberi-kerja.php" class="btn-secondary">Kembali</a>
-                    <button type="submit" class="btn-primary">Daftar</button>
+                    <button type="submit" class="btn-primary">Kirim Pengajuan Verifikasi</button>
                 </div>
             </form>
         </div>
