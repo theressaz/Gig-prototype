@@ -183,12 +183,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
                 Akun SIAPkerja Anda belum terdaftar di platform Gig Workers. Silahkan pilih pendaftaran di bawah ini untuk melanjutkan.
             </p>
 
-            <a href="worker-register.php" class="btn-cyan">
-                Daftar sebagai Gig Worker
-            </a>
-
-            <a href="employer-register.php" class="btn-cyan-outline">
-                Daftar sebagai Pemberi Kerja
+            <a href="pilih-pendaftaran.php" class="btn-cyan">
+                Daftar
             </a>
 
             <div class="text-divider">atau</div>
