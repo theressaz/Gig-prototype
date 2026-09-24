@@ -57,14 +57,15 @@ try {
     $workerPasswordHash = password_hash("12345", PASSWORD_DEFAULT);
     $employerPasswordHash = password_hash("00000", PASSWORD_DEFAULT);
     
-    // Seed and fix existing account roles in database
+     // Seed and fix existing account roles in database
     $seedStmt = $pdo->prepare(
         "INSERT INTO `Login` (`username`, `password`, `role`) VALUES 
          ('theressaz@pasker.id', :pass1, 'worker'),
          ('Tessa', :pass1, 'worker'),
          ('employer@pasker.id', :pass2, 'employer'),
          ('PT ABC', :pass2, 'employer'),
-         ('pencaker@pasker.id', :pass1, 'worker')
+         ('pencaker@pasker.id', :pass1, 'worker'),
+         ('calon.employer@pasker.id', :pass2, 'unregistered')
          ON DUPLICATE KEY UPDATE `role` = VALUES(`role`), `password` = VALUES(`password`)"
     );
     $seedStmt->execute([
@@ -119,6 +120,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $userRole = 'unregistered';
             $resolvedUsername = 'Pencaker';
             $userEmail = 'pencaker@pasker.id';
+        }
+        // Unregistered SIAPkerja Employer: calon.employer@pasker.id
+        elseif ($lowerInput === 'calon.employer@pasker.id' || $lowerInput === 'pemberi kerja' || str_contains($lowerInput, 'calon.employer')) {
+            $userFound = true;
+            $userRole = 'unregistered';
+            $resolvedUsername = 'Pemberi Kerja';
+            $userEmail = 'calon.employer@pasker.id';
         }
         else {
             $userFound = true;
