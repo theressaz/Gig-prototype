@@ -10,11 +10,11 @@ require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/project-applications.php';
 
 $role = $_SESSION['role'] ?? 'worker';
-$username = $_SESSION['username'] ?? 'Tessa';
+$username = $_SESSION['username'] ?? $_SESSION['siapkerja_name'] ?? 'Theressa Zaratrusha';
 
 $workerId = trim((string)($_GET['id'] ?? ''));
 if ($workerId === '') {
-    $workerId = strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $username)[0] ?? $username));
+    $workerId = 'tessa';
 }
 
 $worker = gig_find_worker($workerId);
@@ -47,7 +47,7 @@ if ($role === 'worker') {
       <h1><?php echo htmlspecialchars($worker['name'], ENT_QUOTES, 'UTF-8'); ?></h1>
       <div style="display:flex;gap:10px;align-items:center;">
         <?php if ($role === 'worker'): ?>
-          <a class="btn-primary-add" href="worker-register.php?edit=1">✏️ Edit Profil</a>
+          <a class="btn-primary-add" href="worker-edit-profile.php">✏️ Edit Profil</a>
         <?php endif; ?>
         <?php 
           $from = $_GET['from'] ?? '';

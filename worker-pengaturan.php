@@ -19,12 +19,17 @@ require __DIR__ . '/includes/worker-layout-start.php';
         <h2>Akun Gig Worker</h2>
         <p>Kelola identitas Anda di KarirHub</p>
       </div>
+      <?php 
+        $workerObj = gig_find_worker($username) ?? gig_find_worker('tessa');
+        $displayWorkerName = $workerObj['name'] ?? 'Theressa Zaratrusha';
+        $displayWorkerEmail = $workerObj['contact']['email'] ?? 'theressaz@pasker.id';
+      ?>
       <div class="settings-row">
         <div>
-          <strong>Nama</strong>
-          <div style="font-size:0.84rem;color:var(--text-muted);"><?php echo htmlspecialchars($username, ENT_QUOTES, 'UTF-8'); ?></div>
+          <strong>Informasi Profil</strong>
+          <div style="font-size:0.84rem;color:var(--text-muted);"><?php echo htmlspecialchars($displayWorkerName, ENT_QUOTES, 'UTF-8'); ?> (<?php echo htmlspecialchars($displayWorkerEmail, ENT_QUOTES, 'UTF-8'); ?>)</div>
         </div>
-        <span class="chip">Gig Worker</span>
+        <a class="btn-action-sm" href="worker-edit-profile.php" style="text-decoration:none;">✏️ Edit Profil</a>
       </div>
       <div class="settings-row">
         <div>

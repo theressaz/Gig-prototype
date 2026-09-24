@@ -78,10 +78,10 @@ function gig_worker_profiles(): array
     return [
         'tessa' => [
             'id' => 'tessa',
-            'name' => 'Tessa',
-            'initials' => 'TE',
+            'name' => 'Theressa Zaratrusha',
+            'initials' => 'TH',
             'color' => '#2563eb',
-            'photo' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Tessa&backgroundColor=dbeafe',
+            'photo' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Theressa&backgroundColor=dbeafe',
             'title' => 'Lead UI/UX Designer',
             'location' => 'Jakarta, Indonesia',
             'rating' => 5.0, // average of reviews: (5+5+5)/3 = 5.0
@@ -98,7 +98,7 @@ function gig_worker_profiles(): array
             'skills' => ['Figma Design', 'UI/UX Prototyping', 'Design System', 'Usability Testing', 'Wireframing'],
             'contact' => [
                 'wa' => '0812-3456-7890',
-                'email' => 'tessa.design@email.com',
+                'email' => 'theressaz@pasker.id',
             ],
             'experience' => [
                 [
@@ -737,7 +737,27 @@ function gig_find_worker(string $id): ?array
 {
     $profiles = gig_worker_profiles();
     $cleanId = strtolower(trim($id));
+
+    if ($cleanId === 'theressaz@pasker.id' || $cleanId === 'theressaz' || str_contains($cleanId, 'theressa') || $cleanId === 'tessa') {
+        $cleanId = 'tessa';
+    }
+
     if (isset($profiles[$cleanId])) {
+        // If custom session profile exists, merge it
+        if (!empty($_SESSION['worker_custom_profile']) && is_array($_SESSION['worker_custom_profile'])) {
+            $custom = $_SESSION['worker_custom_profile'];
+            if (!empty($custom['name'])) $profiles[$cleanId]['name'] = $custom['name'];
+            if (!empty($custom['title'])) $profiles[$cleanId]['title'] = $custom['title'];
+            if (!empty($custom['location'])) $profiles[$cleanId]['location'] = $custom['location'];
+            if (!empty($custom['skills'])) $profiles[$cleanId]['skills'] = $custom['skills'];
+            if (!empty($custom['proposal'])) $profiles[$cleanId]['proposal'] = $custom['proposal'];
+            if (!empty($custom['video_url'])) $profiles[$cleanId]['video_url'] = $custom['video_url'];
+            if (!empty($custom['contact'])) {
+                if (!empty($custom['contact']['email'])) $profiles[$cleanId]['contact']['email'] = $custom['contact']['email'];
+                if (!empty($custom['contact']['wa'])) $profiles[$cleanId]['contact']['wa'] = $custom['contact']['wa'];
+            }
+        }
+
         // If registration data exists for this user, merge registered data
         $reg = gig_get_worker_registration($cleanId);
         if ($reg !== null) {
@@ -748,8 +768,8 @@ function gig_find_worker(string $id): ?array
                 $profiles[$cleanId]['skills'] = is_array($reg['skills']) ? $reg['skills'] : array_map('trim', explode(',', $reg['skills']));
             }
             if (!empty($reg['contact_email']) || !empty($reg['contact_wa'])) {
-                $profiles[$cleanId]['contact']['email'] = $reg['contact_email'] ?? $profiles[$cleanId]['contact']['email'];
-                $profiles[$cleanId]['contact']['wa'] = $reg['contact_wa'] ?? $profiles[$cleanId]['contact']['wa'];
+                $profiles[$cleanId]['contact']['email'] = !empty($reg['contact_email']) ? $reg['contact_email'] : $profiles[$cleanId]['contact']['email'];
+                $profiles[$cleanId]['contact']['wa'] = !empty($reg['contact_wa']) ? $reg['contact_wa'] : $profiles[$cleanId]['contact']['wa'];
             }
             if (!empty($reg['portfolio']) && is_array($reg['portfolio'])) {
                 $profiles[$cleanId]['portfolio'] = array_merge($reg['portfolio'], $profiles[$cleanId]['portfolio'] ?? []);

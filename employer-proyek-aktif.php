@@ -80,7 +80,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
             <div class="fl-avatar" style="background:#2563eb;">T</div>
             <div>
               <div class="fl-info-name">
-                <a href="worker-profile.php?active=1&id=tessa" style="color:inherit;text-decoration:none;">Tessa</a>
+                <a href="worker-profile.php?active=1&id=tessa" style="color:inherit;text-decoration:none;">Theressa Zaratrusha</a>
                 <span class="fl-rating-badge">★ 5</span>
               </div>
               <div class="fl-info-sub">Lead UI/UX Designer</div>
@@ -127,7 +127,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
             <?php endif; ?>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <button class="btn-action-sm" type="button" onclick="copyContact('Tessa','0812-3456-7890','tessa.design@email.com')">Kontak Freelancer</button>
+            <button class="btn-action-sm" type="button" onclick="copyContact('Theressa Zaratrusha','0812-3456-7890','theressaz@pasker.id')">Kontak Freelancer</button>
             <a class="btn-outline-blue" href="worker-profile.php?active=1&id=tessa">Lihat Profil</a>
             
             <?php if ($completedP1): ?>
