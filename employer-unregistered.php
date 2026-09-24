@@ -15,7 +15,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pemberi Kerja Belum Terdaftar · Karirhub</title>
+    <title>Akun Belum Terdaftar · Karirhub</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -76,7 +76,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
         .card-subtitle {
             font-size: 14px;
             color: #64748b;
-            margin-bottom: 30px;
+            margin-bottom: 28px;
             line-height: 1.6;
             font-weight: 400;
         }
@@ -98,10 +98,33 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             align-items: center;
             justify-content: center;
             box-shadow: 0 2px 6px rgba(24, 181, 234, 0.25);
+            margin-bottom: 12px;
         }
         .btn-cyan:hover {
             background-color: #0fa1d2;
             box-shadow: 0 4px 12px rgba(24, 181, 234, 0.35);
+        }
+
+        .btn-cyan-outline {
+            background-color: #ffffff;
+            color: #18b5ea;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: 2px solid #18b5ea;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+        .btn-cyan-outline:hover {
+            background-color: #f0f9ff;
         }
 
         .btn-outline {
@@ -145,7 +168,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
 </head>
 <body>
 
-    <!-- SCREEN 3: PEMBERI KERJA BELUM TERDAFTAR -->
     <main class="main-wrapper">
         <div class="auth-card">
             <!-- Karirhub Top Logo Icon -->
@@ -156,13 +178,17 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
                 </svg>
             </div>
 
-            <h1 class="card-title">Pemberi Kerja Belum Terdaftar</h1>
+            <h1 class="card-title">Akun Belum Terdaftar</h1>
             <p class="card-subtitle">
-                Akun ini belum memiliki data pemberi kerja. Silahkan klik tombol dibawah ini untuk mendaftar sebagai pemberi kerja.
+                Akun SIAPkerja Anda belum terdaftar di platform Gig Workers. Silahkan pilih pendaftaran di bawah ini untuk melanjutkan.
             </p>
 
-            <a href="employer-register.php" class="btn-cyan">
-                Daftar Pemberi Kerja
+            <a href="worker-register.php" class="btn-cyan">
+                Daftar sebagai Gig Worker
+            </a>
+
+            <a href="employer-register.php" class="btn-cyan-outline">
+                Daftar sebagai Pemberi Kerja
             </a>
 
             <div class="text-divider">atau</div>

@@ -381,7 +381,7 @@ session_start();
 
             <!-- ⭐ Option 3 (Requested by User): Pemberi Kerja Gig Workers -->
             <div class="option-item-box gig-highlight">
-                <a href="siapkerja-login.php?redirect=employer-register" class="option-item-link">
+                <a href="<?php echo (isset($_SESSION['siapkerja_email']) || isset($_SESSION['username'])) ? 'employer-register.php' : 'siapkerja-login.php?redirect=employer-register'; ?>" class="option-item-link">
                     <div class="option-icon-box gig-icon-box">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
