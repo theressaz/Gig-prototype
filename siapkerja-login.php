@@ -60,8 +60,11 @@ try {
     // Seed and fix existing account roles in database
     $seedStmt = $pdo->prepare(
         "INSERT INTO `Login` (`username`, `password`, `role`) VALUES 
+         ('theressaz@pasker.id', :pass1, 'worker'),
          ('Tessa', :pass1, 'worker'),
-         ('PT ABC', :pass2, 'employer')
+         ('employer@pasker.id', :pass2, 'employer'),
+         ('PT ABC', :pass2, 'employer'),
+         ('pencaker@pasker.id', :pass1, 'worker')
          ON DUPLICATE KEY UPDATE `role` = VALUES(`role`), `password` = VALUES(`password`)"
     );
     $seedStmt->execute([
@@ -70,12 +73,15 @@ try {
     ]);
 
     // Explicitly ensure roles in DB match demo expectations
-    $pdo->exec("UPDATE `Login` SET `role` = 'employer' WHERE `username` = 'PT ABC'");
-    $pdo->exec("UPDATE `Login` SET `role` = 'worker' WHERE `username` = 'Tessa'");
+    $pdo->exec("UPDATE `Login` SET `role` = 'employer' WHERE `username` IN ('employer@pasker.id', 'PT ABC')");
+    $pdo->exec("UPDATE `Login` SET `role` = 'worker' WHERE `username` IN ('theressaz@pasker.id', 'Tessa')");
 
 } catch (Throwable $e) {
     $pdo = null;
 }
+
+// Capture redirect parameter from GET or POST
+$redirectParam = trim((string)($_GET['redirect'] ?? $_POST['redirect'] ?? ''));
 
 // Handle Login Submission
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -88,73 +94,64 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } else {
         $userFound = false;
         $userRole = null;
-        $resolvedUsername = $usernameInput;
         $lowerInput = strtolower($usernameInput);
+        $resolvedUsername = "Theressa Zaratrusha";
+        $userEmail = $usernameInput;
         
-        // 1. Database Check
-        if ($pdo !== null) {
-            try {
-                $loginStmt = $pdo->prepare("SELECT `username`, `password`, `role` FROM `Login` WHERE `username` = :u OR `username` = :u2 LIMIT 1");
-                $loginStmt->execute([
-                    ":u" => $usernameInput,
-                    ":u2" => ($lowerInput === 'pt abc' ? 'PT ABC' : ($lowerInput === 'tessa' ? 'Tessa' : $usernameInput))
-                ]);
-                $userRow = $loginStmt->fetch(PDO::FETCH_ASSOC);
-
-                if ($userRow) {
-                    $userFound = true;
-                    $userRole = $userRow["role"];
-                    $resolvedUsername = $userRow["username"];
-                }
-            } catch (Throwable $e) {
-                // Ignore DB exception & fallback
-            }
+        // 1. Account Mapping requested by USER:
+        // Gig Worker Account: theressaz@pasker.id / tessa
+        if ($lowerInput === 'theressaz@pasker.id' || $lowerInput === 'tessa' || str_contains($lowerInput, 'theressaz')) {
+            $userFound = true;
+            $userRole = 'worker';
+            $resolvedUsername = 'Theressa Zaratrusha';
+            $userEmail = 'theressaz@pasker.id';
         }
-
-        // 2. Demo Account Role Resolution & Override
-        if ($lowerInput === 'pt abc' || str_contains($lowerInput, 'pt ') || str_contains($lowerInput, 'employer')) {
+        // Employer Account: employer@pasker.id / pt abc
+        elseif ($lowerInput === 'employer@pasker.id' || $lowerInput === 'pt abc' || str_contains($lowerInput, 'employer')) {
             $userFound = true;
             $userRole = 'employer';
             $resolvedUsername = 'PT ABC';
-        } elseif ($lowerInput === 'tessa' || str_contains($lowerInput, 'worker') || str_contains($lowerInput, 'gig')) {
+            $userEmail = 'employer@pasker.id';
+        }
+        // Unregistered SIAPkerja User: pencaker@pasker.id
+        elseif ($lowerInput === 'pencaker@pasker.id' || str_contains($lowerInput, 'pencaker')) {
             $userFound = true;
-            $userRole = 'worker';
-            $resolvedUsername = 'Tessa';
+            $userRole = 'unregistered';
+            $resolvedUsername = 'Theressa Zaratrusha';
+            $userEmail = 'pencaker@pasker.id';
+        }
+        else {
+            $userFound = true;
+            $userRole = 'unregistered';
+            $userEmail = filter_var($usernameInput, FILTER_VALIDATE_EMAIL) ? $usernameInput : (strtolower(str_replace(' ', '', $usernameInput)) . "@pasker.id");
+            $resolvedUsername = 'Theressa Zaratrusha';
         }
 
-        // 3. Populate SIAPkerja session details from logged in user account
-        $cleanEmail = filter_var($usernameInput, FILTER_VALIDATE_EMAIL) 
-            ? $usernameInput 
-            : (strtolower(str_replace(' ', '', $usernameInput)) . "@gmail.com");
-        
-        $_SESSION["siapkerja_email"] = $cleanEmail;
-        $_SESSION["siapkerja_name"]  = $resolvedUsername !== '' ? $resolvedUsername : "Theressa Zaratrusha";
+        // 2. Populate SIAPkerja Session Data
+        $_SESSION["siapkerja_email"] = $userEmail;
+        $_SESSION["siapkerja_name"]  = $resolvedUsername;
         $_SESSION["siapkerja_nik"]   = "1471 0252 0803 0001";
         $_SESSION["siapkerja_phone"] = "08117671208";
+        $_SESSION["username"]        = $resolvedUsername;
 
-        // If explicitly requested to redirect to employer registration
-        if (isset($_GET['redirect']) && $_GET['redirect'] === 'employer-register') {
+        // 3. IF coming from Registration Flow (redirect=employer-register), route to employer-register.php!
+        if ($redirectParam === 'employer-register') {
             header("Location: employer-register.php");
             exit;
         }
 
-        // 4. Routing Based on SIAPkerja Account Role
-        if ($userFound && $userRole === 'employer') {
-            // Employer -> Employer Dashboard
-            $_SESSION["username"] = $resolvedUsername;
+        // 4. Routing Based on SIAPkerja Account Role when logged in directly:
+        if ($userRole === 'employer') {
             $_SESSION["role"] = 'employer';
             $_SESSION["company_registered"] = true;
             header("Location: dashboard-employer.php");
             exit;
-        } elseif ($userFound && $userRole === 'worker') {
-            // Gig Worker -> Worker Dashboard
-            $_SESSION["username"] = $resolvedUsername;
+        } elseif ($userRole === 'worker') {
             $_SESSION["role"] = 'worker';
             header("Location: dashboard-worker.php");
             exit;
         } else {
-            // Fallback for new unclassified account -> employer registration / unregistered
-            $_SESSION["username"] = $resolvedUsername;
+            // Unregistered SIAPkerja account -> employer registration status page
             header("Location: employer-unregistered.php");
             exit;
         }
@@ -428,9 +425,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <?php endif; ?>
 
             <form method="POST" action="siapkerja-login.php">
+                <?php if ($redirectParam !== ""): ?>
+                    <input type="hidden" name="redirect" value="<?php echo htmlspecialchars($redirectParam, ENT_QUOTES, 'UTF-8'); ?>">
+                <?php endif; ?>
+
                 <div class="form-group">
                     <label class="form-label" for="username">Email atau nomor handphone</label>
-                    <input type="text" id="username" name="username" class="input-control" placeholder="theressasilaban@gmail.com" required>
+                    <input type="text" id="username" name="username" class="input-control" placeholder="theressaz@pasker.id" required>
                 </div>
 
                 <div class="form-group">

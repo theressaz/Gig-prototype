@@ -10,7 +10,7 @@ if (!isset($_SESSION['siapkerja_email']) && !isset($_SESSION['username'])) {
     exit;
 }
 
-$userEmail = $_SESSION['siapkerja_email'] ?? 'theressasilaban@gmail.com';
+$userEmail = $_SESSION['siapkerja_email'] ?? 'theressaz@pasker.id';
 $userName  = $_SESSION['siapkerja_name'] ?? $_SESSION['username'] ?? 'Theressa Zaratrusha';
 $userNik   = $_SESSION['siapkerja_nik'] ?? '1471 0252 0803 0001';
 $userPhone = $_SESSION['siapkerja_phone'] ?? '08117671208';
