@@ -185,8 +185,19 @@ $backHref = $isEditMode
             border-bottom: 1px solid #e2e8f0;
             padding: 16px 40px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
+        }
+
+        .nav-link-left {
+            color: #475569;
+            font-size: 13.5px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .nav-link-left:hover {
+            color: #0f172a;
         }
 
         .nav-center-logo {
@@ -449,6 +460,8 @@ $backHref = $isEditMode
 <body>
 
     <header class="header-nav">
+        <a href="welcome-screen.php" class="nav-link-left">Kembali ke Halaman Utama</a>
+
         <a href="welcome-screen.php" class="nav-center-logo">
             <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
                 <path d="M10 10 H28 Q32 10 32 14 V18 L20 30 H10 Z" fill="#18b5ea"/>
@@ -459,6 +472,8 @@ $backHref = $isEditMode
                 <span class="logo-subtext">oleh Kemnaker</span>
             </div>
         </a>
+
+        <div style="min-width: 170px;"></div>
     </header>
 
     <main class="main-container">

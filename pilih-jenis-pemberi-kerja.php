@@ -293,7 +293,9 @@ session_start();
 <body>
 
     <!-- Header Bar -->
-    <header class="top-navbar" style="justify-content: center;">
+    <header class="top-navbar">
+        <a href="welcome-screen.php" class="nav-link-left">Kembali ke Halaman Utama</a>
+
         <a href="welcome-screen.php" class="nav-center-logo">
             <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
                 <path d="M10 10 H28 Q32 10 32 14 V18 L20 30 H10 Z" fill="#18b5ea"/>
@@ -304,6 +306,8 @@ session_start();
                 <span class="logo-subtext">oleh Kemnaker</span>
             </div>
         </a>
+
+        <div style="min-width: 170px;"></div>
     </header>
 
     <!-- Main Container -->

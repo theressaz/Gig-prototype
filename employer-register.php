@@ -347,10 +347,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </a>
 
-        <div class="header-user">
-            <span>Dasbor Pengelola</span>
-            <div class="user-avatar"></div>
-        </div>
+        <div style="min-width: 170px;"></div>
     </header>
 
     <!-- Main Content -->
