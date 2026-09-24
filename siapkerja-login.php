@@ -100,15 +100,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $userEmail = $usernameInput;
         
         // 1. Account Mapping requested by USER:
+        // Unregistered SIAPkerja Employer: calon.employer@pasker.id / Pemberi Kerja
+        if ($lowerInput === 'calon.employer@pasker.id' || $lowerInput === 'calon.employer' || $lowerInput === 'pemberi kerja' || str_contains($lowerInput, 'calon')) {
+            $userFound = true;
+            $userRole = 'unregistered';
+            $resolvedUsername = 'Pemberi Kerja';
+            $userEmail = 'calon.employer@pasker.id';
+        }
         // Gig Worker Account: theressaz@pasker.id / tessa
-        if ($lowerInput === 'theressaz@pasker.id' || $lowerInput === 'tessa' || str_contains($lowerInput, 'theressaz')) {
+        elseif ($lowerInput === 'theressaz@pasker.id' || $lowerInput === 'tessa' || str_contains($lowerInput, 'theressaz')) {
             $userFound = true;
             $userRole = 'worker';
             $resolvedUsername = 'Theressa Zaratrusha';
             $userEmail = 'theressaz@pasker.id';
         }
         // Employer Account: employer@pasker.id / pt abc
-        elseif ($lowerInput === 'employer@pasker.id' || $lowerInput === 'pt abc' || str_contains($lowerInput, 'employer')) {
+        elseif ($lowerInput === 'employer@pasker.id' || $lowerInput === 'employer' || $lowerInput === 'pt abc' || $lowerInput === 'ptabc') {
             $userFound = true;
             $userRole = 'employer';
             $resolvedUsername = 'PT ABC';
@@ -120,13 +127,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $userRole = 'unregistered';
             $resolvedUsername = 'Pencaker';
             $userEmail = 'pencaker@pasker.id';
-        }
-        // Unregistered SIAPkerja Employer: calon.employer@pasker.id
-        elseif ($lowerInput === 'calon.employer@pasker.id' || $lowerInput === 'pemberi kerja' || str_contains($lowerInput, 'calon.employer')) {
-            $userFound = true;
-            $userRole = 'unregistered';
-            $resolvedUsername = 'Pemberi Kerja';
-            $userEmail = 'calon.employer@pasker.id';
         }
         else {
             $userFound = true;
