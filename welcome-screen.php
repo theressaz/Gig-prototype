@@ -217,7 +217,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
 
     <main class="main-wrapper">
         <div class="auth-card">
-            <h1 class="card-title">Masuk ke Platform Pemberi Kerja</h1>
+            <h1 class="card-title">Masuk atau Daftar ke Platform</h1>
             <p class="card-subtitle">
                 Pilih apakah Anda ingin langsung masuk dengan akun yang sudah ada atau melakukan pendaftaran baru.
             </p>
@@ -229,11 +229,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             <div class="text-divider">atau</div>
 
             <a href="pilih-pendaftaran.php" class="btn-action-secondary">
-                Daftar Akun Baru
+                Daftar
             </a>
 
             <div class="card-link-wrapper">
-                Belum punya akun? <a href="pilih-pendaftaran.php">Daftar akun di sini</a>
+                Belum punya akun SIAPKerja? <a href="pilih-pendaftaran.php">Daftar akun di sini</a>
             </div>
         </div>
     </main>
