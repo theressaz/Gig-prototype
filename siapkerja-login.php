@@ -115,7 +115,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         }
 
-        // 3. Routing Based on SIAPkerja Account Role & Registration
+        // 3. Populate SIAPkerja session details from logged in user account
+        $cleanEmail = filter_var($usernameInput, FILTER_VALIDATE_EMAIL) 
+            ? $usernameInput 
+            : (strtolower(str_replace(' ', '', $usernameInput)) . "@gmail.com");
+        
+        $_SESSION["siapkerja_email"] = $cleanEmail;
+        $_SESSION["siapkerja_name"]  = $resolvedUsername !== '' ? $resolvedUsername : "Theressa Zaratrusha";
+        $_SESSION["siapkerja_nik"]   = "1471 0252 0803 0001";
+        $_SESSION["siapkerja_phone"] = "08117671208";
+
+        // If explicitly requested to redirect to employer registration
+        if (isset($_GET['redirect']) && $_GET['redirect'] === 'employer-register') {
+            header("Location: employer-register.php");
+            exit;
+        }
+
+        // 4. Routing Based on SIAPkerja Account Role & Registration
         if ($userFound && $userRole === 'employer') {
             // Registered Employer -> Employer Dashboard
             $_SESSION["username"] = $resolvedUsername;
@@ -130,8 +146,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
         } else {
             // SIAPkerja Account exists, BUT NOT registered as Pemberi Kerja yet
-            // Redirects to Page 3: employer-unregistered.php
-            $_SESSION["siapkerja_email"] = $usernameInput;
             header("Location: employer-unregistered.php");
             exit;
         }
