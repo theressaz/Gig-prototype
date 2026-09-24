@@ -848,6 +848,9 @@ function gig_get_siapkerja_profile(string $username): array
     if ($lower === 'pencaker' || $lower === 'pencaker@pasker.id') {
         $fullName = 'Pencaker';
         $userEmail = 'pencaker@pasker.id';
+    } elseif ($lower === 'pemberi kerja' || $lower === 'calon.employer@pasker.id' || str_contains($lower, 'calon.employer')) {
+        $fullName = 'Pemberi Kerja';
+        $userEmail = 'calon.employer@pasker.id';
     } elseif ($lower === 'tessa' || $lower === 'theressaz@pasker.id' || str_contains($lower, 'theressa')) {
         $fullName = 'Theressa Zaratrusha';
         $userEmail = 'theressaz@pasker.id';
