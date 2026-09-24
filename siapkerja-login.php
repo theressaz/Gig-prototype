@@ -117,14 +117,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         elseif ($lowerInput === 'pencaker@pasker.id' || str_contains($lowerInput, 'pencaker')) {
             $userFound = true;
             $userRole = 'unregistered';
-            $resolvedUsername = 'Theressa Zaratrusha';
+            $resolvedUsername = 'Pencaker';
             $userEmail = 'pencaker@pasker.id';
         }
         else {
             $userFound = true;
             $userRole = 'unregistered';
             $userEmail = filter_var($usernameInput, FILTER_VALIDATE_EMAIL) ? $usernameInput : (strtolower(str_replace(' ', '', $usernameInput)) . "@pasker.id");
-            $resolvedUsername = 'Theressa Zaratrusha';
+            $resolvedUsername = ucwords(explode('@', $usernameInput)[0]);
         }
 
         // 2. Populate SIAPkerja Session Data

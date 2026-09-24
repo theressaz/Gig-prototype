@@ -824,11 +824,16 @@ function gig_stars(int|float $rating): string
  */
 function gig_get_siapkerja_profile(string $username): array
 {
-    $formattedName = ucwords(trim($username));
-    if (strtolower($username) === 'tessa') {
-        $fullName = 'Tessa Kirana';
+    $lower = strtolower(trim($username));
+    if ($lower === 'pencaker' || $lower === 'pencaker@pasker.id') {
+        $fullName = 'Pencaker';
+        $userEmail = 'pencaker@pasker.id';
+    } elseif ($lower === 'tessa' || $lower === 'theressaz@pasker.id' || str_contains($lower, 'theressa')) {
+        $fullName = 'Theressa Zaratrusha';
+        $userEmail = 'theressaz@pasker.id';
     } else {
-        $fullName = $formattedName;
+        $fullName = ucwords(trim($username));
+        $userEmail = strtolower(str_replace(' ', '.', $fullName)) . '@siapkerja.kemnaker.go.id';
     }
 
     $skExp = [
@@ -852,7 +857,7 @@ function gig_get_siapkerja_profile(string $username): array
         'nama'            => $fullName,
         'siapkerja_id'    => 'SK-2026-' . strtoupper(substr(md5($username), 0, 6)),
         'nik'             => '317409' . sprintf('%010d', abs(crc32($username) % 10000000000)),
-        'email'           => strtolower(str_replace(' ', '.', $fullName)) . '@siapkerja.kemnaker.go.id',
+        'email'           => $userEmail,
         'wa'              => '0812-3456-7890',
         'lokasi'          => 'Jakarta Selatan, DKI Jakarta',
         'status_akun'     => 'Terverifikasi (KYC Kemnaker RI)',
