@@ -188,43 +188,21 @@ function gig_seed_demo_applications_if_needed(): void
         'worker_id'  => 'tessa',
         'type'       => 'direct_offer',
         'title'      => '📩 Penawaran Proyek Baru!',
-        'message'    => 'PT Talenta Digital Indonesia menawarkan proyek "Redesign UI/UX Dashboard Prototype KarirHub" secara langsung kepada Anda.',
-        'vacancy_id' => 'GIG-2026-09-001',
+        'message'    => 'PT ABC Indonesia menawarkan proyek secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau rincian proyek.',
+        'vacancy_id' => 'GIG-2026-09-003',
         'is_read'    => 0,
-        'created_at' => '2026-09-21 14:00:00',
+        'created_at' => '2026-09-20 09:00:00',
     ];
 
     $_SESSION['gig_worker_notifications'][] = [
         'id'         => 'WNOTIF-2026-003',
-        'worker_id'  => 'tessa',
-        'type'       => 'direct_offer',
-        'title'      => '📩 Penawaran Proyek Baru!',
-        'message'    => 'PT Solusi Awan Indonesia menawarkan proyek "Integrasi REST API Modul Notifikasi SMS & WhatsApp" secara langsung kepada Anda.',
-        'vacancy_id' => 'GIG-2026-09-002',
-        'is_read'    => 0,
-        'created_at' => '2026-09-22 10:30:00',
-    ];
-
-    $_SESSION['gig_worker_notifications'][] = [
-        'id'         => 'WNOTIF-2026-004',
-        'worker_id'  => 'tessa',
-        'type'       => 'direct_offer',
-        'title'      => '📩 Penawaran Proyek Baru!',
-        'message'    => 'PT Media Digital Nusantara menawarkan proyek "Kampanye Media Sosial & Copywriting Peluncuran Fitur" secara langsung kepada Anda.',
-        'vacancy_id' => 'GIG-2026-09-003',
-        'is_read'    => 0,
-        'created_at' => '2026-09-23 09:15:00',
-    ];
-
-    $_SESSION['gig_worker_notifications'][] = [
-        'id'         => 'WNOTIF-2026-005',
         'worker_id'  => 'tessa',
         'type'       => 'deadline',
         'title'      => '⏰ Tenggat proyek semakin dekat',
         'message'    => gig_deadline_notice_message('GIG-2026-09-001'),
         'vacancy_id' => 'GIG-2026-09-001',
         'is_read'    => 0,
-        'created_at' => '2026-09-24 08:00:00',
+        'created_at' => '2026-09-22 08:00:00',
     ];
 
     $_SESSION['gig_applications_seeded'] = true;
@@ -756,7 +734,7 @@ function gig_get_worker_notifications(?string $workerId = null): array
     gig_apps_session_start();
     gig_seed_demo_applications_if_needed();
 
-    $cleanId = $workerId ? gig_offer_worker_key($workerId) : null;
+    $cleanId = $workerId ? strtolower(trim($workerId)) : null;
     $merged = [];
     $pdo = gig_db();
     if ($pdo) {
@@ -780,8 +758,8 @@ function gig_get_worker_notifications(?string $workerId = null): array
     $list = array_values($merged);
     if ($cleanId !== null) {
         $list = array_values(array_filter($list, function ($n) use ($cleanId) {
-            $w = gig_offer_worker_key((string)($n['worker_id'] ?? ''));
-            return $w === $cleanId;
+            $w = strtolower(trim((string)($n['worker_id'] ?? '')));
+            return $w === $cleanId || str_contains($cleanId, $w) || str_contains($w, $cleanId);
         }));
     }
     usort($list, static fn($a, $b) => strcmp((string)($b['created_at'] ?? ''), (string)($a['created_at'] ?? '')));
