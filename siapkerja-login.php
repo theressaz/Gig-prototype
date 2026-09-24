@@ -57,15 +57,21 @@ try {
     $workerPasswordHash = password_hash("12345", PASSWORD_DEFAULT);
     $employerPasswordHash = password_hash("00000", PASSWORD_DEFAULT);
     
+    // Seed and fix existing account roles in database
     $seedStmt = $pdo->prepare(
-        "INSERT IGNORE INTO `Login` (`username`, `password`, `role`) VALUES 
+        "INSERT INTO `Login` (`username`, `password`, `role`) VALUES 
          ('Tessa', :pass1, 'worker'),
-         ('PT ABC', :pass2, 'employer')"
+         ('PT ABC', :pass2, 'employer')
+         ON DUPLICATE KEY UPDATE `role` = VALUES(`role`), `password` = VALUES(`password`)"
     );
     $seedStmt->execute([
         ":pass1" => $workerPasswordHash,
         ":pass2" => $employerPasswordHash
     ]);
+
+    // Explicitly ensure roles in DB match demo expectations
+    $pdo->exec("UPDATE `Login` SET `role` = 'employer' WHERE `username` = 'PT ABC'");
+    $pdo->exec("UPDATE `Login` SET `role` = 'worker' WHERE `username` = 'Tessa'");
 
 } catch (Throwable $e) {
     $pdo = null;
@@ -83,12 +89,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $userFound = false;
         $userRole = null;
         $resolvedUsername = $usernameInput;
+        $lowerInput = strtolower($usernameInput);
         
         // 1. Database Check
         if ($pdo !== null) {
             try {
-                $loginStmt = $pdo->prepare("SELECT `username`, `password`, `role` FROM `Login` WHERE `username` = :u LIMIT 1");
-                $loginStmt->execute([":u" => $usernameInput]);
+                $loginStmt = $pdo->prepare("SELECT `username`, `password`, `role` FROM `Login` WHERE `username` = :u OR `username` = :u2 LIMIT 1");
+                $loginStmt->execute([
+                    ":u" => $usernameInput,
+                    ":u2" => ($lowerInput === 'pt abc' ? 'PT ABC' : ($lowerInput === 'tessa' ? 'Tessa' : $usernameInput))
+                ]);
                 $userRow = $loginStmt->fetch(PDO::FETCH_ASSOC);
 
                 if ($userRow) {
@@ -101,18 +111,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         }
 
-        // 2. Prototype Demo Account Fallback
-        if (!$userFound) {
-            $lowerInput = strtolower($usernameInput);
-            if ($lowerInput === 'pt abc' || str_contains($lowerInput, 'pt ') || str_contains($lowerInput, 'employer')) {
-                $userFound = true;
-                $userRole = 'employer';
-                $resolvedUsername = 'PT ABC';
-            } elseif ($lowerInput === 'tessa' || str_contains($lowerInput, 'worker') || str_contains($lowerInput, 'gig')) {
-                $userFound = true;
-                $userRole = 'worker';
-                $resolvedUsername = 'Tessa';
-            }
+        // 2. Demo Account Role Resolution & Override
+        if ($lowerInput === 'pt abc' || str_contains($lowerInput, 'pt ') || str_contains($lowerInput, 'employer')) {
+            $userFound = true;
+            $userRole = 'employer';
+            $resolvedUsername = 'PT ABC';
+        } elseif ($lowerInput === 'tessa' || str_contains($lowerInput, 'worker') || str_contains($lowerInput, 'gig')) {
+            $userFound = true;
+            $userRole = 'worker';
+            $resolvedUsername = 'Tessa';
         }
 
         // 3. Populate SIAPkerja session details from logged in user account
@@ -131,21 +138,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
         }
 
-        // 4. Routing Based on SIAPkerja Account Role & Registration
+        // 4. Routing Based on SIAPkerja Account Role
         if ($userFound && $userRole === 'employer') {
-            // Registered Employer -> Employer Dashboard
+            // Employer -> Employer Dashboard
             $_SESSION["username"] = $resolvedUsername;
             $_SESSION["role"] = 'employer';
+            $_SESSION["company_registered"] = true;
             header("Location: dashboard-employer.php");
             exit;
         } elseif ($userFound && $userRole === 'worker') {
-            // Registered Gig Worker -> Worker Dashboard
+            // Gig Worker -> Worker Dashboard
             $_SESSION["username"] = $resolvedUsername;
             $_SESSION["role"] = 'worker';
             header("Location: dashboard-worker.php");
             exit;
         } else {
-            // SIAPkerja Account exists, BUT NOT registered as Pemberi Kerja yet
+            // Fallback for new unclassified account -> employer registration / unregistered
+            $_SESSION["username"] = $resolvedUsername;
             header("Location: employer-unregistered.php");
             exit;
         }
