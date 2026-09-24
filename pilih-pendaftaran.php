@@ -282,7 +282,7 @@ session_start();
 
             <!-- Option 1.5: Gig Workers (New) -->
             <div class="option-item-box">
-                <a href="worker-register.php" class="option-item-link">
+                <a href="siapkerja-login.php?redirect=worker-register" class="option-item-link">
                     <div class="option-icon-box">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 9.36l-7.1 7.1a1 1 0 0 1-1.42 0l-1.4-1.4a1 1 0 0 1 0-1.42l7.1-7.1a6 6 0 0 1 9.36-7.94l-3.77 3.77a1 1 0 0 0 0 1.4z"></path>

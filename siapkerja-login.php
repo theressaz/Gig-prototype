@@ -134,9 +134,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION["siapkerja_phone"] = "08117671208";
         $_SESSION["username"]        = $resolvedUsername;
 
-        // 3. IF coming from Registration Flow (redirect=employer-register), route to employer-register.php!
+        // 3. IF coming from Registration Flow, route to requested registration page!
         if ($redirectParam === 'employer-register') {
             header("Location: employer-register.php");
+            exit;
+        } elseif ($redirectParam === 'worker-register') {
+            header("Location: worker-register.php");
             exit;
         }
 

@@ -7,7 +7,13 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
 
-$username = $_SESSION['username'] ?? $_SESSION['siapkerja_name'] ?? 'Tessa';
+// Require user to be logged in with SIAPkerja account first
+if (!isset($_SESSION['siapkerja_email']) && !isset($_SESSION['username'])) {
+    header("Location: siapkerja-login.php?redirect=worker-register");
+    exit;
+}
+
+$username = $_SESSION['username'] ?? $_SESSION['siapkerja_name'] ?? 'Theressa Zaratrusha';
 
 $siapkerja = gig_get_siapkerja_profile($username);
 $isRegistered = gig_is_worker_registered($username);
