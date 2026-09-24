@@ -85,9 +85,9 @@ function gig_worker_profiles(): array
             'title' => 'Lead UI/UX Designer',
             'location' => 'Jakarta, Indonesia',
             'rating' => 5.0, // average of reviews: (5+5+5)/3 = 5.0
-            'reviews_count' => 18,
-            'completed_projects' => 16, // selesai
-            'total_projects' => 18,     // total dikerjakan
+            'reviews_count' => 3,       // matches reviews array below
+            'completed_projects' => 3,  // matches portfolio entries below
+            'total_projects' => 3,      // matches portfolio entries below
             'verified' => true,
             'agreed' => false,
             'category' => 'ui-ux',
@@ -192,9 +192,9 @@ function gig_worker_profiles(): array
             'title' => 'Fullstack / Backend API Developer',
             'location' => 'Bandung, Indonesia',
             'rating' => 5.0, // average: (5+5+5)/3 = 5.0
-            'reviews_count' => 24,
-            'completed_projects' => 22, // selesai
-            'total_projects' => 24,     // total dikerjakan
+            'reviews_count' => 3,       // matches reviews array below
+            'completed_projects' => 3,  // matches portfolio entries below
+            'total_projects' => 3,      // matches portfolio entries below
             'verified' => true,
             'agreed' => false,
             'category' => 'backend',
@@ -299,9 +299,9 @@ function gig_worker_profiles(): array
             'title' => 'Social Media Specialist',
             'location' => 'Surabaya, Indonesia',
             'rating' => 5.0, // average: (5+5)/2 = 5.0
-            'reviews_count' => 12,
-            'completed_projects' => 11, // selesai
-            'total_projects' => 12,     // total dikerjakan
+            'reviews_count' => 2,       // matches reviews array below
+            'completed_projects' => 2,  // matches portfolio entries below
+            'total_projects' => 2,      // matches portfolio entries below
             'verified' => true,
             'agreed' => false,
             'category' => 'marketing',
@@ -380,9 +380,9 @@ function gig_worker_profiles(): array
             'title' => 'UI Designer',
             'location' => 'Yogyakarta, Indonesia',
             'rating' => 4.0, // average: (4+4)/2 = 4.0
-            'reviews_count' => 9,
-            'completed_projects' => 7, // selesai
-            'total_projects' => 9,     // total dikerjakan
+            'reviews_count' => 2,       // matches reviews array below
+            'completed_projects' => 2,  // matches portfolio entries below
+            'total_projects' => 2,      // matches portfolio entries below
             'verified' => true,
             'agreed' => false,
             'category' => 'ui-ux',
@@ -460,9 +460,9 @@ function gig_worker_profiles(): array
             'title' => 'Cloud API Engineer',
             'location' => 'Depok, Indonesia',
             'rating' => 5.0, // average: (5+5)/2 = 5.0
-            'reviews_count' => 31,
-            'completed_projects' => 29, // selesai
-            'total_projects' => 31,     // total dikerjakan
+            'reviews_count' => 2,       // matches reviews array below
+            'completed_projects' => 2,  // matches portfolio entries below
+            'total_projects' => 2,      // matches portfolio entries below
             'verified' => true,
             'agreed' => false,
             'category' => 'backend',
@@ -540,9 +540,9 @@ function gig_worker_profiles(): array
             'title' => 'Digital Campaign Strategist',
             'location' => 'Semarang, Indonesia',
             'rating' => 5.0, // average: (5+5)/2 = 5.0
-            'reviews_count' => 15,
-            'completed_projects' => 14, // selesai
-            'total_projects' => 15,     // total dikerjakan
+            'reviews_count' => 2,       // matches reviews array below
+            'completed_projects' => 2,  // matches portfolio entries below
+            'total_projects' => 2,      // matches portfolio entries below
             'verified' => true,
             'agreed' => false,
             'category' => 'marketing',
@@ -679,6 +679,10 @@ function gig_worker_profiles(): array
                     $profiles[$wId]['rating'] = $cnt > 0
                         ? round(array_sum($allRatings) / $cnt, 1)
                         : (float)($profiles[$wId]['rating'] ?? 5.0);
+                    // Keep completed/total in sync with portfolio count
+                    $portCount = count($profiles[$wId]['portfolio'] ?? []);
+                    $profiles[$wId]['completed_projects'] = $portCount;
+                    $profiles[$wId]['total_projects']     = $portCount;
                 }
             } catch (Throwable $e) {
                 // DB error – fall through to session fallback
@@ -709,25 +713,33 @@ function gig_worker_profiles(): array
                 if ($alreadyIn) continue;
 
                 array_unshift($profiles[$wId]['reviews'], $r);
-                $profiles[$wId]['reviews_count']++;
-                $profiles[$wId]['completed_projects']++;
-                $profiles[$wId]['total_projects'] = max(
-                    (int)$profiles[$wId]['total_projects'],
-                    (int)$profiles[$wId]['completed_projects']
-                );
             }
             $allRatings = array_column($profiles[$wId]['reviews'], 'rating');
             $cnt = count($allRatings);
+            $profiles[$wId]['reviews_count'] = $cnt;
             $profiles[$wId]['rating'] = $cnt > 0
                 ? round(array_sum($allRatings) / $cnt, 1)
                 : 5.0;
+            // Keep completed/total in sync with portfolio count
+            $portCount = count($profiles[$wId]['portfolio'] ?? []);
+            $profiles[$wId]['completed_projects'] = $portCount;
+            $profiles[$wId]['total_projects']     = $portCount;
         }
     }
 
+    // ── Final normalisation: ensure stats always match actual array sizes ────
     foreach (array_keys($profiles) as $wId) {
         if (!empty($profiles[$wId]['experience']) && is_array($profiles[$wId]['experience'])) {
             gig_sort_experience_timeline($profiles[$wId]['experience']);
         }
+
+        // reviews_count must equal the number of review entries
+        $profiles[$wId]['reviews_count'] = count($profiles[$wId]['reviews'] ?? []);
+
+        // completed_projects / total_projects must equal the number of portfolio entries
+        $portCount = count($profiles[$wId]['portfolio'] ?? []);
+        $profiles[$wId]['completed_projects'] = $portCount;
+        $profiles[$wId]['total_projects']     = $portCount;
     }
 
     return $profiles;
