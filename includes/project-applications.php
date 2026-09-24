@@ -99,7 +99,7 @@ function gig_seed_demo_applications_if_needed(): void
             'id'                 => 'APP-2026-001',
             'vacancy_id'         => 'GIG-2026-09-001',
             'worker_id'          => 'tessa',
-            'worker_name'        => 'Tessa',
+            'worker_name'        => 'Theressa Zaratrusha',
             'employer_username'  => 'PT Talenta Digital Indonesia',
             'bid_amount'         => 'Rp 8.500.000',
             'status'             => 'confirmed_by_worker', // Hired when employer accepted the application
@@ -142,8 +142,8 @@ function gig_seed_demo_applications_if_needed(): void
         'id'                => 'NOTIF-2026-001',
         'employer_username' => 'PT Talenta Digital Indonesia',
         'type'              => 'worker_confirmed',
-        'title'             => '🎉 Tessa RESMI DIREKRUT!',
-        'message'           => 'Anda telah menerima lamaran Tessa untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub". Kerja sama aktif dan kontak resmi terbuka di Proyek Aktif.',
+        'title'             => '🎉 Theressa Zaratrusha RESMI DIREKRUT!',
+        'message'           => 'Anda telah menerima lamaran Theressa Zaratrusha untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub". Kerja sama aktif dan kontak resmi terbuka di Proyek Aktif.',
         'vacancy_id'        => 'GIG-2026-09-001',
         'is_read'           => 0,
         'created_at'        => '2026-09-20 11:13:00',
@@ -219,8 +219,8 @@ function gig_ensure_demo_notifications(): void
         'gig_employer_notifications' => [
             'NOTIF-2026-001' => [
                 'type' => 'worker_confirmed',
-                'title' => '🎉 Tessa RESMI DIREKRUT!',
-                'message' => 'Anda telah menerima lamaran Tessa untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub". Kerja sama aktif (mulai 20 Sep 2026, durasi 3 minggu, tenggat 11 Okt 2026).',
+                'title' => '🎉 Theressa Zaratrusha RESMI DIREKRUT!',
+                'message' => 'Anda telah menerima lamaran Theressa Zaratrusha untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub". Kerja sama aktif (mulai 20 Sep 2026, durasi 3 minggu, tenggat 11 Okt 2026).',
                 'created_at' => '2026-09-20 11:13:00',
                 'vacancy_id' => 'GIG-2026-09-001',
             ],

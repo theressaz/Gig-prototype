@@ -44,9 +44,9 @@ function gig_history_catalog(): array
         [
             'contract_id' => 'CTR-GIG-2026-0815',
             'worker_id' => 'tessa',
-            'worker_name' => 'Tessa',
+            'worker_name' => 'Theressa Zaratrusha',
             'worker_role' => 'Lead UI/UX Designer',
-            'worker_avatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Tessa&backgroundColor=dbeafe',
+            'worker_avatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Theressa&backgroundColor=dbeafe',
             'employer_username' => 'PT ABC',
             'project_title' => 'Prototype Dashboard Internal',
             'status' => 'completed',
@@ -62,9 +62,9 @@ function gig_history_catalog(): array
         [
             'contract_id' => 'CTR-GIG-2026-0624',
             'worker_id' => 'tessa',
-            'worker_name' => 'Tessa',
+            'worker_name' => 'Theressa Zaratrusha',
             'worker_role' => 'Lead UI/UX Designer',
-            'worker_avatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Tessa&backgroundColor=dbeafe',
+            'worker_avatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Theressa&backgroundColor=dbeafe',
             'employer_username' => 'PT Talenta Nusantara',
             'project_title' => 'Portal Rekrutmen BUMN',
             'status' => 'completed',
@@ -80,9 +80,9 @@ function gig_history_catalog(): array
         [
             'contract_id' => 'CTR-GIG-2026-0531',
             'worker_id' => 'tessa',
-            'worker_name' => 'Tessa',
+            'worker_name' => 'Theressa Zaratrusha',
             'worker_role' => 'Lead UI/UX Designer',
-            'worker_avatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Tessa&backgroundColor=dbeafe',
+            'worker_avatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Theressa&backgroundColor=dbeafe',
             'employer_username' => 'CV Kreasi Digital',
             'project_title' => 'Redesign Aplikasi Lowongan',
             'status' => 'completed',
@@ -98,9 +98,9 @@ function gig_history_catalog(): array
         [
             'contract_id' => 'CTR-GIG-2026-0128',
             'worker_id' => 'tessa',
-            'worker_name' => 'Tessa',
+            'worker_name' => 'Theressa Zaratrusha',
             'worker_role' => 'Lead UI/UX Designer',
-            'worker_avatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Tessa&backgroundColor=dbeafe',
+            'worker_avatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Theressa&backgroundColor=dbeafe',
             'employer_username' => 'Yayasan Kerja Adil',
             'project_title' => 'Landing Page Program Pelatihan',
             'status' => 'completed',
@@ -116,9 +116,9 @@ function gig_history_catalog(): array
         [
             'contract_id' => 'CTR-GIG-2025-1120',
             'worker_id' => 'tessa',
-            'worker_name' => 'Tessa',
+            'worker_name' => 'Theressa Zaratrusha',
             'worker_role' => 'Lead UI/UX Designer',
-            'worker_avatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Tessa&backgroundColor=dbeafe',
+            'worker_avatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Theressa&backgroundColor=dbeafe',
             'employer_username' => 'Startup Ketenagakerjaan',
             'project_title' => 'Aplikasi Pelaporan Pekerja Lepas',
             'status' => 'cancelled',
@@ -265,6 +265,8 @@ function gig_seed_project_history(?PDO $pdo): void
             ':created' => $row['completed_at'],
         ]);
     }
+
+    $pdo->exec("UPDATE `project_history` SET `worker_name` = 'Theressa Zaratrusha' WHERE `worker_id` = 'tessa' OR `worker_name` = 'Tessa'");
 }
 
 function gig_upsert_project_history(array $row): void
@@ -307,14 +309,27 @@ function gig_upsert_project_history(array $row): void
 function gig_history_map_row(array $row): array
 {
     $status = (string)($row['status'] ?? 'completed');
+    $workerId = (string)($row['worker_id'] ?? '');
+    $workerName = (string)($row['worker_name'] ?? '');
+
+    if (function_exists('gig_find_worker') && $workerId !== '') {
+        $workerProfile = gig_find_worker($workerId);
+        if (!empty($workerProfile['name'])) {
+            $workerName = $workerProfile['name'];
+        }
+    }
+    if ($workerId === 'tessa' || $workerName === 'Tessa') {
+        $workerName = 'Theressa Zaratrusha';
+    }
+
     return [
         'id' => $row['contract_id'],
         'title' => $row['project_title'],
         'status' => $status === 'cancelled' ? 'Tidak Selesai' : 'Selesai',
         'statusCode' => $status === 'cancelled' ? 'cancelled' : 'completed',
-        'worker' => $row['worker_name'] ?? '',
+        'worker' => $workerName,
         'workerRole' => $row['worker_role'] ?? '',
-        'workerId' => $row['worker_id'],
+        'workerId' => $workerId,
         'workerAvatar' => $row['worker_avatar'] ?? '',
         'employer' => $row['employer_username'],
         'duration' => $row['duration'] ?? '',

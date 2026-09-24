@@ -75,7 +75,7 @@ function gig_demo_active_projects(): array
             'employer_phone' => '0812-9988-7766',
             'employer_email' => 'hr@talentadigital.co.id',
             'worker_id' => 'tessa',
-            'worker_name' => 'Tessa',
+            'worker_name' => 'Theressa Zaratrusha',
             'worker_role' => 'Lead UI/UX Designer',
             'budget' => 'Rp 8.500.000',
             'duration' => $uiDuration,
