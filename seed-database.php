@@ -290,7 +290,7 @@ VALUES (:emp,:wid,:vac,:msg,:st,:cat)",
    ':st'=>'pending',':cat'=>'2026-09-18 14:00:00'],
 ]);
 
-/* ══════════════════════�[];═══════════════════════════════════════════════════════════════
+/* ══════════════════════�[];═══════════════════════════════════════════════════════════════
    8. worker_notifications
    ══════════════════════════════════════════════════════════════════════════════ */
 ins($pdo, 'worker_notifications',
@@ -310,18 +310,6 @@ VALUES (:id,:wid,:tp,:ttl,:msg,:vid,:rd,:cat)",
    ':ttl'=>'Penawaran Proyek dari CV Kreasi Visual Nusantara!',
    ':msg'=>'CV Kreasi Visual Nusantara menawarkan proyek "Desain Visual Asset & Branding Kit UMKM Go Digital" secara langsung. Buka menu Penawaran Proyek untuk meninjau rincian.',
    ':vid'=>'GIG-2026-09-008',':rd'=>0,':cat'=>'2026-09-18 14:00:00'],
-  [':id'=>'WNOTIF-2026-004',':wid'=>'rian',':tp'=>'recruited',
-   ':ttl'=>'Anda Resmi Direkrut!',
-   ':msg'=>'PT Solusi Awan Indonesia menerima lamaran Anda untuk proyek "Integrasi REST API Modul Notifikasi SMS & WhatsApp" pada 19 Sep 2026. Durasi 2 minggu.',
-   ':vid'=>'GIG-2026-09-002',':rd'=>0,':cat'=>'2026-09-19 09:00:00'],
-  [':id'=>'WNOTIF-2026-006',':wid'=>'theressaz@pasker.id',':tp'=>'recruited',
-   ':ttl'=>'Anda Resmi Direkrut!',
-   ':msg'=>'CV Visual Studio Creative menerima lamaran Anda untuk proyek "Desain UI/UX Mobile App E-Commerce UMKM" pada 22 Sep 2026. Durasi 2 minggu, tenggat pengerjaan 06 Okt 2026.',
-   ':vid'=>'GIG-2026-09-005',':rd'=>0,':cat'=>'2026-09-22 10:00:00'],
-  [':id'=>'WNOTIF-2026-007',':wid'=>'theressaz@pasker.id',':tp'=>'recruited',
-   ':ttl'=>'Anda Resmi Direkrut!',
-   ':msg'=>'PT Nusantara Media Technologi menerima lamaran Anda untuk proyek "Audit Design System & Aksesibilitas Web Portal" pada 24 Sep 2026. Durasi 10 hari, tenggat pengerjaan 04 Okt 2026.',
-   ':vid'=>'GIG-2026-09-012',':rd'=>0,':cat'=>'2026-09-24 14:00:00'],
 ]);
 
 /* ══════════════════════════════════════════════════════════════════════════════
