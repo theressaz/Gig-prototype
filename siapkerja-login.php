@@ -10,7 +10,28 @@ define('DB_NAME', 'Gig');
 $message = "";
 $messageType = "";
 
+$redirectParam = trim((string)($_GET['redirect'] ?? $_POST['redirect'] ?? ''));
+
+$hasSiapkerjaSession = !empty($_SESSION['siapkerja_email']) || !empty($_SESSION['username']);
+
+if ($redirectParam === 'worker-register' && $hasSiapkerjaSession) {
+    header("Location: worker-register.php");
+    exit;
+}
+if ($redirectParam === 'employer-register' && $hasSiapkerjaSession) {
+    header("Location: employer-register.php");
+    exit;
+}
+
 if (isset($_SESSION["username"]) && isset($_SESSION["role"]) && !isset($_GET['preview'])) {
+    if ($redirectParam === 'worker-register') {
+        header("Location: worker-register.php");
+        exit;
+    }
+    if ($redirectParam === 'employer-register') {
+        header("Location: employer-register.php");
+        exit;
+    }
     if ($_SESSION["role"] === 'employer') {
         header("Location: dashboard-employer.php");
         exit;
@@ -80,9 +101,6 @@ try {
 } catch (Throwable $e) {
     $pdo = null;
 }
-
-// Capture redirect parameter from GET or POST
-$redirectParam = trim((string)($_GET['redirect'] ?? $_POST['redirect'] ?? ''));
 
 // Handle Login Submission
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
