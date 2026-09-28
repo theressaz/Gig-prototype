@@ -290,33 +290,7 @@ VALUES (:emp,:wid,:vac,:msg,:st,:cat)",
    ':st'=>'pending',':cat'=>'2026-09-18 14:00:00'],
 ]);
 
-/* ══════════════════════════════════════════════════════════════════════════════
-   7. employer_notifications
-   ══════════════════════════════════════════════════════════════════════════════ */
-ins($pdo, 'employer_notifications',
-"INSERT IGNORE INTO `employer_notifications`
-  (`id`,`employer_username`,`type`,`title`,`message`,`vacancy_id`,`is_read`,`created_at`)
-VALUES (:id,:emp,:tp,:ttl,:msg,:vid,:rd,:cat)",
-[
-  [':id'=>'NOTIF-2026-001',':emp'=>'PT Talenta Digital Indonesia',':tp'=>'worker_confirmed',
-   ':ttl'=>'Theressa Zaratrusha RESMI DIREKRUT!',
-   ':msg'=>'Anda telah menerima lamaran Theressa Zaratrusha untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub". Kerja sama aktif (mulai 20 Sep 2026, durasi 3 minggu, tenggat 11 Okt 2026).',
-   ':vid'=>'GIG-2026-09-001',':rd'=>0,':cat'=>'2026-09-20 11:13:00'],
-  [':id'=>'NOTIF-2026-002',':emp'=>'PT Solusi Awan Indonesia',':tp'=>'worker_confirmed',
-   ':ttl'=>'Rian Ardiansyah RESMI DIREKRUT!',
-   ':msg'=>'Rian Ardiansyah telah MENGONFIRMASI dan RESMI DIREKRUT untuk proyek "Integrasi REST API Modul Notifikasi SMS & WhatsApp". Kontrak proyek telah aktif.',
-   ':vid'=>'GIG-2026-09-002',':rd'=>0,':cat'=>'2026-09-19 09:00:00'],
-  [':id'=>'NOTIF-2026-003',':emp'=>'PT Talenta Digital Indonesia',':tp'=>'deadline',
-   ':ttl'=>'Tenggat proyek semakin dekat',
-   ':msg'=>'Proyek "Redesign UI/UX Dashboard Prototype KarirHub" dimulai 20 Sep 2026 dengan durasi 3 Minggu. Tenggat pengerjaan: 11 Okt 2026. Buka Proyek Aktif untuk melihat countdown.',
-   ':vid'=>'GIG-2026-09-001',':rd'=>0,':cat'=>'2026-09-22 08:00:00'],
-  [':id'=>'NOTIF-2026-004',':emp'=>'PT Talenta Digital Indonesia',':tp'=>'new_application',
-   ':ttl'=>'Theressa Zaratrusha Melamar Proyek Baru!',
-   ':msg'=>'Theressa Zaratrusha telah mengajukan lamaran untuk proyek "Pengembangan Aplikasi Mobile E-Commerce (React Native)".',
-   ':vid'=>'GIG-2026-09-007',':rd'=>0,':cat'=>'2026-09-25 10:00:00'],
-]);
-
-/* ══════════════════════════════════════════════════════════════════════════════
+/* ══════════════════════�[];═══════════════════════════════════════════════════════════════
    8. worker_notifications
    ══════════════════════════════════════════════════════════════════════════════ */
 ins($pdo, 'worker_notifications',

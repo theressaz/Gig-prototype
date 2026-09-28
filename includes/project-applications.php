@@ -244,68 +244,7 @@ function gig_seed_all_demo_data_to_db(): void
             (:id, :wid, :type, :title, :msg, :vid, :read, :created)
     ");
 
-    $workerNotifs = [
-        [
-            'id'         => 'WNOTIF-2026-002',
-            'worker_id'  => 'theressaz@pasker.id',
-            'type'       => 'direct_offer',
-            'title'      => '📩 Penawaran Proyek Baru!',
-            'message'    => 'employer@pasker.id menawarkan proyek "Redesign UI/UX Dashboard Prototype KarirHub" secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau rincian proyek.',
-            'vacancy_id' => 'GIG-2026-09-001',
-            'is_read'    => 0,
-            'created_at' => '2026-09-15 09:00:00',
-        ],
-        [
-            'id'         => 'WNOTIF-2026-008',
-            'worker_id'  => 'theressaz@pasker.id',
-            'type'       => 'direct_offer',
-            'title'      => '📩 Penawaran Proyek Baru!',
-            'message'    => 'employer@pasker.id menawarkan proyek "Integrasi REST API Modul Notifikasi SMS & WhatsApp" secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau rincian proyek.',
-            'vacancy_id' => 'GIG-2026-09-002',
-            'is_read'    => 0,
-            'created_at' => '2026-09-16 10:00:00',
-        ],
-        [
-            'id'         => 'WNOTIF-2026-005',
-            'worker_id'  => 'theressaz@pasker.id',
-            'type'       => 'direct_offer',
-            'title'      => '📩 Penawaran Proyek dari CV Kreasi Visual Nusantara!',
-            'message'    => 'CV Kreasi Visual Nusantara menawarkan proyek "Desain Visual Asset & Branding Kit UMKM Go Digital" secara langsung. Buka menu Penawaran Proyek untuk meninjau rincian.',
-            'vacancy_id' => 'GIG-2026-09-008',
-            'is_read'    => 0,
-            'created_at' => '2026-09-18 14:00:00',
-        ],
-        [
-            'id'         => 'WNOTIF-2026-006',
-            'worker_id'  => 'theressaz@pasker.id',
-            'type'       => 'recruited',
-            'title'      => '🎉 Anda Resmi Direkrut!',
-            'message'    => 'CV Visual Studio Creative menerima lamaran Anda untuk proyek "Desain UI/UX Mobile App E-Commerce UMKM" pada 22 Sep 2026. Durasi 2 minggu, tenggat pengerjaan 06 Okt 2026.',
-            'vacancy_id' => 'GIG-2026-09-005',
-            'is_read'    => 0,
-            'created_at' => '2026-09-22 10:00:00',
-        ],
-        [
-            'id'         => 'WNOTIF-2026-007',
-            'worker_id'  => 'theressaz@pasker.id',
-            'type'       => 'recruited',
-            'title'      => '🎉 Anda Resmi Direkrut!',
-            'message'    => 'PT Nusantara Media Technologi menerima lamaran Anda untuk proyek "Audit Design System & Aksesibilitas Web Portal" pada 24 Sep 2026. Durasi 10 hari, tenggat pengerjaan 04 Okt 2026.',
-            'vacancy_id' => 'GIG-2026-09-012',
-            'is_read'    => 0,
-            'created_at' => '2026-09-24 14:00:00',
-        ],
-        [
-            'id'         => 'WNOTIF-2026-004',
-            'worker_id'  => 'rian',
-            'type'       => 'recruited',
-            'title'      => '🎉 Anda Resmi Direkrut!',
-            'message'    => 'PT Solusi Awan Indonesia menerima lamaran Anda untuk proyek "Integrasi REST API Modul Notifikasi SMS & WhatsApp" pada 19 Sep 2026. Durasi 2 minggu.',
-            'vacancy_id' => 'GIG-2026-09-002',
-            'is_read'    => 0,
-            'created_at' => '2026-09-19 09:00:00',
-        ],
-    ];
+    $workerNotifs = [];
 
     foreach ($workerNotifs as $n) {
         try {
@@ -452,17 +391,8 @@ function gig_seed_demo_applications_if_needed(): void
         'created_at'        => '2026-09-22 08:00:00',
     ];
 
-    // Default seed notifications for Gig Worker theressaz@pasker.id
-    $_SESSION['gig_worker_notifications'][] = [
-        'id'         => 'WNOTIF-2026-002',
-        'worker_id'  => 'theressaz@pasker.id',
-        'type'       => 'direct_offer',
-        'title'      => '📩 Penawaran Proyek Baru!',
-        'message'    => 'employer@pasker.id menawarkan proyek "Redesign UI/UX Dashboard Prototype KarirHub" secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau rincian proyek.',
-        'vacancy_id' => 'GIG-2026-09-001',
-        'is_read'    => 0,
-        'created_at' => '2026-09-15 09:00:00',
-    ];
+    // Default seed notifications for Gig Worker theressaz@pasker.id (cleared)
+    $_SESSION['gig_worker_notifications'] = [];
 
     $_SESSION['gig_applications_seeded'] = true;
     }
@@ -494,15 +424,7 @@ function gig_ensure_demo_notifications(): void
                 'vacancy_id' => 'GIG-2026-09-001',
             ],
         ],
-        'gig_worker_notifications' => [
-            'WNOTIF-2026-002' => [
-                'type' => 'direct_offer',
-                'title' => '📩 Penawaran Proyek Baru!',
-                'message' => 'employer@pasker.id menawarkan proyek "Redesign UI/UX Dashboard Prototype KarirHub" secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau rincian proyek.',
-                'created_at' => '2026-09-15 09:00:00',
-                'vacancy_id' => 'GIG-2026-09-001',
-            ],
-        ],
+        'gig_worker_notifications' => [],
     ];
 
     foreach ($patches as $bucket => $byId) {
