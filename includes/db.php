@@ -39,6 +39,12 @@ function gig_db(): ?PDO
             ]
         );
 
+        try {
+            $pdo->exec("SET GLOBAL event_scheduler = ON");
+        } catch (Throwable $evtErr) {
+            /* ignore if permission restricted */
+        }
+
         // --- project_reviews table ---
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS `project_reviews` (

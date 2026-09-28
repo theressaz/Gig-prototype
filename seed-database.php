@@ -24,6 +24,7 @@ try {
     $srv->exec("CREATE DATABASE IF NOT EXISTS `".DB_NAME."` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
     $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME.';charset=utf8mb4', DB_USER, DB_PASS,
                    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_EMULATE_PREPARES => false]);
+    try { $pdo->exec("SET GLOBAL event_scheduler = ON"); } catch (Throwable $e) {}
     log_r('Database connection', true, 'Connected to `'.DB_NAME.'`');
 } catch (Throwable $e) {
     die('<h2 style="color:red;font-family:sans-serif">DB connection failed: '.htmlspecialchars($e->getMessage()).'</h2>');
