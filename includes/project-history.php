@@ -8,7 +8,7 @@ function gig_history_worker_key(string $value): string
 {
     $clean = strtolower(trim($value));
     if ($clean === 'theressaz@pasker.id' || $clean === 'theressaz' || str_contains($clean, 'theressa') || $clean === 'tessa') {
-        return 'tessa';
+        return 'theressaz@pasker.id';
     }
     $first = explode(' ', trim($value))[0] ?? $value;
     return strtolower(preg_replace('/[^a-z0-9]+/i', '', $first) ?: $value);

@@ -107,13 +107,13 @@ function gig_db(): ?PDO
         gig_history_ensure_table($pdo);
         gig_seed_project_history($pdo);
 
-        // Migrate legacy worker identifiers to canonical 'tessa'
-        $legacyIds = "'tess.kirana@pasker.id','theressaz@pasker.id','theressaz','theressa zaratrusha','tessa kirana'";
-        foreach (['project_history','project_reviews','project_completions','project_offers'] as $tbl) {
+        // Migrate legacy worker identifiers to canonical 'theressaz@pasker.id'
+        $legacyIds = "'tess.kirana@pasker.id','theressaz','theressa zaratrusha','tessa kirana','tessa'";
+        foreach (['project_history','project_reviews','project_completions','project_offers','project_applications','worker_notifications'] as $tbl) {
             try {
-                $pdo->exec("UPDATE `$tbl` SET `worker_id` = 'tessa'
+                $pdo->exec("UPDATE `$tbl` SET `worker_id` = 'theressaz@pasker.id'
                             WHERE LOWER(TRIM(`worker_id`)) IN ($legacyIds)
-                              AND `worker_id` != 'tessa'");
+                               OR LOWER(TRIM(`worker_id`)) = 'tessa'");
             } catch (Throwable $migErr) { /* table may not exist yet */ }
         }
 

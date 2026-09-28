@@ -11,9 +11,9 @@ require_once __DIR__ . '/project-vacancies.php';
 function gig_offer_worker_key(string $value): string
 {
     $clean = strtolower(trim($value));
-    // Normalise all Theressa Zaratrusha / theressaz@pasker.id variants → 'tessa'
+    // Normalise all Theressa Zaratrusha / tessa variants → 'theressaz@pasker.id'
     if ($clean === 'theressaz@pasker.id' || $clean === 'theressaz' || str_contains($clean, 'theressa') || $clean === 'tessa') {
-        return 'tessa';
+        return 'theressaz@pasker.id';
     }
     $first = explode(' ', trim($value))[0] ?? $value;
     return strtolower(preg_replace('/[^a-z0-9]+/i', '', $first) ?: $value);

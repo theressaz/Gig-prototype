@@ -346,10 +346,10 @@ VALUES (:id,:wid,:tp,:ttl,:msg,:vid,:rd,:cat)",
 /* ══════════════════════════════════════════════════════════════════════════════
    9. Migrate legacy worker_id values
    ══════════════════════════════════════════════════════════════════════════════ */
-$legacy = "'tess.kirana@pasker.id','theressaz@pasker.id','theressaz','theressa zaratrusha','tessa kirana'";
+$legacy = "'tess.kirana@pasker.id','theressaz','theressa zaratrusha','tessa kirana','tessa'";
 foreach (['project_history','project_reviews','project_completions','project_offers','project_applications','worker_notifications'] as $t) {
     try {
-        $n = $pdo->exec("UPDATE `$t` SET `worker_id`='tessa' WHERE LOWER(TRIM(`worker_id`)) IN ($legacy) AND `worker_id`!='tessa'");
+        $n = $pdo->exec("UPDATE `$t` SET `worker_id`='theressaz@pasker.id' WHERE (LOWER(TRIM(`worker_id`)) IN ($legacy) OR `worker_id`='tessa') AND `worker_id`!='theressaz@pasker.id'");
         if ($n > 0) log_r("Migrate legacy IDs in $t", true, "$n row(s) updated");
     } catch (Throwable $e2) { log_r("Migrate legacy IDs in $t", false, $e2->getMessage()); }
 }
