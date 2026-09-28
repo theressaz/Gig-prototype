@@ -246,34 +246,14 @@ function gig_seed_all_demo_data_to_db(): void
 
     $workerNotifs = [
         [
-            'id'         => 'WNOTIF-2026-001',
-            'worker_id'  => 'theressaz@pasker.id',
-            'type'       => 'recruited',
-            'title'      => '🎉 Anda Resmi Direkrut!',
-            'message'    => 'PT Talenta Digital Indonesia menerima lamaran Anda untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub" pada 20 Sep 2026. Durasi 3 minggu, tenggat pengerjaan 11 Okt 2026. Buka Proyek Aktif untuk melihat countdown.',
-            'vacancy_id' => 'GIG-2026-09-001',
-            'is_read'    => 0,
-            'created_at' => '2026-09-20 11:13:00',
-        ],
-        [
             'id'         => 'WNOTIF-2026-002',
             'worker_id'  => 'theressaz@pasker.id',
             'type'       => 'direct_offer',
             'title'      => '📩 Penawaran Proyek Baru!',
-            'message'    => 'employer@pasker.id menawarkan proyek secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau rincian proyek.',
+            'message'    => 'PT ABC Indonesia menawarkan proyek secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau rincian proyek.',
             'vacancy_id' => 'GIG-2026-09-001',
             'is_read'    => 0,
-            'created_at' => '2026-09-20 09:00:00',
-        ],
-        [
-            'id'         => 'WNOTIF-2026-003',
-            'worker_id'  => 'theressaz@pasker.id',
-            'type'       => 'deadline',
-            'title'      => '⏰ Tenggat proyek semakin dekat',
-            'message'    => $deadlineMsg1,
-            'vacancy_id' => 'GIG-2026-09-001',
-            'is_read'    => 0,
-            'created_at' => '2026-09-22 08:00:00',
+            'created_at' => '2026-09-21 09:00:00',
         ],
         [
             'id'         => 'WNOTIF-2026-006',
@@ -454,36 +434,14 @@ function gig_seed_demo_applications_if_needed(): void
 
     // Default seed notifications for Gig Worker theressaz@pasker.id
     $_SESSION['gig_worker_notifications'][] = [
-        'id'         => 'WNOTIF-2026-001',
-        'worker_id'  => 'theressaz@pasker.id',
-        'type'       => 'recruited',
-        'title'      => '🎉 Anda Resmi Direkrut!',
-        'message'    => 'PT Talenta Digital Indonesia menerima lamaran Anda untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub". Proyek kini aktif. Buka Proyek Aktif untuk melihat countdown dan rincian kerja.',
-        'vacancy_id' => 'GIG-2026-09-001',
-        'is_read'    => 0,
-        'created_at' => '2026-09-20 11:13:00',
-    ];
-
-    $_SESSION['gig_worker_notifications'][] = [
         'id'         => 'WNOTIF-2026-002',
         'worker_id'  => 'theressaz@pasker.id',
         'type'       => 'direct_offer',
         'title'      => '📩 Penawaran Proyek Baru!',
-        'message'    => 'employer@pasker.id menawarkan proyek "Prototype Dashboard Internal" secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau rincian proyek.',
+        'message'    => 'PT ABC Indonesia menawarkan proyek secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau rincian proyek.',
         'vacancy_id' => 'GIG-2026-09-001',
         'is_read'    => 0,
-        'created_at' => '2026-09-20 09:00:00',
-    ];
-
-    $_SESSION['gig_worker_notifications'][] = [
-        'id'         => 'WNOTIF-2026-003',
-        'worker_id'  => 'theressaz@pasker.id',
-        'type'       => 'deadline',
-        'title'      => '⏰ Tenggat proyek semakin dekat',
-        'message'    => gig_deadline_notice_message('GIG-2026-09-001'),
-        'vacancy_id' => 'GIG-2026-09-001',
-        'is_read'    => 0,
-        'created_at' => '2026-09-22 08:00:00',
+        'created_at' => '2026-09-21 09:00:00',
     ];
 
     $_SESSION['gig_applications_seeded'] = true;
@@ -517,18 +475,11 @@ function gig_ensure_demo_notifications(): void
             ],
         ],
         'gig_worker_notifications' => [
-            'WNOTIF-2026-001' => [
-                'type' => 'recruited',
-                'title' => '🎉 Anda Resmi Direkrut!',
-                'message' => 'PT Talenta Digital Indonesia menerima lamaran Anda untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub" pada 20 Sep 2026. Durasi 3 minggu, tenggat pengerjaan 11 Okt 2026. Buka Proyek Aktif untuk melihat countdown.',
-                'created_at' => '2026-09-20 11:13:00',
-                'vacancy_id' => 'GIG-2026-09-001',
-            ],
-            'WNOTIF-2026-003' => [
-                'type' => 'deadline',
-                'title' => '⏰ Tenggat proyek semakin dekat',
-                'message' => $deadlineMsg,
-                'created_at' => '2026-09-22 08:00:00',
+            'WNOTIF-2026-002' => [
+                'type' => 'direct_offer',
+                'title' => '📩 Penawaran Proyek Baru!',
+                'message' => 'PT ABC Indonesia menawarkan proyek secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau rincian proyek.',
+                'created_at' => '2026-09-21 09:00:00',
                 'vacancy_id' => 'GIG-2026-09-001',
             ],
         ],
