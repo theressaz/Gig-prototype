@@ -58,12 +58,23 @@ function gig_demo_active_projects(): array
 {
     $hireUi = new DateTimeImmutable('2026-09-20 11:13:00');
     $hireApi = new DateTimeImmutable('2026-09-19 09:00:00');
+    $hireMob = new DateTimeImmutable('2026-09-22 10:00:00');
+    $hireAudit = new DateTimeImmutable('2026-09-24 14:00:00');
+
     $uiDuration = '3 Minggu';
     $apiDuration = '2 Minggu';
+    $mobDuration = '2 Minggu';
+    $auditDuration = '10 Hari';
+
     $endUi = gig_add_duration($hireUi, $uiDuration);
     $endApi = gig_add_duration($hireApi, $apiDuration);
+    $endMob = gig_add_duration($hireMob, $mobDuration);
+    $endAudit = gig_add_duration($hireAudit, $auditDuration);
+
     $cdUi = gig_countdown_parts($endUi);
     $cdApi = gig_countdown_parts($endApi);
+    $cdMob = gig_countdown_parts($endMob);
+    $cdAudit = gig_countdown_parts($endAudit);
 
     return [
         [
@@ -74,7 +85,7 @@ function gig_demo_active_projects(): array
             'employer_category' => 'IT & Software Partner',
             'employer_phone' => '0812-9988-7766',
             'employer_email' => 'hr@talentadigital.co.id',
-            'worker_id' => 'tessa',
+            'worker_id' => 'theressaz@pasker.id',
             'worker_name' => 'Theressa Zaratrusha',
             'worker_role' => 'Lead UI/UX Designer',
             'budget' => 'Rp 8.500.000',
@@ -94,6 +105,64 @@ function gig_demo_active_projects(): array
             'deliverable_note' => 'Sedang pengujian internal oleh tim Pemberi Kerja',
             'is_completed' => false,
             'countdown_id' => 'countdown-proj-ui',
+        ],
+        [
+            'contract_id' => 'CTR-GIG-2026-0905',
+            'id' => 'GIG-2026-09-005',
+            'title' => 'Desain UI/UX Mobile App E-Commerce UMKM',
+            'employer' => 'CV Visual Studio Creative',
+            'employer_category' => 'Design & Creative Agency',
+            'employer_phone' => '0811-2233-4455',
+            'employer_email' => 'project@visualstudio.co.id',
+            'worker_id' => 'theressaz@pasker.id',
+            'worker_name' => 'Theressa Zaratrusha',
+            'worker_role' => 'Lead UI/UX Designer',
+            'budget' => 'Rp 6.500.000',
+            'duration' => $mobDuration,
+            'hired_at' => $hireMob->format('Y-m-d H:i:s'),
+            'hired_label' => gig_format_id_date($hireMob),
+            'deadline' => gig_format_id_date($endMob),
+            'deadline_iso' => $endMob->format(DateTimeInterface::ATOM),
+            'days_left' => $cdMob['days'],
+            'hours_left' => $cdMob['hours'],
+            'mins_left' => $cdMob['mins'],
+            'secs_left' => $cdMob['secs'],
+            'progress' => 40,
+            'status_label' => 'Sedang Berjalan',
+            'status_badge_class' => 'badge-status active',
+            'deliverable_status' => 'Wireframe & High Fidelity Screens',
+            'deliverable_note' => 'Penyusunan alur checkout dan halaman katalog produk',
+            'is_completed' => false,
+            'countdown_id' => 'countdown-proj-mob',
+        ],
+        [
+            'contract_id' => 'CTR-GIG-2026-0912',
+            'id' => 'GIG-2026-09-012',
+            'title' => 'Audit Design System & Aksesibilitas Web Portal',
+            'employer' => 'PT Nusantara Media Technologi',
+            'employer_category' => 'Media & Enterprise Tech',
+            'employer_phone' => '0815-6677-8899',
+            'employer_email' => 'tech@nusantaramedia.id',
+            'worker_id' => 'theressaz@pasker.id',
+            'worker_name' => 'Theressa Zaratrusha',
+            'worker_role' => 'Lead UI/UX Designer',
+            'budget' => 'Rp 5.000.000',
+            'duration' => $auditDuration,
+            'hired_at' => $hireAudit->format('Y-m-d H:i:s'),
+            'hired_label' => gig_format_id_date($hireAudit),
+            'deadline' => gig_format_id_date($endAudit),
+            'deadline_iso' => $endAudit->format(DateTimeInterface::ATOM),
+            'days_left' => $cdAudit['days'],
+            'hours_left' => $cdAudit['hours'],
+            'mins_left' => $cdAudit['mins'],
+            'secs_left' => $cdAudit['secs'],
+            'progress' => 20,
+            'status_label' => 'Sedang Berjalan',
+            'status_badge_class' => 'badge-status active',
+            'deliverable_status' => 'Evaluasi WCAG 2.1 & Token Warna',
+            'deliverable_note' => 'Peninjauan komponen kontras rasio dan responsivitas',
+            'is_completed' => false,
+            'countdown_id' => 'countdown-proj-audit',
         ],
         [
             'contract_id' => 'CTR-GIG-2026-0819',
