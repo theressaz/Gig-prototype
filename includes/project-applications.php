@@ -1001,6 +1001,7 @@ function gig_get_worker_notifications(?string $workerId = null): array
     gig_seed_demo_applications_if_needed();
 
     $cleanId = $workerId ? strtolower(trim($workerId)) : null;
+    $normId = $cleanId ? (function_exists('gig_history_worker_key') ? gig_history_worker_key($cleanId) : $cleanId) : null;
     $merged = [];
     $pdo = gig_db();
     if ($pdo) {
@@ -1023,9 +1024,10 @@ function gig_get_worker_notifications(?string $workerId = null): array
 
     $list = array_values($merged);
     if ($cleanId !== null) {
-        $list = array_values(array_filter($list, function ($n) use ($cleanId) {
+        $list = array_values(array_filter($list, function ($n) use ($cleanId, $normId) {
             $w = strtolower(trim((string)($n['worker_id'] ?? '')));
-            return $w === $cleanId || str_contains($cleanId, $w) || str_contains($w, $cleanId);
+            $wNorm = function_exists('gig_history_worker_key') ? gig_history_worker_key($w) : $w;
+            return $w === $cleanId || ($normId !== null && $wNorm === $normId) || str_contains($cleanId, $w) || str_contains($w, $cleanId);
         }));
     }
     usort($list, static fn($a, $b) => strcmp((string)($b['created_at'] ?? ''), (string)($a['created_at'] ?? '')));

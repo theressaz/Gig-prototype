@@ -78,13 +78,11 @@ try {
     $workerPasswordHash = password_hash("12345", PASSWORD_DEFAULT);
     $employerPasswordHash = password_hash("00000", PASSWORD_DEFAULT);
     
-     // Seed and fix existing account roles in database
+     // Seed canonical accounts only and clean up duplicate legacy accounts
     $seedStmt = $pdo->prepare(
         "INSERT INTO `Login` (`username`, `password`, `role`) VALUES 
          ('theressaz@pasker.id', :pass1, 'worker'),
-         ('Tessa', :pass1, 'worker'),
          ('employer@pasker.id', :pass2, 'employer'),
-         ('PT ABC', :pass2, 'employer'),
          ('pencaker@pasker.id', :pass1, 'worker'),
          ('calon.employer@pasker.id', :pass2, 'unregistered')
          ON DUPLICATE KEY UPDATE `role` = VALUES(`role`), `password` = VALUES(`password`)"
@@ -94,9 +92,8 @@ try {
         ":pass2" => $employerPasswordHash
     ]);
 
-    // Explicitly ensure roles in DB match demo expectations
-    $pdo->exec("UPDATE `Login` SET `role` = 'employer' WHERE `username` IN ('employer@pasker.id', 'PT ABC')");
-    $pdo->exec("UPDATE `Login` SET `role` = 'worker' WHERE `username` IN ('theressaz@pasker.id', 'Tessa')");
+    // Delete obsolete duplicate legacy logins
+    $pdo->exec("DELETE FROM `Login` WHERE `username` IN ('Tessa', 'PT ABC', 'Perusahaan', 'tessa')");
 
 } catch (Throwable $e) {
     $pdo = null;
