@@ -220,7 +220,7 @@ function gig_seed_project_history(?PDO $pdo): void
              `overall_rating`, `rating_quality`, `rating_communication`, `rating_timeliness`,
              `comment`, `badges`, `recommend_worker`, `created_at`)
          VALUES
-            (:cid, :wid, :emp, :title, :rating, :rating, :rating, :rating, :comment, '', 1, :created)"
+            (:cid, :wid, :emp, :title, :r1, :r2, :r3, :r4, :comment, '', 1, :created)"
     );
     $comp = $pdo->prepare(
         "INSERT IGNORE INTO `project_completions`
@@ -230,45 +230,55 @@ function gig_seed_project_history(?PDO $pdo): void
     );
 
     foreach (gig_history_catalog() as $row) {
-        $hist->execute([
-            ':cid' => $row['contract_id'],
-            ':wid' => $row['worker_id'],
-            ':wname' => $row['worker_name'],
-            ':wrole' => $row['worker_role'],
-            ':avatar' => $row['worker_avatar'],
-            ':emp' => $row['employer_username'],
-            ':title' => $row['project_title'],
-            ':status' => $row['status'],
-            ':budget' => $row['budget'],
-            ':duration' => $row['duration'],
-            ':start' => $row['start_date'],
-            ':end' => $row['end_date'],
-            ':summary' => $row['summary'],
-            ':created' => $row['completed_at'],
-        ]);
+        try {
+            $hist->execute([
+                ':cid' => $row['contract_id'],
+                ':wid' => $row['worker_id'],
+                ':wname' => $row['worker_name'],
+                ':wrole' => $row['worker_role'],
+                ':avatar' => $row['worker_avatar'],
+                ':emp' => $row['employer_username'],
+                ':title' => $row['project_title'],
+                ':status' => $row['status'],
+                ':budget' => $row['budget'],
+                ':duration' => $row['duration'],
+                ':start' => $row['start_date'],
+                ':end' => $row['end_date'],
+                ':summary' => $row['summary'],
+                ':created' => $row['completed_at'],
+            ]);
+        } catch (Throwable $histErr) { /* skip row */ }
 
         if ($row['status'] !== 'completed' || $row['rating'] === null) {
             continue;
         }
-        $rev->execute([
-            ':cid' => $row['contract_id'],
-            ':wid' => $row['worker_id'],
-            ':emp' => $row['employer_username'],
-            ':title' => $row['project_title'],
-            ':rating' => (int)$row['rating'],
-            ':comment' => $row['comment'],
-            ':created' => $row['completed_at'],
-        ]);
-        $comp->execute([
-            ':cid' => $row['contract_id'],
-            ':wid' => $row['worker_id'],
-            ':emp' => $row['employer_username'],
-            ':rating' => (int)$row['rating'],
-            ':comment' => $row['comment'],
-            ':cdate' => substr($row['completed_at'], 0, 10),
-            ':created' => $row['completed_at'],
-        ]);
+        try {
+            $rev->execute([
+                ':cid' => $row['contract_id'],
+                ':wid' => $row['worker_id'],
+                ':emp' => $row['employer_username'],
+                ':title' => $row['project_title'],
+                ':r1' => (int)$row['rating'],
+                ':r2' => (int)$row['rating'],
+                ':r3' => (int)$row['rating'],
+                ':r4' => (int)$row['rating'],
+                ':comment' => $row['comment'],
+                ':created' => $row['completed_at'],
+            ]);
+        } catch (Throwable $revErr) { /* skip row */ }
+        try {
+            $comp->execute([
+                ':cid' => $row['contract_id'],
+                ':wid' => $row['worker_id'],
+                ':emp' => $row['employer_username'],
+                ':rating' => (int)$row['rating'],
+                ':comment' => $row['comment'],
+                ':cdate' => substr($row['completed_at'], 0, 10),
+                ':created' => $row['completed_at'],
+            ]);
+        } catch (Throwable $compErr) { /* skip row */ }
     }
+
 
     $pdo->exec("UPDATE `project_history` SET `worker_name` = 'Theressa Zaratrusha' WHERE `worker_id` = 'tessa' OR `worker_name` = 'Tessa'");
 }
