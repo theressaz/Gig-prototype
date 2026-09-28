@@ -6,6 +6,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
+require_once __DIR__ . '/includes/admin-store.php';
 
 // Require user to be logged in with SIAPkerja account first
 if (!isset($_SESSION['siapkerja_email']) && !isset($_SESSION['username'])) {
@@ -131,6 +132,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
     } else {
         $skillsList = array_map('trim', explode(',', $skillsRaw));
         
+        $existingStatus = gig_worker_registration_status($username);
         $registrationData = [
             'username'          => $username,
             'bidang_keahlian'   => $bidangKeahlian,
@@ -141,7 +143,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
             'previous_projects' => $projects,
             'portfolio'         => $portfolios,
             'video_url'         => $videoUrl,
-            'registered_at'     => date('Y-m-d H:i:s')
+            'registered_at'     => date('Y-m-d H:i:s'),
+            'status'            => ($isEditMode && $existingStatus === 'approved') ? 'approved' : 'pending',
         ];
 
         gig_save_worker_registration($username, $registrationData);

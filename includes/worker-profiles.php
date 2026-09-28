@@ -912,9 +912,10 @@ function gig_is_worker_registered(string $username): bool
     $db = gig_db();
     if ($db !== null) {
         try {
-            $stmt = $db->prepare("SELECT 1 FROM `gig_worker_registrations` WHERE `username` = :u LIMIT 1");
+            $stmt = $db->prepare("SELECT `status` FROM `gig_worker_registrations` WHERE `username` = :u LIMIT 1");
             $stmt->execute([':u' => $username]);
-            if ($stmt->fetch()) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row && (string)($row['status'] ?? 'approved') === 'approved') {
                 if (session_status() === PHP_SESSION_ACTIVE) {
                     $_SESSION['gig_worker_registered_' . $username] = true;
                 }
@@ -967,17 +968,23 @@ function gig_get_worker_registration(string $username): ?array
 function gig_save_worker_registration(string $username, array $data): bool
 {
     if (session_status() === PHP_SESSION_ACTIVE) {
-        $_SESSION['gig_worker_registered_' . $username] = true;
         $_SESSION['gig_worker_registration_data_' . $username] = $data;
+        if ((string)($data['status'] ?? 'pending') === 'approved') {
+            $_SESSION['gig_worker_registered_' . $username] = true;
+        } else {
+            unset($_SESSION['gig_worker_registered_' . $username]);
+        }
     }
 
     $db = gig_db();
     if ($db !== null) {
         try {
+            $status = (string)($data['status'] ?? 'pending');
             $stmt = $db->prepare("
                 REPLACE INTO `gig_worker_registrations`
-                (`username`, `bidang_keahlian`, `skills`, `contact_choice`, `contact_email`, `contact_wa`, `previous_projects`, `portfolio`, `video_url`)
-                VALUES (:u, :bidang, :skills, :choice, :email, :wa, :projects, :portfolio, :video)
+                (`username`, `bidang_keahlian`, `skills`, `contact_choice`, `contact_email`, `contact_wa`,
+                 `previous_projects`, `portfolio`, `video_url`, `status`, `admin_note`)
+                VALUES (:u, :bidang, :skills, :choice, :email, :wa, :projects, :portfolio, :video, :status, '')
             ");
             $stmt->execute([
                 ':u'        => $username,
@@ -989,7 +996,11 @@ function gig_save_worker_registration(string $username, array $data): bool
                 ':projects' => json_encode($data['previous_projects'] ?? []),
                 ':portfolio'=> json_encode($data['portfolio'] ?? []),
                 ':video'    => $data['video_url'] ?? '',
+                ':status'   => $status,
             ]);
+            if (session_status() === PHP_SESSION_ACTIVE && $status !== 'approved') {
+                unset($_SESSION['gig_worker_registered_' . $username]);
+            }
         } catch (Throwable $e) {
             // fallback saved to session
         }

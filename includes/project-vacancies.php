@@ -10,7 +10,7 @@ declare(strict_types=1);
  * - 'rejected' -> Ditolak (Tidak disetujui Admin)
  * - 'active' -> Tayang Aktif (Sudah disetujui & dipublikasikan)
  */
-function gig_project_vacancies(): array
+function gig_project_vacancies_base(): array
 {
     return [
         [
@@ -264,6 +264,12 @@ function gig_project_vacancies(): array
             'deliverables' => '10 File MP4 Render 1080p60 dan file proyek Premiere Pro.',
         ],
     ];
+}
+
+function gig_project_vacancies(): array
+{
+    require_once __DIR__ . '/vacancy-store.php';
+    return gig_vacancy_merge_catalog(gig_project_vacancies_base());
 }
 
 function gig_find_vacancy(string $id): ?array

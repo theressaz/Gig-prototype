@@ -22,10 +22,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $emailPic = trim((string)($_POST['email_pic'] ?? $userEmail));
     $phonePic = trim((string)($_POST['phone_pic'] ?? $userPhone));
 
-    // Set session user as logged-in employer
+    require_once __DIR__ . '/includes/admin-store.php';
+    gig_save_employer_gig_registration([
+        'siapkerja_email' => $userEmail,
+        'company_name'    => $namaPic !== '' ? $namaPic : $userName,
+        'industry'        => $industry,
+        'nama_pic'        => $namaPic,
+        'nik_pic'         => $nikPic,
+        'email_pic'       => $emailPic,
+        'phone_pic'       => $phonePic,
+    ]);
+
     $_SESSION['username'] = $namaPic !== '' ? $namaPic : $userName;
     $_SESSION['role'] = 'employer';
-    $_SESSION['company_registered'] = true;
+    $_SESSION['company_registered'] = false;
     $_SESSION['employer_industry'] = $industry;
 
     header("Location: employer-verification-pending.php");

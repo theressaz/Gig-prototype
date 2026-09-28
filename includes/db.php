@@ -117,6 +117,9 @@ function gig_db(): ?PDO
             } catch (Throwable $migErr) { /* table may not exist yet */ }
         }
 
+        require_once __DIR__ . '/admin-store.php';
+        gig_admin_ensure_schema($pdo);
+
     } catch (Throwable $e) {
         $pdo = null;
     }

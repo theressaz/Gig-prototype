@@ -143,11 +143,39 @@ declare(strict_types=1);
   function handleCreateProject(e) {
     e.preventDefault();
     const title = document.getElementById('proj_title').value;
-    closePostProjectModal();
-    document.getElementById('newProjectForm').reset();
-    document.getElementById('lokasi-detail-wrap').style.display = 'none';
-    showToast('Lowongan "' + title + '" berhasil diajukan. Menunggu verifikasi Admin KarirHub.');
-    setTimeout(function () { window.location.href = 'employer-lowongan.php'; }, 700);
+    const locRadio = document.querySelector('input[name="proj_lokasi_type"]:checked');
+    const payload = {
+      title: title,
+      category: document.getElementById('proj_category').value,
+      kbji: document.getElementById('proj_kbji').value,
+      duration: document.getElementById('proj_duration').value,
+      desc: document.getElementById('proj_desc').value,
+      target: document.getElementById('proj_target').value,
+      qualifications: document.getElementById('proj_kualifikasi').value,
+      quota: document.getElementById('proj_quota').value,
+      deadline: document.getElementById('proj_deadline').value,
+      budget: document.getElementById('proj_budget').value,
+      show_salary: document.getElementById('proj_show_salary').checked,
+      location_type: locRadio ? locRadio.value : 'remote',
+      location_detail: document.getElementById('proj_lokasi_detail').value
+    };
+    fetch('vacancy-submit.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function (r) { return r.json(); }).then(function (data) {
+      closePostProjectModal();
+      document.getElementById('newProjectForm').reset();
+      document.getElementById('lokasi-detail-wrap').style.display = 'none';
+      if (data && data.ok) {
+        showToast('Lowongan "' + title + '" berhasil diajukan. Menunggu verifikasi Admin KarirHub.');
+        setTimeout(function () { window.location.href = 'employer-lowongan.php'; }, 700);
+      } else {
+        showToast((data && data.error) ? data.error : 'Gagal mengajukan lowongan.');
+      }
+    }).catch(function () {
+      showToast('Gagal mengajukan lowongan. Periksa koneksi server.');
+    });
   }
   function toggleLokasiInput(radio) {
     const wrap = document.getElementById('lokasi-detail-wrap');
