@@ -46,24 +46,6 @@ function gig_history_catalog(): array
 {
     return [
         [
-            'contract_id' => 'CTR-GIG-2026-0928',
-            'worker_id' => 'tessa',
-            'worker_name' => 'Theressa Zaratrusha',
-            'worker_role' => 'Lead UI/UX Designer',
-            'worker_avatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Theressa&backgroundColor=dbeafe',
-            'employer_username' => 'PT Inovasi Karya',
-            'project_title' => 'Design System & Komponen UI Mobile App',
-            'status' => 'ongoing',
-            'budget' => 'Rp 15.000.000',
-            'duration' => '2 Bulan',
-            'start_date' => '01 Sep 2026',
-            'end_date' => 'Sekarang',
-            'summary' => 'Pembangunan design system terpadu dan komponen UI untuk aplikasi mobile fintech. Saat ini masih berjalan, memasuki fase pengerjaan komponen interaktif.',
-            'rating' => null,
-            'comment' => '',
-            'completed_at' => '2026-09-01 08:00:00',
-        ],
-        [
             'contract_id' => 'CTR-GIG-2026-0815',
             'worker_id' => 'tessa',
             'worker_name' => 'Theressa Zaratrusha',
@@ -344,22 +326,11 @@ function gig_history_map_row(array $row): array
         $workerName = 'Theressa Zaratrusha';
     }
 
-    $statusLabel = match ($status) {
-        'cancelled' => 'Tidak Selesai',
-        'ongoing'   => 'Sedang Berjalan',
-        default     => 'Selesai',
-    };
-    $statusCode = match ($status) {
-        'cancelled' => 'cancelled',
-        'ongoing'   => 'ongoing',
-        default     => 'completed',
-    };
-
     return [
         'id' => $row['contract_id'],
         'title' => $row['project_title'],
-        'status' => $statusLabel,
-        'statusCode' => $statusCode,
+        'status' => $status === 'cancelled' ? 'Tidak Selesai' : 'Selesai',
+        'statusCode' => $status === 'cancelled' ? 'cancelled' : 'completed',
         'worker' => $workerName,
         'workerRole' => $row['worker_role'] ?? '',
         'workerId' => $workerId,
@@ -427,8 +398,8 @@ function gig_fetch_history_rows(string $column, string $value): array
          FROM `project_history` h
          LEFT JOIN `project_reviews` r ON r.`contract_id` = h.`contract_id`
          WHERE h.`$column` = :val
-           AND h.`status` IN ('completed', 'cancelled', 'ongoing')
-         ORDER BY FIELD(h.`status`, 'ongoing') DESC, h.`created_at` DESC"
+           AND h.`status` IN ('completed', 'cancelled')
+         ORDER BY h.`created_at` DESC"
     );
     $stmt->execute([':val' => $value]);
     $out = [];
