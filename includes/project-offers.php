@@ -10,9 +10,13 @@ require_once __DIR__ . '/project-vacancies.php';
 
 function gig_offer_worker_key(string $value): string
 {
+    $clean = strtolower(trim($value));
+    // Normalise all Theressa Zaratrusha / theressaz@pasker.id variants → 'tessa'
+    if ($clean === 'theressaz@pasker.id' || $clean === 'theressaz' || str_contains($clean, 'theressa') || $clean === 'tessa') {
+        return 'tessa';
+    }
     $first = explode(' ', trim($value))[0] ?? $value;
-    $clean = strtolower(preg_replace('/[^a-z0-9]+/i', '', $first) ?: $value);
-    return $clean;
+    return strtolower(preg_replace('/[^a-z0-9]+/i', '', $first) ?: $value);
 }
 
 function gig_offers_session_start(): void
@@ -232,13 +236,16 @@ function gig_save_offer(string $employer, string $workerId, string $vacancyId, s
 
 function gig_seed_demo_offers_if_needed(string $username): void
 {
-    if (gig_offer_worker_key($username) !== 'tessa') {
+    $key = gig_offer_worker_key($username);
+    if ($key !== 'tessa') {
         return;
     }
     if (count(gig_offers_for_worker($username)) > 0) {
         return;
     }
 
+    // Seed demo offers keyed to the canonical 'tessa' worker_id
     gig_insert_offer_raw('PT ABC', 'tessa', 'GIG-2026-09-001');
     gig_insert_offer_raw('PT ABC', 'tessa', 'GIG-2026-09-002');
+    gig_insert_offer_raw('CV Kreasi Visual Nusantara', 'tessa', 'GIG-2026-09-008');
 }
