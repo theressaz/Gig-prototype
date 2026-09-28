@@ -117,6 +117,11 @@ function gig_db(): ?PDO
             } catch (Throwable) { /* table may not exist yet */ }
         }
 
+        // Seed all demo data (applications, notifications, completions) into DB
+        require_once __DIR__ . '/project-schedule.php';
+        require_once __DIR__ . '/project-applications.php';
+        gig_seed_all_demo_data_to_db();
+
     } catch (Throwable $e) {
         $pdo = null;
     }

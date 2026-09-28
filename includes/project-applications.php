@@ -66,11 +66,14 @@ function gig_apps_ensure_tables(?PDO $pdo): void
                 `type`               VARCHAR(50)  NOT NULL DEFAULT 'info',
                 `title`              VARCHAR(150) NOT NULL,
                 `message`            TEXT         NOT NULL,
+                `vacancy_id`         VARCHAR(50)  NOT NULL DEFAULT '',
                 `is_read`            TINYINT(1)   NOT NULL DEFAULT 0,
                 `created_at`         DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 KEY `idx_notif_emp` (`employer_username`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
+        // Add vacancy_id column if it was created before this migration
+        try { $pdo->exec("ALTER TABLE `employer_notifications` ADD COLUMN `vacancy_id` VARCHAR(50) NOT NULL DEFAULT '' AFTER `message`"); } catch (Throwable) {}
 
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS `worker_notifications` (
@@ -79,13 +82,271 @@ function gig_apps_ensure_tables(?PDO $pdo): void
                 `type`               VARCHAR(50)  NOT NULL DEFAULT 'info',
                 `title`              VARCHAR(150) NOT NULL,
                 `message`            TEXT         NOT NULL,
+                `vacancy_id`         VARCHAR(50)  NOT NULL DEFAULT '',
                 `is_read`            TINYINT(1)   NOT NULL DEFAULT 0,
                 `created_at`         DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 KEY `idx_notif_worker` (`worker_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
+        // Add vacancy_id column if it was created before this migration
+        try { $pdo->exec("ALTER TABLE `worker_notifications` ADD COLUMN `vacancy_id` VARCHAR(50) NOT NULL DEFAULT '' AFTER `message`"); } catch (Throwable) {}
     } catch (Throwable $e) {
         // Table fallback
+    }
+}
+
+/**
+ * Seeds ALL demo data (applications, notifications, project_completions) into MySQL
+ * using INSERT IGNORE so it is safe to call on every request.
+ */
+function gig_seed_all_demo_data_to_db(): void
+{
+    $pdo = gig_db();
+    if (!$pdo) {
+        return;
+    }
+    static $done = false;
+    if ($done) {
+        return;
+    }
+    $done = true;
+
+    gig_apps_ensure_tables($pdo);
+
+    // ── project_applications ────────────────────────────────────────────────
+    $appStmt = $pdo->prepare("
+        INSERT IGNORE INTO `project_applications`
+            (`id`, `vacancy_id`, `worker_id`, `worker_name`, `employer_username`,
+             `bid_amount`, `status`, `note`, `created_at`, `updated_at`)
+        VALUES
+            (:id, :vac, :wid, :wname, :emp, :bid, :status, :note, :created, :updated)
+    ");
+
+    $demoApps = [
+        [
+            'id'                => 'APP-2026-001',
+            'vacancy_id'        => 'GIG-2026-09-001',
+            'worker_id'         => 'tessa',
+            'worker_name'       => 'Theressa Zaratrusha',
+            'employer_username' => 'PT Talenta Digital Indonesia',
+            'bid_amount'        => 'Rp 8.500.000',
+            'status'            => 'confirmed_by_worker',
+            'note'              => 'Saya memiliki pengalaman 4+ tahun dalam merancang UI/UX dashboard SaaS.',
+            'created_at'        => '2026-09-18 09:20:00',
+            'updated_at'        => '2026-09-20 11:13:00',
+        ],
+        [
+            'id'                => 'APP-2026-002',
+            'vacancy_id'        => 'GIG-2026-09-002',
+            'worker_id'         => 'rian',
+            'worker_name'       => 'Rian Ardiansyah',
+            'employer_username' => 'PT Solusi Awan Indonesia',
+            'bid_amount'        => 'Rp 6.000.000',
+            'status'            => 'confirmed_by_worker',
+            'note'              => 'Siap mengintegrasikan REST API SMS & WA dengan sertifikasi AWS Backend.',
+            'created_at'        => '2026-09-16 10:00:00',
+            'updated_at'        => '2026-09-19 09:00:00',
+        ],
+        [
+            'id'                => 'APP-2026-003',
+            'vacancy_id'        => 'GIG-2026-09-003',
+            'worker_id'         => 'fajar',
+            'worker_name'       => 'Fajar Pratama',
+            'employer_username' => 'PT Media Digital Nusantara',
+            'bid_amount'        => 'Rp 4.500.000',
+            'status'            => 'applied',
+            'note'              => 'Portofolio kampanye copywriting sosial media dengan engagement rate > 8%.',
+            'created_at'        => '2026-09-21 08:30:00',
+            'updated_at'        => '2026-09-21 08:30:00',
+        ],
+    ];
+
+    foreach ($demoApps as $app) {
+        try {
+            $appStmt->execute([
+                ':id'      => $app['id'],
+                ':vac'     => $app['vacancy_id'],
+                ':wid'     => $app['worker_id'],
+                ':wname'   => $app['worker_name'],
+                ':emp'     => $app['employer_username'],
+                ':bid'     => $app['bid_amount'],
+                ':status'  => $app['status'],
+                ':note'    => $app['note'],
+                ':created' => $app['created_at'],
+                ':updated' => $app['updated_at'],
+            ]);
+        } catch (Throwable) {}
+    }
+
+    // ── employer_notifications ───────────────────────────────────────────────
+    $enStmt = $pdo->prepare("
+        INSERT IGNORE INTO `employer_notifications`
+            (`id`, `employer_username`, `type`, `title`, `message`, `vacancy_id`, `is_read`, `created_at`)
+        VALUES
+            (:id, :emp, :type, :title, :msg, :vid, :read, :created)
+    ");
+
+    $deadlineMsg1 = gig_deadline_notice_message('GIG-2026-09-001');
+
+    $empNotifs = [
+        [
+            'id'                => 'NOTIF-2026-001',
+            'employer_username' => 'PT Talenta Digital Indonesia',
+            'type'              => 'worker_confirmed',
+            'title'             => '🎉 Theressa Zaratrusha RESMI DIREKRUT!',
+            'message'           => 'Anda telah menerima lamaran Theressa Zaratrusha untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub". Kerja sama aktif (mulai 20 Sep 2026, durasi 3 minggu, tenggat 11 Okt 2026).',
+            'vacancy_id'        => 'GIG-2026-09-001',
+            'is_read'           => 0,
+            'created_at'        => '2026-09-20 11:13:00',
+        ],
+        [
+            'id'                => 'NOTIF-2026-002',
+            'employer_username' => 'PT Solusi Awan Indonesia',
+            'type'              => 'worker_confirmed',
+            'title'             => '🎉 Rian Ardiansyah RESMI DIREKRUT!',
+            'message'           => 'Rian Ardiansyah telah MENGONFIRMASI dan RESMI DIREKRUT untuk proyek "Integrasi REST API Modul Notifikasi SMS & WhatsApp". Kontrak proyek telah aktif.',
+            'vacancy_id'        => 'GIG-2026-09-002',
+            'is_read'           => 0,
+            'created_at'        => '2026-09-19 09:00:00',
+        ],
+        [
+            'id'                => 'NOTIF-2026-003',
+            'employer_username' => 'PT Talenta Digital Indonesia',
+            'type'              => 'deadline',
+            'title'             => '⏰ Tenggat proyek semakin dekat',
+            'message'           => $deadlineMsg1,
+            'vacancy_id'        => 'GIG-2026-09-001',
+            'is_read'           => 0,
+            'created_at'        => '2026-09-22 08:00:00',
+        ],
+    ];
+
+    foreach ($empNotifs as $n) {
+        try {
+            $enStmt->execute([
+                ':id'      => $n['id'],
+                ':emp'     => $n['employer_username'],
+                ':type'    => $n['type'],
+                ':title'   => $n['title'],
+                ':msg'     => $n['message'],
+                ':vid'     => $n['vacancy_id'],
+                ':read'    => $n['is_read'],
+                ':created' => $n['created_at'],
+            ]);
+        } catch (Throwable) {}
+    }
+
+    // ── worker_notifications ────────────────────────────────────────────────
+    $wnStmt = $pdo->prepare("
+        INSERT IGNORE INTO `worker_notifications`
+            (`id`, `worker_id`, `type`, `title`, `message`, `vacancy_id`, `is_read`, `created_at`)
+        VALUES
+            (:id, :wid, :type, :title, :msg, :vid, :read, :created)
+    ");
+
+    $workerNotifs = [
+        [
+            'id'         => 'WNOTIF-2026-001',
+            'worker_id'  => 'tessa',
+            'type'       => 'recruited',
+            'title'      => '🎉 Anda Resmi Direkrut!',
+            'message'    => 'PT Talenta Digital Indonesia menerima lamaran Anda untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub" pada 20 Sep 2026. Durasi 3 minggu, tenggat pengerjaan 11 Okt 2026. Buka Proyek Aktif untuk melihat countdown.',
+            'vacancy_id' => 'GIG-2026-09-001',
+            'is_read'    => 0,
+            'created_at' => '2026-09-20 11:13:00',
+        ],
+        [
+            'id'         => 'WNOTIF-2026-002',
+            'worker_id'  => 'tessa',
+            'type'       => 'direct_offer',
+            'title'      => '📩 Penawaran Proyek Baru!',
+            'message'    => 'PT ABC Indonesia menawarkan proyek secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau rincian proyek.',
+            'vacancy_id' => 'GIG-2026-09-001',
+            'is_read'    => 0,
+            'created_at' => '2026-09-20 09:00:00',
+        ],
+        [
+            'id'         => 'WNOTIF-2026-003',
+            'worker_id'  => 'tessa',
+            'type'       => 'deadline',
+            'title'      => '⏰ Tenggat proyek semakin dekat',
+            'message'    => $deadlineMsg1,
+            'vacancy_id' => 'GIG-2026-09-001',
+            'is_read'    => 0,
+            'created_at' => '2026-09-22 08:00:00',
+        ],
+        [
+            'id'         => 'WNOTIF-2026-004',
+            'worker_id'  => 'rian',
+            'type'       => 'recruited',
+            'title'      => '🎉 Anda Resmi Direkrut!',
+            'message'    => 'PT Solusi Awan Indonesia menerima lamaran Anda untuk proyek "Integrasi REST API Modul Notifikasi SMS & WhatsApp" pada 19 Sep 2026. Durasi 2 minggu.',
+            'vacancy_id' => 'GIG-2026-09-002',
+            'is_read'    => 0,
+            'created_at' => '2026-09-19 09:00:00',
+        ],
+    ];
+
+    foreach ($workerNotifs as $n) {
+        try {
+            $wnStmt->execute([
+                ':id'      => $n['id'],
+                ':wid'     => $n['worker_id'],
+                ':type'    => $n['type'],
+                ':title'   => $n['title'],
+                ':msg'     => $n['message'],
+                ':vid'     => $n['vacancy_id'],
+                ':read'    => $n['is_read'],
+                ':created' => $n['created_at'],
+            ]);
+        } catch (Throwable) {}
+    }
+
+    // ── project_completions (active contracts) ──────────────────────────────
+    // The active demo contracts (CTR-GIG-2026-0811, CTR-GIG-2026-0819) are in
+    // project_schedule but NOT yet in project_completions since they're ongoing.
+    // We record them here so the employer rating flow can reference them.
+    $compStmt = $pdo->prepare("
+        INSERT IGNORE INTO `project_completions`
+            (`contract_id`, `worker_id`, `employer_username`, `rating_given`,
+             `review_given`, `completed_date`, `created_at`)
+        VALUES
+            (:cid, :wid, :emp, :rating, :review, :cdate, :created)
+    ");
+
+    $activeContracts = [
+        [
+            'contract_id'       => 'CTR-GIG-2026-0811',
+            'worker_id'         => 'tessa',
+            'employer_username' => 'PT Talenta Digital Indonesia',
+            'rating_given'      => 0,
+            'review_given'      => '',
+            'completed_date'    => '2026-10-11',
+            'created_at'        => '2026-09-20 11:13:00',
+        ],
+        [
+            'contract_id'       => 'CTR-GIG-2026-0819',
+            'worker_id'         => 'rian',
+            'employer_username' => 'PT Solusi Awan Indonesia',
+            'rating_given'      => 0,
+            'review_given'      => '',
+            'completed_date'    => '2026-10-03',
+            'created_at'        => '2026-09-19 09:00:00',
+        ],
+    ];
+
+    foreach ($activeContracts as $c) {
+        try {
+            $compStmt->execute([
+                ':cid'     => $c['contract_id'],
+                ':wid'     => $c['worker_id'],
+                ':emp'     => $c['employer_username'],
+                ':rating'  => $c['rating_given'],
+                ':review'  => $c['review_given'],
+                ':cdate'   => $c['completed_date'],
+                ':created' => $c['created_at'],
+            ]);
+        } catch (Throwable) {}
     }
 }
 
@@ -209,6 +470,9 @@ function gig_seed_demo_applications_if_needed(): void
     }
 
     gig_ensure_demo_notifications();
+
+    // Persist all demo data to MySQL on the first request where DB is available
+    gig_seed_all_demo_data_to_db();
 }
 
 function gig_ensure_demo_notifications(): void
@@ -643,9 +907,9 @@ function gig_add_employer_notification(string $employerUsername, string $type, s
             gig_apps_ensure_tables($pdo);
             $stmt = $pdo->prepare("
                 INSERT INTO `employer_notifications`
-                    (`id`, `employer_username`, `type`, `title`, `message`, `is_read`, `created_at`)
+                    (`id`, `employer_username`, `type`, `title`, `message`, `vacancy_id`, `is_read`, `created_at`)
                 VALUES
-                    (:id, :emp, :type, :title, :msg, 0, NOW())
+                    (:id, :emp, :type, :title, :msg, :vid, 0, NOW())
             ");
             $stmt->execute([
                 ':id'    => $notif['id'],
@@ -653,6 +917,7 @@ function gig_add_employer_notification(string $employerUsername, string $type, s
                 ':type'  => $notif['type'],
                 ':title' => $notif['title'],
                 ':msg'   => $notif['message'],
+                ':vid'   => $notif['vacancy_id'],
             ]);
         } catch (Throwable $ignored) {}
     }
@@ -712,9 +977,9 @@ function gig_add_worker_notification(string $workerId, string $type, string $tit
             gig_apps_ensure_tables($pdo);
             $stmt = $pdo->prepare("
                 INSERT INTO `worker_notifications`
-                    (`id`, `worker_id`, `type`, `title`, `message`, `is_read`, `created_at`)
+                    (`id`, `worker_id`, `type`, `title`, `message`, `vacancy_id`, `is_read`, `created_at`)
                 VALUES
-                    (:id, :wid, :type, :title, :msg, 0, NOW())
+                    (:id, :wid, :type, :title, :msg, :vid, 0, NOW())
             ");
             $stmt->execute([
                 ':id'    => $notif['id'],
@@ -722,6 +987,7 @@ function gig_add_worker_notification(string $workerId, string $type, string $tit
                 ':type'  => $notif['type'],
                 ':title' => $notif['title'],
                 ':msg'   => $notif['message'],
+                ':vid'   => $notif['vacancy_id'],
             ]);
         } catch (Throwable $ignored) {}
     }
