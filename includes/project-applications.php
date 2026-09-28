@@ -452,10 +452,10 @@ function gig_seed_demo_applications_if_needed(): void
         'created_at'        => '2026-09-22 08:00:00',
     ];
 
-    // Default seed notifications for Gig Worker Tessa
+    // Default seed notifications for Gig Worker theressaz@pasker.id
     $_SESSION['gig_worker_notifications'][] = [
         'id'         => 'WNOTIF-2026-001',
-        'worker_id'  => 'tessa',
+        'worker_id'  => 'theressaz@pasker.id',
         'type'       => 'recruited',
         'title'      => '🎉 Anda Resmi Direkrut!',
         'message'    => 'PT Talenta Digital Indonesia menerima lamaran Anda untuk proyek "Redesign UI/UX Dashboard Prototype KarirHub". Proyek kini aktif. Buka Proyek Aktif untuk melihat countdown dan rincian kerja.',
@@ -466,18 +466,18 @@ function gig_seed_demo_applications_if_needed(): void
 
     $_SESSION['gig_worker_notifications'][] = [
         'id'         => 'WNOTIF-2026-002',
-        'worker_id'  => 'tessa',
+        'worker_id'  => 'theressaz@pasker.id',
         'type'       => 'direct_offer',
         'title'      => '📩 Penawaran Proyek Baru!',
-        'message'    => 'PT ABC Indonesia menawarkan proyek secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau rincian proyek.',
-        'vacancy_id' => 'GIG-2026-09-003',
+        'message'    => 'employer@pasker.id menawarkan proyek "Prototype Dashboard Internal" secara langsung kepada Anda. Buka menu Penawaran Proyek untuk meninjau rincian proyek.',
+        'vacancy_id' => 'GIG-2026-09-001',
         'is_read'    => 0,
         'created_at' => '2026-09-20 09:00:00',
     ];
 
     $_SESSION['gig_worker_notifications'][] = [
         'id'         => 'WNOTIF-2026-003',
-        'worker_id'  => 'tessa',
+        'worker_id'  => 'theressaz@pasker.id',
         'type'       => 'deadline',
         'title'      => '⏰ Tenggat proyek semakin dekat',
         'message'    => gig_deadline_notice_message('GIG-2026-09-001'),
