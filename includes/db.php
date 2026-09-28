@@ -33,8 +33,8 @@ function gig_db(): ?PDO
             'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4',
             DB_USER, DB_PASS,
             [
-                PDO::ATTR_ERRMODE        => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_TIMEOUT        => 2,
+                PDO::ATTR_ERRMODE          => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_TIMEOUT          => 2,
                 PDO::ATTR_EMULATE_PREPARES => false,
             ]
         );
@@ -62,13 +62,13 @@ function gig_db(): ?PDO
         // --- project_completions table ---
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS `project_completions` (
-                `contract_id`     VARCHAR(50)  NOT NULL PRIMARY KEY,
-                `worker_id`       VARCHAR(50)  NOT NULL,
+                `contract_id`       VARCHAR(50)  NOT NULL PRIMARY KEY,
+                `worker_id`         VARCHAR(50)  NOT NULL,
                 `employer_username` VARCHAR(100) NOT NULL,
-                `rating_given`    TINYINT UNSIGNED NOT NULL DEFAULT 5,
-                `review_given`    TEXT NOT NULL,
-                `completed_date`  DATE NOT NULL,
-                `created_at`      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+                `rating_given`      TINYINT UNSIGNED NOT NULL DEFAULT 0,
+                `review_given`      TEXT NOT NULL,
+                `completed_date`    DATE NOT NULL,
+                `created_at`        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
 
@@ -90,15 +90,15 @@ function gig_db(): ?PDO
 
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS `project_offers` (
-                `id`                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                `employer_username`  VARCHAR(100) NOT NULL,
-                `worker_id`          VARCHAR(50)  NOT NULL,
-                `vacancy_id`         VARCHAR(50)  NOT NULL,
-                `message`            VARCHAR(500) NOT NULL DEFAULT '',
-                `status`             VARCHAR(20)  NOT NULL DEFAULT 'pending',
-                `created_at`         DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `id`                INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `employer_username` VARCHAR(100) NOT NULL,
+                `worker_id`         VARCHAR(50)  NOT NULL,
+                `vacancy_id`        VARCHAR(50)  NOT NULL,
+                `message`           VARCHAR(500) NOT NULL DEFAULT '',
+                `status`            VARCHAR(20)  NOT NULL DEFAULT 'pending',
+                `created_at`        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE KEY `uniq_offer` (`employer_username`, `worker_id`, `vacancy_id`),
-                KEY `idx_worker` (`worker_id`),
+                KEY `idx_worker`  (`worker_id`),
                 KEY `idx_vacancy` (`vacancy_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
@@ -107,20 +107,15 @@ function gig_db(): ?PDO
         gig_history_ensure_table($pdo);
         gig_seed_project_history($pdo);
 
-        // Migrate legacy worker identifiers → canonical 'tessa'
-        foreach (['project_history', 'project_reviews', 'project_completions', 'project_offers'] as $tbl) {
+        // Migrate legacy worker identifiers to canonical 'tessa'
+        $legacyIds = "'tess.kirana@pasker.id','theressaz@pasker.id','theressaz','theressa zaratrusha','tessa kirana'";
+        foreach (['project_history','project_reviews','project_completions','project_offers'] as $tbl) {
             try {
                 $pdo->exec("UPDATE `$tbl` SET `worker_id` = 'tessa'
-                            WHERE LOWER(TRIM(`worker_id`)) IN
-                                  ('tess.kirana@pasker.id','theressaz@pasker.id','theressaz','theressa zaratrusha','tessa kirana','tessa')
+                            WHERE LOWER(TRIM(`worker_id`)) IN ($legacyIds)
                               AND `worker_id` != 'tessa'");
-            } catch (Throwable) { /* table may not exist yet */ }
+            } catch (Throwable $migErr) { /* table may not exist yet */ }
         }
-
-        // Seed all demo data (applications, notifications, completions) into DB
-        require_once __DIR__ . '/project-schedule.php';
-        require_once __DIR__ . '/project-applications.php';
-        gig_seed_all_demo_data_to_db();
 
     } catch (Throwable $e) {
         $pdo = null;
