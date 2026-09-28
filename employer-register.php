@@ -14,6 +14,7 @@ $userEmail = $_SESSION['siapkerja_email'] ?? 'calon.employer@pasker.id';
 $userName  = $_SESSION['siapkerja_name'] ?? 'Pemberi Kerja';
 $userNik   = $_SESSION['siapkerja_nik'] ?? '1471 0252 0803 0001';
 $userPhone = $_SESSION['siapkerja_phone'] ?? '08117671208';
+$registerError = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $industry = trim((string)($_POST['industry'] ?? ''));
@@ -23,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phonePic = trim((string)($_POST['phone_pic'] ?? $userPhone));
 
     require_once __DIR__ . '/includes/admin-store.php';
-    gig_save_employer_gig_registration([
+    $saved = gig_save_employer_gig_registration([
         'siapkerja_email' => $userEmail,
         'company_name'    => $namaPic !== '' ? $namaPic : $userName,
         'industry'        => $industry,
@@ -32,7 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'email_pic'       => $emailPic,
         'phone_pic'       => $phonePic,
     ]);
-
+    if (!$saved) {
+        $registerError = 'Gagal menyimpan pendaftaran ke database. Pastikan MySQL/XAMPP berjalan.';
+    } else {
     $_SESSION['username'] = $namaPic !== '' ? $namaPic : $userName;
     $_SESSION['role'] = 'employer';
     $_SESSION['company_registered'] = false;
@@ -40,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     header("Location: employer-verification-pending.php");
     exit;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -369,6 +373,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="section-header">
                 <h2 class="section-title">Informasi dasar & PIC</h2>
             </div>
+
+            <?php if ($registerError !== ''): ?>
+                <div style="background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:12px 14px;border-radius:10px;margin-bottom:16px;font-size:0.88rem;font-weight:600;">
+                    <?php echo htmlspecialchars($registerError, ENT_QUOTES, 'UTF-8'); ?>
+                </div>
+            <?php endif; ?>
 
             <form method="POST" action="employer-register.php">
                 <!-- Industri -->

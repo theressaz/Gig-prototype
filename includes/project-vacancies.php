@@ -269,7 +269,11 @@ function gig_project_vacancies_base(): array
 function gig_project_vacancies(): array
 {
     require_once __DIR__ . '/vacancy-store.php';
-    return gig_vacancy_merge_catalog(gig_project_vacancies_base());
+    $fromDb = gig_vacancy_load_all();
+    if ($fromDb !== []) {
+        return $fromDb;
+    }
+    return gig_project_vacancies_base();
 }
 
 function gig_find_vacancy(string $id): ?array

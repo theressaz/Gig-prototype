@@ -934,10 +934,6 @@ function gig_is_worker_registered(string $username): bool
  */
 function gig_get_worker_registration(string $username): ?array
 {
-    if (session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['gig_worker_registration_data_' . $username])) {
-        return $_SESSION['gig_worker_registration_data_' . $username];
-    }
-
     $db = gig_db();
     if ($db !== null) {
         try {
@@ -945,18 +941,24 @@ function gig_get_worker_registration(string $username): ?array
             $stmt->execute([':u' => $username]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($row) {
-                $row['previous_projects'] = json_decode($row['previous_projects'], true) ?: [];
-                $row['portfolio'] = json_decode($row['portfolio'], true) ?: [];
-                $row['skills'] = explode(',', $row['skills']);
+                $row['previous_projects'] = json_decode((string)$row['previous_projects'], true) ?: [];
+                $row['portfolio'] = json_decode((string)$row['portfolio'], true) ?: [];
+                $row['skills'] = array_filter(array_map('trim', explode(',', (string)$row['skills'])));
                 if (session_status() === PHP_SESSION_ACTIVE) {
                     $_SESSION['gig_worker_registration_data_' . $username] = $row;
-                    $_SESSION['gig_worker_registered_' . $username] = true;
+                    if ((string)($row['status'] ?? 'approved') === 'approved') {
+                        $_SESSION['gig_worker_registered_' . $username] = true;
+                    }
                 }
                 return $row;
             }
         } catch (Throwable $e) {
             // fallback
         }
+    }
+
+    if (session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['gig_worker_registration_data_' . $username])) {
+        return $_SESSION['gig_worker_registration_data_' . $username];
     }
 
     return null;
@@ -967,45 +969,59 @@ function gig_get_worker_registration(string $username): ?array
  */
 function gig_save_worker_registration(string $username, array $data): bool
 {
-    if (session_status() === PHP_SESSION_ACTIVE) {
-        $_SESSION['gig_worker_registration_data_' . $username] = $data;
-        if ((string)($data['status'] ?? 'pending') === 'approved') {
-            $_SESSION['gig_worker_registered_' . $username] = true;
-        } else {
-            unset($_SESSION['gig_worker_registered_' . $username]);
-        }
-    }
+    require_once __DIR__ . '/admin-store.php';
+    gig_admin_ensure_schema();
 
     $db = gig_db();
-    if ($db !== null) {
-        try {
-            $status = (string)($data['status'] ?? 'pending');
-            $stmt = $db->prepare("
-                REPLACE INTO `gig_worker_registrations`
-                (`username`, `bidang_keahlian`, `skills`, `contact_choice`, `contact_email`, `contact_wa`,
-                 `previous_projects`, `portfolio`, `video_url`, `status`, `admin_note`)
-                VALUES (:u, :bidang, :skills, :choice, :email, :wa, :projects, :portfolio, :video, :status, '')
-            ");
-            $stmt->execute([
-                ':u'        => $username,
-                ':bidang'   => $data['bidang_keahlian'] ?? '',
-                ':skills'   => is_array($data['skills'] ?? null) ? implode(', ', $data['skills']) : ($data['skills'] ?? ''),
-                ':choice'   => $data['contact_choice'] ?? 'siapkerja',
-                ':email'    => $data['contact_email'] ?? '',
-                ':wa'       => $data['contact_wa'] ?? '',
-                ':projects' => json_encode($data['previous_projects'] ?? []),
-                ':portfolio'=> json_encode($data['portfolio'] ?? []),
-                ':video'    => $data['video_url'] ?? '',
-                ':status'   => $status,
-            ]);
-            if (session_status() === PHP_SESSION_ACTIVE && $status !== 'approved') {
-                unset($_SESSION['gig_worker_registered_' . $username]);
-            }
-        } catch (Throwable $e) {
-            // fallback saved to session
-        }
+    if ($db === null) {
+        return false;
     }
 
+    try {
+        $status = (string)($data['status'] ?? 'pending');
+        $preserveNote = '';
+        if ($status === 'approved') {
+            $existing = gig_get_worker_registration($username);
+            $preserveNote = (string)($existing['admin_note'] ?? '');
+        }
+
+        $stmt = $db->prepare("
+            INSERT INTO `gig_worker_registrations`
+            (`username`, `bidang_keahlian`, `skills`, `contact_choice`, `contact_email`, `contact_wa`,
+             `previous_projects`, `portfolio`, `video_url`, `status`, `admin_note`)
+            VALUES (:u, :bidang, :skills, :choice, :email, :wa, :projects, :portfolio, :video, :status, :note)
+            ON DUPLICATE KEY UPDATE
+              `bidang_keahlian` = VALUES(`bidang_keahlian`),
+              `skills` = VALUES(`skills`),
+              `contact_choice` = VALUES(`contact_choice`),
+              `contact_email` = VALUES(`contact_email`),
+              `contact_wa` = VALUES(`contact_wa`),
+              `previous_projects` = VALUES(`previous_projects`),
+              `portfolio` = VALUES(`portfolio`),
+              `video_url` = VALUES(`video_url`),
+              `status` = VALUES(`status`),
+              `admin_note` = IF(VALUES(`status`) = 'pending', '', `admin_note`)
+        ");
+        $stmt->execute([
+            ':u'        => $username,
+            ':bidang'   => $data['bidang_keahlian'] ?? '',
+            ':skills'   => is_array($data['skills'] ?? null) ? implode(', ', $data['skills']) : ($data['skills'] ?? ''),
+            ':choice'   => $data['contact_choice'] ?? 'siapkerja',
+            ':email'    => $data['contact_email'] ?? '',
+            ':wa'       => $data['contact_wa'] ?? '',
+            ':projects' => json_encode($data['previous_projects'] ?? []),
+            ':portfolio'=> json_encode($data['portfolio'] ?? []),
+            ':video'    => $data['video_url'] ?? '',
+            ':status'   => $status,
+            ':note'     => $status === 'approved' ? $preserveNote : '',
+        ]);
+    } catch (Throwable $e) {
+        return false;
+    }
+
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        unset($_SESSION['gig_worker_registration_data_' . $username], $_SESSION['gig_worker_registered_' . $username]);
+    }
     return true;
 }
 

@@ -40,34 +40,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $redirectTab = 'employers';
     } elseif ($action === 'vacancy_approve') {
         $id = (string)($_POST['vacancy_id'] ?? '');
-        $kind = (string)($_POST['vacancy_kind'] ?? 'catalog');
-        $ok = $kind === 'submission'
-            ? gig_admin_set_submission_status($id, 'active', $note !== '' ? $note : 'Disetujui Admin KarirHub.')
-            : gig_admin_set_vacancy_override($id, 'active', $note !== '' ? $note : 'Disetujui Admin KarirHub.');
+        $ok = gig_vacancy_set_status($id, 'active', $note !== '' ? $note : 'Disetujui Admin KarirHub.');
         $flash = $ok ? 'Lowongan proyek disetujui dan dapat ditayangkan.' : 'Gagal menyetujui lowongan.';
         $flashType = $ok ? 'success' : 'error';
         $redirectTab = 'projects';
     } elseif ($action === 'vacancy_revision') {
         $id = (string)($_POST['vacancy_id'] ?? '');
-        $kind = (string)($_POST['vacancy_kind'] ?? 'catalog');
         if ($note === '') {
             $note = 'Harap perbaiki detail lowongan sesuai catatan Admin.';
         }
-        $ok = $kind === 'submission'
-            ? gig_admin_set_submission_status($id, 'revision', $note)
-            : gig_admin_set_vacancy_override($id, 'revision', $note);
+        $ok = gig_vacancy_set_status($id, 'revision', $note);
         $flash = $ok ? 'Lowongan dikembalikan untuk revisi.' : 'Gagal mengirim permintaan revisi.';
         $flashType = $ok ? 'success' : 'error';
         $redirectTab = 'projects';
     } elseif ($action === 'vacancy_reject') {
         $id = (string)($_POST['vacancy_id'] ?? '');
-        $kind = (string)($_POST['vacancy_kind'] ?? 'catalog');
         if ($note === '') {
             $note = 'Lowongan tidak memenuhi Syarat & Ketentuan KarirHub.';
         }
-        $ok = $kind === 'submission'
-            ? gig_admin_set_submission_status($id, 'rejected', $note)
-            : gig_admin_set_vacancy_override($id, 'rejected', $note);
+        $ok = gig_vacancy_set_status($id, 'rejected', $note);
         $flash = $ok ? 'Lowongan proyek ditolak.' : 'Gagal menolak lowongan.';
         $flashType = $ok ? 'success' : 'error';
         $redirectTab = 'projects';
@@ -84,7 +75,7 @@ if (isset($_GET['msg'])) {
 
 $workers = gig_admin_list_worker_registrations();
 $employers = gig_admin_list_employer_registrations();
-$vacancies = gig_project_vacancies();
+$vacancies = gig_admin_list_project_vacancies();
 
 $pendingWorkers = array_values(array_filter($workers, fn($r) => ($r['status'] ?? 'pending') === 'pending'));
 $pendingEmployers = array_values(array_filter($employers, fn($r) => ($r['status'] ?? 'pending') === 'pending'));
@@ -222,7 +213,6 @@ function admin_status_badge(string $status): string
       <?php endif; ?>
       <?php foreach ($vacancies as $job): ?>
         <?php if (($job['status'] ?? '') !== 'review') { continue; } ?>
-        <?php $kind = !empty($job['is_submission']) ? 'submission' : 'catalog'; ?>
         <article class="review-card">
           <h3><?php echo htmlspecialchars((string)$job['title'], ENT_QUOTES, 'UTF-8'); ?> <?php echo admin_status_badge('review'); ?></h3>
           <div class="review-meta">ID: <?php echo htmlspecialchars((string)$job['id'], ENT_QUOTES, 'UTF-8'); ?> · Pemberi Kerja: <?php echo htmlspecialchars((string)($job['employer'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?> · Kategori: <?php echo htmlspecialchars((string)$job['category'], ENT_QUOTES, 'UTF-8'); ?></div>
@@ -231,7 +221,6 @@ function admin_status_badge(string $status): string
           <form method="post" class="review-actions">
             <input type="hidden" name="tab" value="projects" />
             <input type="hidden" name="vacancy_id" value="<?php echo htmlspecialchars((string)$job['id'], ENT_QUOTES, 'UTF-8'); ?>" />
-            <input type="hidden" name="vacancy_kind" value="<?php echo htmlspecialchars($kind, ENT_QUOTES, 'UTF-8'); ?>" />
             <textarea name="admin_note" placeholder="Catatan untuk employer (wajib untuk revisi/penolakan)"></textarea>
             <button class="btn-approve" name="action" value="vacancy_approve" type="submit">Setujui & Tayang</button>
             <button class="btn-revision" name="action" value="vacancy_revision" type="submit">Minta Revisi</button>

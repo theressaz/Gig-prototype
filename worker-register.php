@@ -147,12 +147,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
             'status'            => ($isEditMode && $existingStatus === 'approved') ? 'approved' : 'pending',
         ];
 
-        gig_save_worker_registration($username, $registrationData);
+        if (!gig_save_worker_registration($username, $registrationData)) {
+            $errorMessage = 'Gagal menyimpan pendaftaran ke database. Pastikan MySQL/XAMPP berjalan.';
+        } else {
         $_SESSION['role'] = 'worker';
         $_SESSION['worker_registered'] = true;
         $profileId = strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $username)[0] ?? $username));
         header("Location: worker-verification-pending.php");
         exit;
+        }
     }
 }
 
