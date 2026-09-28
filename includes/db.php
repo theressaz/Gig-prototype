@@ -5,7 +5,7 @@
  */
 declare(strict_types=1);
 
-if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
+if (!defined('DB_HOST')) define('DB_HOST', '127.0.0.1');
 if (!defined('DB_USER')) define('DB_USER', 'root');
 if (!defined('DB_PASS')) define('DB_PASS', '');
 if (!defined('DB_NAME')) define('DB_NAME', 'Gig');
@@ -38,12 +38,6 @@ function gig_db(): ?PDO
                 PDO::ATTR_EMULATE_PREPARES => false,
             ]
         );
-
-        try {
-            $pdo->exec("SET GLOBAL event_scheduler = ON");
-        } catch (Throwable $evtErr) {
-            /* ignore if permission restricted */
-        }
 
         // --- project_reviews table ---
         $pdo->exec("
