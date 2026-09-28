@@ -234,11 +234,6 @@ VALUES (:cid,:wid,:emp,:rat,:rev,:cdt,:cat)",
    ':rev'=>'Hasil pekerjaan luar biasa! Copywriting komunikatif dan desain landing page meningkatkan konversi.',':cdt'=>'2026-08-01',':cat'=>'2026-08-01 10:00:00'],
   [':cid'=>'CTR-GIG-2026-0512',':wid'=>'dimas',':emp'=>'PT ABC',':rat'=>5,
    ':rev'=>'Penetrasi testing komprehensif, laporan celah keamanan sangat lengkap dan solutif.',':cdt'=>'2026-05-24',':cat'=>'2026-05-24 15:00:00'],
-  // Active contracts (pending rating)
-  [':cid'=>'CTR-GIG-2026-0811',':wid'=>'tessa',':emp'=>'PT Talenta Digital Indonesia',':rat'=>0,
-   ':rev'=>'',':cdt'=>'2026-10-11',':cat'=>'2026-09-20 11:13:00'],
-  [':cid'=>'CTR-GIG-2026-0819',':wid'=>'rian',':emp'=>'PT Solusi Awan Indonesia',':rat'=>0,
-   ':rev'=>'',':cdt'=>'2026-10-03',':cat'=>'2026-09-19 09:00:00'],
 ]);
 
 /* ══════════════════════════════════════════════════════════════════════════════

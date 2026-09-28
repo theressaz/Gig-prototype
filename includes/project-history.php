@@ -47,7 +47,7 @@ function gig_history_catalog(): array
     return [
         [
             'contract_id' => 'CTR-GIG-2026-0815',
-            'worker_id' => 'tessa',
+            'worker_id' => 'theressaz@pasker.id',
             'worker_name' => 'Theressa Zaratrusha',
             'worker_role' => 'Lead UI/UX Designer',
             'worker_avatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Theressa&backgroundColor=dbeafe',
@@ -65,7 +65,7 @@ function gig_history_catalog(): array
         ],
         [
             'contract_id' => 'CTR-GIG-2026-0624',
-            'worker_id' => 'tessa',
+            'worker_id' => 'theressaz@pasker.id',
             'worker_name' => 'Theressa Zaratrusha',
             'worker_role' => 'Lead UI/UX Designer',
             'worker_avatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Theressa&backgroundColor=dbeafe',
@@ -83,7 +83,7 @@ function gig_history_catalog(): array
         ],
         [
             'contract_id' => 'CTR-GIG-2026-0531',
-            'worker_id' => 'tessa',
+            'worker_id' => 'theressaz@pasker.id',
             'worker_name' => 'Theressa Zaratrusha',
             'worker_role' => 'Lead UI/UX Designer',
             'worker_avatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Theressa&backgroundColor=dbeafe',
@@ -101,7 +101,7 @@ function gig_history_catalog(): array
         ],
         [
             'contract_id' => 'CTR-GIG-2026-0128',
-            'worker_id' => 'tessa',
+            'worker_id' => 'theressaz@pasker.id',
             'worker_name' => 'Theressa Zaratrusha',
             'worker_role' => 'Lead UI/UX Designer',
             'worker_avatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Theressa&backgroundColor=dbeafe',
@@ -119,7 +119,7 @@ function gig_history_catalog(): array
         ],
         [
             'contract_id' => 'CTR-GIG-2025-1120',
-            'worker_id' => 'tessa',
+            'worker_id' => 'theressaz@pasker.id',
             'worker_name' => 'Theressa Zaratrusha',
             'worker_role' => 'Lead UI/UX Designer',
             'worker_avatar' => 'https://api.dicebear.com/9.x/notionists/svg?seed=Theressa&backgroundColor=dbeafe',
