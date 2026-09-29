@@ -15,6 +15,10 @@ $isEmployerAccount = $isLoggedIn && (
     ($_SESSION['role'] ?? '') === 'employer'
     || in_array($siapkerjaEmail, ['employer@pasker.id', 'calon.employer@pasker.id'], true)
 );
+$profileEmail = (string)($_SESSION['siapkerja_email'] ?? '');
+if ($profileEmail === '' && $isLoggedIn) {
+    $profileEmail = strtolower(str_replace(' ', '', $displayName)) . '@pasker.id';
+}
 $profileAvatarUrl = 'https://api.dicebear.com/9.x/avataaars/svg?seed='
     . rawurlencode($displayName)
     . '&backgroundColor=b6e3f4,c0aede,d1d4f9';
@@ -142,6 +146,14 @@ $testimonials = [
       padding: 6px 0;
     }
     .dasbor-trigger:hover { color: var(--blue); }
+    .nav-avatar-btn {
+      border: none;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 50%;
+      line-height: 0;
+    }
     .nav-avatar {
       width: 40px;
       height: 40px;
@@ -149,7 +161,69 @@ $testimonials = [
       object-fit: cover;
       border: 2px solid #e2e8f0;
       background: #f1f5f9;
+      display: block;
     }
+    .profile-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 14px);
+      right: 0;
+      width: min(320px, calc(100vw - 32px));
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.14);
+      z-index: 110;
+      overflow: hidden;
+    }
+    .profile-panel.open { display: block; }
+    .profile-panel-head {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .profile-panel-head img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 1px solid #e2e8f0;
+    }
+    .profile-panel-head .name {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.35;
+    }
+    .profile-panel-head .email {
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-top: 2px;
+      word-break: break-word;
+    }
+    .profile-menu { list-style: none; padding: 6px 0; margin: 0; }
+    .profile-menu li { border-bottom: 1px solid #f1f5f9; }
+    .profile-menu li:last-child { border-bottom: none; }
+    .profile-menu a, .profile-menu span {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #334155;
+    }
+    .profile-menu span { cursor: default; opacity: 0.85; }
+    .profile-menu a:hover { background: #f8fafc; color: #0f172a; }
+    .profile-menu .menu-ico {
+      width: 18px;
+      display: inline-flex;
+      justify-content: center;
+      color: #475569;
+      flex-shrink: 0;
+    }
+    .profile-menu a.logout { color: #0f172a; }
     .dasbor-panel {
       display: none;
       position: absolute;
@@ -457,13 +531,33 @@ $testimonials = [
                 </article>
               </div>
             <?php endif; ?>
-            <img
-              class="nav-avatar"
-              src="<?php echo htmlspecialchars($profileAvatarUrl, ENT_QUOTES, 'UTF-8'); ?>"
-              alt="Profil <?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?>"
-              width="40"
-              height="40"
-            />
+            <button type="button" class="nav-avatar-btn" id="profileTrigger" aria-expanded="false" aria-controls="profilePanel" aria-label="Menu profil">
+              <img
+                class="nav-avatar"
+                src="<?php echo htmlspecialchars($profileAvatarUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                alt=""
+                width="40"
+                height="40"
+              />
+            </button>
+            <div class="profile-panel" id="profilePanel" role="dialog" aria-label="Menu profil pengguna">
+              <div class="profile-panel-head">
+                <img src="<?php echo htmlspecialchars($profileAvatarUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="" width="48" height="48" />
+                <div>
+                  <div class="name"><?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?></div>
+                  <div class="email"><?php echo htmlspecialchars($profileEmail, ENT_QUOTES, 'UTF-8'); ?></div>
+                </div>
+              </div>
+              <ul class="profile-menu">
+                <li><span><span class="menu-ico">💼</span> Lamaran Kerja</span></li>
+                <li><span><span class="menu-ico">🎓</span> Pelatihan Saya</span></li>
+                <li><span><span class="menu-ico">🛡</span> Sertifikasi</span></li>
+                <li><span><span class="menu-ico">👤</span> Profil</span></li>
+                <li><span><span class="menu-ico">⚙</span> Pengaturan</span></li>
+                <li><span><span class="menu-ico">?</span> Bantuan</span></li>
+                <li><a class="logout" href="karirhub-logout.php"><span class="menu-ico">⎋</span> Keluar</a></li>
+              </ul>
+            </div>
           </div>
         <?php endif; ?>
       </div>
@@ -626,22 +720,51 @@ $testimonials = [
 
   <script>
     (function () {
-      var trigger = document.getElementById('dasborTrigger');
-      var panel = document.getElementById('dasborPanel');
       var zone = document.getElementById('navUserZone');
-      if (!trigger || !panel || !zone) return;
+      if (!zone) return;
 
-      trigger.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var open = panel.classList.toggle('open');
-        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
-      });
+      var dasborTrigger = document.getElementById('dasborTrigger');
+      var dasborPanel = document.getElementById('dasborPanel');
+      var profileTrigger = document.getElementById('profileTrigger');
+      var profilePanel = document.getElementById('profilePanel');
+
+      function closeAll() {
+        if (dasborPanel) {
+          dasborPanel.classList.remove('open');
+          if (dasborTrigger) dasborTrigger.setAttribute('aria-expanded', 'false');
+        }
+        if (profilePanel) {
+          profilePanel.classList.remove('open');
+          if (profileTrigger) profileTrigger.setAttribute('aria-expanded', 'false');
+        }
+      }
+
+      if (dasborTrigger && dasborPanel) {
+        dasborTrigger.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var willOpen = !dasborPanel.classList.contains('open');
+          closeAll();
+          if (willOpen) {
+            dasborPanel.classList.add('open');
+            dasborTrigger.setAttribute('aria-expanded', 'true');
+          }
+        });
+      }
+
+      if (profileTrigger && profilePanel) {
+        profileTrigger.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var willOpen = !profilePanel.classList.contains('open');
+          closeAll();
+          if (willOpen) {
+            profilePanel.classList.add('open');
+            profileTrigger.setAttribute('aria-expanded', 'true');
+          }
+        });
+      }
 
       document.addEventListener('click', function (e) {
-        if (!zone.contains(e.target)) {
-          panel.classList.remove('open');
-          trigger.setAttribute('aria-expanded', 'false');
-        }
+        if (!zone.contains(e.target)) closeAll();
       });
     })();
   </script>
