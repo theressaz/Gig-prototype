@@ -2,10 +2,7 @@
 declare(strict_types=1);
 session_start();
 
-if (empty($_SESSION['siapkerja_email']) && empty($_SESSION['username'])) {
-    header('Location: siapkerja-login.php?redirect=karirhub-home');
-    exit;
-}
+$isLoggedIn = !empty($_SESSION['siapkerja_email']) || !empty($_SESSION['username']);
 
 $displayName = (string)($_SESSION['siapkerja_name'] ?? $_SESSION['username'] ?? 'Pengguna');
 $userInitials = strtoupper(substr(preg_replace('/\s+/', '', $displayName), 0, 2));
@@ -111,12 +108,13 @@ $testimonials = [
     }
     .btn-nav-outline:hover { background: #f8fafc; }
     .btn-nav-solid {
+      display: inline-flex; align-items: center; justify-content: center;
       padding: 10px 26px; border-radius: 999px; border: none;
       background: #0ea5e9; color: #fff; font-size: 0.9rem; font-weight: 700; font-family: inherit;
-      cursor: pointer; line-height: 1; min-width: 88px;
+      cursor: pointer; line-height: 1; min-width: 88px; text-decoration: none;
     }
-    .btn-nav-solid:hover { background: #0284c7; }
-    .btn-nav-solid.is-user { padding: 10px 18px; letter-spacing: 0.02em; }
+    .btn-nav-solid:hover { background: #0284c7; color: #fff; }
+    .btn-nav-solid.is-user { padding: 10px 18px; letter-spacing: 0.02em; cursor: default; }
 
     /* Hero — CSS blobs only, no photos */
     .hero {
@@ -329,9 +327,13 @@ $testimonials = [
       </nav>
       <div class="nav-actions">
         <a href="pilih-pendaftaran.php" class="btn-nav-outline">Daftar</a>
-        <span class="btn-nav-solid is-user" title="<?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?>">
-          <?php echo htmlspecialchars($userInitials, ENT_QUOTES, 'UTF-8'); ?>
-        </span>
+        <?php if ($isLoggedIn): ?>
+          <span class="btn-nav-solid is-user" title="<?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?>">
+            <?php echo htmlspecialchars($userInitials, ENT_QUOTES, 'UTF-8'); ?>
+          </span>
+        <?php else: ?>
+          <a href="siapkerja-login.php?redirect=karirhub-home" class="btn-nav-solid">Masuk</a>
+        <?php endif; ?>
       </div>
     </div>
   </header>
