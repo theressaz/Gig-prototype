@@ -14,6 +14,81 @@ function gig_history_worker_key(string $value): string
     return strtolower(preg_replace('/[^a-z0-9]+/i', '', $first) ?: $value);
 }
 
+/** Profile array keys and legacy `project_history.worker_id` values for one worker. */
+function gig_history_worker_id_variants(string $username): array
+{
+    $canonical = gig_history_worker_key($username);
+    if ($canonical === 'theressaz@pasker.id') {
+        return array_values(array_unique([
+            'theressaz@pasker.id',
+            'theressaz',
+            'tessa',
+            'tess.kirana@pasker.id',
+        ]));
+    }
+    return [$canonical];
+}
+
+function gig_profile_key_for_worker_id(string $workerId): string
+{
+    if (gig_history_worker_key($workerId) === 'theressaz@pasker.id') {
+        return 'tessa';
+    }
+    return gig_history_worker_key($workerId);
+}
+
+/**
+ * Count completed vs total projects from `project_history` (not portfolio).
+ * Matches Riwayat Proyek: total = completed + cancelled; completed = status completed.
+ */
+function gig_worker_project_stats(string $username): array
+{
+    $variants = gig_history_worker_id_variants($username);
+    $canonical = gig_history_worker_key($username);
+    $completed = 0;
+    $cancelled = 0;
+
+    $pdo = function_exists('gig_db') ? gig_db() : null;
+    if ($pdo) {
+        gig_seed_project_history($pdo);
+        $placeholders = implode(',', array_fill(0, count($variants), '?'));
+        $stmt = $pdo->prepare(
+            "SELECT `status` FROM `project_history`
+             WHERE `worker_id` IN ($placeholders)
+               AND `status` IN ('completed', 'cancelled')"
+        );
+        $stmt->execute($variants);
+        foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $status) {
+            if ($status === 'completed') {
+                $completed++;
+            } elseif ($status === 'cancelled') {
+                $cancelled++;
+            }
+        }
+    } else {
+        foreach (gig_history_catalog() as $row) {
+            if (!in_array($row['worker_id'], $variants, true)
+                && gig_history_worker_key($row['worker_id']) !== $canonical
+            ) {
+                continue;
+            }
+            $st = $row['status'] ?? '';
+            if ($st === 'completed') {
+                $completed++;
+            } elseif ($st === 'cancelled') {
+                $cancelled++;
+            }
+        }
+    }
+
+    $total = $completed + $cancelled;
+
+    return [
+        'completed_projects' => $completed,
+        'total_projects' => max($total, $completed),
+    ];
+}
+
 function gig_history_ensure_table(?PDO $pdo): void
 {
     if (!$pdo) {
@@ -362,7 +437,7 @@ function gig_history_from_catalog(string $column, string $value): array
     $out = [];
     foreach (gig_history_catalog() as $row) {
         $match = $column === 'worker_id'
-            ? ($row['worker_id'] === $value)
+            ? in_array($row['worker_id'], gig_history_worker_id_variants($value), true)
             : strcasecmp((string)$row['employer_username'], $value) === 0;
         if (!$match) {
             continue;
@@ -403,15 +478,29 @@ function gig_fetch_history_rows(string $column, string $value): array
         return [];
     }
 
-    $stmt = $pdo->prepare(
-        "SELECT h.*, r.`overall_rating`, r.`comment`
-         FROM `project_history` h
-         LEFT JOIN `project_reviews` r ON r.`contract_id` = h.`contract_id`
-         WHERE h.`$column` = :val
-           AND h.`status` IN ('completed', 'cancelled')
-         ORDER BY h.`created_at` DESC"
-    );
-    $stmt->execute([':val' => $value]);
+    if ($column === 'worker_id') {
+        $variants = gig_history_worker_id_variants($value);
+        $placeholders = implode(',', array_fill(0, count($variants), '?'));
+        $stmt = $pdo->prepare(
+            "SELECT h.*, r.`overall_rating`, r.`comment`
+             FROM `project_history` h
+             LEFT JOIN `project_reviews` r ON r.`contract_id` = h.`contract_id`
+             WHERE h.`worker_id` IN ($placeholders)
+               AND h.`status` IN ('completed', 'cancelled')
+             ORDER BY h.`created_at` DESC"
+        );
+        $stmt->execute($variants);
+    } else {
+        $stmt = $pdo->prepare(
+            "SELECT h.*, r.`overall_rating`, r.`comment`
+             FROM `project_history` h
+             LEFT JOIN `project_reviews` r ON r.`contract_id` = h.`contract_id`
+             WHERE h.`$column` = :val
+               AND h.`status` IN ('completed', 'cancelled')
+             ORDER BY h.`created_at` DESC"
+        );
+        $stmt->execute([':val' => $value]);
+    }
     $out = [];
     foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         $out[] = gig_history_map_row($row);

@@ -70,12 +70,16 @@ function gig_sort_experience_timeline(array &$experience): void
  * Contact details stay hidden until both sides have agreed to work together.
  * Individual review ratings are whole integers (1–5).
  * The overall 'rating' field is a computed average and may be a decimal.
- * 'completed_projects' = projects with status Selesai.
- * 'total_projects' = all projects worked on regardless of status.
+ * 'completed_projects' = completed rows in project_history.
+ * 'total_projects' = completed + cancelled in project_history (same basis as Riwayat Proyek).
  */
 function gig_worker_profiles(): array
 {
-    return [
+    if (!function_exists('gig_worker_project_stats')) {
+        require_once __DIR__ . '/project-history.php';
+    }
+
+    $profiles = [
         'tessa' => [
             'id' => 'tessa',
             'name' => 'Theressa Zaratrusha',
@@ -635,7 +639,9 @@ function gig_worker_profiles(): array
                 $mergedContracts = [];
 
                 foreach ($dbRows as $row) {
-                    $wId = $row['worker_id'];
+                    $wId = function_exists('gig_profile_key_for_worker_id')
+                        ? gig_profile_key_for_worker_id((string)$row['worker_id'])
+                        : (string)$row['worker_id'];
                     if (!isset($profiles[$wId])) continue;
 
                     $projectTitle = (string)$row['project_title'];
@@ -679,10 +685,6 @@ function gig_worker_profiles(): array
                     $profiles[$wId]['rating'] = $cnt > 0
                         ? round(array_sum($allRatings) / $cnt, 1)
                         : (float)($profiles[$wId]['rating'] ?? 5.0);
-                    // Keep completed/total in sync with portfolio count
-                    $portCount = count($profiles[$wId]['portfolio'] ?? []);
-                    $profiles[$wId]['completed_projects'] = $portCount;
-                    $profiles[$wId]['total_projects']     = $portCount;
                 }
             } catch (Throwable $e) {
                 // DB error – fall through to session fallback
@@ -720,26 +722,20 @@ function gig_worker_profiles(): array
             $profiles[$wId]['rating'] = $cnt > 0
                 ? round(array_sum($allRatings) / $cnt, 1)
                 : 5.0;
-            // Keep completed/total in sync with portfolio count
-            $portCount = count($profiles[$wId]['portfolio'] ?? []);
-            $profiles[$wId]['completed_projects'] = $portCount;
-            $profiles[$wId]['total_projects']     = $portCount;
         }
     }
 
-    // ── Final normalisation: ensure stats always match actual array sizes ────
+    // ── Final normalisation ───────────────────────────────────────────────────
     foreach (array_keys($profiles) as $wId) {
         if (!empty($profiles[$wId]['experience']) && is_array($profiles[$wId]['experience'])) {
             gig_sort_experience_timeline($profiles[$wId]['experience']);
         }
 
-        // reviews_count must equal the number of review entries
         $profiles[$wId]['reviews_count'] = count($profiles[$wId]['reviews'] ?? []);
 
-        // completed_projects / total_projects must equal the number of portfolio entries
-        $portCount = count($profiles[$wId]['portfolio'] ?? []);
-        $profiles[$wId]['completed_projects'] = $portCount;
-        $profiles[$wId]['total_projects']     = $portCount;
+        $stats = gig_worker_project_stats($wId);
+        $profiles[$wId]['completed_projects'] = $stats['completed_projects'];
+        $profiles[$wId]['total_projects'] = $stats['total_projects'];
     }
 
     return $profiles;
@@ -796,6 +792,9 @@ function gig_find_worker(string $id): ?array
         if (!empty($profiles[$cleanId]['experience']) && is_array($profiles[$cleanId]['experience'])) {
             gig_sort_experience_timeline($profiles[$cleanId]['experience']);
         }
+        $stats = gig_worker_project_stats($cleanId);
+        $profiles[$cleanId]['completed_projects'] = $stats['completed_projects'];
+        $profiles[$cleanId]['total_projects'] = $stats['total_projects'];
         return $profiles[$cleanId];
     }
 
@@ -808,6 +807,7 @@ function gig_find_worker(string $id): ?array
         if (is_array($exp)) {
             gig_sort_experience_timeline($exp);
         }
+        $stats = gig_worker_project_stats($cleanId);
         return [
             'id' => $cleanId,
             'name' => $siapkerja['nama'] ?? ucwords($id),
@@ -818,8 +818,8 @@ function gig_find_worker(string $id): ?array
             'location' => $siapkerja['lokasi'] ?? 'Jakarta, Indonesia',
             'rating' => 5.0,
             'reviews_count' => 5,
-            'completed_projects' => 4,
-            'total_projects' => 5,
+            'completed_projects' => $stats['completed_projects'],
+            'total_projects' => $stats['total_projects'],
             'verified' => true,
             'agreed' => true,
             'category' => 'general',
