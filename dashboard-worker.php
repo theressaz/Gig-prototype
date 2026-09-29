@@ -5,8 +5,11 @@ require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/project-vacancies.php';
 require_once __DIR__ . '/includes/project-offers.php';
+require_once __DIR__ . '/includes/project-schedule.php';
 
 gig_seed_demo_offers_if_needed($username);
+$workerEmail = (string)($_SESSION['siapkerja_email'] ?? '');
+$soonestProject = gig_worker_soonest_active_project($username, $workerEmail);
 $offerCount = count(gig_offers_for_worker($username));
 
 $siapkerja = gig_get_siapkerja_profile($username);
@@ -54,30 +57,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
         </div>
         <a class="btn-primary-add" href="worker-register.php">Daftar Sebagai Gig Worker</a>
       </div>
-    <?php else: ?>
-      <div class="reg-banner ok">
-        <div class="reg-banner-left">
-          <div class="reg-icon" style="background:#10b981;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-          <div>
-            <h3 style="font-size:1.05rem;font-weight:800;color:#065f46;">Profil Gig Worker aktif</h3>
-            <p style="font-size:0.84rem;color:#047857;margin-top:4px;">
-              <strong>Bidang:</strong> <?php echo htmlspecialchars($workerRegData['bidang_keahlian'] ?? 'Gig Professional', ENT_QUOTES, 'UTF-8'); ?>
-            </p>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <a class="btn-action-sm" href="worker-register.php">Edit Pendaftaran</a>
-          <a class="btn-primary-add" href="worker-profile.php?id=<?php echo urlencode($profileId); ?>">Lihat Profil</a>
-        </div>
-      </div>
     <?php endif; ?>
-
-    <div class="notice-bar">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      <span>Sesi login: <strong><?php echo htmlspecialchars($username, ENT_QUOTES, 'UTF-8'); ?></strong>. Kontak Anda tidak dibagikan ke pemberi kerja sebelum kesepakatan kerja sama.</span>
-    </div>
 
     <section class="stats-grid">
       <a class="stat-card" href="worker-riwayat.php">
@@ -106,22 +86,42 @@ require __DIR__ . '/includes/worker-layout-start.php';
       <section class="white-card">
         <div class="card-header-flex">
           <div class="card-title-group">
-            <h2>Distribusi Status Proyek</h2>
-            <p>Perbandingan terhadap total proyek</p>
+            <h2>Countdown Proyek Aktif</h2>
+            <p>Proyek dengan tenggat pengerjaan terdekat</p>
+          </div>
+          <a class="btn-action-sm" href="worker-tugas.php">Lihat Semua Proyek</a>
+        </div>
+
+        <?php if ($soonestProject): ?>
+        <div style="margin-top:14px;padding:14px;background:linear-gradient(135deg, #eff6ff, #f0fdf4);border:1px solid #bfdbfe;border-radius:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+            <span style="font-size:0.7rem;font-weight:800;background:#ef4444;color:#fff;padding:3px 8px;border-radius:9999px;letter-spacing:0.5px;">🔥 TENGGAT TERDEKAT</span>
+            <span style="font-size:0.75rem;color:#1e40af;font-weight:700;">Tenggat: <?php echo htmlspecialchars($soonestProject['deadline'], ENT_QUOTES, 'UTF-8'); ?></span>
+          </div>
+          <h3 style="font-size:0.95rem;font-weight:800;color:#1e293b;margin:0 0 4px 0;"><?php echo htmlspecialchars($soonestProject['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:12px;">Pemberi Kerja: <strong><?php echo htmlspecialchars($soonestProject['employer'], ENT_QUOTES, 'UTF-8'); ?></strong> · Mulai <?php echo htmlspecialchars($soonestProject['hired_label'], ENT_QUOTES, 'UTF-8'); ?> (<?php echo htmlspecialchars($soonestProject['duration'], ENT_QUOTES, 'UTF-8'); ?>)</div>
+          <div style="display:flex;gap:8px;text-align:center;" class="js-project-countdown" data-deadline="<?php echo htmlspecialchars($soonestProject['deadline_iso'], ENT_QUOTES, 'UTF-8'); ?>" id="dash-worker-shortest-countdown">
+            <div style="background:#fff;border:1px solid #93c5fd;padding:6px 10px;border-radius:8px;flex:1;">
+              <span class="c-days" style="font-size:1.2rem;font-weight:800;color:#1e40af;display:block;"><?php echo (int)$soonestProject['days_left']; ?></span>
+              <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Hari</span>
+            </div>
+            <div style="background:#fff;border:1px solid #93c5fd;padding:6px 10px;border-radius:8px;flex:1;">
+              <span class="c-hours" style="font-size:1.2rem;font-weight:800;color:#1e40af;display:block;"><?php echo sprintf('%02d', (int)$soonestProject['hours_left']); ?></span>
+              <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Jam</span>
+            </div>
+            <div style="background:#fff;border:1px solid #93c5fd;padding:6px 10px;border-radius:8px;flex:1;">
+              <span class="c-mins" style="font-size:1.2rem;font-weight:800;color:#1e40af;display:block;"><?php echo sprintf('%02d', (int)$soonestProject['mins_left']); ?></span>
+              <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Menit</span>
+            </div>
+            <div style="background:#fff;border:1px solid #93c5fd;padding:6px 10px;border-radius:8px;flex:1;">
+              <span class="c-secs" style="font-size:1.2rem;font-weight:800;color:#ef4444;display:block;"><?php echo sprintf('%02d', (int)$soonestProject['secs_left']); ?></span>
+              <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Detik</span>
+            </div>
           </div>
         </div>
-        <div class="dist-item">
-          <div class="dist-header"><span>Proyek Aktif</span><span>2 · 14%</span></div>
-          <div class="progress-bar-bg"><div class="progress-bar-fill blue" style="width:14%"></div></div>
-        </div>
-        <div class="dist-item">
-          <div class="dist-header"><span>Selesai</span><span style="color:#16a34a;">12 · 86%</span></div>
-          <div class="progress-bar-bg"><div class="progress-bar-fill green" style="width:86%"></div></div>
-        </div>
-        <div class="dist-item">
-          <div class="dist-header"><span>Dibatalkan</span><span>0 · 0%</span></div>
-          <div class="progress-bar-bg"><div class="progress-bar-fill amber" style="width:0%"></div></div>
-        </div>
+        <?php else: ?>
+        <p style="margin-top:14px;font-size:0.88rem;color:var(--text-muted);">Belum ada proyek aktif dengan tenggat. Cari proyek di Bursa Gig atau buka Penawaran Proyek.</p>
+        <?php endif; ?>
       </section>
 
       <section class="white-card">
@@ -208,5 +208,36 @@ require __DIR__ . '/includes/worker-layout-start.php';
         </div>
       </div>
     </section>
+
+    <script>
+      (function startWorkerDashboardCountdown() {
+        function pad(n) { return n < 10 ? '0' + n : String(n); }
+        function tick() {
+          document.querySelectorAll('.js-project-countdown').forEach(function(container) {
+            const iso = container.getAttribute('data-deadline');
+            if (!iso) return;
+            const end = new Date(iso).getTime();
+            let ms = end - Date.now();
+            if (ms < 0) ms = 0;
+            const days = Math.floor(ms / 86400000);
+            ms -= days * 86400000;
+            const hours = Math.floor(ms / 3600000);
+            ms -= hours * 3600000;
+            const mins = Math.floor(ms / 60000);
+            const secs = Math.floor((ms - mins * 60000) / 1000);
+            const d = container.querySelector('.c-days');
+            const h = container.querySelector('.c-hours');
+            const m = container.querySelector('.c-mins');
+            const s = container.querySelector('.c-secs');
+            if (d) d.textContent = String(days);
+            if (h) h.textContent = pad(hours);
+            if (m) m.textContent = pad(mins);
+            if (s) s.textContent = pad(secs);
+          });
+        }
+        tick();
+        setInterval(tick, 1000);
+      })();
+    </script>
 
 <?php require __DIR__ . '/includes/worker-layout-end.php'; ?>

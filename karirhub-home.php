@@ -86,7 +86,7 @@ $testimonials = [
       height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 20px;
       max-width: 1320px; margin: 0 auto; padding: 0 28px;
     }
-    .nav-left { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+    .nav-left { display: flex; align-items: center; gap: 20px; flex: 1; min-width: 0; }
     .nav-hamburger {
       width: 40px; height: 40px; border: none; background: transparent; cursor: pointer;
       display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 0;
@@ -103,13 +103,13 @@ $testimonials = [
     .brand-text .sub { font-size: 0.68rem; font-weight: 600; color: #64748b; margin-top: 1px; }
 
     .nav-links {
-      display: flex; align-items: center; gap: 28px; flex: 1; justify-content: center;
-      padding-left: 12px;
+      display: flex; align-items: center; gap: 24px; flex-shrink: 0;
     }
     .nav-links a {
       font-size: 0.95rem; font-weight: 600; color: #334155; white-space: nowrap;
       display: inline-flex; align-items: center; gap: 4px;
     }
+    .nav-links a.nav-jobs { color: #1657c1; }
     .nav-links a:hover { color: var(--blue); }
     .nav-caret { color: #94a3b8; flex-shrink: 0; }
 
@@ -487,13 +487,13 @@ $testimonials = [
             <div class="sub">oleh Kemnaker</div>
           </div>
         </a>
+        <nav class="nav-links" aria-label="Navigasi utama">
+          <a href="#lowongan" class="nav-jobs">Lowongan Pekerjaan <svg class="nav-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></a>
+          <a href="gig-workers-go.php">Gig Workers</a>
+          <a href="pilih-jenis-pemberi-kerja.php">Pemberi Kerja</a>
+          <a href="#lowongan">Jobfair</a>
+        </nav>
       </div>
-      <nav class="nav-links" aria-label="Navigasi utama">
-        <a href="#lowongan">Lowongan Pekerjaan <svg class="nav-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></a>
-        <a href="gig-workers-go.php">Gig Workers</a>
-        <a href="pilih-jenis-pemberi-kerja.php">Pemberi Kerja</a>
-        <a href="#lowongan">Jobfair</a>
-      </nav>
       <div class="nav-actions">
         <?php if (!$isLoggedIn): ?>
           <a href="pilih-pendaftaran.php" class="btn-nav-outline">Daftar</a>

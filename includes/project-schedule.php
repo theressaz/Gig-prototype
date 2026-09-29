@@ -223,3 +223,36 @@ function gig_demo_soonest_active_project(): ?array
     usort($list, static fn($a, $b) => strcmp((string)$a['deadline_iso'], (string)$b['deadline_iso']));
     return $list[0] ?? null;
 }
+
+function gig_worker_matches_project(array $proj, string $username, string $email = ''): bool
+{
+    $wid = strtolower(trim((string)($proj['worker_id'] ?? '')));
+    $u = strtolower(trim($username));
+    $e = strtolower(trim($email));
+    if ($wid !== '' && ($wid === $u || ($e !== '' && $wid === $e))) {
+        return true;
+    }
+    $legacyWorkerIds = ['theressaz@pasker.id', 'tessa', 'theressa zaratrusha'];
+    if (in_array($wid, $legacyWorkerIds, true)) {
+        if (in_array($u, $legacyWorkerIds, true) || ($e !== '' && in_array($e, $legacyWorkerIds, true))) {
+            return true;
+        }
+        if (str_contains($u, 'theressa') || str_contains($e, 'theressaz')) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function gig_worker_soonest_active_project(string $username, string $email = ''): ?array
+{
+    $list = array_values(array_filter(
+        gig_demo_active_projects(),
+        static fn(array $p) => gig_worker_matches_project($p, $username, $email)
+    ));
+    if ($list === []) {
+        return null;
+    }
+    usort($list, static fn($a, $b) => strcmp((string)$a['deadline_iso'], (string)$b['deadline_iso']));
+    return $list[0];
+}
