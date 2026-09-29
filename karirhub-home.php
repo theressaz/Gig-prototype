@@ -10,6 +10,15 @@ if (strlen($userInitials) < 2) {
     $userInitials = 'US';
 }
 
+$siapkerjaEmail = strtolower((string)($_SESSION['siapkerja_email'] ?? ''));
+$isEmployerAccount = $isLoggedIn && (
+    ($_SESSION['role'] ?? '') === 'employer'
+    || in_array($siapkerjaEmail, ['employer@pasker.id', 'calon.employer@pasker.id'], true)
+);
+$profileAvatarUrl = 'https://api.dicebear.com/9.x/avataaars/svg?seed='
+    . rawurlencode($displayName)
+    . '&backgroundColor=b6e3f4,c0aede,d1d4f9';
+
 $trendingJobs = [
     ['title' => 'Accountant', 'company' => 'PT. Surya Indah', 'loc' => 'Jakarta', 'pay' => 'Rp 8–12 jt', 'logo' => 'SI'],
     ['title' => 'Graphic Designer', 'company' => 'CV. Kreatif Digital', 'loc' => 'Bandung', 'pay' => 'Rp 6–9 jt', 'logo' => 'KD'],
@@ -115,6 +124,92 @@ $testimonials = [
     }
     .btn-nav-solid:hover { background: #0284c7; color: #fff; }
     .btn-nav-solid.is-user { padding: 10px 18px; letter-spacing: 0.02em; cursor: default; }
+
+    .nav-user-zone {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .dasbor-trigger {
+      border: none;
+      background: transparent;
+      font: inherit;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+      padding: 6px 0;
+    }
+    .dasbor-trigger:hover { color: var(--blue); }
+    .nav-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #e2e8f0;
+      background: #f1f5f9;
+    }
+    .dasbor-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 14px);
+      right: 0;
+      width: min(400px, calc(100vw - 32px));
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.14);
+      padding: 14px;
+      z-index: 100;
+    }
+    .dasbor-panel.open { display: block; }
+    .dasbor-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .dasbor-card:last-child { margin-bottom: 0; }
+    .dasbor-card-head {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .dasbor-card-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #e0f2fe;
+      color: #0284c7;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .dasbor-card h3 {
+      font-size: 0.92rem;
+      font-weight: 800;
+      line-height: 1.35;
+      margin-bottom: 6px;
+      color: #0f172a;
+    }
+    .dasbor-card p {
+      font-size: 0.78rem;
+      color: #64748b;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    .dasbor-card-btn {
+      display: inline-block;
+      background: #0ea5e9;
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 8px;
+    }
+    .dasbor-card-btn:hover { background: #0284c7; color: #fff; }
 
     /* Hero — CSS blobs only, no photos */
     .hero {
@@ -326,13 +421,50 @@ $testimonials = [
         <a href="#lowongan">Jobfair</a>
       </nav>
       <div class="nav-actions">
-        <a href="pilih-pendaftaran.php" class="btn-nav-outline">Daftar</a>
-        <?php if ($isLoggedIn): ?>
-          <span class="btn-nav-solid is-user" title="<?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?>">
-            <?php echo htmlspecialchars($userInitials, ENT_QUOTES, 'UTF-8'); ?>
-          </span>
-        <?php else: ?>
+        <?php if (!$isLoggedIn): ?>
+          <a href="pilih-pendaftaran.php" class="btn-nav-outline">Daftar</a>
           <a href="siapkerja-login.php?redirect=karirhub-home" class="btn-nav-solid">Masuk</a>
+        <?php else: ?>
+          <div class="nav-user-zone" id="navUserZone">
+            <?php if ($isEmployerAccount): ?>
+              <button type="button" class="dasbor-trigger" id="dasborTrigger" aria-expanded="false" aria-controls="dasborPanel">
+                Dasbor Pengelola
+              </button>
+              <div class="dasbor-panel" id="dasborPanel" role="dialog" aria-label="Pilih dasbor pengelola">
+                <article class="dasbor-card">
+                  <div class="dasbor-card-head">
+                    <span class="dasbor-card-icon" aria-hidden="true">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </span>
+                    <div>
+                      <h3>Dasbor Pemberi Kerja</h3>
+                      <p>Akses untuk mengatur dan mengelola lowongan pada semua perusahaan yang terdaftar.</p>
+                      <a href="dashboard-pemberi-kerja.php" class="dasbor-card-btn">Akses Dasbor</a>
+                    </div>
+                  </div>
+                </article>
+                <article class="dasbor-card">
+                  <div class="dasbor-card-head">
+                    <span class="dasbor-card-icon" aria-hidden="true">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    </span>
+                    <div>
+                      <h3>Dasbor Pemberi Kerja Gig Workers</h3>
+                      <p>Pengelolaan lowongan, dan manajemen tenaga kerja pada perusahaan Anda.</p>
+                      <a href="employer-gig-dashboard-go.php" class="dasbor-card-btn">Akses Dasbor</a>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            <?php endif; ?>
+            <img
+              class="nav-avatar"
+              src="<?php echo htmlspecialchars($profileAvatarUrl, ENT_QUOTES, 'UTF-8'); ?>"
+              alt="Profil <?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?>"
+              width="40"
+              height="40"
+            />
+          </div>
         <?php endif; ?>
       </div>
     </div>
@@ -492,5 +624,26 @@ $testimonials = [
     </div>
   </footer>
 
+  <script>
+    (function () {
+      var trigger = document.getElementById('dasborTrigger');
+      var panel = document.getElementById('dasborPanel');
+      var zone = document.getElementById('navUserZone');
+      if (!trigger || !panel || !zone) return;
+
+      trigger.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var open = panel.classList.toggle('open');
+        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!zone.contains(e.target)) {
+          panel.classList.remove('open');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

@@ -166,6 +166,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION["siapkerja_phone"] = "08117671208";
         $_SESSION["username"]        = $resolvedUsername;
 
+        if ($userRole === 'employer') {
+            $_SESSION['role'] = 'employer';
+            $_SESSION['company_registered'] = true;
+        } elseif ($userRole === 'worker') {
+            $_SESSION['role'] = 'worker';
+        } elseif ($lowerInput === 'calon.employer@pasker.id' || str_contains($lowerInput, 'calon') || str_contains($lowerInput, 'pemberi kerja')) {
+            unset($_SESSION['role']);
+        } else {
+            unset($_SESSION['role']);
+        }
+
         // 3. IF coming from Registration Flow, route to requested registration page!
         if ($redirectParam === 'employer-register') {
             header("Location: employer-register.php");
