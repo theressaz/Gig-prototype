@@ -13,10 +13,9 @@ if (strlen($userInitials) < 2) {
 }
 
 $siapkerjaEmail = strtolower((string)($_SESSION['siapkerja_email'] ?? ''));
-$isAdminAccount = $isLoggedIn && (
-    ($_SESSION['role'] ?? '') === 'admin'
-    || $siapkerjaEmail === 'admin@kemnaker.go.id'
-);
+require_once __DIR__ . '/includes/admin-session.php';
+gig_admin_session_normalize();
+$isAdminAccount = $isLoggedIn && (($_SESSION['role'] ?? '') === 'admin');
 $isEmployerAccount = $isLoggedIn && !$isAdminAccount && (
     ($_SESSION['role'] ?? '') === 'employer'
     || in_array($siapkerjaEmail, ['employer@pasker.id', 'calon.employer@pasker.id'], true)
@@ -245,7 +244,7 @@ $testimonials = [
       border: 1px solid #e2e8f0;
       box-shadow: 0 20px 50px rgba(15, 23, 42, 0.14);
       padding: 14px;
-      z-index: 100;
+      z-index: 120;
     }
     .dasbor-panel.open { display: block; }
     .dasbor-card {
@@ -292,6 +291,9 @@ $testimonials = [
       font-weight: 700;
       padding: 8px 14px;
       border-radius: 8px;
+      text-decoration: none;
+      position: relative;
+      z-index: 1;
     }
     .dasbor-card-btn:hover { background: #0284c7; color: #fff; }
 
@@ -524,7 +526,7 @@ $testimonials = [
                     <div>
                       <h3>Dasbor Admin</h3>
                       <p>Verifikasi pendaftaran Gig Worker, pemberi kerja, dan pengajuan lowongan proyek.</p>
-                      <a href="dashboard-admin.php" class="dasbor-card-btn">Akses Dasbor</a>
+                      <a href="admin-dashboard-go.php" class="dasbor-card-btn">Akses Dasbor</a>
                     </div>
                   </div>
                 </article>

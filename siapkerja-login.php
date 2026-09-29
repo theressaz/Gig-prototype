@@ -22,9 +22,13 @@ if ($redirectParam === 'employer-register' && $hasSiapkerjaSession) {
     header("Location: employer-register.php");
     exit;
 }
-if (($redirectParam === 'karirhub-home' || $redirectParam === 'gig-workers') && $hasSiapkerjaSession) {
+if (($redirectParam === 'karirhub-home' || $redirectParam === 'gig-workers' || $redirectParam === 'admin-dashboard') && $hasSiapkerjaSession) {
     if ($redirectParam === 'gig-workers') {
         header("Location: gig-workers-go.php");
+        exit;
+    }
+    if ($redirectParam === 'admin-dashboard') {
+        header('Location: admin-dashboard-go.php');
         exit;
     }
     header("Location: karirhub-home.php");
@@ -42,6 +46,10 @@ if ($hasSiapkerjaSession && !isset($_GET['preview'])) {
     }
     if ($redirectParam === 'gig-workers') {
         header("Location: gig-workers-go.php");
+        exit;
+    }
+    if ($redirectParam === 'admin-dashboard') {
+        header('Location: admin-dashboard-go.php');
         exit;
     }
     if ($redirectParam === '' || $redirectParam === 'karirhub-home') {
@@ -212,6 +220,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
             if ($redirectParam === 'worker-register') {
                 header('Location: worker-register.php');
+                exit;
+            }
+            if ($redirectParam === 'admin-dashboard') {
+                header('Location: admin-dashboard-go.php');
                 exit;
             }
 

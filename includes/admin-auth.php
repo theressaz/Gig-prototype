@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
+require_once __DIR__ . '/admin-session.php';
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header('Location: siapkerja-login.php?redirect=karirhub-home');
+gig_admin_session_normalize();
+
+if (($_SESSION['role'] ?? '') !== 'admin') {
+    header('Location: siapkerja-login.php?redirect=admin-dashboard');
     exit;
 }
 
