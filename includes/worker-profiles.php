@@ -795,6 +795,13 @@ function gig_find_worker(string $id): ?array
         $stats = gig_worker_project_stats($cleanId);
         $profiles[$cleanId]['completed_projects'] = $stats['completed_projects'];
         $profiles[$cleanId]['total_projects'] = $stats['total_projects'];
+        if (!function_exists('gig_avatar_url_for_worker_id')) {
+            require_once __DIR__ . '/user-avatars.php';
+        }
+        $savedAvatar = gig_avatar_url_for_worker_id($cleanId);
+        if ($savedAvatar !== null) {
+            $profiles[$cleanId]['photo'] = $savedAvatar;
+        }
         return $profiles[$cleanId];
     }
 

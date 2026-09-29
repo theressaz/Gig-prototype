@@ -5,6 +5,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
+require_once __DIR__ . '/includes/user-avatars.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/project-applications.php';
@@ -20,6 +21,14 @@ if ($workerId === '') {
 $worker = gig_find_worker($workerId);
 if ($worker === null) {
     $worker = gig_find_worker('tessa');
+}
+if ($role === 'worker' && !empty($_SESSION['siapkerja_email'])) {
+    $savedAvatar = gig_avatar_url_for_worker_id((string)($worker['id'] ?? $workerId));
+    if ($savedAvatar !== null) {
+        $worker['photo'] = $savedAvatar;
+    } else {
+        $worker['photo'] = gig_resolve_user_avatar(null, 'worker');
+    }
 }
 
 $isActive = !empty($_GET['active']);

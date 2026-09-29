@@ -123,6 +123,9 @@ function gig_db(): ?PDO
         require_once __DIR__ . '/admin-store.php';
         gig_admin_ensure_schema($pdo);
 
+        require_once __DIR__ . '/user-avatars.php';
+        gig_avatar_ensure_schema($pdo);
+
     } catch (Throwable $e) {
         $pdo = null;
     }

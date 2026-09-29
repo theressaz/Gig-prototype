@@ -44,7 +44,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <div style="font-size:0.84rem;color:var(--text-muted);">Keluar dari dashboard Gig Worker</div>
         </div>
         <form method="post" action="">
-          <button class="btn-action-sm" type="submit" name="logout" value="1">Keluar</button>
+          <a class="btn-action-sm" href="karirhub-logout.php" style="text-decoration:none;display:inline-flex;align-items:center;">Keluar</a>
         </form>
       </div>
     </section>

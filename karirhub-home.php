@@ -2,6 +2,8 @@
 declare(strict_types=1);
 session_start();
 
+require_once __DIR__ . '/includes/user-avatars.php';
+
 $isLoggedIn = !empty($_SESSION['siapkerja_email']) || !empty($_SESSION['username']);
 
 $displayName = (string)($_SESSION['siapkerja_name'] ?? $_SESSION['username'] ?? 'Pengguna');
@@ -19,9 +21,10 @@ $profileEmail = (string)($_SESSION['siapkerja_email'] ?? '');
 if ($profileEmail === '' && $isLoggedIn) {
     $profileEmail = strtolower(str_replace(' ', '', $displayName)) . '@pasker.id';
 }
-$profileAvatarUrl = 'https://api.dicebear.com/9.x/avataaars/svg?seed='
-    . rawurlencode($displayName)
-    . '&backgroundColor=b6e3f4,c0aede,d1d4f9';
+$profileAvatarRole = $isEmployerAccount ? 'employer' : 'worker';
+$profileAvatarUrl = $isLoggedIn
+    ? gig_resolve_user_avatar(null, $profileAvatarRole)
+    : 'https://api.dicebear.com/9.x/notionists/svg?seed=Guest&backgroundColor=dbeafe';
 
 $trendingJobs = [
     ['title' => 'Accountant', 'company' => 'PT. Surya Indah', 'loc' => 'Jakarta', 'pay' => 'Rp 8–12 jt', 'logo' => 'SI'],

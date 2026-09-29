@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/worker-profiles.php';
+require_once __DIR__ . '/user-avatars.php';
 
 $pageTitle = $pageTitle ?? 'Dashboard Gig Worker';
 $pageKey = $pageKey ?? 'overview';
@@ -11,6 +12,7 @@ $workerObj = gig_find_worker($username ?? '') ?? gig_find_worker('tessa');
 $displayName = $workerObj['name'] ?? ($_SESSION['siapkerja_name'] ?? 'Theressa Zaratrusha');
 $userInitials = $workerObj['initials'] ?? 'TH';
 $workerLabel = htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8');
+$workerAvatarUrl = gig_resolve_user_avatar(null, 'worker');
 
 $isRegistered = true;
 $profileUrl = 'worker-profile.php?id=tessa';
@@ -115,7 +117,7 @@ $unreadWorkerNotifs = count(array_filter($workerNotifs, fn($n) => empty($n['is_r
 
         <div class="profile-menu">
           <div class="profile-widget" onclick="document.getElementById('profileDropdown').classList.toggle('open')">
-            <img src="https://api.dicebear.com/9.x/notionists/svg?seed=<?php echo urlencode($username); ?>&backgroundColor=dbeafe" alt="Foto profil" />
+            <img src="<?php echo htmlspecialchars($workerAvatarUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="Foto profil" />
             <div class="profile-info">
               <span class="profile-name"><?php echo $workerLabel; ?></span>
               <span class="profile-role">Gig Worker</span>
@@ -125,9 +127,7 @@ $unreadWorkerNotifs = count(array_filter($workerNotifs, fn($n) => empty($n['is_r
           <div class="profile-dropdown" id="profileDropdown">
             <a href="<?php echo htmlspecialchars($profileUrl, ENT_QUOTES, 'UTF-8'); ?>">Profil saya</a>
             <a href="worker-pengaturan.php">Pengaturan akun</a>
-            <form method="post" action="">
-              <button type="submit" name="logout" value="1">Keluar</button>
-            </form>
+            <a href="karirhub-logout.php">Keluar</a>
           </div>
         </div>
       </div>

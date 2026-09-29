@@ -1,11 +1,14 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/user-avatars.php';
+
 $pageTitle = $pageTitle ?? 'Dashboard Pemberi Kerja';
 $pageKey = $pageKey ?? 'overview';
 $breadcrumbCurrent = $breadcrumbCurrent ?? 'Beranda';
 $userInitials = strtoupper(substr($username, 0, 2));
 $companyLabel = htmlspecialchars($username, ENT_QUOTES, 'UTF-8');
+$employerAvatarUrl = gig_resolve_user_avatar(null, 'employer');
 
 $navItems = [
     'overview' => ['href' => 'dashboard-employer.php', 'title' => 'Ringkasan', 'icon' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>'],
@@ -106,7 +109,7 @@ $unreadNotifCount = count(array_filter($empNotifs, fn($n) => empty($n['is_read']
 
         <div class="profile-menu">
           <div class="profile-widget" onclick="document.getElementById('profileDropdown').classList.toggle('open')">
-            <img src="https://api.dicebear.com/9.x/shapes/svg?seed=<?php echo urlencode($username); ?>" alt="Logo perusahaan" />
+            <img src="<?php echo htmlspecialchars($employerAvatarUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="Logo perusahaan" />
             <div class="profile-info">
               <span class="profile-name"><?php echo $companyLabel; ?></span>
               <span class="profile-role">Perusahaan</span>
@@ -115,9 +118,7 @@ $unreadNotifCount = count(array_filter($empNotifs, fn($n) => empty($n['is_read']
           </div>
           <div class="profile-dropdown" id="profileDropdown">
             <a href="employer-pengaturan.php">Pengaturan akun</a>
-            <form method="post" action="">
-              <button type="submit" name="logout" value="1">Keluar</button>
-            </form>
+            <a href="karirhub-logout.php">Keluar</a>
           </div>
         </div>
         <button class="btn-primary-add" type="button" onclick="openPostProjectModal()">

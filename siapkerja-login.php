@@ -177,6 +177,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             unset($_SESSION['role']);
         }
 
+        require_once __DIR__ . '/includes/user-avatars.php';
+        $avatarRole = ($userRole === 'employer') ? 'employer' : 'worker';
+        if ($userRole === 'employer' || $userRole === 'worker') {
+            gig_bootstrap_user_avatar($userEmail, $avatarRole);
+        }
+
         // 3. IF coming from Registration Flow, route to requested registration page!
         if ($redirectParam === 'employer-register') {
             header("Location: employer-register.php");

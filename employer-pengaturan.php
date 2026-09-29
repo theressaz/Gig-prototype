@@ -42,9 +42,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <strong>Sesi</strong>
           <div style="font-size:0.84rem;color:var(--text-muted);">Keluar dari dashboard pemberi kerja</div>
         </div>
-        <form method="post" action="">
-          <button class="btn-action-sm" type="submit" name="logout" value="1">Keluar</button>
-        </form>
+        <a class="btn-action-sm" href="karirhub-logout.php" style="text-decoration:none;display:inline-flex;align-items:center;">Keluar</a>
       </div>
     </section>
 
