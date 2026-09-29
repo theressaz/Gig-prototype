@@ -65,90 +65,124 @@ $testimonials = [
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: var(--text); background: #fff; line-height: 1.5; }
     a { color: inherit; text-decoration: none; }
-    .container { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 
-    /* Navbar */
+    /* Navbar — match Karirhub reference */
     .topbar {
       position: sticky; top: 0; z-index: 50;
-      background: #fff; border-bottom: 1px solid var(--border);
-      box-shadow: 0 1px 0 rgba(15,23,42,.04);
+      background: #fff;
     }
     .nav-inner {
-      height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 20px;
+      max-width: 1320px; margin: 0 auto; padding: 0 28px;
     }
-    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.15rem; }
-    .brand-mark {
-      width: 36px; height: 36px; border-radius: 10px;
-      background: linear-gradient(135deg, var(--sky), var(--blue));
-      display: grid; place-items: center; color: #fff; font-size: 0.75rem; font-weight: 800;
+    .nav-left { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+    .nav-hamburger {
+      width: 40px; height: 40px; border: none; background: transparent; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 0;
     }
-    .eco-badge {
-      font-size: 0.65rem; font-weight: 700; color: var(--muted);
-      border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; margin-left: 4px;
+    .nav-hamburger span {
+      display: block; width: 22px; height: 2px; background: #1e293b; border-radius: 2px;
     }
-    .nav-links { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-    .nav-links a {
-      padding: 8px 12px; border-radius: 8px; font-size: 0.88rem; font-weight: 600; color: #334155;
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon { width: 40px; height: 40px; flex-shrink: 0; }
+    .brand-text { line-height: 1.15; }
+    .brand-text .name {
+      font-size: 1.35rem; font-weight: 800; color: #0f172a; letter-spacing: -0.03em;
     }
-    .nav-links a:hover { background: var(--blue-light); color: var(--blue); }
-    .nav-links a.active { color: var(--blue); background: var(--blue-light); }
-    .nav-links a.gig {
-      color: var(--blue-dark); border: 1px solid #bfdbfe; background: #eff6ff;
-    }
-    .nav-links a.gig:hover { background: #dbeafe; }
-    .nav-user {
-      width: 38px; height: 38px; border-radius: 50%; background: var(--blue);
-      color: #fff; display: grid; place-items: center; font-size: 0.78rem; font-weight: 800;
-      border: 2px solid #fff; box-shadow: 0 0 0 1px var(--border);
-    }
+    .brand-text .sub { font-size: 0.68rem; font-weight: 600; color: #64748b; margin-top: 1px; }
 
-    /* Hero */
+    .nav-links {
+      display: flex; align-items: center; gap: 28px; flex: 1; justify-content: center;
+      padding-left: 12px;
+    }
+    .nav-links a {
+      font-size: 0.95rem; font-weight: 600; color: #334155; white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .nav-links a:hover { color: var(--blue); }
+    .nav-caret { color: #94a3b8; flex-shrink: 0; }
+
+    .nav-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .btn-nav-outline {
+      padding: 10px 22px; border-radius: 999px; border: 1px solid #cbd5e1;
+      background: #fff; color: #0f172a; font-size: 0.9rem; font-weight: 700; font-family: inherit;
+      cursor: pointer; line-height: 1;
+    }
+    .btn-nav-outline:hover { background: #f8fafc; }
+    .btn-nav-solid {
+      padding: 10px 26px; border-radius: 999px; border: none;
+      background: #0ea5e9; color: #fff; font-size: 0.9rem; font-weight: 700; font-family: inherit;
+      cursor: pointer; line-height: 1; min-width: 88px;
+    }
+    .btn-nav-solid:hover { background: #0284c7; }
+    .btn-nav-solid.is-user { padding: 10px 18px; letter-spacing: 0.02em; }
+
+    /* Hero — CSS blobs only, no photos */
     .hero {
-      position: relative; overflow: hidden;
-      background: linear-gradient(180deg, #f0f9ff 0%, #fff 55%);
-      padding: 36px 0 0;
+      position: relative; overflow: hidden; background: #fff;
+      padding: 28px 0 56px; min-height: 340px;
     }
-    .hero-wave {
-      position: absolute; top: 0; left: 0; right: 0; height: 120px;
-      background: radial-gradient(ellipse at 50% -20%, rgba(24,181,234,.25), transparent 70%);
-      pointer-events: none;
+    .hero-blob {
+      position: absolute; pointer-events: none; z-index: 0;
     }
-    .hero-grid {
-      display: grid; grid-template-columns: 1fr 1.2fr 1fr; align-items: end; gap: 12px;
-      min-height: 320px;
+    .hero-blob--left {
+      left: -120px; top: 20px; width: 340px; height: 380px;
+      background: linear-gradient(145deg, #7dd3fc 0%, #38bdf8 35%, #0ea5e9 70%, #0369a1 100%);
+      border-radius: 42% 58% 55% 45% / 48% 42% 58% 52%;
+      transform: rotate(-8deg);
     }
-    .hero-person {
-      height: 280px; border-radius: 20px 20px 0 0; object-fit: cover; width: 100%;
-      background: linear-gradient(180deg, #dbeafe, #eff6ff);
+    .hero-blob--right {
+      right: -100px; top: 30px; width: 320px; height: 360px;
+      background: linear-gradient(200deg, #67e8f9 0%, #22d3ee 30%, #0891b2 65%, #155e75 100%);
+      border-radius: 58% 42% 45% 55% / 52% 48% 52% 48%;
+      transform: rotate(12deg);
     }
-    .hero-center { text-align: center; padding-bottom: 24px; z-index: 1; }
-    .hero-center h1 {
-      font-size: clamp(1.6rem, 3vw, 2.35rem); font-weight: 800; line-height: 1.2;
-      margin-bottom: 22px; letter-spacing: -0.02em;
+    .hero-inner {
+      position: relative; z-index: 1; text-align: center; padding-top: 8px;
+    }
+    .hero-badge {
+      display: inline-block; margin-bottom: 20px;
+      padding: 6px 16px; border-radius: 999px;
+      background: #e0f2fe; color: #0369a1;
+      font-size: 0.82rem; font-weight: 700;
+    }
+    .hero-inner h1 {
+      font-size: clamp(1.75rem, 3.2vw, 2.5rem); font-weight: 800; line-height: 1.25;
+      color: #0f172a; letter-spacing: -0.03em; max-width: 640px; margin: 0 auto 36px;
+    }
+    .search-shell {
+      max-width: 920px; margin: 0 auto; padding: 0 16px;
     }
     .search-bar {
-      display: flex; flex-wrap: wrap; gap: 0; background: #fff; border: 1px solid var(--border);
-      border-radius: 14px; padding: 8px; box-shadow: 0 12px 30px rgba(15,23,42,.08);
-      max-width: 720px; margin: 0 auto;
+      display: flex; align-items: stretch; background: #fff;
+      border-radius: 16px; box-shadow: 0 8px 32px rgba(15, 23, 42, 0.1);
+      border: 1px solid #f1f5f9; overflow: hidden; min-height: 64px;
     }
-    .search-field {
-      flex: 1; min-width: 180px; display: flex; align-items: center; gap: 8px;
-      padding: 10px 14px; border-right: 1px solid var(--border);
+    .search-segment {
+      flex: 1; display: flex; align-items: center; gap: 12px;
+      padding: 0 20px; min-width: 0;
     }
-    .search-field:last-of-type { border-right: none; }
-    .search-field input {
-      border: none; outline: none; width: 100%; font: inherit; font-size: 0.9rem;
+    .search-segment--job { flex: 1.35; }
+    .search-segment--loc { flex: 0.85; border-left: 1px solid #e2e8f0; }
+    .search-segment input {
+      border: none; outline: none; width: 100%; font: inherit; font-size: 0.92rem;
+      color: #334155; background: transparent;
     }
+    .search-segment input::placeholder { color: #94a3b8; font-weight: 500; }
+    .search-icon { flex-shrink: 0; color: #64748b; }
     .search-btn {
-      background: var(--blue); color: #fff; border: none; border-radius: 10px;
-      padding: 12px 20px; font-weight: 700; cursor: pointer; font: inherit; white-space: nowrap;
+      flex-shrink: 0; align-self: center; margin: 8px 8px 8px 0;
+      background: #7dd3fc; color: #fff; border: none; border-radius: 12px;
+      padding: 0 28px; min-height: 48px; font-weight: 700; font-size: 0.95rem;
+      cursor: pointer; font-family: inherit; white-space: nowrap;
     }
-    .search-btn:hover { background: var(--blue-dark); }
+    .search-btn:hover { background: #38bdf8; }
 
     /* Trending */
     .trending {
       background: linear-gradient(135deg, #1d6fd8, #1657c1);
-      color: #fff; border-radius: 24px 24px 0 0; margin-top: 28px; padding: 36px 0 40px;
+      color: #fff; border-radius: 24px 24px 0 0; margin-top: 0; padding: 36px 0 40px;
     }
     .trending-grid { display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start; }
     .trending h2 { font-size: 1.45rem; font-weight: 800; margin-bottom: 10px; }
@@ -252,57 +286,76 @@ $testimonials = [
     }
     .copyright { text-align: center; font-size: 0.78rem; color: var(--muted); padding-top: 16px; border-top: 1px solid var(--border); }
 
+    @media (max-width: 1024px) {
+      .nav-links { display: none; }
+      .hero-blob--left { width: 200px; left: -80px; opacity: 0.85; }
+      .hero-blob--right { width: 180px; right: -70px; opacity: 0.85; }
+      .search-bar { flex-direction: column; border-radius: 16px; }
+      .search-segment--loc { border-left: none; border-top: 1px solid #e2e8f0; }
+      .search-btn { margin: 0 8px 8px; width: calc(100% - 16px); }
+    }
     @media (max-width: 960px) {
-      .hero-grid { grid-template-columns: 1fr; }
-      .hero-person { display: none; }
       .trending-grid { grid-template-columns: 1fr; }
       .cat-grid { grid-template-columns: repeat(2, 1fr); }
       .split, .features, .loc-cards, .test-grid, .footer-grid { grid-template-columns: 1fr; }
-      .nav-links { display: none; }
     }
   </style>
 </head>
 <body>
 
   <header class="topbar">
-    <div class="container nav-inner">
-      <a href="karirhub-home.php" class="brand">
-        <span class="brand-mark">Kh</span>
-        <span>Karir<span style="color:var(--sky)">hub</span></span>
-        <span class="eco-badge">SIAPkerja</span>
-      </a>
+    <div class="nav-inner">
+      <div class="nav-left">
+        <button type="button" class="nav-hamburger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+        <a href="karirhub-home.php" class="brand">
+          <svg class="brand-icon" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+            <path d="M8 8 H22 Q28 8 28 14 V20 L16 32 H8 Z" fill="#18b5ea"/>
+            <path d="M22 8 L32 8 L32 18 L24 26 H16 L22 18 Z" fill="#0ea5e9" opacity="0.85"/>
+            <circle cx="30" cy="10" r="4" fill="#38bdf8"/>
+          </svg>
+          <div class="brand-text">
+            <div class="name">Karirhub</div>
+            <div class="sub">oleh Kemnaker</div>
+          </div>
+        </a>
+      </div>
       <nav class="nav-links" aria-label="Navigasi utama">
-        <a href="karirhub-home.php" class="active">Beranda</a>
-        <a href="#lowongan">Lowongan Pekerjaan</a>
-        <a href="gig-workers-go.php" class="gig">Gig Workers</a>
-        <a href="#pelatihan">Pelatihan</a>
-        <a href="#entitas">Entitas</a>
+        <a href="#lowongan">Lowongan Pekerjaan <svg class="nav-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></a>
+        <a href="gig-workers-go.php">Gig Workers</a>
+        <a href="pilih-jenis-pemberi-kerja.php">Pemberi Kerja</a>
+        <a href="#lowongan">Jobfair</a>
       </nav>
-      <div class="nav-user" title="<?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?>">
-        <?php echo htmlspecialchars($userInitials, ENT_QUOTES, 'UTF-8'); ?>
+      <div class="nav-actions">
+        <a href="pilih-pendaftaran.php" class="btn-nav-outline">Daftar</a>
+        <span class="btn-nav-solid is-user" title="<?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?>">
+          <?php echo htmlspecialchars($userInitials, ENT_QUOTES, 'UTF-8'); ?>
+        </span>
       </div>
     </div>
   </header>
 
   <section class="hero">
-    <div class="hero-wave"></div>
-    <div class="container hero-grid">
-      <img class="hero-person" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=500&fit=crop" alt="" />
-      <div class="hero-center">
-        <h1>Dapatkan pekerjaan<br />dari seluruh dunia</h1>
+    <div class="hero-blob hero-blob--left" aria-hidden="true"></div>
+    <div class="hero-blob hero-blob--right" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <span class="hero-badge">Karirhub oleh Kemnaker</span>
+      <h1>Dapatkan pekerjaan dari seluruh dunia</h1>
+      <div class="search-shell">
         <form class="search-bar" action="#lowongan" method="get">
-          <label class="search-field">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" name="q" placeholder="Cari kata kunci lowongan" />
+          <label class="search-segment search-segment--job">
+            <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" name="q" placeholder="Cari pekerjaan yang kamu inginkan" />
+            <svg class="nav-caret" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </label>
-          <label class="search-field">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <input type="text" name="loc" placeholder="Pilih lokasi" />
+          <label class="search-segment search-segment--loc">
+            <input type="text" name="loc" placeholder="Pilih Lokasi" />
+            <svg class="nav-caret" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="7 11 12 6 17 11"/><polyline points="7 13 12 18 17 13"/></svg>
           </label>
-          <button type="submit" class="search-btn">Cari Pekerjaan</button>
+          <button type="submit" class="search-btn">Cari Lowongan</button>
         </form>
       </div>
-      <img class="hero-person" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=500&fit=crop" alt="" />
     </div>
   </section>
 
