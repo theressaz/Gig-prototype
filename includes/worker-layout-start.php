@@ -12,7 +12,7 @@ $workerObj = gig_find_worker($username ?? '') ?? gig_find_worker('tessa');
 $displayName = $workerObj['name'] ?? ($_SESSION['siapkerja_name'] ?? 'Theressa Zaratrusha');
 $userInitials = $workerObj['initials'] ?? 'TH';
 $workerLabel = htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8');
-$workerAvatarUrl = gig_resolve_user_avatar(null, 'worker');
+$workerAvatarUrl = gig_worker_display_photo((string)($workerObj['id'] ?? 'tessa'));
 
 $isRegistered = true;
 $profileUrl = 'worker-profile.php?id=tessa';

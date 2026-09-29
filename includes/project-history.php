@@ -89,6 +89,32 @@ function gig_worker_project_stats(string $username): array
     ];
 }
 
+/** Ringkasan dashboard Gig Worker — counts from DB/history, offers, and reviews. */
+function gig_worker_dashboard_stats(string $username, string $email = ''): array
+{
+    if (!function_exists('gig_worker_ongoing_active_projects')) {
+        require_once __DIR__ . '/project-schedule.php';
+    }
+    if (!function_exists('gig_offers_for_worker')) {
+        require_once __DIR__ . '/project-offers.php';
+    }
+    if (!function_exists('gig_find_worker')) {
+        require_once __DIR__ . '/worker-profiles.php';
+    }
+
+    $identity = trim($email) !== '' ? $email : $username;
+    $historyStats = gig_worker_project_stats($identity);
+    $profile = gig_find_worker($identity) ?? gig_find_worker('tessa');
+
+    return [
+        'completed_projects' => (int)$historyStats['completed_projects'],
+        'active_projects' => gig_worker_active_project_count($username, $email),
+        'active_partners' => gig_worker_active_partner_count($username, $email),
+        'offer_count' => count(gig_offers_for_worker($identity)),
+        'rating' => round((float)($profile['rating'] ?? 5.0), 1),
+    ];
+}
+
 function gig_history_ensure_table(?PDO $pdo): void
 {
     if (!$pdo) {

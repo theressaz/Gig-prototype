@@ -6,11 +6,12 @@ require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/project-vacancies.php';
 require_once __DIR__ . '/includes/project-offers.php';
 require_once __DIR__ . '/includes/project-schedule.php';
+require_once __DIR__ . '/includes/project-history.php';
 
 gig_seed_demo_offers_if_needed($username);
 $workerEmail = (string)($_SESSION['siapkerja_email'] ?? '');
+$dashStats = gig_worker_dashboard_stats($username, $workerEmail);
 $soonestProject = gig_worker_soonest_active_project($username, $workerEmail);
-$offerCount = count(gig_offers_for_worker($username));
 
 $siapkerja = gig_get_siapkerja_profile($username);
 $isRegistered = gig_is_worker_registered($username);
@@ -36,9 +37,9 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <p class="hero-desc">Pantau proyek, profil, dan aktivitas dari satu tempat.</p>
         </div>
         <div class="hero-quick-stats">
-          <div class="hero-stat-pill"><span class="hero-stat-val">14</span><span class="hero-stat-lbl">Proyek Selesai</span></div>
-          <div class="hero-stat-pill"><span class="hero-stat-val">2</span><span class="hero-stat-lbl">Proyek Aktif</span></div>
-          <div class="hero-stat-pill"><span class="hero-stat-val">3</span><span class="hero-stat-lbl">Mitra Aktif</span></div>
+          <div class="hero-stat-pill"><span class="hero-stat-val"><?php echo (int)$dashStats['completed_projects']; ?></span><span class="hero-stat-lbl">Proyek Selesai</span></div>
+          <div class="hero-stat-pill"><span class="hero-stat-val"><?php echo (int)$dashStats['active_projects']; ?></span><span class="hero-stat-lbl">Proyek Aktif</span></div>
+          <div class="hero-stat-pill"><span class="hero-stat-val"><?php echo (int)$dashStats['active_partners']; ?></span><span class="hero-stat-lbl">Mitra Aktif</span></div>
         </div>
       </div>
     </section>
@@ -62,22 +63,22 @@ require __DIR__ . '/includes/worker-layout-start.php';
     <section class="stats-grid">
       <a class="stat-card" href="worker-riwayat.php">
         <div class="stat-card-header"><span class="stat-label">PROYEK SELESAI</span></div>
-        <div class="stat-number">14</div>
+        <div class="stat-number"><?php echo (int)$dashStats['completed_projects']; ?></div>
         <div class="stat-caption">Lihat di Riwayat Proyek</div>
       </a>
       <a class="stat-card" href="worker-tugas.php">
         <div class="stat-card-header"><span class="stat-label">PROYEK AKTIF</span></div>
-        <div class="stat-number">2</div>
+        <div class="stat-number"><?php echo (int)$dashStats['active_projects']; ?></div>
         <div class="stat-caption">Sedang dikerjakan</div>
       </a>
       <a class="stat-card" href="worker-penawaran.php">
         <div class="stat-card-header"><span class="stat-label">PENAWARAN PROYEK</span></div>
-        <div class="stat-number"><?php echo $offerCount; ?></div>
+        <div class="stat-number"><?php echo (int)$dashStats['offer_count']; ?></div>
         <div class="stat-caption">Tawaran dari pemberi kerja</div>
       </a>
       <a class="stat-card" href="worker-ulasan.php">
         <div class="stat-card-header"><span class="stat-label">RATING</span></div>
-        <div class="stat-number">4.9</div>
+        <div class="stat-number"><?php echo htmlspecialchars(number_format($dashStats['rating'], 1, '.', ''), ENT_QUOTES, 'UTF-8'); ?></div>
         <div class="stat-caption">Dari ulasan pemberi kerja</div>
       </a>
     </section>

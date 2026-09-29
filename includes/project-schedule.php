@@ -246,13 +246,69 @@ function gig_worker_matches_project(array $proj, string $username, string $email
 
 function gig_worker_soonest_active_project(string $username, string $email = ''): ?array
 {
-    $list = array_values(array_filter(
-        gig_demo_active_projects(),
-        static fn(array $p) => gig_worker_matches_project($p, $username, $email)
-    ));
+    $list = gig_worker_ongoing_active_projects($username, $email);
     if ($list === []) {
         return null;
     }
     usort($list, static fn($a, $b) => strcmp((string)$a['deadline_iso'], (string)$b['deadline_iso']));
     return $list[0];
+}
+
+function gig_worker_project_completions_map(): array
+{
+    $completed = [];
+    $pdo = function_exists('gig_db') ? gig_db() : null;
+    if ($pdo !== null) {
+        try {
+            $stmt = $pdo->query('SELECT `contract_id` FROM `project_completions`');
+            foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $cid) {
+                $completed[(string)$cid] = true;
+            }
+        } catch (Throwable $ignored) {
+        }
+    }
+    if (session_status() === PHP_SESSION_ACTIVE
+        && isset($_SESSION['completed_projects'])
+        && is_array($_SESSION['completed_projects'])
+    ) {
+        foreach (array_keys($_SESSION['completed_projects']) as $cid) {
+            $completed[(string)$cid] = true;
+        }
+    }
+    return $completed;
+}
+
+/** Active contracts for this worker that are not marked complete (matches Proyek Aktif). */
+function gig_worker_ongoing_active_projects(string $username, string $email = ''): array
+{
+    $completed = gig_worker_project_completions_map();
+    $out = [];
+    foreach (gig_demo_active_projects() as $proj) {
+        if (!gig_worker_matches_project($proj, $username, $email)) {
+            continue;
+        }
+        $cId = (string)($proj['contract_id'] ?? '');
+        if ($cId !== '' && isset($completed[$cId])) {
+            continue;
+        }
+        $out[] = $proj;
+    }
+    return $out;
+}
+
+function gig_worker_active_project_count(string $username, string $email = ''): int
+{
+    return count(gig_worker_ongoing_active_projects($username, $email));
+}
+
+function gig_worker_active_partner_count(string $username, string $email = ''): int
+{
+    $employers = [];
+    foreach (gig_worker_ongoing_active_projects($username, $email) as $proj) {
+        $emp = trim((string)($proj['employer'] ?? ''));
+        if ($emp !== '') {
+            $employers[$emp] = true;
+        }
+    }
+    return count($employers);
 }

@@ -23,11 +23,10 @@ if ($worker === null) {
     $worker = gig_find_worker('tessa');
 }
 if ($role === 'worker' && !empty($_SESSION['siapkerja_email'])) {
-    $savedAvatar = gig_avatar_url_for_worker_id((string)($worker['id'] ?? $workerId));
-    if ($savedAvatar !== null) {
-        $worker['photo'] = $savedAvatar;
-    } else {
-        $worker['photo'] = gig_resolve_user_avatar(null, 'worker');
+    $ownId = gig_avatar_worker_profile_id(gig_avatar_account_key());
+    $viewId = (string)($worker['id'] ?? $workerId);
+    if ($viewId === $ownId) {
+        $worker['photo'] = gig_worker_display_photo($ownId);
     }
 }
 

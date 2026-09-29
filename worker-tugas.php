@@ -11,7 +11,7 @@ $pageKey = 'tugas';
 $breadcrumbCurrent = 'Proyek Aktif';
 require __DIR__ . '/includes/worker-layout-start.php';
 
-// Load completion status from DB / session
+$workerEmail = (string)($_SESSION['siapkerja_email'] ?? '');
 $pdo = gig_db();
 $dbCompletions = [];
 if ($pdo !== null) {
@@ -26,7 +26,7 @@ if ($pdo !== null) {
     } catch (Throwable $ignored) {}
 }
 
-$activeProjects = gig_demo_active_projects();
+$activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
 ?>
 
     <div class="page-toolbar">
@@ -40,12 +40,8 @@ $activeProjects = gig_demo_active_projects();
       <?php
         $ongoingProjects = [];
         foreach ($activeProjects as $idx => $proj) {
-            $cId = $proj['contract_id'];
-            $completed = isset($dbCompletions[$cId]) || isset($_SESSION['completed_projects'][$cId]);
-            if (!$completed) {
-                $proj['_idx'] = $idx;
-                $ongoingProjects[] = $proj;
-            }
+            $proj['_idx'] = $idx;
+            $ongoingProjects[] = $proj;
         }
       ?>
       <?php if (count($ongoingProjects) === 0): ?>

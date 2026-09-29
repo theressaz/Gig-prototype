@@ -23,7 +23,9 @@ if ($profileEmail === '' && $isLoggedIn) {
 }
 $profileAvatarRole = $isEmployerAccount ? 'employer' : 'worker';
 $profileAvatarUrl = $isLoggedIn
-    ? gig_resolve_user_avatar(null, $profileAvatarRole)
+    ? (($profileAvatarRole === 'worker')
+        ? gig_worker_display_photo()
+        : gig_resolve_user_avatar(null, 'employer'))
     : 'https://api.dicebear.com/9.x/notionists/svg?seed=Guest&backgroundColor=dbeafe';
 
 $trendingJobs = [

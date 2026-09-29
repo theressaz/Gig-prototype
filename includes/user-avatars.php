@@ -55,6 +55,24 @@ function gig_avatar_worker_profile_id(string $accountKey): string
     return preg_replace('/[^a-z0-9]+/i', '', $local) ?: $key;
 }
 
+function gig_avatar_preset_photo(string $profileId): string
+{
+    $profileId = strtolower(trim($profileId));
+    if ($profileId === 'theressaz@pasker.id' || str_contains($profileId, 'theressa')) {
+        $profileId = 'tessa';
+    }
+    if (!function_exists('gig_worker_profiles')) {
+        require_once __DIR__ . '/worker-profiles.php';
+    }
+    $profiles = gig_worker_profiles();
+    if (isset($profiles[$profileId]['photo']) && (string)$profiles[$profileId]['photo'] !== '') {
+        return (string)$profiles[$profileId]['photo'];
+    }
+    return 'https://api.dicebear.com/9.x/notionists/svg?seed='
+        . rawurlencode($profileId)
+        . '&backgroundColor=dbeafe';
+}
+
 function gig_avatar_default_url(string $accountKey, string $role = 'worker'): string
 {
     $role = strtolower($role);
@@ -62,16 +80,14 @@ function gig_avatar_default_url(string $accountKey, string $role = 'worker'): st
         return 'https://api.dicebear.com/9.x/shapes/svg?seed=' . rawurlencode($accountKey);
     }
 
-    if (function_exists('gig_find_worker')) {
-        $profileId = gig_avatar_worker_profile_id($accountKey);
-        $worker = gig_find_worker($profileId);
-        if ($worker !== null && !empty($worker['photo'])) {
-            return (string)$worker['photo'];
-        }
-    }
+    return gig_avatar_preset_photo(gig_avatar_worker_profile_id($accountKey));
+}
 
-    $seed = gig_avatar_worker_profile_id($accountKey);
-    return 'https://api.dicebear.com/9.x/notionists/svg?seed=' . rawurlencode($seed) . '&backgroundColor=dbeafe';
+/** Demo / preset workers: keep DB avatar aligned with public profile photo. */
+function gig_avatar_force_preset_sync(string $accountKey): bool
+{
+    $key = strtolower(trim($accountKey));
+    return in_array($key, ['theressaz@pasker.id', 'tessa'], true);
 }
 
 function gig_get_saved_avatar(string $accountKey): ?string
@@ -122,20 +138,27 @@ function gig_bootstrap_user_avatar(?string $accountKey = null, string $role = 'w
         return gig_avatar_default_url('guest', $role);
     }
 
+    $canonical = gig_avatar_default_url($accountKey, $role);
     $saved = gig_get_saved_avatar($accountKey);
-    if ($saved !== null) {
+    if ($saved !== null && $saved === $canonical) {
         if (session_status() === PHP_SESSION_ACTIVE) {
             $_SESSION['avatar_url'] = $saved;
         }
         return $saved;
     }
 
-    $url = gig_avatar_default_url($accountKey, $role);
-    gig_save_user_avatar($accountKey, $url, $role);
-    if (session_status() === PHP_SESSION_ACTIVE) {
-        $_SESSION['avatar_url'] = $url;
+    if ($saved !== null && !gig_avatar_force_preset_sync($accountKey)) {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            $_SESSION['avatar_url'] = $saved;
+        }
+        return $saved;
     }
-    return $url;
+
+    gig_save_user_avatar($accountKey, $canonical, $role);
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        $_SESSION['avatar_url'] = $canonical;
+    }
+    return $canonical;
 }
 
 function gig_resolve_user_avatar(?string $accountKey = null, string $role = 'worker'): string
@@ -145,14 +168,25 @@ function gig_resolve_user_avatar(?string $accountKey = null, string $role = 'wor
         return gig_avatar_default_url('guest', $role);
     }
 
-    if (session_status() === PHP_SESSION_ACTIVE) {
-        $sessionUrl = (string)($_SESSION['avatar_url'] ?? '');
-        if ($sessionUrl !== '') {
-            return $sessionUrl;
-        }
+    return gig_bootstrap_user_avatar($accountKey, $role);
+}
+
+/** Single avatar URL for a logged-in Gig Worker (navbar, profil sendiri, Karirhub). */
+function gig_worker_display_photo(?string $profileId = null, ?string $accountKey = null): string
+{
+    $accountKey = gig_avatar_account_key($accountKey);
+    $profileId = $profileId ?? gig_avatar_worker_profile_id($accountKey !== '' ? $accountKey : 'tessa');
+    $url = gig_resolve_user_avatar($accountKey !== '' ? $accountKey : null, 'worker');
+
+    foreach (gig_avatar_account_keys_for_worker_id($profileId) as $aliasKey) {
+        gig_save_user_avatar($aliasKey, $url, 'worker');
     }
 
-    return gig_bootstrap_user_avatar($accountKey, $role);
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        $_SESSION['avatar_url'] = $url;
+    }
+
+    return $url;
 }
 
 /** Apply saved avatar to a worker profile array when it belongs to the logged-in account. */

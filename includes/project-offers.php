@@ -237,15 +237,14 @@ function gig_save_offer(string $employer, string $workerId, string $vacancyId, s
 function gig_seed_demo_offers_if_needed(string $username): void
 {
     $key = gig_offer_worker_key($username);
-    if ($key !== 'tessa') {
+    if ($key !== 'theressaz@pasker.id') {
         return;
     }
     if (count(gig_offers_for_worker($username)) > 0) {
         return;
     }
 
-    // Seed demo offers keyed to the canonical 'tessa' worker_id
-    gig_insert_offer_raw('PT ABC', 'tessa', 'GIG-2026-09-001');
-    gig_insert_offer_raw('PT ABC', 'tessa', 'GIG-2026-09-002');
-    gig_insert_offer_raw('CV Kreasi Visual Nusantara', 'tessa', 'GIG-2026-09-008');
+    gig_insert_offer_raw('PT ABC', 'theressaz@pasker.id', 'GIG-2026-09-001');
+    gig_insert_offer_raw('PT ABC', 'theressaz@pasker.id', 'GIG-2026-09-002');
+    gig_insert_offer_raw('CV Kreasi Visual Nusantara', 'theressaz@pasker.id', 'GIG-2026-09-008');
 }

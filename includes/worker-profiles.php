@@ -801,6 +801,12 @@ function gig_find_worker(string $id): ?array
         $savedAvatar = gig_avatar_url_for_worker_id($cleanId);
         if ($savedAvatar !== null) {
             $profiles[$cleanId]['photo'] = $savedAvatar;
+        } elseif (
+            session_status() === PHP_SESSION_ACTIVE
+            && !empty($_SESSION['siapkerja_email'])
+            && gig_avatar_worker_profile_id(gig_avatar_account_key()) === $cleanId
+        ) {
+            $profiles[$cleanId]['photo'] = gig_worker_display_photo($cleanId);
         }
         return $profiles[$cleanId];
     }
