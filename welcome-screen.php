@@ -222,7 +222,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
                 Pilih apakah Anda ingin langsung masuk dengan akun yang sudah ada atau melakukan pendaftaran baru.
             </p>
 
-            <a href="siapkerja-login.php" class="btn-action-primary">
+            <a href="siapkerja-login.php?redirect=karirhub-home" class="btn-action-primary">
                 Masuk Langsung dengan SIAPkerja
             </a>
 

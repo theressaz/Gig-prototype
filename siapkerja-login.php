@@ -22,8 +22,16 @@ if ($redirectParam === 'employer-register' && $hasSiapkerjaSession) {
     header("Location: employer-register.php");
     exit;
 }
+if (($redirectParam === 'karirhub-home' || $redirectParam === 'gig-workers') && $hasSiapkerjaSession) {
+    if ($redirectParam === 'gig-workers') {
+        header("Location: gig-workers-go.php");
+        exit;
+    }
+    header("Location: karirhub-home.php");
+    exit;
+}
 
-if (isset($_SESSION["username"]) && isset($_SESSION["role"]) && !isset($_GET['preview'])) {
+if ($hasSiapkerjaSession && !isset($_GET['preview'])) {
     if ($redirectParam === 'worker-register') {
         header("Location: worker-register.php");
         exit;
@@ -32,11 +40,12 @@ if (isset($_SESSION["username"]) && isset($_SESSION["role"]) && !isset($_GET['pr
         header("Location: employer-register.php");
         exit;
     }
-    if ($_SESSION["role"] === 'employer') {
-        header("Location: dashboard-employer.php");
+    if ($redirectParam === 'gig-workers') {
+        header("Location: gig-workers-go.php");
         exit;
-    } elseif ($_SESSION["role"] === 'worker') {
-        header("Location: dashboard-worker.php");
+    }
+    if ($redirectParam === '' || $redirectParam === 'karirhub-home') {
+        header("Location: karirhub-home.php");
         exit;
     }
 }
@@ -166,21 +175,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
         }
 
-        // 4. Routing Based on SIAPkerja Account Role when logged in directly:
-        if ($userRole === 'employer') {
-            $_SESSION["role"] = 'employer';
-            $_SESSION["company_registered"] = true;
-            header("Location: dashboard-employer.php");
-            exit;
-        } elseif ($userRole === 'worker') {
-            $_SESSION["role"] = 'worker';
-            header("Location: dashboard-worker.php");
-            exit;
-        } else {
-            // Unregistered SIAPkerja account -> employer registration status page
-            header("Location: employer-unregistered.php");
-            exit;
-        }
+        // 4. Default: land on Karirhub home after SIAPkerja login
+        header("Location: karirhub-home.php");
+        exit;
     }
 }
 ?>
