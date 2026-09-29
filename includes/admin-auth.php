@@ -6,7 +6,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header('Location: admin-login.php');
+    header('Location: siapkerja-login.php?redirect=karirhub-home');
     exit;
 }
 
@@ -17,7 +17,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['logout'])) {
         setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], (bool)$params['secure'], (bool)$params['httponly']);
     }
     session_destroy();
-    header('Location: admin-login.php');
+    header('Location: karirhub-home.php');
     exit;
 }
 

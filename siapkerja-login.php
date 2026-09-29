@@ -145,6 +145,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $resolvedUsername = 'PT ABC';
             $userEmail = 'employer@pasker.id';
         }
+        // Admin Kemnaker: admin@kemnaker.go.id / admin123
+        elseif ($lowerInput === 'admin@kemnaker.go.id' || $lowerInput === 'admin') {
+            if ($passwordInput !== 'admin123') {
+                $message = 'Kata sandi admin tidak valid.';
+                $messageType = 'error';
+                $userFound = false;
+            } else {
+                $userFound = true;
+                $userRole = 'admin';
+                $resolvedUsername = 'Admin KarirHub';
+                $userEmail = 'admin@kemnaker.go.id';
+            }
+        }
         // Unregistered SIAPkerja User: pencaker@pasker.id
         elseif ($lowerInput === 'pencaker@pasker.id' || str_contains($lowerInput, 'pencaker')) {
             $userFound = true;
@@ -159,42 +172,53 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $resolvedUsername = ucwords(explode('@', $usernameInput)[0]);
         }
 
-        // 2. Populate SIAPkerja Session Data
-        $_SESSION["siapkerja_email"] = $userEmail;
-        $_SESSION["siapkerja_name"]  = $resolvedUsername;
-        $_SESSION["siapkerja_nik"]   = "1471 0252 0803 0001";
-        $_SESSION["siapkerja_phone"] = "08117671208";
-        $_SESSION["username"]        = $resolvedUsername;
+        if ($userFound) {
+            // 2. Populate SIAPkerja Session Data
+            $_SESSION['siapkerja_email'] = $userEmail;
+            $_SESSION['siapkerja_name'] = $resolvedUsername;
+            $_SESSION['siapkerja_nik'] = '1471 0252 0803 0001';
+            $_SESSION['siapkerja_phone'] = '08117671208';
+            $_SESSION['username'] = $resolvedUsername;
 
-        if ($userRole === 'employer') {
-            $_SESSION['role'] = 'employer';
-            $_SESSION['company_registered'] = true;
-        } elseif ($userRole === 'worker') {
-            $_SESSION['role'] = 'worker';
-        } elseif ($lowerInput === 'calon.employer@pasker.id' || str_contains($lowerInput, 'calon') || str_contains($lowerInput, 'pemberi kerja')) {
-            unset($_SESSION['role']);
-        } else {
-            unset($_SESSION['role']);
-        }
+            if ($userRole === 'employer') {
+                $_SESSION['role'] = 'employer';
+                $_SESSION['company_registered'] = true;
+                unset($_SESSION['admin_name']);
+            } elseif ($userRole === 'worker') {
+                $_SESSION['role'] = 'worker';
+                unset($_SESSION['admin_name']);
+            } elseif ($userRole === 'admin') {
+                $_SESSION['role'] = 'admin';
+                $_SESSION['admin_name'] = 'Admin KarirHub';
+                $_SESSION['username'] = 'admin@kemnaker.go.id';
+                unset($_SESSION['company_registered']);
+            } elseif ($lowerInput === 'calon.employer@pasker.id' || str_contains($lowerInput, 'calon') || str_contains($lowerInput, 'pemberi kerja')) {
+                unset($_SESSION['role'], $_SESSION['admin_name']);
+            } else {
+                unset($_SESSION['role'], $_SESSION['admin_name']);
+            }
 
-        require_once __DIR__ . '/includes/user-avatars.php';
-        $avatarRole = ($userRole === 'employer') ? 'employer' : 'worker';
-        if ($userRole === 'employer' || $userRole === 'worker') {
-            gig_bootstrap_user_avatar($userEmail, $avatarRole);
-        }
+            require_once __DIR__ . '/includes/user-avatars.php';
+            if ($userRole === 'employer' || $userRole === 'admin') {
+                gig_bootstrap_user_avatar($userEmail, 'employer');
+            } elseif ($userRole === 'worker') {
+                gig_bootstrap_user_avatar($userEmail, 'worker');
+            }
 
-        // 3. IF coming from Registration Flow, route to requested registration page!
-        if ($redirectParam === 'employer-register') {
-            header("Location: employer-register.php");
+            // 3. IF coming from Registration Flow, route to requested registration page!
+            if ($redirectParam === 'employer-register') {
+                header('Location: employer-register.php');
+                exit;
+            }
+            if ($redirectParam === 'worker-register') {
+                header('Location: worker-register.php');
+                exit;
+            }
+
+            // 4. Default: land on Karirhub home after SIAPkerja login
+            header('Location: karirhub-home.php');
             exit;
-        } elseif ($redirectParam === 'worker-register') {
-            header("Location: worker-register.php");
-            exit;
         }
-
-        // 4. Default: land on Karirhub home after SIAPkerja login
-        header("Location: karirhub-home.php");
-        exit;
     }
 }
 ?>

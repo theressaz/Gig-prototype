@@ -133,10 +133,7 @@ function admin_status_badge(string $status): string
         <h1>Panel Verifikasi Admin</h1>
         <p style="color: var(--text-muted); font-size: 0.9rem;">Kelola pendaftaran Gig Worker, pemberi kerja, dan pengajuan lowongan proyek.</p>
       </div>
-      <form method="post">
-        <input type="hidden" name="logout" value="1" />
-        <button type="submit" class="btn-logout">Keluar</button>
-      </form>
+      <a href="karirhub-logout.php" class="btn-logout" style="text-decoration:none;display:inline-flex;align-items:center;">Keluar</a>
     </div>
 
     <?php if ($flash !== ''): ?>

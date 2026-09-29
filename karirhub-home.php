@@ -13,15 +13,20 @@ if (strlen($userInitials) < 2) {
 }
 
 $siapkerjaEmail = strtolower((string)($_SESSION['siapkerja_email'] ?? ''));
-$isEmployerAccount = $isLoggedIn && (
+$isAdminAccount = $isLoggedIn && (
+    ($_SESSION['role'] ?? '') === 'admin'
+    || $siapkerjaEmail === 'admin@kemnaker.go.id'
+);
+$isEmployerAccount = $isLoggedIn && !$isAdminAccount && (
     ($_SESSION['role'] ?? '') === 'employer'
     || in_array($siapkerjaEmail, ['employer@pasker.id', 'calon.employer@pasker.id'], true)
 );
+$showDasborPengelola = $isEmployerAccount || $isAdminAccount;
 $profileEmail = (string)($_SESSION['siapkerja_email'] ?? '');
 if ($profileEmail === '' && $isLoggedIn) {
     $profileEmail = strtolower(str_replace(' ', '', $displayName)) . '@pasker.id';
 }
-$profileAvatarRole = $isEmployerAccount ? 'employer' : 'worker';
+$profileAvatarRole = ($isEmployerAccount || $isAdminAccount) ? 'employer' : 'worker';
 $profileAvatarUrl = $isLoggedIn
     ? (($profileAvatarRole === 'worker')
         ? gig_worker_display_photo()
@@ -505,11 +510,26 @@ $testimonials = [
           <a href="siapkerja-login.php?redirect=karirhub-home" class="btn-nav-solid">Masuk</a>
         <?php else: ?>
           <div class="nav-user-zone" id="navUserZone">
-            <?php if ($isEmployerAccount): ?>
+            <?php if ($showDasborPengelola): ?>
               <button type="button" class="dasbor-trigger" id="dasborTrigger" aria-expanded="false" aria-controls="dasborPanel">
                 Dasbor Pengelola
               </button>
               <div class="dasbor-panel" id="dasborPanel" role="dialog" aria-label="Pilih dasbor pengelola">
+                <?php if ($isAdminAccount): ?>
+                <article class="dasbor-card">
+                  <div class="dasbor-card-head">
+                    <span class="dasbor-card-icon" aria-hidden="true">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </span>
+                    <div>
+                      <h3>Dasbor Admin</h3>
+                      <p>Verifikasi pendaftaran Gig Worker, pemberi kerja, dan pengajuan lowongan proyek.</p>
+                      <a href="dashboard-admin.php" class="dasbor-card-btn">Akses Dasbor</a>
+                    </div>
+                  </div>
+                </article>
+                <?php endif; ?>
+                <?php if ($isEmployerAccount): ?>
                 <article class="dasbor-card">
                   <div class="dasbor-card-head">
                     <span class="dasbor-card-icon" aria-hidden="true">
@@ -534,6 +554,7 @@ $testimonials = [
                     </div>
                   </div>
                 </article>
+                <?php endif; ?>
               </div>
             <?php endif; ?>
             <button type="button" class="nav-avatar-btn" id="profileTrigger" aria-expanded="false" aria-controls="profilePanel" aria-label="Menu profil">

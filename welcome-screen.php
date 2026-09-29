@@ -239,7 +239,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     </main>
 
     <footer class="page-footer">
-        © 2026 Karirhub · <a href="admin-login.php" style="color:#94a3b8;text-decoration:none;">Admin Kemnaker</a>
+        © 2026 Karirhub
     </footer>
 
 </body>
