@@ -210,6 +210,80 @@ function gig_employer_gig_registration_status(string $siapkerjaEmail): ?string
     }
 }
 
+/**
+ * @param list<array<string, mixed>> $rows
+ * @return array<string, int>
+ */
+function gig_admin_count_by_status(array $rows, string $field = 'status'): array
+{
+    $counts = [];
+    foreach ($rows as $row) {
+        $st = (string)($row[$field] ?? 'pending');
+        $counts[$st] = ($counts[$st] ?? 0) + 1;
+    }
+    return $counts;
+}
+
+/**
+ * @param list<array<string, mixed>> $workers
+ * @param list<array<string, mixed>> $employers
+ * @param list<array<string, mixed>> $vacancies
+ * @return array<string, mixed>
+ */
+function gig_admin_dashboard_metrics(array $workers, array $employers, array $vacancies): array
+{
+    $wc = gig_admin_count_by_status($workers);
+    $ec = gig_admin_count_by_status($employers);
+    $vc = gig_admin_count_by_status($vacancies);
+
+    return [
+        'workers_total' => count($workers),
+        'workers_pending' => (int)($wc['pending'] ?? 0),
+        'workers_approved' => (int)($wc['approved'] ?? 0),
+        'workers_rejected' => (int)($wc['rejected'] ?? 0),
+        'employers_total' => count($employers),
+        'employers_pending' => (int)($ec['pending'] ?? 0),
+        'employers_approved' => (int)($ec['approved'] ?? 0),
+        'employers_rejected' => (int)($ec['rejected'] ?? 0),
+        'vacancies_total' => count($vacancies),
+        'vacancies_review' => (int)($vc['review'] ?? 0),
+        'vacancies_active' => (int)($vc['active'] ?? 0),
+        'vacancies_revision' => (int)($vc['revision'] ?? 0),
+        'vacancies_rejected' => (int)($vc['rejected'] ?? 0),
+        'vacancies_draft' => (int)($vc['draft'] ?? 0),
+        'pending_all' => (int)($wc['pending'] ?? 0) + (int)($ec['pending'] ?? 0) + (int)($vc['review'] ?? 0),
+    ];
+}
+
+/** @return list<array{label: string, employers: int, vacancies: int}> */
+function gig_admin_cluster_by_industry(array $employers, array $vacancies): array
+{
+    $clusters = [];
+    foreach ($employers as $row) {
+        $label = trim((string)($row['industry'] ?? ''));
+        if ($label === '') {
+            $label = 'Lainnya';
+        }
+        if (!isset($clusters[$label])) {
+            $clusters[$label] = ['label' => $label, 'employers' => 0, 'vacancies' => 0];
+        }
+        $clusters[$label]['employers']++;
+    }
+    foreach ($vacancies as $row) {
+        $label = trim((string)($row['location'] ?? ''));
+        if ($label === '') {
+            $label = 'Remote / Nasional';
+        }
+        if (!isset($clusters[$label])) {
+            $clusters[$label] = ['label' => $label, 'employers' => 0, 'vacancies' => 0];
+        }
+        $clusters[$label]['vacancies']++;
+    }
+    $out = array_values($clusters);
+    usort($out, static fn($a, $b) => ($b['employers'] + $b['vacancies']) <=> ($a['employers'] + $a['vacancies']));
+    return array_slice($out, 0, 8);
+}
+
 function gig_worker_registration_status(string $username): ?string
 {
     gig_admin_ensure_schema();

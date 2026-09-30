@@ -7,16 +7,22 @@ require_once __DIR__ . '/includes/vacancy-store.php';
 
 $flash = '';
 $flashType = 'success';
-$tab = (string)($_GET['tab'] ?? 'overview');
-$allowedTabs = ['overview', 'workers', 'employers', 'projects'];
+$tab = (string)($_GET['tab'] ?? 'verification');
+if ($tab === 'overview') {
+    $tab = 'verification';
+}
+$allowedTabs = ['verification', 'workers', 'employers', 'projects'];
 if (!in_array($tab, $allowedTabs, true)) {
-    $tab = 'overview';
+    $tab = 'verification';
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = (string)($_POST['action'] ?? '');
     $note = trim((string)($_POST['admin_note'] ?? ''));
-    $redirectTab = (string)($_POST['tab'] ?? 'overview');
+    $redirectTab = (string)($_POST['tab'] ?? 'verification');
+    if ($redirectTab === 'overview') {
+        $redirectTab = 'verification';
+    }
 
     if ($action === 'worker_approve') {
         $ok = gig_admin_set_worker_status((string)($_POST['username'] ?? ''), 'approved', $note);
@@ -76,6 +82,28 @@ if (isset($_GET['msg'])) {
 $workers = gig_admin_list_worker_registrations();
 $employers = gig_admin_list_employer_registrations();
 $vacancies = gig_admin_list_project_vacancies();
+$metrics = gig_admin_dashboard_metrics($workers, $employers, $vacancies);
+$clusters = gig_admin_cluster_by_industry($employers, $vacancies);
+
+$searchQ = trim((string)($_GET['q'] ?? ''));
+$matchesSearch = static function (array $row, array $fields) use ($searchQ): bool {
+    if ($searchQ === '') {
+        return true;
+    }
+    $needle = strtolower($searchQ);
+    foreach ($fields as $field) {
+        if (str_contains(strtolower((string)($row[$field] ?? '')), $needle)) {
+            return true;
+        }
+    }
+    return false;
+};
+
+if ($searchQ !== '') {
+    $workers = array_values(array_filter($workers, fn($r) => $matchesSearch($r, ['username', 'bidang_keahlian', 'contact_email', 'skills'])));
+    $employers = array_values(array_filter($employers, fn($r) => $matchesSearch($r, ['nama_pic', 'company_name', 'siapkerja_email', 'industry'])));
+    $vacancies = array_values(array_filter($vacancies, fn($r) => $matchesSearch($r, ['title', 'id', 'employer', 'category', 'location'])));
+}
 
 $pendingWorkers = array_values(array_filter($workers, fn($r) => ($r['status'] ?? 'pending') === 'pending'));
 $pendingEmployers = array_values(array_filter($employers, fn($r) => ($r['status'] ?? 'pending') === 'pending'));
@@ -94,71 +122,173 @@ function admin_status_badge(string $status): string
     $item = $map[$status] ?? [$status, '#f1f5f9', '#334155'];
     return '<span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;background:' . $item[1] . ';color:' . $item[2] . ';">' . htmlspecialchars($item[0], ENT_QUOTES, 'UTF-8') . '</span>';
 }
+
+function admin_bar_height(int $value, int $max, int $cap = 130): int
+{
+    if ($value <= 0) {
+        return 8;
+    }
+    $max = max($max, 1);
+    return max(10, (int)round($value / $max * $cap));
+}
+
+function admin_render_chart(string $title, array $segments): void
+{
+    $max = max(1, ...array_map(static fn($s) => (int)$s['value'], $segments));
+    echo '<article class="admin-chart-card"><h3>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</h3><div class="admin-bars">';
+    foreach ($segments as $seg) {
+        $val = (int)$seg['value'];
+        $h = admin_bar_height($val, $max);
+        $color = htmlspecialchars((string)$seg['color'], ENT_QUOTES, 'UTF-8');
+        $label = htmlspecialchars((string)$seg['label'], ENT_QUOTES, 'UTF-8');
+        echo '<div class="admin-bar-col">';
+        echo '<div class="admin-bar-val">' . $val . '</div>';
+        echo '<div class="admin-bar" style="height:' . $h . 'px;background:' . $color . ';"></div>';
+        echo '<div class="admin-bar-label">' . $label . '</div>';
+        echo '</div>';
+    }
+    echo '</div></article>';
+}
+
+$adminTab = $tab;
+$pageTitle = 'Dashboard Admin';
+$breadcrumbCurrent = 'Dashboard';
+require __DIR__ . '/includes/admin-layout-start.php';
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Admin · Karirhub</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/employer.css" />
-  <style>
-    .admin-shell { max-width: 1200px; margin: 0 auto; padding: 24px 20px 48px; }
-    .admin-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
-    .admin-top h1 { font-size: 1.5rem; }
-    .admin-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
-    .admin-tabs a { text-decoration: none; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border-subtle); color: var(--text-soft); font-size: 0.85rem; font-weight: 700; background: #fff; }
-    .admin-tabs a.active { background: var(--primary-blue); border-color: var(--primary-blue); color: #fff; }
-    .flash { padding: 12px 14px; border-radius: 10px; margin-bottom: 16px; font-size: 0.88rem; font-weight: 600; }
-    .flash.success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
-    .flash.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-    .review-card { background: #fff; border: 1px solid var(--border-subtle); border-radius: 14px; padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow-xs); }
-    .review-card h3 { font-size: 1rem; margin-bottom: 6px; }
-    .review-meta { color: var(--text-muted); font-size: 0.82rem; margin-bottom: 10px; }
-    .review-detail { font-size: 0.86rem; color: var(--text-soft); margin-bottom: 12px; line-height: 1.55; }
-    .review-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
-    .review-actions textarea { width: 100%; min-height: 70px; border: 1px solid var(--border-light); border-radius: 10px; padding: 10px; font: inherit; margin-bottom: 8px; }
-    .btn-approve { background: #059669; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-weight: 700; cursor: pointer; }
-    .btn-reject { background: #dc2626; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-weight: 700; cursor: pointer; }
-    .btn-revision { background: #d97706; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-weight: 700; cursor: pointer; }
-    .btn-logout { background: #fff; border: 1px solid var(--border-light); border-radius: 8px; padding: 8px 12px; font-weight: 700; cursor: pointer; }
-    .empty-state { background: #fff; border: 1px dashed var(--border-light); border-radius: 12px; padding: 28px; text-align: center; color: var(--text-muted); }
-  </style>
-</head>
-<body style="background: var(--bg-page);">
-  <div class="admin-shell">
-    <div class="admin-top">
-      <div>
-        <h1>Panel Verifikasi Admin</h1>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">Kelola pendaftaran Gig Worker, pemberi kerja, dan pengajuan lowongan proyek.</p>
-      </div>
-      <a href="karirhub-logout.php" class="btn-logout" style="text-decoration:none;display:inline-flex;align-items:center;">Keluar</a>
+
+    <div class="admin-page-head">
+      <h1>Dashboard</h1>
+      <a href="karirhub-home.php" class="admin-btn-ghost">← Karirhub Home</a>
     </div>
 
     <?php if ($flash !== ''): ?>
       <div class="flash <?php echo htmlspecialchars($flashType, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($flash, ENT_QUOTES, 'UTF-8'); ?></div>
     <?php endif; ?>
 
-    <nav class="admin-tabs">
-      <a href="?tab=overview" class="<?php echo $tab === 'overview' ? 'active' : ''; ?>">Ringkasan</a>
-      <a href="?tab=workers" class="<?php echo $tab === 'workers' ? 'active' : ''; ?>">Gig Worker (<?php echo count($pendingWorkers); ?>)</a>
-      <a href="?tab=employers" class="<?php echo $tab === 'employers' ? 'active' : ''; ?>">Pemberi Kerja (<?php echo count($pendingEmployers); ?>)</a>
-      <a href="?tab=projects" class="<?php echo $tab === 'projects' ? 'active' : ''; ?>">Lowongan Proyek (<?php echo count($pendingProjects); ?>)</a>
+    <nav class="admin-subtabs" aria-label="Tab dashboard admin">
+      <a href="?tab=verification" class="<?php echo $tab === 'verification' ? 'active' : ''; ?>">Verifikasi</a>
+      <a href="?tab=workers" class="<?php echo $tab === 'workers' ? 'active' : ''; ?>">Gig Worker<?php echo $metrics['workers_pending'] > 0 ? ' (' . (int)$metrics['workers_pending'] . ')' : ''; ?></a>
+      <a href="?tab=employers" class="<?php echo $tab === 'employers' ? 'active' : ''; ?>">Pemberi Kerja<?php echo $metrics['employers_pending'] > 0 ? ' (' . (int)$metrics['employers_pending'] . ')' : ''; ?></a>
+      <a href="?tab=projects" class="<?php echo $tab === 'projects' ? 'active' : ''; ?>">Lowongan Proyek<?php echo $metrics['vacancies_review'] > 0 ? ' (' . (int)$metrics['vacancies_review'] . ')' : ''; ?></a>
     </nav>
 
-    <?php if ($tab === 'overview'): ?>
-      <section class="mini-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
-        <article class="mini-stat"><div><div class="lbl">Worker Menunggu</div><div class="num"><?php echo count($pendingWorkers); ?></div></div><div class="ico">👷</div></article>
-        <article class="mini-stat"><div><div class="lbl">Employer Menunggu</div><div class="num"><?php echo count($pendingEmployers); ?></div></div><div class="ico">🏢</div></article>
-        <article class="mini-stat"><div><div class="lbl">Lowongan Menunggu</div><div class="num"><?php echo count($pendingProjects); ?></div></div><div class="ico">📋</div></article>
+    <?php if ($tab === 'verification'): ?>
+      <div class="admin-toolbar-row">
+        <span class="admin-btn-ghost" style="cursor:default;">Menunggu verifikasi: <strong><?php echo (int)$metrics['pending_all']; ?></strong></span>
+      </div>
+
+      <section class="admin-kpi-grid">
+        <article class="admin-kpi-card">
+          <div class="kpi-label">Pengajuan Gig Worker</div>
+          <div class="kpi-value"><?php echo number_format($metrics['workers_total'], 0, ',', '.'); ?></div>
+          <div class="kpi-sub"><?php echo (int)$metrics['workers_pending']; ?> menunggu verifikasi</div>
+        </article>
+        <article class="admin-kpi-card accent-navy">
+          <div class="kpi-label">Pengajuan Pemberi Kerja</div>
+          <div class="kpi-value"><?php echo number_format($metrics['employers_total'], 0, ',', '.'); ?></div>
+          <div class="kpi-sub"><?php echo (int)$metrics['employers_pending']; ?> menunggu verifikasi</div>
+        </article>
+        <article class="admin-kpi-card accent-teal">
+          <div class="kpi-label">Pengajuan Lowongan Proyek</div>
+          <div class="kpi-value"><?php echo number_format($metrics['vacancies_total'], 0, ',', '.'); ?></div>
+          <div class="kpi-sub"><?php echo (int)$metrics['vacancies_review']; ?> menunggu verifikasi</div>
+        </article>
+        <article class="admin-kpi-card accent-green">
+          <div class="kpi-label">Disetujui / Tayang</div>
+          <div class="kpi-value"><?php echo number_format($metrics['workers_approved'] + $metrics['employers_approved'] + $metrics['vacancies_active'], 0, ',', '.'); ?></div>
+          <div class="kpi-sub"><?php echo (int)$metrics['workers_approved']; ?> worker · <?php echo (int)$metrics['employers_approved']; ?> employer · <?php echo (int)$metrics['vacancies_active']; ?> lowongan aktif</div>
+        </article>
       </section>
-      <p style="margin-top:18px;color:var(--text-muted);font-size:0.88rem;">Gunakan tab di atas untuk menyetujui, menolak, atau meminta revisi pada setiap pengajuan.</p>
+
+      <div class="admin-chart-grid">
+        <?php
+        admin_render_chart('Status Verifikasi Gig Worker', [
+            ['label' => 'Menunggu', 'value' => $metrics['workers_pending'], 'color' => '#f59e0b'],
+            ['label' => 'Disetujui', 'value' => $metrics['workers_approved'], 'color' => '#1e3a8a'],
+            ['label' => 'Ditolak', 'value' => $metrics['workers_rejected'], 'color' => '#ef4444'],
+        ]);
+        admin_render_chart('Status Verifikasi Pemberi Kerja', [
+            ['label' => 'Menunggu', 'value' => $metrics['employers_pending'], 'color' => '#f59e0b'],
+            ['label' => 'Terverifikasi', 'value' => $metrics['employers_approved'], 'color' => '#1e3a8a'],
+            ['label' => 'Ditolak', 'value' => $metrics['employers_rejected'], 'color' => '#ef4444'],
+        ]);
+        ?>
+      </div>
+      <div class="admin-chart-grid">
+        <?php
+        admin_render_chart('Status Verifikasi Lowongan', [
+            ['label' => 'Menunggu', 'value' => $metrics['vacancies_review'], 'color' => '#f59e0b'],
+            ['label' => 'Revisi', 'value' => $metrics['vacancies_revision'], 'color' => '#14b8a6'],
+            ['label' => 'Disetujui', 'value' => $metrics['vacancies_active'], 'color' => '#1e3a8a'],
+            ['label' => 'Ditolak', 'value' => $metrics['vacancies_rejected'], 'color' => '#ef4444'],
+        ]);
+        ?>
+        <article class="admin-chart-card">
+          <h3>Antrian Verifikasi Terbaru</h3>
+          <?php if ($metrics['pending_all'] === 0): ?>
+            <p style="font-size:0.86rem;color:#64748b;">Tidak ada pengajuan yang menunggu verifikasi.</p>
+          <?php else: ?>
+            <?php foreach (array_slice($pendingWorkers, 0, 2) as $row): ?>
+              <div class="admin-queue-item">
+                <span><strong>Gig Worker</strong> · <?php echo htmlspecialchars((string)$row['username'], ENT_QUOTES, 'UTF-8'); ?></span>
+                <a href="?tab=workers">Proses →</a>
+              </div>
+            <?php endforeach; ?>
+            <?php foreach (array_slice($pendingEmployers, 0, 2) as $row): ?>
+              <div class="admin-queue-item">
+                <span><strong>Pemberi Kerja</strong> · <?php echo htmlspecialchars((string)($row['company_name'] ?: $row['nama_pic']), ENT_QUOTES, 'UTF-8'); ?></span>
+                <a href="?tab=employers">Proses →</a>
+              </div>
+            <?php endforeach; ?>
+            <?php foreach (array_slice($pendingProjects, 0, 2) as $job): ?>
+              <div class="admin-queue-item">
+                <span><strong>Lowongan</strong> · <?php echo htmlspecialchars((string)$job['title'], ENT_QUOTES, 'UTF-8'); ?></span>
+                <a href="?tab=projects">Proses →</a>
+              </div>
+            <?php endforeach; ?>
+          <?php endif; ?>
+        </article>
+      </div>
+
+      <section class="admin-region-card">
+        <div class="admin-region-head">
+          <div>
+            <h3>Rekap Pengajuan per Klaster</h3>
+            <p>Ringkasan pendaftaran pemberi kerja (per industri) dan lowongan proyek (per lokasi) dari database KarirHub Gig.</p>
+          </div>
+          <div class="admin-toggle" aria-hidden="true">
+            <span class="on">Pemberi Kerja</span>
+            <span>Lowongan</span>
+          </div>
+        </div>
+        <?php if ($clusters === []): ?>
+          <p style="font-size:0.86rem;color:#64748b;">Belum ada data klaster untuk ditampilkan.</p>
+        <?php else: ?>
+          <table class="admin-region-table">
+            <thead>
+              <tr>
+                <th>Klaster</th>
+                <th>Pemberi Kerja</th>
+                <th>Lowongan Proyek</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($clusters as $cluster): ?>
+                <tr>
+                  <td><?php echo htmlspecialchars((string)$cluster['label'], ENT_QUOTES, 'UTF-8'); ?></td>
+                  <td><?php echo (int)$cluster['employers']; ?></td>
+                  <td><?php echo (int)$cluster['vacancies']; ?></td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        <?php endif; ?>
+      </section>
     <?php endif; ?>
 
     <?php if ($tab === 'workers'): ?>
       <?php if ($workers === []): ?>
-        <div class="empty-state">Belum ada pendaftaran Gig Worker di database.</div>
+        <div class="empty-state">Belum ada pendaftaran Gig Worker<?php echo $searchQ !== '' ? ' yang cocok dengan pencarian.' : ' di database.'; ?></div>
       <?php endif; ?>
       <?php foreach ($workers as $row): ?>
         <article class="review-card">
@@ -187,8 +317,8 @@ function admin_status_badge(string $status): string
       <?php foreach ($employers as $row): ?>
         <article class="review-card">
           <h3><?php echo htmlspecialchars((string)$row['nama_pic'], ENT_QUOTES, 'UTF-8'); ?> <?php echo admin_status_badge((string)($row['status'] ?? 'pending')); ?></h3>
-          <div class="review-meta">SIAPkerja: <?php echo htmlspecialchars((string)$row['siapkerja_email'], ENT_QUOTES, 'UTF-8'); ?> · Industri: <?php echo htmlspecialchars((string)$row['industry'], ENT_QUOTES, 'UTF-8'); ?></div>
-          <div class="review-detail">PIC: <?php echo htmlspecialchars((string)$row['nama_pic'], ENT_QUOTES, 'UTF-8'); ?> · NIK: <?php echo htmlspecialchars((string)$row['nik_pic'], ENT_QUOTES, 'UTF-8'); ?> · Email: <?php echo htmlspecialchars((string)$row['email_pic'], ENT_QUOTES, 'UTF-8'); ?> · Telp: <?php echo htmlspecialchars((string)$row['phone_pic'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <div class="review-meta">Perusahaan: <?php echo htmlspecialchars((string)$row['company_name'], ENT_QUOTES, 'UTF-8'); ?> · SIAPkerja: <?php echo htmlspecialchars((string)$row['siapkerja_email'], ENT_QUOTES, 'UTF-8'); ?> · Industri: <?php echo htmlspecialchars((string)$row['industry'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <div class="review-detail">PIC: <?php echo htmlspecialchars((string)$row['nama_pic'], ENT_QUOTES, 'UTF-8'); ?> · Email: <?php echo htmlspecialchars((string)$row['email_pic'], ENT_QUOTES, 'UTF-8'); ?> · Telp: <?php echo htmlspecialchars((string)$row['phone_pic'], ENT_QUOTES, 'UTF-8'); ?></div>
           <?php if (($row['status'] ?? '') === 'pending'): ?>
             <form method="post" class="review-actions">
               <input type="hidden" name="tab" value="employers" />
@@ -238,6 +368,5 @@ function admin_status_badge(string $status): string
         </article>
       <?php endforeach; ?>
     <?php endif; ?>
-  </div>
-</body>
-</html>
+
+<?php require __DIR__ . '/includes/admin-layout-end.php'; ?>
