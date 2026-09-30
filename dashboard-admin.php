@@ -108,6 +108,9 @@ if ($searchQ !== '') {
 $pendingWorkers = array_values(array_filter($workers, fn($r) => ($r['status'] ?? 'pending') === 'pending'));
 $pendingEmployers = array_values(array_filter($employers, fn($r) => ($r['status'] ?? 'pending') === 'pending'));
 $pendingProjects = array_values(array_filter($vacancies, fn($v) => ($v['status'] ?? '') === 'review'));
+$nextPendingTab = $metrics['workers_pending'] > 0
+    ? 'workers'
+    : ($metrics['employers_pending'] > 0 ? 'employers' : ($metrics['vacancies_review'] > 0 ? 'projects' : 'verification'));
 
 function admin_status_badge(string $status): string
 {
@@ -174,30 +177,38 @@ require __DIR__ . '/includes/admin-layout-start.php';
 
     <?php if ($tab === 'verification'): ?>
       <div class="admin-toolbar-row">
-        <span class="admin-btn-ghost" style="cursor:default;">Menunggu verifikasi: <strong><?php echo (int)$metrics['pending_all']; ?></strong></span>
+        <a href="?tab=<?php echo urlencode($nextPendingTab); ?>" class="admin-btn-ghost">Menunggu verifikasi: <strong><?php echo (int)$metrics['pending_all']; ?></strong></a>
       </div>
 
       <section class="admin-kpi-grid">
-        <article class="admin-kpi-card">
-          <div class="kpi-label">Pengajuan Gig Worker</div>
-          <div class="kpi-value"><?php echo number_format($metrics['workers_total'], 0, ',', '.'); ?></div>
-          <div class="kpi-sub"><?php echo (int)$metrics['workers_pending']; ?> menunggu verifikasi</div>
-        </article>
-        <article class="admin-kpi-card accent-navy">
-          <div class="kpi-label">Pengajuan Pemberi Kerja</div>
-          <div class="kpi-value"><?php echo number_format($metrics['employers_total'], 0, ',', '.'); ?></div>
-          <div class="kpi-sub"><?php echo (int)$metrics['employers_pending']; ?> menunggu verifikasi</div>
-        </article>
-        <article class="admin-kpi-card accent-teal">
-          <div class="kpi-label">Pengajuan Lowongan Proyek</div>
-          <div class="kpi-value"><?php echo number_format($metrics['vacancies_total'], 0, ',', '.'); ?></div>
-          <div class="kpi-sub"><?php echo (int)$metrics['vacancies_review']; ?> menunggu verifikasi</div>
-        </article>
-        <article class="admin-kpi-card accent-green">
-          <div class="kpi-label">Disetujui / Tayang</div>
-          <div class="kpi-value"><?php echo number_format($metrics['workers_approved'] + $metrics['employers_approved'] + $metrics['vacancies_active'], 0, ',', '.'); ?></div>
-          <div class="kpi-sub"><?php echo (int)$metrics['workers_approved']; ?> worker · <?php echo (int)$metrics['employers_approved']; ?> employer · <?php echo (int)$metrics['vacancies_active']; ?> lowongan aktif</div>
-        </article>
+        <a href="?tab=workers" class="admin-kpi-link">
+          <article class="admin-kpi-card">
+            <div class="kpi-label">Pengajuan Gig Worker</div>
+            <div class="kpi-value"><?php echo number_format($metrics['workers_total'], 0, ',', '.'); ?></div>
+            <div class="kpi-sub"><?php echo (int)$metrics['workers_pending']; ?> menunggu verifikasi</div>
+          </article>
+        </a>
+        <a href="?tab=employers" class="admin-kpi-link">
+          <article class="admin-kpi-card accent-navy">
+            <div class="kpi-label">Pengajuan Pemberi Kerja</div>
+            <div class="kpi-value"><?php echo number_format($metrics['employers_total'], 0, ',', '.'); ?></div>
+            <div class="kpi-sub"><?php echo (int)$metrics['employers_pending']; ?> menunggu verifikasi</div>
+          </article>
+        </a>
+        <a href="?tab=projects" class="admin-kpi-link">
+          <article class="admin-kpi-card accent-teal">
+            <div class="kpi-label">Pengajuan Lowongan Proyek</div>
+            <div class="kpi-value"><?php echo number_format($metrics['vacancies_total'], 0, ',', '.'); ?></div>
+            <div class="kpi-sub"><?php echo (int)$metrics['vacancies_review']; ?> menunggu verifikasi</div>
+          </article>
+        </a>
+        <a href="?tab=projects" class="admin-kpi-link">
+          <article class="admin-kpi-card accent-green">
+            <div class="kpi-label">Disetujui / Tayang</div>
+            <div class="kpi-value"><?php echo number_format($metrics['workers_approved'] + $metrics['employers_approved'] + $metrics['vacancies_active'], 0, ',', '.'); ?></div>
+            <div class="kpi-sub"><?php echo (int)$metrics['workers_approved']; ?> worker · <?php echo (int)$metrics['employers_approved']; ?> employer · <?php echo (int)$metrics['vacancies_active']; ?> lowongan aktif</div>
+          </article>
+        </a>
       </section>
 
       <div class="admin-chart-grid">
