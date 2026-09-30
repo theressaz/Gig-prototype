@@ -29,6 +29,7 @@ $sidebarTabs = [
   <link rel="stylesheet" href="assets/employer.css" />
   <link rel="stylesheet" href="assets/admin.css" />
   <style>
+    a, a:hover, a:focus, a:active, a:visited, a * { text-decoration: none !important; }
     .flash { padding: 12px 14px; border-radius: 10px; margin-bottom: 16px; font-size: 0.88rem; font-weight: 600; }
     .flash.success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
     .flash.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }

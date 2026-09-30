@@ -364,5 +364,13 @@ function gig_admin_set_submission_status(string $vacancyId, string $status, stri
 /** @return list<array<string, mixed>> */
 function gig_admin_list_project_vacancies(?string $statusFilter = null): array
 {
-    return gig_vacancy_load_all($statusFilter);
+    $vacancies = gig_vacancy_load_all($statusFilter);
+    if ($vacancies === [] && $statusFilter === null) {
+        require_once __DIR__ . '/project-vacancies.php';
+        $vacancies = gig_project_vacancies_base();
+    }
+    return array_values(array_filter($vacancies, static function (array $v): bool {
+        return ($v['status'] ?? '') !== 'draft';
+    }));
 }
+

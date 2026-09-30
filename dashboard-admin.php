@@ -115,7 +115,7 @@ $nextPendingTab = $metrics['workers_pending'] > 0
 function admin_status_badge(string $status): string
 {
     $map = [
-        'pending' => ['Menunggu', '#fef3c7', '#92400e'],
+        'pending' => ['Menunggu Revisi', '#fef3c7', '#92400e'],
         'approved' => ['Disetujui', '#d1fae5', '#065f46'],
         'active' => ['Tayang', '#d1fae5', '#065f46'],
         'rejected' => ['Ditolak', '#fee2e2', '#991b1b'],
@@ -214,12 +214,12 @@ require __DIR__ . '/includes/admin-layout-start.php';
       <div class="admin-chart-grid">
         <?php
         admin_render_chart('Status Verifikasi Gig Worker', [
-            ['label' => 'Menunggu', 'value' => $metrics['workers_pending'], 'color' => '#f59e0b'],
+            ['label' => 'Menunggu Revisi', 'value' => $metrics['workers_pending'], 'color' => '#f59e0b'],
             ['label' => 'Disetujui', 'value' => $metrics['workers_approved'], 'color' => '#1e3a8a'],
             ['label' => 'Ditolak', 'value' => $metrics['workers_rejected'], 'color' => '#ef4444'],
         ]);
         admin_render_chart('Status Verifikasi Pemberi Kerja', [
-            ['label' => 'Menunggu', 'value' => $metrics['employers_pending'], 'color' => '#f59e0b'],
+            ['label' => 'Menunggu Revisi', 'value' => $metrics['employers_pending'], 'color' => '#f59e0b'],
             ['label' => 'Terverifikasi', 'value' => $metrics['employers_approved'], 'color' => '#1e3a8a'],
             ['label' => 'Ditolak', 'value' => $metrics['employers_rejected'], 'color' => '#ef4444'],
         ]);
@@ -228,7 +228,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
       <div class="admin-chart-grid">
         <?php
         admin_render_chart('Status Verifikasi Lowongan', [
-            ['label' => 'Menunggu', 'value' => $metrics['vacancies_review'], 'color' => '#f59e0b'],
+            ['label' => 'Menunggu Revisi', 'value' => $metrics['vacancies_review'], 'color' => '#f59e0b'],
             ['label' => 'Revisi', 'value' => $metrics['vacancies_revision'], 'color' => '#14b8a6'],
             ['label' => 'Disetujui', 'value' => $metrics['vacancies_active'], 'color' => '#1e3a8a'],
             ['label' => 'Ditolak', 'value' => $metrics['vacancies_rejected'], 'color' => '#ef4444'],
@@ -369,7 +369,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
 
       <h2 style="margin: 24px 0 12px; font-size: 1rem;">Riwayat / Status Lain</h2>
       <?php foreach ($vacancies as $job): ?>
-        <?php if (($job['status'] ?? '') === 'review') { continue; } ?>
+        <?php if (($job['status'] ?? '') === 'review' || ($job['status'] ?? '') === 'draft') { continue; } ?>
         <article class="review-card" style="opacity:0.92;">
           <h3><?php echo htmlspecialchars((string)$job['title'], ENT_QUOTES, 'UTF-8'); ?> <?php echo admin_status_badge((string)($job['status'] ?? '')); ?></h3>
           <div class="review-meta"><?php echo htmlspecialchars((string)$job['id'], ENT_QUOTES, 'UTF-8'); ?> · <?php echo htmlspecialchars((string)($job['employer'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>

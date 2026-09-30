@@ -1,11 +1,18 @@
+a, a:hover, a:focus, a:active, a:visited {
+  text-decoration: none !important;
+}
+
 .admin-kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
   margin-bottom: 20px;
 }
-.admin-kpi-link {
-  text-decoration: none;
+.admin-kpi-link,
+.admin-kpi-link:hover,
+.admin-kpi-link:focus,
+.admin-kpi-link * {
+  text-decoration: none !important;
   color: inherit;
 }
 .admin-kpi-link .admin-kpi-card {
