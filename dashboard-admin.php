@@ -161,7 +161,6 @@ require __DIR__ . '/includes/admin-layout-start.php';
 
     <div class="admin-page-head">
       <h1>Dashboard</h1>
-      <a href="karirhub-home.php" class="admin-btn-ghost">← Karirhub Home</a>
     </div>
 
     <?php if ($flash !== ''): ?>

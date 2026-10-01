@@ -127,8 +127,25 @@ ddl($pdo, 'CREATE gig_worker_registrations', "CREATE TABLE IF NOT EXISTS `gig_wo
     `skills` TEXT NOT NULL, `contact_choice` VARCHAR(20) NOT NULL DEFAULT 'siapkerja',
     `contact_email` VARCHAR(150) NOT NULL, `contact_wa` VARCHAR(50) NOT NULL,
     `previous_projects` LONGTEXT NOT NULL, `portfolio` LONGTEXT NOT NULL,
-    `video_url` VARCHAR(500) NOT NULL, `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    `video_url` VARCHAR(500) NOT NULL, `status` VARCHAR(20) NOT NULL DEFAULT 'approved',
+    `admin_note` TEXT NOT NULL, `reviewed_at` DATETIME NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+try { $pdo->exec("ALTER TABLE `gig_worker_registrations` ADD COLUMN `status` VARCHAR(20) NOT NULL DEFAULT 'approved' AFTER `video_url`"); } catch(Throwable $ignored) {}
+try { $pdo->exec("ALTER TABLE `gig_worker_registrations` ADD COLUMN `admin_note` TEXT NOT NULL AFTER `status`"); } catch(Throwable $ignored) {}
+try { $pdo->exec("ALTER TABLE `gig_worker_registrations` ADD COLUMN `reviewed_at` DATETIME NULL AFTER `admin_note`"); } catch(Throwable $ignored) {}
+
+ins($pdo, 'gig_worker_registrations',
+"INSERT IGNORE INTO `gig_worker_registrations`
+  (`username`,`bidang_keahlian`,`skills`,`contact_choice`,`contact_email`,`contact_wa`,`previous_projects`,`portfolio`,`video_url`,`status`,`admin_note`)
+VALUES
+  (:un, :bk, :sk, :cc, :ce, :cw, :pp, :pf, :vu, :st, :an)",
+[
+  [':un'=>'Theressa Zaratrusha',':bk'=>'Lead UI/UX Designer',':sk'=>'UI/UX Design, Figma, Design System, Prototyping',':cc'=>'siapkerja',':ce'=>'theressaz@pasker.id',':cw'=>'08117671208',':pp'=>'[]',':pf'=>'[]',':vu'=>'',':st'=>'approved',':an'=>'Seeded worker account'],
+  [':un'=>'theressaz@pasker.id',':bk'=>'Lead UI/UX Designer',':sk'=>'UI/UX Design, Figma, Design System, Prototyping',':cc'=>'siapkerja',':ce'=>'theressaz@pasker.id',':cw'=>'08117671208',':pp'=>'[]',':pf'=>'[]',':vu'=>'',':st'=>'approved',':an'=>'Seeded worker account'],
+  [':un'=>'tessa',':bk'=>'Lead UI/UX Designer',':sk'=>'UI/UX Design, Figma, Design System, Prototyping',':cc'=>'siapkerja',':ce'=>'theressaz@pasker.id',':cw'=>'08117671208',':pp'=>'[]',':pf'=>'[]',':vu'=>'',':st'=>'approved',':an'=>'Seeded worker account']
+]
+);
 
 /* ══════════════════════════════════════════════════════════════════════════════
    2. project_history

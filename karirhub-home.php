@@ -20,6 +20,10 @@ $isEmployerAccount = $isLoggedIn && !$isAdminAccount && (
     ($_SESSION['role'] ?? '') === 'employer'
     || in_array($siapkerjaEmail, ['employer@pasker.id', 'calon.employer@pasker.id'], true)
 );
+$isWorkerAccount = $isLoggedIn && !$isAdminAccount && !$isEmployerAccount && (
+    ($_SESSION['role'] ?? '') === 'worker'
+    || in_array($siapkerjaEmail, ['theressaz@pasker.id', 'tessa'], true)
+);
 $showDasborPengelola = $isEmployerAccount || $isAdminAccount;
 $profileEmail = (string)($_SESSION['siapkerja_email'] ?? '');
 if ($profileEmail === '' && $isLoggedIn) {
@@ -558,6 +562,10 @@ $testimonials = [
                 </article>
                 <?php endif; ?>
               </div>
+            <?php elseif ($isWorkerAccount): ?>
+              <a href="dashboard-worker.php" class="dasbor-trigger" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                Dasbor Gig Worker
+              </a>
             <?php endif; ?>
             <button type="button" class="nav-avatar-btn" id="profileTrigger" aria-expanded="false" aria-controls="profilePanel" aria-label="Menu profil">
               <img
@@ -577,10 +585,17 @@ $testimonials = [
                 </div>
               </div>
               <ul class="profile-menu">
+                <?php if ($isWorkerAccount || ($_SESSION['role'] ?? '') === 'worker'): ?>
+                  <li><a href="dashboard-worker.php" style="color: inherit; text-decoration: none; display: flex; align-items: center; width: 100%;"><span class="menu-ico">📊</span> Dasbor Gig Worker</a></li>
+                <?php endif; ?>
                 <li><span><span class="menu-ico">💼</span> Lamaran Kerja</span></li>
                 <li><span><span class="menu-ico">🎓</span> Pelatihan Saya</span></li>
                 <li><span><span class="menu-ico">🛡</span> Sertifikasi</span></li>
-                <li><span><span class="menu-ico">👤</span> Profil</span></li>
+                <?php if ($isWorkerAccount): ?>
+                  <li><a href="worker-profile.php?id=tessa" style="color: inherit; text-decoration: none; display: flex; align-items: center; width: 100%;"><span class="menu-ico">👤</span> Profil Gig Worker</a></li>
+                <?php else: ?>
+                  <li><span><span class="menu-ico">👤</span> Profil</span></li>
+                <?php endif; ?>
                 <li><span><span class="menu-ico">⚙</span> Pengaturan</span></li>
                 <li><span><span class="menu-ico">?</span> Bantuan</span></li>
                 <li><a class="logout" href="karirhub-logout.php"><span class="menu-ico">⎋</span> Keluar</a></li>

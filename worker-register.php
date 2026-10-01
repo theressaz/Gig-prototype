@@ -514,7 +514,7 @@ $backHref = $isEditMode
         <div>
           <h3 style="font-size:1.05rem; font-weight:800; color:#0f172a; margin-bottom:2px;"><?php echo htmlspecialchars($siapkerja['nama'], ENT_QUOTES, 'UTF-8'); ?></h3>
           <div style="font-size:0.82rem; color:#64748b;">
-            ID SIAPKerja: <strong><?php echo htmlspecialchars($siapkerja['siapkerja_id'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Status: <strong><?php echo htmlspecialchars($siapkerja['status_akun'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Domisili: <strong><?php echo htmlspecialchars($siapkerja['lokasi'], ENT_QUOTES, 'UTF-8'); ?></strong>
+            Domisili: <strong><?php echo htmlspecialchars($siapkerja['lokasi'], ENT_QUOTES, 'UTF-8'); ?></strong>
           </div>
         </div>
       </div>
