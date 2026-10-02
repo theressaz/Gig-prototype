@@ -163,19 +163,37 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
             Pengajuan perpanjangan Anda (<?php echo htmlspecialchars(gig_format_extension_label((int)$pendingExt['amount'], (string)$pendingExt['unit']), ENT_QUOTES, 'UTF-8'); ?>) menunggu konfirmasi pemberi kerja.
           </div>
         <?php elseif (!$isExpired): ?>
-          <form method="post" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <input type="hidden" name="ext_action" value="request_extension">
-            <input type="hidden" name="contract_id" value="<?php echo htmlspecialchars((string)$proj['contract_id'], ENT_QUOTES, 'UTF-8'); ?>">
-            <span style="font-size:0.78rem;color:#475569;font-weight:700;">Ajukan perpanjangan:</span>
-            <input type="number" name="ext_amount" min="1" max="12" value="1" style="width:70px;padding:6px 8px;border:1px solid #cbd5e1;border-radius:8px;">
-            <select name="ext_unit" style="padding:6px 8px;border:1px solid #cbd5e1;border-radius:8px;">
-              <option value="day">Hari</option>
-              <option value="week">Minggu</option>
-              <option value="month">Bulan</option>
-            </select>
-            <input type="text" name="ext_reason" placeholder="Alasan singkat (opsional)" style="min-width:220px;padding:6px 8px;border:1px solid #cbd5e1;border-radius:8px;">
-            <button class="btn-action-sm" type="submit" style="background:#2563eb;color:#fff;border:none;">Ajukan</button>
-          </form>
+          <?php $extModalId = 'ext-modal-worker-' . (int)$idx; ?>
+          <button class="btn-action-sm" type="button" onclick="openExtensionModal('<?php echo $extModalId; ?>')" style="background:#2563eb;color:#fff;border:none;">
+            Ajukan Perpanjangan
+          </button>
+          <div id="<?php echo $extModalId; ?>" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(15,23,42,0.45);padding:16px;">
+            <div style="max-width:560px;margin:7vh auto 0;background:#fff;border-radius:14px;box-shadow:0 20px 50px rgba(15,23,42,0.24);overflow:hidden;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid #e2e8f0;">
+                <strong style="font-size:0.95rem;color:#0f172a;">Ajukan Perpanjangan Durasi</strong>
+                <button type="button" onclick="closeExtensionModal('<?php echo $extModalId; ?>')" style="border:none;background:#f1f5f9;color:#334155;border-radius:8px;padding:4px 8px;cursor:pointer;">Tutup</button>
+              </div>
+              <form method="post" style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+                <input type="hidden" name="ext_action" value="request_extension">
+                <input type="hidden" name="contract_id" value="<?php echo htmlspecialchars((string)$proj['contract_id'], ENT_QUOTES, 'UTF-8'); ?>">
+                <label style="font-size:0.8rem;font-weight:700;color:#334155;">Jumlah Perpanjangan</label>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                  <input type="number" name="ext_amount" min="1" max="12" value="1" required style="width:92px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;">
+                  <select name="ext_unit" style="padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;">
+                    <option value="day">Hari</option>
+                    <option value="week">Minggu</option>
+                    <option value="month">Bulan</option>
+                  </select>
+                </div>
+                <label style="font-size:0.8rem;font-weight:700;color:#334155;">Alasan Perpanjangan</label>
+                <textarea name="ext_reason" required rows="3" placeholder="Jelaskan alasan kenapa butuh tambahan durasi" style="resize:vertical;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;"></textarea>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px;">
+                  <button type="button" class="btn-outline-blue" onclick="closeExtensionModal('<?php echo $extModalId; ?>')">Batal</button>
+                  <button class="btn-action-sm" type="submit" style="background:#2563eb;color:#fff;border:none;">Kirim Pengajuan</button>
+                </div>
+              </form>
+            </div>
+          </div>
         <?php endif; ?>
       </div>
     </div>
@@ -183,6 +201,24 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
 </div>
 
 <script>
+function openExtensionModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
+  modal.style.display = 'block';
+}
+
+function closeExtensionModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
+  modal.style.display = 'none';
+}
+
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.id && e.target.id.indexOf('ext-modal-worker-') === 0) {
+    e.target.style.display = 'none';
+  }
+});
+
 function copyEmployerContact(name, phone, email) {
   alert("Kontak Resmi Pemberi Kerja (" + name + "):\n\nWhatsApp / Telepon: " + phone + "\nEmail: " + email + "\n\nKontak terbuka karena kesepakatan proyek telah aktif.");
 }

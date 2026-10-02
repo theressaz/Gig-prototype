@@ -187,18 +187,34 @@ require __DIR__ . '/includes/employer-layout-start.php';
                 </div>
               <?php endif; ?>
             <?php else: ?>
-              <form method="POST" action="" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-                <input type="hidden" name="ext_action" value="request_extension">
-                <input type="hidden" name="contract_id" value="<?php echo htmlspecialchars((string)$p1['contract_id'], ENT_QUOTES, 'UTF-8'); ?>">
-                <input type="number" min="1" name="ext_amount" required style="width:78px;padding:7px 8px;border:1px solid #cbd5e1;border-radius:8px;" placeholder="Jumlah">
-                <select name="ext_unit" style="padding:7px 8px;border:1px solid #cbd5e1;border-radius:8px;">
-                  <option value="day">Hari</option>
-                  <option value="week">Minggu</option>
-                  <option value="month">Bulan</option>
-                </select>
-                <input type="text" name="ext_reason" required style="flex:1;min-width:170px;padding:7px 8px;border:1px solid #cbd5e1;border-radius:8px;" placeholder="Alasan pengajuan perpanjangan">
-                <button type="submit" class="btn-action-sm">Ajukan Perpanjangan</button>
-              </form>
+              <button type="button" class="btn-action-sm" onclick="openExtensionModal('ext-modal-employer-p1')">Ajukan Perpanjangan</button>
+              <div id="ext-modal-employer-p1" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(15,23,42,0.45);padding:16px;">
+                <div style="max-width:560px;margin:7vh auto 0;background:#fff;border-radius:14px;box-shadow:0 20px 50px rgba(15,23,42,0.24);overflow:hidden;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid #e2e8f0;">
+                    <strong style="font-size:0.95rem;color:#0f172a;">Ajukan Perpanjangan Durasi</strong>
+                    <button type="button" onclick="closeExtensionModal('ext-modal-employer-p1')" style="border:none;background:#f1f5f9;color:#334155;border-radius:8px;padding:4px 8px;cursor:pointer;">Tutup</button>
+                  </div>
+                  <form method="POST" action="" style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+                    <input type="hidden" name="ext_action" value="request_extension">
+                    <input type="hidden" name="contract_id" value="<?php echo htmlspecialchars((string)$p1['contract_id'], ENT_QUOTES, 'UTF-8'); ?>">
+                    <label style="font-size:0.8rem;font-weight:700;color:#334155;">Jumlah Perpanjangan</label>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                      <input type="number" min="1" name="ext_amount" value="1" required style="width:92px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;">
+                      <select name="ext_unit" style="padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;">
+                        <option value="day">Hari</option>
+                        <option value="week">Minggu</option>
+                        <option value="month">Bulan</option>
+                      </select>
+                    </div>
+                    <label style="font-size:0.8rem;font-weight:700;color:#334155;">Alasan Perpanjangan</label>
+                    <textarea name="ext_reason" required rows="3" placeholder="Jelaskan alasan kenapa butuh tambahan durasi" style="resize:vertical;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;"></textarea>
+                    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px;">
+                      <button type="button" class="btn-outline-blue" onclick="closeExtensionModal('ext-modal-employer-p1')">Batal</button>
+                      <button type="submit" class="btn-action-sm">Kirim Pengajuan</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
             <?php endif; ?>
           </div>
 
@@ -328,18 +344,34 @@ require __DIR__ . '/includes/employer-layout-start.php';
                 </div>
               <?php endif; ?>
             <?php else: ?>
-              <form method="POST" action="" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-                <input type="hidden" name="ext_action" value="request_extension">
-                <input type="hidden" name="contract_id" value="<?php echo htmlspecialchars((string)$p2['contract_id'], ENT_QUOTES, 'UTF-8'); ?>">
-                <input type="number" min="1" name="ext_amount" required style="width:78px;padding:7px 8px;border:1px solid #cbd5e1;border-radius:8px;" placeholder="Jumlah">
-                <select name="ext_unit" style="padding:7px 8px;border:1px solid #cbd5e1;border-radius:8px;">
-                  <option value="day">Hari</option>
-                  <option value="week">Minggu</option>
-                  <option value="month">Bulan</option>
-                </select>
-                <input type="text" name="ext_reason" required style="flex:1;min-width:170px;padding:7px 8px;border:1px solid #cbd5e1;border-radius:8px;" placeholder="Alasan pengajuan perpanjangan">
-                <button type="submit" class="btn-action-sm">Ajukan Perpanjangan</button>
-              </form>
+              <button type="button" class="btn-action-sm" onclick="openExtensionModal('ext-modal-employer-p2')">Ajukan Perpanjangan</button>
+              <div id="ext-modal-employer-p2" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(15,23,42,0.45);padding:16px;">
+                <div style="max-width:560px;margin:7vh auto 0;background:#fff;border-radius:14px;box-shadow:0 20px 50px rgba(15,23,42,0.24);overflow:hidden;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid #e2e8f0;">
+                    <strong style="font-size:0.95rem;color:#0f172a;">Ajukan Perpanjangan Durasi</strong>
+                    <button type="button" onclick="closeExtensionModal('ext-modal-employer-p2')" style="border:none;background:#f1f5f9;color:#334155;border-radius:8px;padding:4px 8px;cursor:pointer;">Tutup</button>
+                  </div>
+                  <form method="POST" action="" style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+                    <input type="hidden" name="ext_action" value="request_extension">
+                    <input type="hidden" name="contract_id" value="<?php echo htmlspecialchars((string)$p2['contract_id'], ENT_QUOTES, 'UTF-8'); ?>">
+                    <label style="font-size:0.8rem;font-weight:700;color:#334155;">Jumlah Perpanjangan</label>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                      <input type="number" min="1" name="ext_amount" value="1" required style="width:92px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;">
+                      <select name="ext_unit" style="padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;">
+                        <option value="day">Hari</option>
+                        <option value="week">Minggu</option>
+                        <option value="month">Bulan</option>
+                      </select>
+                    </div>
+                    <label style="font-size:0.8rem;font-weight:700;color:#334155;">Alasan Perpanjangan</label>
+                    <textarea name="ext_reason" required rows="3" placeholder="Jelaskan alasan kenapa butuh tambahan durasi" style="resize:vertical;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;"></textarea>
+                    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px;">
+                      <button type="button" class="btn-outline-blue" onclick="closeExtensionModal('ext-modal-employer-p2')">Batal</button>
+                      <button type="submit" class="btn-action-sm">Kirim Pengajuan</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
             <?php endif; ?>
           </div>
 
@@ -376,6 +408,24 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
     <!-- Countdown Timer Script -->
     <script>
+      function openExtensionModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        modal.style.display = 'block';
+      }
+
+      function closeExtensionModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        modal.style.display = 'none';
+      }
+
+      document.addEventListener('click', function(e) {
+        if (e.target && e.target.id && e.target.id.indexOf('ext-modal-employer-') === 0) {
+          e.target.style.display = 'none';
+        }
+      });
+
       (function startCountdowns() {
         function pad(n) { return n < 10 ? '0' + n : String(n); }
         function tick() {
