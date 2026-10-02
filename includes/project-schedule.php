@@ -50,6 +50,169 @@ function gig_countdown_parts(DateTimeInterface $deadline, ?DateTimeInterface $no
     ];
 }
 
+function gig_extension_ensure_table(?PDO $pdo): void
+{
+    if (!$pdo) {
+        return;
+    }
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS `project_extension_requests` (
+            `id`               INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `contract_id`      VARCHAR(50) NOT NULL,
+            `requester_role`   VARCHAR(20) NOT NULL,
+            `requester_id`     VARCHAR(100) NOT NULL DEFAULT '',
+            `amount`           INT NOT NULL,
+            `unit`             VARCHAR(10) NOT NULL,
+            `days_delta`       INT NOT NULL,
+            `reason_note`      VARCHAR(500) NOT NULL DEFAULT '',
+            `status`           VARCHAR(20) NOT NULL DEFAULT 'pending',
+            `decision_by_role` VARCHAR(20) NOT NULL DEFAULT '',
+            `created_at`       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `reviewed_at`      DATETIME NULL,
+            KEY `idx_ext_contract` (`contract_id`),
+            KEY `idx_ext_status` (`status`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+}
+
+function gig_extension_unit_to_days(int $amount, string $unit): int
+{
+    $u = strtolower(trim($unit));
+    $amount = max(1, $amount);
+    if ($u === 'week') return $amount * 7;
+    if ($u === 'month') return $amount * 30;
+    return $amount;
+}
+
+/** @return list<array<string,mixed>> */
+function gig_project_extension_requests(string $contractId): array
+{
+    $pdo = function_exists('gig_db') ? gig_db() : null;
+    if (!$pdo) {
+        return [];
+    }
+    gig_extension_ensure_table($pdo);
+    $stmt = $pdo->prepare(
+        "SELECT * FROM `project_extension_requests`
+         WHERE `contract_id` = :cid
+         ORDER BY `id` DESC"
+    );
+    $stmt->execute([':cid' => $contractId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+}
+
+function gig_project_pending_extension(string $contractId): ?array
+{
+    foreach (gig_project_extension_requests($contractId) as $row) {
+        if (($row['status'] ?? '') === 'pending') {
+            return $row;
+        }
+    }
+    return null;
+}
+
+function gig_project_total_approved_extension_days(string $contractId): int
+{
+    $days = 0;
+    foreach (gig_project_extension_requests($contractId) as $row) {
+        if (($row['status'] ?? '') === 'approved') {
+            $days += (int)($row['days_delta'] ?? 0);
+        }
+    }
+    return max(0, $days);
+}
+
+function gig_request_project_extension(string $contractId, string $requesterRole, string $requesterId, int $amount, string $unit, string $reason = ''): array
+{
+    $role = strtolower(trim($requesterRole));
+    if (!in_array($role, ['worker', 'employer'], true)) {
+        return ['ok' => false, 'error' => 'Peran pengaju tidak valid.'];
+    }
+    $unit = strtolower(trim($unit));
+    if (!in_array($unit, ['day', 'week', 'month'], true)) {
+        return ['ok' => false, 'error' => 'Satuan harus hari/minggu/bulan.'];
+    }
+    if ($amount < 1 || $amount > 12) {
+        return ['ok' => false, 'error' => 'Jumlah perpanjangan harus 1-12.'];
+    }
+    if (gig_project_pending_extension($contractId)) {
+        return ['ok' => false, 'error' => 'Masih ada pengajuan perpanjangan yang menunggu konfirmasi.'];
+    }
+
+    $pdo = function_exists('gig_db') ? gig_db() : null;
+    if (!$pdo) {
+        return ['ok' => false, 'error' => 'Database tidak tersedia.'];
+    }
+    gig_extension_ensure_table($pdo);
+    $days = gig_extension_unit_to_days($amount, $unit);
+    try {
+        $stmt = $pdo->prepare(
+            "INSERT INTO `project_extension_requests`
+             (`contract_id`,`requester_role`,`requester_id`,`amount`,`unit`,`days_delta`,`reason_note`,`status`,`decision_by_role`)
+             VALUES (:cid,:role,:rid,:amt,:unit,:days,:reason,'pending','')"
+        );
+        $stmt->execute([
+            ':cid' => $contractId,
+            ':role' => $role,
+            ':rid' => $requesterId,
+            ':amt' => $amount,
+            ':unit' => $unit,
+            ':days' => $days,
+            ':reason' => $reason,
+        ]);
+        return ['ok' => true];
+    } catch (Throwable $e) {
+        return ['ok' => false, 'error' => 'Gagal menyimpan pengajuan perpanjangan.'];
+    }
+}
+
+function gig_decide_project_extension(int $requestId, string $deciderRole, bool $approve): array
+{
+    $role = strtolower(trim($deciderRole));
+    if (!in_array($role, ['worker', 'employer'], true)) {
+        return ['ok' => false, 'error' => 'Peran konfirmasi tidak valid.'];
+    }
+    $pdo = function_exists('gig_db') ? gig_db() : null;
+    if (!$pdo) {
+        return ['ok' => false, 'error' => 'Database tidak tersedia.'];
+    }
+    gig_extension_ensure_table($pdo);
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM `project_extension_requests` WHERE `id` = :id LIMIT 1");
+        $stmt->execute([':id' => $requestId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) {
+            return ['ok' => false, 'error' => 'Pengajuan tidak ditemukan.'];
+        }
+        if (($row['status'] ?? '') !== 'pending') {
+            return ['ok' => false, 'error' => 'Pengajuan sudah diproses.'];
+        }
+        if (($row['requester_role'] ?? '') === $role) {
+            return ['ok' => false, 'error' => 'Pengaju tidak bisa memproses pengajuan sendiri.'];
+        }
+        $up = $pdo->prepare(
+            "UPDATE `project_extension_requests`
+             SET `status` = :st, `decision_by_role` = :role, `reviewed_at` = NOW()
+             WHERE `id` = :id"
+        );
+        $up->execute([
+            ':st' => $approve ? 'approved' : 'rejected',
+            ':role' => $role,
+            ':id' => $requestId,
+        ]);
+        return ['ok' => true];
+    } catch (Throwable $e) {
+        return ['ok' => false, 'error' => 'Gagal memproses pengajuan.'];
+    }
+}
+
+function gig_format_extension_label(int $amount, string $unit): string
+{
+    if ($unit === 'week') return $amount . ' minggu';
+    if ($unit === 'month') return $amount . ' bulan';
+    return $amount . ' hari';
+}
+
 /**
  * Canonical active demo contracts.
  * Project tenggat = hire date + agreed duration (not the vacancy apply deadline).
@@ -77,7 +240,7 @@ function gig_demo_active_projects(): array
     $cdMob = gig_countdown_parts($endMob);
     $cdAudit = gig_countdown_parts($endAudit);
 
-    return [
+    $projects = [
         [
             'contract_id' => 'CTR-GIG-2026-0811',
             'id' => 'GIG-2026-09-001',
@@ -195,6 +358,37 @@ function gig_demo_active_projects(): array
             'countdown_id' => 'countdown-proj-api',
         ],
     ];
+
+    $completionMap = gig_worker_project_completions_map();
+    foreach ($projects as &$proj) {
+        $contractId = (string)$proj['contract_id'];
+        $baseDeadline = new DateTimeImmutable((string)$proj['deadline_iso']);
+        $approvedDays = gig_project_total_approved_extension_days($contractId);
+        $pendingReq = gig_project_pending_extension($contractId);
+        $finalDeadline = $baseDeadline->modify('+' . $approvedDays . ' days');
+        $cd = gig_countdown_parts($finalDeadline);
+
+        $proj['base_deadline_iso'] = $baseDeadline->format(DateTimeInterface::ATOM);
+        $proj['approved_extension_days'] = $approvedDays;
+        $proj['pending_extension'] = $pendingReq;
+        $proj['deadline_iso'] = $finalDeadline->format(DateTimeInterface::ATOM);
+        $proj['deadline'] = gig_format_id_date($finalDeadline);
+        $proj['days_left'] = $cd['days'];
+        $proj['hours_left'] = $cd['hours'];
+        $proj['mins_left'] = $cd['mins'];
+        $proj['secs_left'] = $cd['secs'];
+        $proj['is_expired'] = (bool)$cd['expired'];
+
+        $isCompleted = isset($completionMap[$contractId]);
+        if (!$isCompleted && $proj['is_expired']) {
+            $proj['status_label'] = 'Tidak Selesai';
+            $proj['status_badge_class'] = 'badge-status cancelled';
+            $proj['deliverable_note'] = 'Deadline terlewati dan proyek belum diselesaikan.';
+        }
+    }
+    unset($proj);
+
+    return $projects;
 }
 
 function gig_deadline_notice_message(string $vacancyId): string
