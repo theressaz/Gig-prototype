@@ -91,7 +91,7 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
       </div>
 
       <div class="active-proj-body">
-        <div class="freelancer-profile-box">
+        <div class="freelancer-profile-box" style="flex:1;min-width:200px;">
           <div class="fl-avatar" style="background:#1d4ed8;color:#fff;font-weight:800;font-size:1.1rem;">🏢</div>
           <div>
             <div class="fl-info-name">
@@ -104,27 +104,27 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
           </div>
         </div>
 
-        <div class="countdown-widget-box" style="background:#f8fafc;border:1px solid #e2e8f0;padding:12px 16px;border-radius:10px;">
-          <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:8px;">
-            <span style="font-size:0.78rem;font-weight:700;color:var(--text-dark);">Countdown Durasi Proyek</span>
-            <span style="font-size:0.72rem;color:#475569;font-weight:600;">Tenggat: <?php echo htmlspecialchars((string)$proj['deadline'], ENT_QUOTES, 'UTF-8'); ?></span>
+        <div class="countdown-widget-box" style="background:#ffffff;border:1px solid #cbd5e1;padding:16px 20px;border-radius:12px;flex:1;max-width:460px;width:100%;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+          <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:12px;">
+            <span style="font-size:0.85rem;font-weight:700;color:var(--text-dark);">Countdown Durasi Proyek</span>
+            <span style="font-size:0.75rem;color:#475569;font-weight:600;">Tenggat: <?php echo htmlspecialchars((string)$proj['deadline'], ENT_QUOTES, 'UTF-8'); ?></span>
           </div>
-          <div style="display:flex;gap:8px;text-align:center;" class="js-project-countdown" data-deadline="<?php echo htmlspecialchars((string)$proj['deadline_iso'], ENT_QUOTES, 'UTF-8'); ?>" id="countdown-worker-<?php echo (int)$idx; ?>">
-            <div style="background:#fff;border:1px solid #cbd5e1;padding:4px 8px;border-radius:6px;min-width:44px;">
-              <span class="c-days" style="font-size:1.1rem;font-weight:800;color:#1e293b;display:block;"><?php echo (int)$proj['days_left']; ?></span>
-              <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Hari</span>
+          <div style="display:flex;gap:10px;text-align:center;" class="js-project-countdown" data-deadline="<?php echo htmlspecialchars((string)$proj['deadline_iso'], ENT_QUOTES, 'UTF-8'); ?>" id="countdown-worker-<?php echo (int)$idx; ?>">
+            <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:8px 6px;border-radius:8px;flex:1;">
+              <span class="c-days" style="font-size:1.25rem;font-weight:800;color:#1e293b;display:block;"><?php echo (int)$proj['days_left']; ?></span>
+              <span style="font-size:0.68rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Hari</span>
             </div>
-            <div style="background:#fff;border:1px solid #cbd5e1;padding:4px 8px;border-radius:6px;min-width:44px;">
-              <span class="c-hours" style="font-size:1.1rem;font-weight:800;color:#1e293b;display:block;"><?php echo sprintf('%02d', (int)$proj['hours_left']); ?></span>
-              <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Jam</span>
+            <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:8px 6px;border-radius:8px;flex:1;">
+              <span class="c-hours" style="font-size:1.25rem;font-weight:800;color:#1e293b;display:block;"><?php echo sprintf('%02d', (int)$proj['hours_left']); ?></span>
+              <span style="font-size:0.68rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Jam</span>
             </div>
-            <div style="background:#fff;border:1px solid #cbd5e1;padding:4px 8px;border-radius:6px;min-width:44px;">
-              <span class="c-mins" style="font-size:1.1rem;font-weight:800;color:#1e293b;display:block;"><?php echo sprintf('%02d', (int)$proj['mins_left']); ?></span>
-              <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Menit</span>
+            <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:8px 6px;border-radius:8px;flex:1;">
+              <span class="c-mins" style="font-size:1.25rem;font-weight:800;color:#1e293b;display:block;"><?php echo sprintf('%02d', (int)$proj['mins_left']); ?></span>
+              <span style="font-size:0.68rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Menit</span>
             </div>
-            <div style="background:#fff;border:1px solid #cbd5e1;padding:4px 8px;border-radius:6px;min-width:44px;">
-              <span class="c-secs" style="font-size:1.1rem;font-weight:800;color:#2563eb;display:block;"><?php echo sprintf('%02d', (int)$proj['secs_left']); ?></span>
-              <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Detik</span>
+            <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:8px 6px;border-radius:8px;flex:1;">
+              <span class="c-secs" style="font-size:1.25rem;font-weight:800;color:#2563eb;display:block;"><?php echo sprintf('%02d', (int)$proj['secs_left']); ?></span>
+              <span style="font-size:0.68rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Detik</span>
             </div>
           </div>
         </div>
