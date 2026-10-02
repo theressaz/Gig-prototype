@@ -66,6 +66,8 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
       $pendingExt = is_array($proj['pending_extension'] ?? null) ? $proj['pending_extension'] : null;
       $pendingBy = (string)($pendingExt['requester_role'] ?? '');
       $isExpired = !empty($proj['is_expired']);
+      $canRequestExt = !$isExpired && !$pendingExt;
+      $extModalId = 'ext-modal-worker-' . (int)$idx;
     ?>
     <div class="active-project-card" style="margin-bottom:20px;">
       <div class="active-proj-header">
@@ -92,9 +94,13 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
         <div class="freelancer-profile-box">
           <div class="fl-avatar" style="background:#1d4ed8;color:#fff;font-weight:800;font-size:1.1rem;">🏢</div>
           <div>
-            <div class="fl-info-name"><?php echo htmlspecialchars((string)$proj['employer'], ENT_QUOTES, 'UTF-8'); ?> <span class="fl-rating-badge">★ 4.9</span></div>
+            <div class="fl-info-name">
+              <a href="employer-profile.php?name=<?php echo urlencode((string)$proj['employer']); ?>" style="color:inherit;text-decoration:none;">
+                <?php echo htmlspecialchars((string)$proj['employer'], ENT_QUOTES, 'UTF-8'); ?>
+              </a>
+              <span class="fl-rating-badge">★ 4.9</span>
+            </div>
             <div class="fl-info-sub"><?php echo htmlspecialchars((string)$proj['employer_category'], ENT_QUOTES, 'UTF-8'); ?></div>
-            <div style="font-size:0.72rem;color:#10b981;font-weight:700;margin-top:2px;">&check; Kesepakatan disetujui &bull; kontak terbuka</div>
           </div>
         </div>
 
@@ -127,10 +133,23 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
       <div class="active-proj-actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
         <span style="font-size:0.8rem;color:var(--text-muted);"><?php echo htmlspecialchars((string)$proj['deliverable_note'], ENT_QUOTES, 'UTF-8'); ?></span>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <button class="btn-action-sm" type="button" onclick="copyEmployerContact('<?php echo htmlspecialchars(addslashes((string)$proj['employer']), ENT_QUOTES, 'UTF-8'); ?>','<?php echo htmlspecialchars((string)$proj['employer_phone'], ENT_QUOTES, 'UTF-8'); ?>','<?php echo htmlspecialchars((string)$proj['employer_email'], ENT_QUOTES, 'UTF-8'); ?>')">
+          <button class="btn-action-sm" type="button"
+            data-contact-role="Pemberi Kerja"
+            data-contact-name="<?php echo htmlspecialchars((string)$proj['employer'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-contact-phone="<?php echo htmlspecialchars((string)$proj['employer_phone'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-contact-email="<?php echo htmlspecialchars((string)$proj['employer_email'], ENT_QUOTES, 'UTF-8'); ?>"
+            onclick="openContactModal(this)">
             Kontak Pemberi Kerja
           </button>
-          <a class="btn-outline-blue" href="employer-profile.php?name=<?php echo urlencode((string)$proj['employer']); ?>">Profil Pemberi Kerja</a>
+          <button class="btn-outline-blue" type="button"
+            <?php if ($canRequestExt): ?>
+              onclick="openExtensionModal('<?php echo $extModalId; ?>')"
+            <?php else: ?>
+              disabled style="background:#e5e7eb;color:#6b7280;border-color:#d1d5db;cursor:not-allowed;"
+            <?php endif; ?>
+          >
+            Ajukan Perpanjangan
+          </button>
           <a class="btn-create-post" href="employer-rating-worker.php?contract=<?php echo urlencode((string)$proj['contract_id']); ?>&from=worker" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 10px rgba(217,119,6,0.35);">
             ★ Selesaikan &amp; Beri Rating
           </a>
@@ -163,10 +182,10 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
             Pengajuan perpanjangan Anda (<?php echo htmlspecialchars(gig_format_extension_label((int)$pendingExt['amount'], (string)$pendingExt['unit']), ENT_QUOTES, 'UTF-8'); ?>) menunggu konfirmasi pemberi kerja.
           </div>
         <?php elseif (!$isExpired): ?>
-          <?php $extModalId = 'ext-modal-worker-' . (int)$idx; ?>
-          <button class="btn-action-sm" type="button" onclick="openExtensionModal('<?php echo $extModalId; ?>')" style="background:#2563eb;color:#fff;border:none;">
-            Ajukan Perpanjangan
-          </button>
+          <span style="font-size:0.76rem;color:#64748b;">Gunakan tombol <strong>Ajukan Perpanjangan</strong> di atas untuk membuat pengajuan.</span>
+        <?php endif; ?>
+
+        <?php if ($canRequestExt): ?>
           <div id="<?php echo $extModalId; ?>" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(15,23,42,0.45);padding:16px;">
             <div style="max-width:560px;margin:7vh auto 0;background:#fff;border-radius:14px;box-shadow:0 20px 50px rgba(15,23,42,0.24);overflow:hidden;">
               <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid #e2e8f0;">
@@ -219,8 +238,29 @@ document.addEventListener('click', function(e) {
   }
 });
 
-function copyEmployerContact(name, phone, email) {
-  alert("Kontak Resmi Pemberi Kerja (" + name + "):\n\nWhatsApp / Telepon: " + phone + "\nEmail: " + email + "\n\nKontak terbuka karena kesepakatan proyek telah aktif.");
+function openContactModal(button) {
+  if (!button) return;
+  const role = button.getAttribute('data-contact-role') || 'Kontak';
+  const name = button.getAttribute('data-contact-name') || '-';
+  const phone = button.getAttribute('data-contact-phone') || '-';
+  const email = button.getAttribute('data-contact-email') || '-';
+  const modal = document.getElementById('contact-info-modal');
+  if (!modal) return;
+  const title = modal.querySelector('[data-contact-title]');
+  const nameEl = modal.querySelector('[data-contact-name]');
+  const phoneEl = modal.querySelector('[data-contact-phone]');
+  const emailEl = modal.querySelector('[data-contact-email]');
+  if (title) title.textContent = 'Info Kontak ' + role;
+  if (nameEl) nameEl.textContent = name;
+  if (phoneEl) phoneEl.textContent = phone;
+  if (emailEl) emailEl.textContent = email;
+  modal.style.display = 'block';
+}
+
+function closeContactModal() {
+  const modal = document.getElementById('contact-info-modal');
+  if (!modal) return;
+  modal.style.display = 'none';
 }
 
 (function startWorkerCountdowns() {
@@ -252,5 +292,19 @@ function copyEmployerContact(name, phone, email) {
   setInterval(tick, 1000);
 })();
 </script>
+
+<div id="contact-info-modal" style="display:none;position:fixed;inset:0;z-index:1250;background:rgba(15,23,42,0.45);padding:16px;" onclick="if(event.target===this){closeContactModal();}">
+  <div style="max-width:500px;margin:10vh auto 0;background:#fff;border-radius:14px;box-shadow:0 20px 50px rgba(15,23,42,0.24);overflow:hidden;">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid #e2e8f0;">
+      <strong data-contact-title style="font-size:0.95rem;color:#0f172a;">Info Kontak</strong>
+      <button type="button" onclick="closeContactModal()" style="border:none;background:#f1f5f9;color:#334155;border-radius:8px;padding:4px 8px;cursor:pointer;">Tutup</button>
+    </div>
+    <div style="padding:14px;display:grid;gap:8px;font-size:0.86rem;color:#1e293b;">
+      <div><strong>Nama:</strong> <span data-contact-name>-</span></div>
+      <div><strong>Telepon/WhatsApp:</strong> <span data-contact-phone>-</span></div>
+      <div><strong>Email:</strong> <span data-contact-email>-</span></div>
+    </div>
+  </div>
+</div>
 
 <?php require __DIR__ . '/includes/worker-layout-end.php'; ?>

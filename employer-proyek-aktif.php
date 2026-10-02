@@ -122,7 +122,6 @@ require __DIR__ . '/includes/employer-layout-start.php';
                 <span class="fl-rating-badge">★ 5</span>
               </div>
               <div class="fl-info-sub">Lead UI/UX Designer</div>
-              <div style="font-size:0.72rem;color:#10b981;font-weight:700;margin-top:2px;">Kesepakatan disetujui · kontak terbuka</div>
             </div>
           </div>
 
@@ -231,7 +230,12 @@ require __DIR__ . '/includes/employer-layout-start.php';
             <?php endif; ?>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <button class="btn-action-sm" type="button" onclick="copyContact('Theressa Zaratrusha','0812-3456-7890','theressaz@pasker.id')">Kontak Freelancer</button>
+            <button class="btn-action-sm" type="button"
+              data-contact-role="Gig Worker"
+              data-contact-name="Theressa Zaratrusha"
+              data-contact-phone="0812-3456-7890"
+              data-contact-email="theressaz@pasker.id"
+              onclick="openContactModal(this)">Kontak Freelancer</button>
             <a class="btn-outline-blue" href="worker-profile.php?active=1&id=tessa">Lihat Profil</a>
             
             <?php if ($completedP1): ?>
@@ -279,7 +283,6 @@ require __DIR__ . '/includes/employer-layout-start.php';
                 <span class="fl-rating-badge">★ 5</span>
               </div>
               <div class="fl-info-sub">Backend API Developer</div>
-              <div style="font-size:0.72rem;color:#10b981;font-weight:700;margin-top:2px;">Kesepakatan disetujui · kontak terbuka</div>
             </div>
           </div>
 
@@ -388,7 +391,12 @@ require __DIR__ . '/includes/employer-layout-start.php';
             <?php endif; ?>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <button class="btn-action-sm" type="button" onclick="copyContact('Rian Ardiansyah','0813-8899-7711','rian.dev@email.com')">Kontak Freelancer</button>
+            <button class="btn-action-sm" type="button"
+              data-contact-role="Gig Worker"
+              data-contact-name="Rian Ardiansyah"
+              data-contact-phone="0813-8899-7711"
+              data-contact-email="rian.dev@email.com"
+              onclick="openContactModal(this)">Kontak Freelancer</button>
             <a class="btn-outline-blue" href="worker-profile.php?active=1&id=rian">Lihat Profil</a>
             
             <?php if ($completedP2): ?>
@@ -406,8 +414,47 @@ require __DIR__ . '/includes/employer-layout-start.php';
       <?php endif; ?>
     </div>
 
+<div id="contact-info-modal" style="display:none;position:fixed;inset:0;z-index:1250;background:rgba(15,23,42,0.45);padding:16px;" onclick="if(event.target===this){closeContactModal();}">
+  <div style="max-width:500px;margin:10vh auto 0;background:#fff;border-radius:14px;box-shadow:0 20px 50px rgba(15,23,42,0.24);overflow:hidden;">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid #e2e8f0;">
+      <strong data-contact-title style="font-size:0.95rem;color:#0f172a;">Info Kontak</strong>
+      <button type="button" onclick="closeContactModal()" style="border:none;background:#f1f5f9;color:#334155;border-radius:8px;padding:4px 8px;cursor:pointer;">Tutup</button>
+    </div>
+    <div style="padding:14px;display:grid;gap:8px;font-size:0.86rem;color:#1e293b;">
+      <div><strong>Nama:</strong> <span data-contact-name>-</span></div>
+      <div><strong>Telepon/WhatsApp:</strong> <span data-contact-phone>-</span></div>
+      <div><strong>Email:</strong> <span data-contact-email>-</span></div>
+    </div>
+  </div>
+</div>
+
     <!-- Countdown Timer Script -->
     <script>
+      function openContactModal(button) {
+        if (!button) return;
+        const role = button.getAttribute('data-contact-role') || 'Kontak';
+        const name = button.getAttribute('data-contact-name') || '-';
+        const phone = button.getAttribute('data-contact-phone') || '-';
+        const email = button.getAttribute('data-contact-email') || '-';
+        const modal = document.getElementById('contact-info-modal');
+        if (!modal) return;
+        const title = modal.querySelector('[data-contact-title]');
+        const nameEl = modal.querySelector('[data-contact-name]');
+        const phoneEl = modal.querySelector('[data-contact-phone]');
+        const emailEl = modal.querySelector('[data-contact-email]');
+        if (title) title.textContent = 'Info Kontak ' + role;
+        if (nameEl) nameEl.textContent = name;
+        if (phoneEl) phoneEl.textContent = phone;
+        if (emailEl) emailEl.textContent = email;
+        modal.style.display = 'block';
+      }
+
+      function closeContactModal() {
+        const modal = document.getElementById('contact-info-modal');
+        if (!modal) return;
+        modal.style.display = 'none';
+      }
+
       function openExtensionModal(modalId) {
         const modal = document.getElementById(modalId);
         if (!modal) return;
