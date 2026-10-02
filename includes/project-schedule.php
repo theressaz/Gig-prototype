@@ -67,7 +67,8 @@ function gig_demo_active_projects(): array
     $auditDuration = '10 Hari';
 
     $endUi = gig_add_duration($hireUi, $uiDuration);
-    $endApi = gig_add_duration($hireApi, $apiDuration);
+    // Requested: lock this project's deadline to Friday, 9 Oct 2026.
+    $endApi = new DateTimeImmutable('2026-10-09 17:00:00');
     $endMob = gig_add_duration($hireMob, $mobDuration);
     $endAudit = gig_add_duration($hireAudit, $auditDuration);
 
