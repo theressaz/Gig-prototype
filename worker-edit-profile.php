@@ -120,20 +120,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($ok) {
             $successMessage = 'Pengajuan edit profil berhasil dikirim. Perubahan akan tampil setelah diverifikasi admin.';
             $hasPendingEdit = true;
-            $worker = array_merge($worker, [
-                'name' => $name,
-                'title' => $title,
-                'location' => $location,
-                'skills' => $skillsArr,
-                'proposal' => $proposal,
-                'video_url' => $videoUrl,
-                'experience' => $experience,
-                'portfolio' => $portfolio,
-                'contact' => [
-                    'email' => $email,
-                    'wa' => $wa,
-                ],
-            ]);
+            // Keep displayed profile based on currently-approved data.
+            // Proposed edits are stored for admin review and applied only after approval.
+            $worker = gig_find_worker($username) ?? gig_find_worker('tessa');
         } else {
             $errorMessage = 'Gagal mengirim pengajuan edit profil ke sistem verifikasi admin.';
         }

@@ -120,9 +120,13 @@ if ($searchQ !== '') {
 $pendingWorkers = array_values(array_filter($workers, fn($r) => ($r['status'] ?? 'pending') === 'pending'));
 $pendingEmployers = array_values(array_filter($employers, fn($r) => ($r['status'] ?? 'pending') === 'pending'));
 $pendingProjects = array_values(array_filter($vacancies, fn($v) => ($v['status'] ?? '') === 'review'));
+$pendingProfileEdits = array_values(array_filter($workerProfileEdits, fn($r) => ($r['status'] ?? 'pending') === 'pending'));
 $nextPendingTab = $metrics['workers_pending'] > 0
     ? 'workers'
     : ($metrics['employers_pending'] > 0 ? 'employers' : ($metrics['vacancies_review'] > 0 ? 'projects' : 'verification'));
+if ($nextPendingTab === 'verification' && (int)$metrics['worker_profile_edits_pending'] > 0) {
+    $nextPendingTab = 'workers';
+}
 
 function admin_status_badge(string $status): string
 {
@@ -256,6 +260,12 @@ require __DIR__ . '/includes/admin-layout-start.php';
                 <a href="?tab=workers">Proses →</a>
               </div>
             <?php endforeach; ?>
+            <?php foreach (array_slice($pendingProfileEdits, 0, 2) as $edit): ?>
+              <div class="admin-queue-item">
+                <span><strong>Edit Profil</strong> · <?php echo htmlspecialchars((string)$edit['worker_username'], ENT_QUOTES, 'UTF-8'); ?></span>
+                <a href="?tab=workers">Proses →</a>
+              </div>
+            <?php endforeach; ?>
             <?php foreach (array_slice($pendingEmployers, 0, 2) as $row): ?>
               <div class="admin-queue-item">
                 <span><strong>Pemberi Kerja</strong> · <?php echo htmlspecialchars((string)($row['company_name'] ?: $row['nama_pic']), ENT_QUOTES, 'UTF-8'); ?></span>
@@ -309,9 +319,6 @@ require __DIR__ . '/includes/admin-layout-start.php';
     <?php endif; ?>
 
     <?php if ($tab === 'workers'): ?>
-      <?php
-        $pendingProfileEdits = array_values(array_filter($workerProfileEdits, fn($r) => ($r['status'] ?? 'pending') === 'pending'));
-      ?>
       <h2 style="font-size:1rem;font-weight:800;margin:0 0 10px 0;">Pengajuan Edit Profil Gig Worker</h2>
       <?php if ($pendingProfileEdits === []): ?>
         <div class="empty-state" style="margin-bottom:16px;">Tidak ada pengajuan edit profil worker yang menunggu verifikasi.</div>
