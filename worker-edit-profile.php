@@ -267,11 +267,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
       <button type="button" onclick="addPortfolio()" style="margin-top:10px;border:1px dashed #2563eb;background:#eff6ff;color:#1d4ed8;padding:8px 12px;border-radius:8px;font-weight:700;cursor:pointer;">+ Tambah Portofolio</button>
     </div>
 
-    <div style="margin-bottom:18px;">
-      <label style="display:block;font-size:0.85rem;font-weight:700;color:#1e293b;margin-bottom:6px;">Ringkasan perubahan yang Anda lakukan <span style="color:#ef4444;">*</span></label>
-      <textarea name="change_summary" id="change_summary" rows="3" required placeholder="Contoh: Menambahkan 2 pengalaman kerja terbaru dan memperbarui 1 portofolio proyek." style="width:100%;padding:11px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:0.9rem;font-family:inherit;"></textarea>
-    </div>
-
     <div style="display:flex;gap:14px;align-items:center;padding-top:16px;border-top:1px solid #f1f5f9;">
       <button type="button" id="openVerifyModalBtn" style="background:#2563eb;color:#ffffff;border:none;padding:12px 28px;border-radius:8px;font-weight:700;font-size:0.95rem;cursor:pointer;" <?php echo $hasPendingEdit ? 'disabled' : ''; ?>>Kirim untuk Verifikasi Admin</button>
       <a href="worker-profile.php" style="color:#475569;font-weight:600;font-size:0.9rem;text-decoration:none;">Batal</a>
@@ -284,6 +279,11 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <button type="button" onclick="closeVerifyModal()" style="border:none;background:transparent;font-size:1.2rem;cursor:pointer;">&times;</button>
         </div>
         <p style="font-size:0.84rem;color:#64748b;margin-bottom:12px;">Pilih bidang utama yang Anda ubah, alasan perubahan, lalu jelaskan alasannya. Admin akan memverifikasi sebelum perubahan ditayangkan.</p>
+
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:0.82rem;font-weight:700;color:#1e293b;margin-bottom:6px;">Ringkasan perubahan yang Anda lakukan <span style="color:#ef4444;">*</span></label>
+          <textarea name="change_summary" id="change_summary" rows="3" placeholder="Contoh: Menambahkan 2 pengalaman kerja terbaru dan memperbarui 1 portofolio proyek." style="width:100%;padding:9px 10px;border:1px solid #cbd5e1;border-radius:8px;font-family:inherit;"></textarea>
+        </div>
 
         <div style="margin-bottom:12px;">
           <div style="font-size:0.82rem;font-weight:700;color:#1e293b;margin-bottom:6px;">Bidang utama yang diubah <span style="color:#ef4444;">*</span></div>
@@ -362,12 +362,7 @@ function addPortfolio() {
 
 function openVerifyModal() {
   const form = document.getElementById('workerEditForm');
-  const summary = document.getElementById('change_summary');
   if (!form.reportValidity()) return;
-  if (!summary.value.trim()) {
-    summary.focus();
-    return;
-  }
   document.getElementById('verifyModal').style.display = 'flex';
 }
 
@@ -386,9 +381,10 @@ document.getElementById('workerEditForm').addEventListener('submit', function (e
   const editedField = document.querySelector('input[name="edited_field"]:checked');
   const reasonCode = document.querySelector('input[name="reason_code"]:checked');
   const reasonDetail = document.querySelector('textarea[name="reason_detail"]');
-  if (!editedField || !reasonCode || !reasonDetail.value.trim()) {
+  const summary = document.getElementById('change_summary');
+  if (!summary.value.trim() || !editedField || !reasonCode || !reasonDetail.value.trim()) {
     e.preventDefault();
-    alert('Lengkapi bidang yang diubah, alasan edit, dan penjelasan alasan sebelum mengirim.');
+    alert('Lengkapi ringkasan perubahan, bidang yang diubah, alasan edit, dan penjelasan alasan sebelum mengirim.');
   }
 });
 </script>
