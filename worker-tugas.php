@@ -105,9 +105,9 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
         </div>
 
         <div class="countdown-widget-box" style="background:#f8fafc;border:1px solid #e2e8f0;padding:12px 16px;border-radius:10px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:8px;">
             <span style="font-size:0.78rem;font-weight:700;color:var(--text-dark);">Countdown Durasi Proyek</span>
-            <span style="font-size:0.72rem;color:#2563eb;font-weight:700;">Tenggat: <?php echo htmlspecialchars((string)$proj['deadline'], ENT_QUOTES, 'UTF-8'); ?></span>
+            <span style="font-size:0.72rem;color:#475569;font-weight:600;">Tenggat: <?php echo htmlspecialchars((string)$proj['deadline'], ENT_QUOTES, 'UTF-8'); ?></span>
           </div>
           <div style="display:flex;gap:8px;text-align:center;" class="js-project-countdown" data-deadline="<?php echo htmlspecialchars((string)$proj['deadline_iso'], ENT_QUOTES, 'UTF-8'); ?>" id="countdown-worker-<?php echo (int)$idx; ?>">
             <div style="background:#fff;border:1px solid #cbd5e1;padding:4px 8px;border-radius:6px;min-width:44px;">
@@ -156,34 +156,35 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
         </div>
       </div>
 
-      <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #e2e8f0;">
-        <?php if (!empty($proj['approved_extension_days'])): ?>
-          <div style="font-size:0.78rem;color:#065f46;font-weight:700;margin-bottom:6px;">
-            Durasi diperpanjang total <?php echo (int)$proj['approved_extension_days']; ?> hari. Deadline baru: <?php echo htmlspecialchars((string)$proj['deadline'], ENT_QUOTES, 'UTF-8'); ?>
-          </div>
-        <?php endif; ?>
+      <?php if (!empty($proj['approved_extension_days']) || !empty($pendingExt)): ?>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #e2e8f0;">
+          <?php if (!empty($proj['approved_extension_days'])): ?>
+            <div style="font-size:0.78rem;color:#065f46;font-weight:700;margin-bottom:6px;">
+              Durasi diperpanjang total <?php echo (int)$proj['approved_extension_days']; ?> hari. Deadline baru: <?php echo htmlspecialchars((string)$proj['deadline'], ENT_QUOTES, 'UTF-8'); ?>
+            </div>
+          <?php endif; ?>
 
-        <?php if ($pendingExt && $pendingBy !== 'worker'): ?>
-          <div style="font-size:0.78rem;color:#1e3a8a;font-weight:700;margin-bottom:6px;">
-            Pemberi kerja mengajukan perpanjangan <?php echo htmlspecialchars(gig_format_extension_label((int)$pendingExt['amount'], (string)$pendingExt['unit']), ENT_QUOTES, 'UTF-8'); ?>.
-          </div>
-          <form method="post" style="display:flex;gap:8px;flex-wrap:wrap;">
-            <input type="hidden" name="ext_action" value="approve_extension">
-            <input type="hidden" name="request_id" value="<?php echo (int)$pendingExt['id']; ?>">
-            <button class="btn-action-sm" type="submit" style="background:#059669;color:#fff;border:none;">Setujui Perpanjangan</button>
-          </form>
-          <form method="post" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
-            <input type="hidden" name="ext_action" value="reject_extension">
-            <input type="hidden" name="request_id" value="<?php echo (int)$pendingExt['id']; ?>">
-            <button class="btn-action-sm" type="submit" style="background:#dc2626;color:#fff;border:none;">Tolak Perpanjangan</button>
-          </form>
-        <?php elseif ($pendingExt): ?>
-          <div style="font-size:0.78rem;color:#92400e;background:#fffbeb;border:1px solid #fde68a;padding:7px 9px;border-radius:8px;display:inline-block;">
-            Pengajuan perpanjangan Anda (<?php echo htmlspecialchars(gig_format_extension_label((int)$pendingExt['amount'], (string)$pendingExt['unit']), ENT_QUOTES, 'UTF-8'); ?>) menunggu konfirmasi pemberi kerja.
-          </div>
-        <?php elseif (!$isExpired): ?>
-          <span style="font-size:0.76rem;color:#64748b;">Gunakan tombol <strong>Ajukan Perpanjangan</strong> di atas untuk membuat pengajuan.</span>
-        <?php endif; ?>
+          <?php if ($pendingExt && $pendingBy !== 'worker'): ?>
+            <div style="font-size:0.78rem;color:#1e3a8a;font-weight:700;margin-bottom:6px;">
+              Pemberi kerja mengajukan perpanjangan <?php echo htmlspecialchars(gig_format_extension_label((int)$pendingExt['amount'], (string)$pendingExt['unit']), ENT_QUOTES, 'UTF-8'); ?>.
+            </div>
+            <form method="post" style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input type="hidden" name="ext_action" value="approve_extension">
+              <input type="hidden" name="request_id" value="<?php echo (int)$pendingExt['id']; ?>">
+              <button class="btn-action-sm" type="submit" style="background:#059669;color:#fff;border:none;">Setujui Perpanjangan</button>
+            </form>
+            <form method="post" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+              <input type="hidden" name="ext_action" value="reject_extension">
+              <input type="hidden" name="request_id" value="<?php echo (int)$pendingExt['id']; ?>">
+              <button class="btn-action-sm" type="submit" style="background:#dc2626;color:#fff;border:none;">Tolak Perpanjangan</button>
+            </form>
+          <?php elseif ($pendingExt): ?>
+            <div style="font-size:0.78rem;color:#92400e;background:#fffbeb;border:1px solid #fde68a;padding:7px 9px;border-radius:8px;display:inline-block;">
+              Pengajuan perpanjangan Anda (<?php echo htmlspecialchars(gig_format_extension_label((int)$pendingExt['amount'], (string)$pendingExt['unit']), ENT_QUOTES, 'UTF-8'); ?>) menunggu konfirmasi pemberi kerja.
+            </div>
+          <?php endif; ?>
+        </div>
+      <?php endif; ?>
 
         <?php if ($canRequestExt): ?>
           <div id="<?php echo $extModalId; ?>" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(15,23,42,0.45);padding:16px;">
