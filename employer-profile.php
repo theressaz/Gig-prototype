@@ -87,7 +87,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
   .emp-stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
     margin-top: 20px;
     padding-top: 20px;
@@ -158,10 +158,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <div class="emp-stat-item">
             <div class="emp-stat-val">★ 4.9</div>
             <div class="emp-stat-lbl">Rating Pemberi Kerja</div>
-          </div>
-          <div class="emp-stat-item">
-            <div class="emp-stat-val">100%</div>
-            <div class="emp-stat-lbl">Pembayaran Tepat Waktu</div>
           </div>
         </div>
       </div>
