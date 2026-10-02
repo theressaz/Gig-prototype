@@ -562,10 +562,6 @@ $testimonials = [
                 </article>
                 <?php endif; ?>
               </div>
-            <?php elseif ($isWorkerAccount): ?>
-              <a href="dashboard-worker.php" class="dasbor-trigger" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
-                Dasbor Gig Worker
-              </a>
             <?php endif; ?>
             <button type="button" class="nav-avatar-btn" id="profileTrigger" aria-expanded="false" aria-controls="profilePanel" aria-label="Menu profil">
               <img
