@@ -40,7 +40,7 @@ if ($isWorkerAccount) {
         $_SESSION['siapkerja_email'] = 'theressaz@pasker.id';
     }
     $_SESSION['gig_worker_registered_' . $_SESSION['username']] = true;
-    header('Location: dashboard-worker.php');
+    header('Location: worker-bursa.php');
     exit;
 }
 

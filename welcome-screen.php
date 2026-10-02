@@ -7,7 +7,7 @@ if (isset($_SESSION["username"]) && isset($_SESSION["role"])) {
         header("Location: dashboard-employer.php");
         exit;
     } elseif ($_SESSION["role"] === 'worker') {
-        header("Location: dashboard-worker.php");
+        header("Location: worker-bursa.php");
         exit;
     }
 }

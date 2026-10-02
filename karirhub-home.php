@@ -582,7 +582,7 @@ $testimonials = [
               </div>
               <ul class="profile-menu">
                 <?php if ($isWorkerAccount || ($_SESSION['role'] ?? '') === 'worker'): ?>
-                  <li><a href="dashboard-worker.php" style="color: inherit; text-decoration: none; display: flex; align-items: center; width: 100%;"><span class="menu-ico">📊</span> Dasbor Gig Worker</a></li>
+                  <li><a href="worker-bursa.php" style="color: inherit; text-decoration: none; display: flex; align-items: center; width: 100%;"><span class="menu-ico">🔍</span> Cari Proyek</a></li>
                 <?php endif; ?>
                 <li><span><span class="menu-ico">💼</span> Lamaran Kerja</span></li>
                 <li><span><span class="menu-ico">🎓</span> Pelatihan Saya</span></li>

@@ -5,9 +5,9 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/worker-profiles.php';
 require_once __DIR__ . '/user-avatars.php';
 
-$pageTitle = $pageTitle ?? 'Dashboard Gig Worker';
-$pageKey = $pageKey ?? 'overview';
-$breadcrumbCurrent = $breadcrumbCurrent ?? 'Beranda';
+$pageTitle = $pageTitle ?? 'Cari Proyek';
+$pageKey = $pageKey ?? 'bursa';
+$breadcrumbCurrent = $breadcrumbCurrent ?? 'Cari Proyek';
 $workerObj = gig_find_worker($username ?? '') ?? gig_find_worker('tessa');
 $displayName = $workerObj['name'] ?? ($_SESSION['siapkerja_name'] ?? 'Theressa Zaratrusha');
 $userInitials = $workerObj['initials'] ?? 'TH';
@@ -18,7 +18,6 @@ $isRegistered = true;
 $profileUrl = 'worker-profile.php?id=tessa';
 
 $navItems = [
-    'overview' => ['href' => 'dashboard-worker.php', 'title' => 'Ringkasan', 'icon' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>'],
     'bursa' => ['href' => 'worker-bursa.php', 'title' => 'Cari Proyek', 'icon' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>'],
     'penawaran' => ['href' => 'worker-penawaran.php', 'title' => 'Penawaran Proyek', 'icon' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>'],
     'tugas' => ['href' => 'worker-tugas.php', 'title' => 'Proyek Aktif', 'icon' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'],
@@ -42,7 +41,7 @@ $navItems = [
 <body>
 <div class="app-layout">
   <aside class="app-sidebar">
-    <a href="dashboard-worker.php" class="sidebar-logo" title="KarirHub">K</a>
+    <a href="worker-bursa.php" class="sidebar-logo" title="KarirHub">K</a>
     <div class="sidebar-menu">
       <?php foreach ($navItems as $key => $item): ?>
         <a href="<?php echo htmlspecialchars($item['href'], ENT_QUOTES, 'UTF-8'); ?>" class="sidebar-icon<?php echo $pageKey === $key ? ' active' : ''; ?>" title="<?php echo htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8'); ?>">
@@ -65,7 +64,7 @@ $navItems = [
           <svg class="nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onclick="history.back()"><polyline points="15 18 9 12 15 6"/></svg>
           <svg class="nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onclick="history.forward()"><polyline points="9 18 15 12 9 6"/></svg>
           <span style="margin: 0 4px; color: var(--border-light);">|</span>
-          <a href="dashboard-worker.php" style="color: inherit; text-decoration: none;">Beranda</a>
+          <a href="worker-bursa.php" style="color: inherit; text-decoration: none;">Beranda</a>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
           <span class="current"><?php echo htmlspecialchars($breadcrumbCurrent, ENT_QUOTES, 'UTF-8'); ?></span>
         </div>

@@ -787,7 +787,7 @@ function gig_notification_href(array $n, string $audience = 'worker'): string
         } elseif (str_contains($blob, 'ulasan')) {
             $page = 'worker-ulasan.php';
         } else {
-            $page = 'dashboard-worker.php';
+            $page = 'worker-bursa.php';
         }
     }
     if ($vacancyId !== '' && $type === 'direct_offer') {
