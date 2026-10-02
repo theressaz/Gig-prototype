@@ -769,11 +769,20 @@ function gig_find_worker(string $id): ?array
         // If registration data exists for this user, merge registered data
         $reg = gig_get_worker_registration($cleanId);
         if ($reg !== null) {
+            if (!empty($reg['display_name'])) {
+                $profiles[$cleanId]['name'] = $reg['display_name'];
+            }
             if (!empty($reg['bidang_keahlian'])) {
                 $profiles[$cleanId]['title'] = $reg['bidang_keahlian'];
             }
+            if (!empty($reg['domicile'])) {
+                $profiles[$cleanId]['location'] = $reg['domicile'];
+            }
             if (!empty($reg['skills'])) {
                 $profiles[$cleanId]['skills'] = is_array($reg['skills']) ? $reg['skills'] : array_map('trim', explode(',', $reg['skills']));
+            }
+            if (!empty($reg['profile_summary'])) {
+                $profiles[$cleanId]['proposal'] = $reg['profile_summary'];
             }
             if (!empty($reg['contact_email']) || !empty($reg['contact_wa'])) {
                 $profiles[$cleanId]['contact']['email'] = !empty($reg['contact_email']) ? $reg['contact_email'] : $profiles[$cleanId]['contact']['email'];
@@ -823,12 +832,12 @@ function gig_find_worker(string $id): ?array
         $stats = gig_worker_project_stats($cleanId);
         return [
             'id' => $cleanId,
-            'name' => $siapkerja['nama'] ?? ucwords($id),
+            'name' => $reg['display_name'] ?? ($siapkerja['nama'] ?? ucwords($id)),
             'initials' => strtoupper(substr($id, 0, 2)),
             'color' => '#2563eb',
             'photo' => 'https://api.dicebear.com/9.x/notionists/svg?seed=' . urlencode($id) . '&backgroundColor=dbeafe',
             'title' => $reg['bidang_keahlian'] ?? 'Gig Worker Professional',
-            'location' => $siapkerja['lokasi'] ?? 'Jakarta, Indonesia',
+            'location' => $reg['domicile'] ?? ($siapkerja['lokasi'] ?? 'Jakarta, Indonesia'),
             'rating' => 5.0,
             'reviews_count' => 5,
             'completed_projects' => $stats['completed_projects'],
@@ -845,6 +854,7 @@ function gig_find_worker(string $id): ?array
             'portfolio' => $reg['portfolio'] ?? [],
             'reviews' => [],
             'video_url' => $reg['video_url'] ?? '',
+            'proposal' => $reg['profile_summary'] ?? '',
         ];
     }
 
@@ -1020,8 +1030,8 @@ function gig_save_worker_registration(string $username, array $data): bool
         $stmt = $db->prepare("
             INSERT INTO `gig_worker_registrations`
             (`username`, `bidang_keahlian`, `skills`, `contact_choice`, `contact_email`, `contact_wa`,
-             `previous_projects`, `portfolio`, `video_url`, `status`, `admin_note`)
-            VALUES (:u, :bidang, :skills, :choice, :email, :wa, :projects, :portfolio, :video, :status, :note)
+             `previous_projects`, `portfolio`, `video_url`, `display_name`, `domicile`, `profile_summary`, `status`, `admin_note`)
+            VALUES (:u, :bidang, :skills, :choice, :email, :wa, :projects, :portfolio, :video, :display_name, :domicile, :profile_summary, :status, :note)
             ON DUPLICATE KEY UPDATE
               `bidang_keahlian` = VALUES(`bidang_keahlian`),
               `skills` = VALUES(`skills`),
@@ -1031,6 +1041,9 @@ function gig_save_worker_registration(string $username, array $data): bool
               `previous_projects` = VALUES(`previous_projects`),
               `portfolio` = VALUES(`portfolio`),
               `video_url` = VALUES(`video_url`),
+              `display_name` = VALUES(`display_name`),
+              `domicile` = VALUES(`domicile`),
+              `profile_summary` = VALUES(`profile_summary`),
               `status` = VALUES(`status`),
               `admin_note` = IF(VALUES(`status`) = 'pending', '', `admin_note`)
         ");
@@ -1044,6 +1057,9 @@ function gig_save_worker_registration(string $username, array $data): bool
             ':projects' => json_encode($data['previous_projects'] ?? []),
             ':portfolio'=> json_encode($data['portfolio'] ?? []),
             ':video'    => $data['video_url'] ?? '',
+            ':display_name' => $data['display_name'] ?? '',
+            ':domicile' => $data['domicile'] ?? '',
+            ':profile_summary' => $data['profile_summary'] ?? '',
             ':status'   => $status,
             ':note'     => $status === 'approved' ? $preserveNote : '',
         ]);

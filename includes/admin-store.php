@@ -45,9 +45,43 @@ function gig_admin_ensure_schema(?PDO $pdo = null): void
                 ADD COLUMN `reviewed_at` DATETIME NULL AFTER `admin_note`");
         } catch (Throwable $e) {
         }
+        try {
+            $pdo->exec("ALTER TABLE `gig_worker_registrations`
+                ADD COLUMN `display_name` VARCHAR(150) NOT NULL DEFAULT '' AFTER `video_url`");
+        } catch (Throwable $e) {
+        }
+        try {
+            $pdo->exec("ALTER TABLE `gig_worker_registrations`
+                ADD COLUMN `domicile` VARCHAR(180) NOT NULL DEFAULT '' AFTER `display_name`");
+        } catch (Throwable $e) {
+        }
+        try {
+            $pdo->exec("ALTER TABLE `gig_worker_registrations`
+                ADD COLUMN `profile_summary` TEXT NOT NULL AFTER `domicile`");
+        } catch (Throwable $e) {
+        }
 
         $pdo->exec("UPDATE `gig_worker_registrations` SET `status` = 'approved'
             WHERE `username` IN ('Theressa Zaratrusha', 'Tessa', 'theressaz@pasker.id')");
+
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS `worker_profile_edit_requests` (
+                `id`                INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `worker_username`   VARCHAR(100) NOT NULL,
+                `worker_email`      VARCHAR(150) NOT NULL DEFAULT '',
+                `edited_field`      VARCHAR(60)  NOT NULL DEFAULT '',
+                `reason_code`       VARCHAR(60)  NOT NULL DEFAULT '',
+                `reason_detail`     TEXT NOT NULL,
+                `change_summary`    TEXT NOT NULL,
+                `proposed_payload`  LONGTEXT NOT NULL,
+                `status`            VARCHAR(20)  NOT NULL DEFAULT 'pending',
+                `admin_note`        TEXT NOT NULL,
+                `created_at`        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `reviewed_at`       DATETIME NULL,
+                KEY `idx_worker_edit_status` (`status`),
+                KEY `idx_worker_edit_username` (`worker_username`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ");
 
         require_once __DIR__ . '/vacancy-store.php';
         gig_vacancy_ensure_schema($pdo);
@@ -235,6 +269,7 @@ function gig_admin_dashboard_metrics(array $workers, array $employers, array $va
     $wc = gig_admin_count_by_status($workers);
     $ec = gig_admin_count_by_status($employers);
     $vc = gig_admin_count_by_status($vacancies);
+    $profileEdits = gig_admin_list_worker_profile_edits('pending');
 
     return [
         'workers_total' => count($workers),
@@ -251,7 +286,8 @@ function gig_admin_dashboard_metrics(array $workers, array $employers, array $va
         'vacancies_revision' => (int)($vc['revision'] ?? 0),
         'vacancies_rejected' => (int)($vc['rejected'] ?? 0),
         'vacancies_draft' => (int)($vc['draft'] ?? 0),
-        'pending_all' => (int)($wc['pending'] ?? 0) + (int)($ec['pending'] ?? 0) + (int)($vc['review'] ?? 0),
+        'worker_profile_edits_pending' => count($profileEdits),
+        'pending_all' => (int)($wc['pending'] ?? 0) + (int)($ec['pending'] ?? 0) + (int)($vc['review'] ?? 0) + count($profileEdits),
     ];
 }
 
@@ -298,5 +334,150 @@ function gig_worker_registration_status(string $username): ?string
         return $row ? (string)$row['status'] : null;
     } catch (Throwable $e) {
         return null;
+    }
+}
+
+function gig_worker_profile_edit_key(string $username): string
+{
+    $clean = strtolower(trim($username));
+    if (in_array($clean, ['theressaz@pasker.id', 'theressaz', 'theressa zaratrusha', 'tessa'], true) || str_contains($clean, 'theressa')) {
+        return 'tessa';
+    }
+    $first = explode(' ', $clean)[0] ?? $clean;
+    return preg_replace('/[^a-z0-9]+/i', '', $first) ?: $clean;
+}
+
+/** @return list<array<string,mixed>> */
+function gig_admin_list_worker_profile_edits(?string $statusFilter = null): array
+{
+    gig_admin_ensure_schema();
+    $db = gig_db();
+    if ($db === null) {
+        return [];
+    }
+    $sql = "SELECT * FROM `worker_profile_edit_requests`";
+    $params = [];
+    if ($statusFilter !== null && $statusFilter !== '') {
+        $sql .= " WHERE `status` = :st";
+        $params[':st'] = $statusFilter;
+    }
+    $sql .= " ORDER BY `created_at` DESC";
+    try {
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        foreach ($rows as &$row) {
+            $row['proposed_payload'] = json_decode((string)($row['proposed_payload'] ?? ''), true) ?: [];
+        }
+        unset($row);
+        return $rows;
+    } catch (Throwable $e) {
+        return [];
+    }
+}
+
+function gig_create_worker_profile_edit_request(string $username, array $request): bool
+{
+    gig_admin_ensure_schema();
+    $db = gig_db();
+    if ($db === null) {
+        return false;
+    }
+    $key = gig_worker_profile_edit_key($username);
+    try {
+        $stmt = $db->prepare(
+            "INSERT INTO `worker_profile_edit_requests`
+             (`worker_username`,`worker_email`,`edited_field`,`reason_code`,`reason_detail`,`change_summary`,`proposed_payload`,`status`,`admin_note`)
+             VALUES (:u,:email,:field,:reason,:detail,:summary,:payload,'pending','')"
+        );
+        $stmt->execute([
+            ':u' => $key,
+            ':email' => (string)($request['worker_email'] ?? ''),
+            ':field' => (string)($request['edited_field'] ?? ''),
+            ':reason' => (string)($request['reason_code'] ?? ''),
+            ':detail' => (string)($request['reason_detail'] ?? ''),
+            ':summary' => (string)($request['change_summary'] ?? ''),
+            ':payload' => json_encode($request['proposed_payload'] ?? [], JSON_UNESCAPED_UNICODE),
+        ]);
+        return true;
+    } catch (Throwable $e) {
+        return false;
+    }
+}
+
+function gig_worker_has_pending_profile_edit(string $username): bool
+{
+    gig_admin_ensure_schema();
+    $db = gig_db();
+    if ($db === null) {
+        return false;
+    }
+    $key = gig_worker_profile_edit_key($username);
+    try {
+        $stmt = $db->prepare(
+            "SELECT `id` FROM `worker_profile_edit_requests`
+             WHERE `worker_username` = :u AND `status` = 'pending'
+             ORDER BY `id` DESC LIMIT 1"
+        );
+        $stmt->execute([':u' => $key]);
+        return (bool)$stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (Throwable $e) {
+        return false;
+    }
+}
+
+function gig_admin_set_worker_profile_edit_status(int $id, string $status, string $adminNote = ''): bool
+{
+    gig_admin_ensure_schema();
+    $db = gig_db();
+    if ($db === null) {
+        return false;
+    }
+    if (!in_array($status, ['approved', 'rejected'], true)) {
+        return false;
+    }
+    try {
+        $stmt = $db->prepare("SELECT * FROM `worker_profile_edit_requests` WHERE `id` = :id LIMIT 1");
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) {
+            return false;
+        }
+        if ((string)$row['status'] !== 'pending') {
+            return false;
+        }
+
+        if ($status === 'approved') {
+            $payload = json_decode((string)$row['proposed_payload'], true) ?: [];
+            $workerKey = (string)$row['worker_username'];
+            $existing = gig_get_worker_registration($workerKey) ?? [];
+            $data = [
+                'bidang_keahlian' => $payload['title'] ?? ($existing['bidang_keahlian'] ?? ''),
+                'skills' => $payload['skills'] ?? ($existing['skills'] ?? []),
+                'contact_choice' => 'new',
+                'contact_email' => $payload['email'] ?? ($existing['contact_email'] ?? ''),
+                'contact_wa' => $payload['wa'] ?? ($existing['contact_wa'] ?? ''),
+                'previous_projects' => $payload['experience'] ?? ($existing['previous_projects'] ?? []),
+                'portfolio' => $payload['portfolio'] ?? ($existing['portfolio'] ?? []),
+                'video_url' => $payload['video_url'] ?? ($existing['video_url'] ?? ''),
+                'status' => 'approved',
+                'display_name' => $payload['name'] ?? ($existing['display_name'] ?? ''),
+                'domicile' => $payload['location'] ?? ($existing['domicile'] ?? ''),
+                'profile_summary' => $payload['proposal'] ?? ($existing['profile_summary'] ?? ''),
+            ];
+            if (!gig_save_worker_registration($workerKey, $data)) {
+                return false;
+            }
+        }
+
+        $up = $db->prepare(
+            "UPDATE `worker_profile_edit_requests`
+             SET `status` = :st, `admin_note` = :note, `reviewed_at` = NOW()
+             WHERE `id` = :id"
+        );
+        $up->execute([':st' => $status, ':note' => $adminNote, ':id' => $id]);
+        return $up->rowCount() > 0;
+    } catch (Throwable $e) {
+        return false;
     }
 }

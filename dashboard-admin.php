@@ -34,6 +34,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $flash = $ok ? 'Pendaftaran Gig Worker ditolak.' : 'Gagal menolak pendaftaran worker.';
         $flashType = $ok ? 'success' : 'error';
         $redirectTab = 'workers';
+    } elseif ($action === 'worker_edit_approve') {
+        $ok = gig_admin_set_worker_profile_edit_status((int)($_POST['edit_id'] ?? 0), 'approved', $note);
+        $flash = $ok ? 'Pengajuan edit profil worker disetujui.' : 'Gagal menyetujui pengajuan edit profil.';
+        $flashType = $ok ? 'success' : 'error';
+        $redirectTab = 'workers';
+    } elseif ($action === 'worker_edit_reject') {
+        $ok = gig_admin_set_worker_profile_edit_status((int)($_POST['edit_id'] ?? 0), 'rejected', $note);
+        $flash = $ok ? 'Pengajuan edit profil worker ditolak.' : 'Gagal menolak pengajuan edit profil.';
+        $flashType = $ok ? 'success' : 'error';
+        $redirectTab = 'workers';
     } elseif ($action === 'employer_approve') {
         $ok = gig_admin_set_employer_status((int)($_POST['id'] ?? 0), 'approved', $note);
         $flash = $ok ? 'Pendaftaran pemberi kerja disetujui.' : 'Gagal memproses pendaftaran employer.';
@@ -82,6 +92,7 @@ if (isset($_GET['msg'])) {
 $workers = gig_admin_list_worker_registrations();
 $employers = gig_admin_list_employer_registrations();
 $vacancies = gig_admin_list_project_vacancies();
+$workerProfileEdits = gig_admin_list_worker_profile_edits();
 $metrics = gig_admin_dashboard_metrics($workers, $employers, $vacancies);
 $clusters = gig_admin_cluster_by_industry($employers, $vacancies);
 
@@ -103,6 +114,7 @@ if ($searchQ !== '') {
     $workers = array_values(array_filter($workers, fn($r) => $matchesSearch($r, ['username', 'bidang_keahlian', 'contact_email', 'skills'])));
     $employers = array_values(array_filter($employers, fn($r) => $matchesSearch($r, ['nama_pic', 'company_name', 'siapkerja_email', 'industry'])));
     $vacancies = array_values(array_filter($vacancies, fn($r) => $matchesSearch($r, ['title', 'id', 'employer', 'category', 'location'])));
+    $workerProfileEdits = array_values(array_filter($workerProfileEdits, fn($r) => $matchesSearch($r, ['worker_username', 'worker_email', 'edited_field', 'reason_code', 'reason_detail', 'change_summary'])));
 }
 
 $pendingWorkers = array_values(array_filter($workers, fn($r) => ($r['status'] ?? 'pending') === 'pending'));
@@ -169,7 +181,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
 
     <nav class="admin-subtabs" aria-label="Tab dashboard admin">
       <a href="?tab=verification" class="<?php echo $tab === 'verification' ? 'active' : ''; ?>">Verifikasi</a>
-      <a href="?tab=workers" class="<?php echo $tab === 'workers' ? 'active' : ''; ?>">Gig Worker<?php echo $metrics['workers_pending'] > 0 ? ' (' . (int)$metrics['workers_pending'] . ')' : ''; ?></a>
+      <a href="?tab=workers" class="<?php echo $tab === 'workers' ? 'active' : ''; ?>">Gig Worker<?php $wQueue = (int)$metrics['workers_pending'] + (int)$metrics['worker_profile_edits_pending']; echo $wQueue > 0 ? ' (' . $wQueue . ')' : ''; ?></a>
       <a href="?tab=employers" class="<?php echo $tab === 'employers' ? 'active' : ''; ?>">Pemberi Kerja<?php echo $metrics['employers_pending'] > 0 ? ' (' . (int)$metrics['employers_pending'] . ')' : ''; ?></a>
       <a href="?tab=projects" class="<?php echo $tab === 'projects' ? 'active' : ''; ?>">Lowongan Proyek<?php echo $metrics['vacancies_review'] > 0 ? ' (' . (int)$metrics['vacancies_review'] . ')' : ''; ?></a>
     </nav>
@@ -184,7 +196,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
           <article class="admin-kpi-card">
             <div class="kpi-label">Pengajuan Gig Worker</div>
             <div class="kpi-value"><?php echo number_format($metrics['workers_total'], 0, ',', '.'); ?></div>
-            <div class="kpi-sub"><?php echo (int)$metrics['workers_pending']; ?> menunggu verifikasi</div>
+            <div class="kpi-sub"><?php echo (int)$metrics['workers_pending']; ?> pendaftaran + <?php echo (int)$metrics['worker_profile_edits_pending']; ?> edit profil menunggu verifikasi</div>
           </article>
         </a>
         <a href="?tab=employers" class="admin-kpi-link">
@@ -297,6 +309,39 @@ require __DIR__ . '/includes/admin-layout-start.php';
     <?php endif; ?>
 
     <?php if ($tab === 'workers'): ?>
+      <?php
+        $pendingProfileEdits = array_values(array_filter($workerProfileEdits, fn($r) => ($r['status'] ?? 'pending') === 'pending'));
+      ?>
+      <h2 style="font-size:1rem;font-weight:800;margin:0 0 10px 0;">Pengajuan Edit Profil Gig Worker</h2>
+      <?php if ($pendingProfileEdits === []): ?>
+        <div class="empty-state" style="margin-bottom:16px;">Tidak ada pengajuan edit profil worker yang menunggu verifikasi.</div>
+      <?php endif; ?>
+      <?php foreach ($pendingProfileEdits as $edit): ?>
+        <?php $payload = is_array($edit['proposed_payload'] ?? null) ? $edit['proposed_payload'] : []; ?>
+        <article class="review-card" style="border-left:4px solid #0ea5e9;">
+          <h3><?php echo htmlspecialchars((string)$edit['worker_username'], ENT_QUOTES, 'UTF-8'); ?> <?php echo admin_status_badge((string)($edit['status'] ?? 'pending')); ?></h3>
+          <div class="review-meta">Bidang diubah: <?php echo htmlspecialchars((string)$edit['edited_field'], ENT_QUOTES, 'UTF-8'); ?> · Alasan: <?php echo htmlspecialchars((string)$edit['reason_code'], ENT_QUOTES, 'UTF-8'); ?> · Email: <?php echo htmlspecialchars((string)$edit['worker_email'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <div class="review-detail"><strong>Ringkasan perubahan worker:</strong> <?php echo htmlspecialchars((string)$edit['change_summary'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <div class="review-detail"><strong>Penjelasan alasan:</strong> <?php echo htmlspecialchars((string)$edit['reason_detail'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <div class="review-detail">
+            <strong>Draft profil baru:</strong><br>
+            Nama: <?php echo htmlspecialchars((string)($payload['name'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?> ·
+            Bidang: <?php echo htmlspecialchars((string)($payload['title'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?> ·
+            Lokasi: <?php echo htmlspecialchars((string)($payload['location'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?><br>
+            Pengalaman: <?php echo count(is_array($payload['experience'] ?? null) ? $payload['experience'] : []); ?> item ·
+            Portofolio: <?php echo count(is_array($payload['portfolio'] ?? null) ? $payload['portfolio'] : []); ?> item
+          </div>
+          <form method="post" class="review-actions">
+            <input type="hidden" name="tab" value="workers" />
+            <input type="hidden" name="edit_id" value="<?php echo (int)$edit['id']; ?>" />
+            <textarea name="admin_note" placeholder="Catatan verifikasi edit profil (opsional)"></textarea>
+            <button class="btn-approve" name="action" value="worker_edit_approve" type="submit">Setujui Edit Profil</button>
+            <button class="btn-reject" name="action" value="worker_edit_reject" type="submit">Tolak Edit Profil</button>
+          </form>
+        </article>
+      <?php endforeach; ?>
+
+      <h2 style="font-size:1rem;font-weight:800;margin:20px 0 10px 0;">Pendaftaran Gig Worker</h2>
       <?php if ($workers === []): ?>
         <div class="empty-state">Belum ada pendaftaran Gig Worker<?php echo $searchQ !== '' ? ' yang cocok dengan pencarian.' : ' di database.'; ?></div>
       <?php endif; ?>
