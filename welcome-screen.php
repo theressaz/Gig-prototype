@@ -46,6 +46,18 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             align-items: center;
             overflow-x: hidden;
         }
+        button:disabled,
+        input[type="button"]:disabled,
+        input[type="submit"]:disabled,
+        [role="button"][aria-disabled="true"] {
+            background: #cbd5e1 !important;
+            color: #64748b !important;
+            border-color: #cbd5e1 !important;
+            box-shadow: none !important;
+            cursor: not-allowed !important;
+            opacity: 1 !important;
+            pointer-events: none;
+        }
 
         /* Top Brand Header */
         .page-header {

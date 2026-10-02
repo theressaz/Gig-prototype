@@ -87,6 +87,18 @@ $testimonials = [
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: var(--text); background: #fff; line-height: 1.5; }
+    button:disabled,
+    input[type="button"]:disabled,
+    input[type="submit"]:disabled,
+    [role="button"][aria-disabled="true"] {
+      background: #cbd5e1 !important;
+      color: #64748b !important;
+      border-color: #cbd5e1 !important;
+      box-shadow: none !important;
+      cursor: not-allowed !important;
+      opacity: 1 !important;
+      pointer-events: none;
+    }
     a { color: inherit; text-decoration: none; }
     .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 

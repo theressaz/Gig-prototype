@@ -56,6 +56,23 @@
       overflow-x: hidden;
     }
 
+    /* Disabled controls should look clearly inactive */
+    button:disabled,
+    input[type="button"]:disabled,
+    input[type="submit"]:disabled,
+    .btn-primary:disabled,
+    .btn-action-sm:disabled,
+    .btn-primary-add:disabled,
+    [role="button"][aria-disabled="true"] {
+      background: #cbd5e1 !important;
+      color: #64748b !important;
+      border-color: #cbd5e1 !important;
+      box-shadow: none !important;
+      cursor: not-allowed !important;
+      opacity: 1 !important;
+      pointer-events: none;
+    }
+
     /* APP LAYOUT */
     .app-layout {
       display: flex;
