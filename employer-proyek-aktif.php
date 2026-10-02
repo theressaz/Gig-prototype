@@ -4,6 +4,30 @@ require_once __DIR__ . '/includes/employer-auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/project-schedule.php';
 
+$flashMsg = '';
+$flashErr = false;
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+    $action = (string)($_POST['ext_action'] ?? '');
+    if ($action === 'request_extension') {
+        $contractId = trim((string)($_POST['contract_id'] ?? ''));
+        $amount = (int)($_POST['ext_amount'] ?? 0);
+        $unit = trim((string)($_POST['ext_unit'] ?? 'day'));
+        $reason = trim((string)($_POST['ext_reason'] ?? ''));
+        $res = gig_request_project_extension($contractId, 'employer', $username, $amount, $unit, $reason);
+        $flashMsg = !empty($res['ok'])
+            ? 'Pengajuan perpanjangan dikirim. Menunggu konfirmasi gig worker.'
+            : (string)($res['error'] ?? 'Gagal mengajukan perpanjangan.');
+        $flashErr = empty($res['ok']);
+    } elseif ($action === 'approve_extension' || $action === 'reject_extension') {
+        $requestId = (int)($_POST['request_id'] ?? 0);
+        $res = gig_decide_project_extension($requestId, 'employer', $action === 'approve_extension');
+        $flashMsg = !empty($res['ok'])
+            ? (($action === 'approve_extension') ? 'Perpanjangan disetujui. Deadline proyek diperbarui.' : 'Perpanjangan ditolak. Deadline tetap sesuai kesepakatan.')
+            : (string)($res['error'] ?? 'Gagal memproses konfirmasi perpanjangan.');
+        $flashErr = empty($res['ok']);
+    }
+}
+
 $p1 = gig_demo_active_project_by_id('GIG-2026-09-001');
 $p2 = gig_demo_active_project_by_id('GIG-2026-09-002');
 
@@ -19,6 +43,11 @@ require __DIR__ . '/includes/employer-layout-start.php';
         Koordinasi langsung perusahaan &amp; mitra
       </div>
     </div>
+    <?php if ($flashMsg !== ''): ?>
+      <div style="margin-bottom:14px;padding:11px 14px;border-radius:10px;font-size:0.84rem;font-weight:700;<?php echo $flashErr ? 'background:#fef2f2;color:#991b1b;border:1px solid #fecaca;' : 'background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;'; ?>">
+        <?php echo htmlspecialchars($flashMsg, ENT_QUOTES, 'UTF-8'); ?>
+      </div>
+    <?php endif; ?>
 
     <div class="active-projects-list">
       <?php
@@ -47,6 +76,10 @@ require __DIR__ . '/includes/employer-layout-start.php';
                     ?? ($_SESSION['completed_projects'][$c1Id]['ratingGiven'] ?? 5);
         $ratingP2 = $dbCompletions[$c2Id]['rating_given']
                     ?? ($_SESSION['completed_projects'][$c2Id]['ratingGiven'] ?? 5);
+        $isExpiredP1 = !empty($p1['is_expired']);
+        $isExpiredP2 = !empty($p2['is_expired']);
+        $pendingExtP1 = is_array($p1['pending_extension'] ?? null) ? $p1['pending_extension'] : null;
+        $pendingExtP2 = is_array($p2['pending_extension'] ?? null) ? $p2['pending_extension'] : null;
         $hasActive = !$completedP1 || !$completedP2;
       ?>
 
@@ -65,6 +98,11 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <div>
             <div class="active-proj-title" style="display:flex;align-items:center;gap:10px;">
               <span>Redesign UI/UX Dashboard Prototype KarirHub</span>
+              <?php if ($isExpiredP1 && !$completedP1): ?>
+                <span class="badge-status cancelled">Tidak Selesai</span>
+              <?php else: ?>
+                <span class="badge-status in-progress"><?php echo htmlspecialchars((string)($p1['status_label'] ?? 'Berjalan'), ENT_QUOTES, 'UTF-8'); ?></span>
+              <?php endif; ?>
               <?php if ($completedP1): ?>
                 <span style="display:inline-block;padding:3px 10px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#d1fae5;color:#047857;">✓ Selesai &amp; Dinilai</span>
               <?php endif; ?>
@@ -114,6 +152,56 @@ require __DIR__ . '/includes/employer-layout-start.php';
             </div>
           </div>
 
+          <div style="margin-top:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;">
+            <div style="font-size:0.82rem;font-weight:800;color:#0f172a;margin-bottom:8px;">Perpanjangan Durasi</div>
+            <?php if (!empty($p1['approved_extension_days'])): ?>
+              <div style="font-size:0.78rem;color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;padding:8px 10px;border-radius:8px;margin-bottom:8px;">
+                Disetujui: <?php echo htmlspecialchars(gig_format_extension_label((int)$p1['approved_extension_days']), ENT_QUOTES, 'UTF-8'); ?>. Deadline sudah diperbarui.
+              </div>
+            <?php endif; ?>
+
+            <?php if ($isExpiredP1): ?>
+              <div style="font-size:0.78rem;color:#991b1b;background:#fef2f2;border:1px solid #fecaca;padding:8px 10px;border-radius:8px;">
+                Deadline terlewati dan proyek belum selesai. Status otomatis menjadi <strong>Tidak Selesai</strong>.
+              </div>
+            <?php elseif ($pendingExtP1): ?>
+              <div style="font-size:0.78rem;color:#1e293b;background:#eff6ff;border:1px solid #bfdbfe;padding:8px 10px;border-radius:8px;">
+                Pengajuan pending dari <strong><?php echo $pendingExtP1['requested_by_role'] === 'worker' ? 'Gig Worker' : 'Pemberi Kerja'; ?></strong>:
+                <strong><?php echo htmlspecialchars(gig_format_extension_label((int)$pendingExtP1['amount_days']), ENT_QUOTES, 'UTF-8'); ?></strong>
+                <?php if (!empty($pendingExtP1['reason'])): ?>
+                  <div style="margin-top:4px;color:#334155;">Alasan: <?php echo htmlspecialchars((string)$pendingExtP1['reason'], ENT_QUOTES, 'UTF-8'); ?></div>
+                <?php endif; ?>
+              </div>
+              <?php if (($pendingExtP1['requested_by_role'] ?? '') !== 'employer'): ?>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+                  <form method="POST" action="" style="margin:0;">
+                    <input type="hidden" name="ext_action" value="approve_extension">
+                    <input type="hidden" name="request_id" value="<?php echo (int)$pendingExtP1['id']; ?>">
+                    <button type="submit" class="btn-create-post" style="padding:6px 12px;font-size:0.78rem;background:#059669;border-color:#047857;">Setujui Perpanjangan</button>
+                  </form>
+                  <form method="POST" action="" style="margin:0;">
+                    <input type="hidden" name="ext_action" value="reject_extension">
+                    <input type="hidden" name="request_id" value="<?php echo (int)$pendingExtP1['id']; ?>">
+                    <button type="submit" class="btn-outline-blue" style="padding:6px 12px;font-size:0.78rem;">Tolak</button>
+                  </form>
+                </div>
+              <?php endif; ?>
+            <?php else: ?>
+              <form method="POST" action="" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <input type="hidden" name="ext_action" value="request_extension">
+                <input type="hidden" name="contract_id" value="<?php echo htmlspecialchars((string)$p1['contract_id'], ENT_QUOTES, 'UTF-8'); ?>">
+                <input type="number" min="1" name="ext_amount" required style="width:78px;padding:7px 8px;border:1px solid #cbd5e1;border-radius:8px;" placeholder="Jumlah">
+                <select name="ext_unit" style="padding:7px 8px;border:1px solid #cbd5e1;border-radius:8px;">
+                  <option value="day">Hari</option>
+                  <option value="week">Minggu</option>
+                  <option value="month">Bulan</option>
+                </select>
+                <input type="text" name="ext_reason" required style="flex:1;min-width:170px;padding:7px 8px;border:1px solid #cbd5e1;border-radius:8px;" placeholder="Alasan pengajuan perpanjangan">
+                <button type="submit" class="btn-action-sm">Ajukan Perpanjangan</button>
+              </form>
+            <?php endif; ?>
+          </div>
+
           </div>
 
         <div class="active-proj-actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
@@ -151,6 +239,11 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <div>
             <div class="active-proj-title" style="display:flex;align-items:center;gap:10px;">
               <span>Integrasi REST API Modul Notifikasi SMS &amp; WhatsApp</span>
+              <?php if ($isExpiredP2 && !$completedP2): ?>
+                <span class="badge-status cancelled">Tidak Selesai</span>
+              <?php else: ?>
+                <span class="badge-status in-progress"><?php echo htmlspecialchars((string)($p2['status_label'] ?? 'Berjalan'), ENT_QUOTES, 'UTF-8'); ?></span>
+              <?php endif; ?>
               <?php if ($completedP2): ?>
                 <span style="display:inline-block;padding:3px 10px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#d1fae5;color:#047857;">✓ Selesai &amp; Dinilai</span>
               <?php endif; ?>
@@ -198,6 +291,56 @@ require __DIR__ . '/includes/employer-layout-start.php';
                 <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Detik</span>
               </div>
             </div>
+          </div>
+
+          <div style="margin-top:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;">
+            <div style="font-size:0.82rem;font-weight:800;color:#0f172a;margin-bottom:8px;">Perpanjangan Durasi</div>
+            <?php if (!empty($p2['approved_extension_days'])): ?>
+              <div style="font-size:0.78rem;color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;padding:8px 10px;border-radius:8px;margin-bottom:8px;">
+                Disetujui: <?php echo htmlspecialchars(gig_format_extension_label((int)$p2['approved_extension_days']), ENT_QUOTES, 'UTF-8'); ?>. Deadline sudah diperbarui.
+              </div>
+            <?php endif; ?>
+
+            <?php if ($isExpiredP2): ?>
+              <div style="font-size:0.78rem;color:#991b1b;background:#fef2f2;border:1px solid #fecaca;padding:8px 10px;border-radius:8px;">
+                Deadline terlewati dan proyek belum selesai. Status otomatis menjadi <strong>Tidak Selesai</strong>.
+              </div>
+            <?php elseif ($pendingExtP2): ?>
+              <div style="font-size:0.78rem;color:#1e293b;background:#eff6ff;border:1px solid #bfdbfe;padding:8px 10px;border-radius:8px;">
+                Pengajuan pending dari <strong><?php echo $pendingExtP2['requested_by_role'] === 'worker' ? 'Gig Worker' : 'Pemberi Kerja'; ?></strong>:
+                <strong><?php echo htmlspecialchars(gig_format_extension_label((int)$pendingExtP2['amount_days']), ENT_QUOTES, 'UTF-8'); ?></strong>
+                <?php if (!empty($pendingExtP2['reason'])): ?>
+                  <div style="margin-top:4px;color:#334155;">Alasan: <?php echo htmlspecialchars((string)$pendingExtP2['reason'], ENT_QUOTES, 'UTF-8'); ?></div>
+                <?php endif; ?>
+              </div>
+              <?php if (($pendingExtP2['requested_by_role'] ?? '') !== 'employer'): ?>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+                  <form method="POST" action="" style="margin:0;">
+                    <input type="hidden" name="ext_action" value="approve_extension">
+                    <input type="hidden" name="request_id" value="<?php echo (int)$pendingExtP2['id']; ?>">
+                    <button type="submit" class="btn-create-post" style="padding:6px 12px;font-size:0.78rem;background:#059669;border-color:#047857;">Setujui Perpanjangan</button>
+                  </form>
+                  <form method="POST" action="" style="margin:0;">
+                    <input type="hidden" name="ext_action" value="reject_extension">
+                    <input type="hidden" name="request_id" value="<?php echo (int)$pendingExtP2['id']; ?>">
+                    <button type="submit" class="btn-outline-blue" style="padding:6px 12px;font-size:0.78rem;">Tolak</button>
+                  </form>
+                </div>
+              <?php endif; ?>
+            <?php else: ?>
+              <form method="POST" action="" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <input type="hidden" name="ext_action" value="request_extension">
+                <input type="hidden" name="contract_id" value="<?php echo htmlspecialchars((string)$p2['contract_id'], ENT_QUOTES, 'UTF-8'); ?>">
+                <input type="number" min="1" name="ext_amount" required style="width:78px;padding:7px 8px;border:1px solid #cbd5e1;border-radius:8px;" placeholder="Jumlah">
+                <select name="ext_unit" style="padding:7px 8px;border:1px solid #cbd5e1;border-radius:8px;">
+                  <option value="day">Hari</option>
+                  <option value="week">Minggu</option>
+                  <option value="month">Bulan</option>
+                </select>
+                <input type="text" name="ext_reason" required style="flex:1;min-width:170px;padding:7px 8px;border:1px solid #cbd5e1;border-radius:8px;" placeholder="Alasan pengajuan perpanjangan">
+                <button type="submit" class="btn-action-sm">Ajukan Perpanjangan</button>
+              </form>
+            <?php endif; ?>
           </div>
 
           </div>
