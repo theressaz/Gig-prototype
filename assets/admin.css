@@ -422,6 +422,24 @@ a, a:hover, a:focus, a:active, a:visited {
   border-color: #bfdbfe;
   color: #1d4ed8;
 }
+.verify-open-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #0f172a;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.verify-open-link:hover {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
 .verify-drawer-body {
   margin-top: 10px;
   padding: 10px;

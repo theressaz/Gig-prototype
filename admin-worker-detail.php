@@ -1,0 +1,223 @@
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/includes/admin-auth.php';
+require_once __DIR__ . '/includes/admin-store.php';
+
+$workerParam = trim((string)($_GET['u'] ?? ''));
+$emailParam = trim((string)($_GET['email'] ?? ''));
+$flash = '';
+$flashType = 'success';
+
+$workers = gig_admin_list_worker_registrations();
+$worker = null;
+foreach ($workers as $row) {
+    $username = trim((string)($row['username'] ?? ''));
+    $email = trim((string)($row['contact_email'] ?? ''));
+    $isUserMatch = $workerParam !== '' && strcasecmp($username, $workerParam) === 0;
+    $isEmailMatch = $emailParam !== '' && strcasecmp($email, $emailParam) === 0;
+    if ($isUserMatch || $isEmailMatch) {
+        $worker = $row;
+        break;
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $worker !== null) {
+    $action = (string)($_POST['action'] ?? '');
+    $note = trim((string)($_POST['admin_note'] ?? ''));
+    if ($action === 'worker_approve') {
+        $ok = gig_admin_set_worker_status((string)$worker['username'], 'approved', $note);
+        $flash = $ok ? 'Verifikasi Gig Worker disetujui.' : 'Gagal menyetujui verifikasi.';
+        $flashType = $ok ? 'success' : 'error';
+    } elseif ($action === 'worker_reject') {
+        $ok = gig_admin_set_worker_status((string)$worker['username'], 'rejected', $note);
+        $flash = $ok ? 'Verifikasi Gig Worker ditolak.' : 'Gagal menolak verifikasi.';
+        $flashType = $ok ? 'success' : 'error';
+    }
+
+    if ($workerParam !== '' || $emailParam !== '') {
+        $params = [];
+        if ($workerParam !== '') {
+            $params['u'] = $workerParam;
+        }
+        if ($emailParam !== '') {
+            $params['email'] = $emailParam;
+        }
+        $params['msg'] = $flash;
+        $params['type'] = $flashType;
+        header('Location: admin-worker-detail.php?' . http_build_query($params));
+        exit;
+    }
+}
+
+if (isset($_GET['msg'])) {
+    $flash = (string)$_GET['msg'];
+    $flashType = (string)($_GET['type'] ?? 'success');
+}
+
+$adminTab = 'workers';
+$pageTitle = 'Detail Gig Worker';
+$breadcrumbCurrent = 'Detail Gig Worker';
+require __DIR__ . '/includes/admin-layout-start.php';
+
+if ($worker === null):
+?>
+  <div class="empty-state">Data Gig Worker tidak ditemukan. <a href="dashboard-admin.php?tab=workers">Kembali ke verifikasi worker</a>.</div>
+<?php
+require __DIR__ . '/includes/admin-layout-end.php';
+exit;
+endif;
+
+$displayName = trim((string)($worker['display_name'] ?? '')) !== '' ? (string)$worker['display_name'] : (string)$worker['username'];
+$domicile = trim((string)($worker['domicile'] ?? '')) !== '' ? (string)$worker['domicile'] : '-';
+$skills = is_array($worker['skills'] ?? null) ? $worker['skills'] : [];
+$projects = is_array($worker['previous_projects'] ?? null) ? $worker['previous_projects'] : [];
+$portfolio = is_array($worker['portfolio'] ?? null) ? $worker['portfolio'] : [];
+$status = (string)($worker['status'] ?? 'pending');
+
+$statusLabel = 'Menunggu Verifikasi';
+$statusColor = '#1d4ed8';
+$statusBg = '#dbeafe';
+if ($status === 'approved') {
+    $statusLabel = 'Terverifikasi';
+    $statusColor = '#065f46';
+    $statusBg = '#d1fae5';
+} elseif ($status === 'rejected') {
+    $statusLabel = 'Ditolak';
+    $statusColor = '#991b1b';
+    $statusBg = '#fee2e2';
+}
+?>
+
+<style>
+  .detail-wrap { background:#fff;border:1px solid var(--border-subtle);border-radius:14px;box-shadow:var(--shadow-xs);overflow:hidden; }
+  .detail-top { padding:18px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap; }
+  .detail-id { font-size:0.74rem;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.03em; }
+  .detail-name { font-size:1.8rem;font-weight:800;color:#0f172a;line-height:1.2;margin:3px 0 8px; }
+  .detail-meta { display:flex;gap:14px;flex-wrap:wrap;font-size:0.84rem;color:#64748b; }
+  .detail-actions { display:flex;gap:8px;flex-wrap:wrap; }
+  .detail-btn { border:1px solid #e2e8f0;background:#fff;border-radius:10px;padding:8px 12px;font-size:0.8rem;font-weight:700;color:#0f172a; }
+  .detail-btn.primary { border-color:#99f6e4;background:#ecfeff;color:#0f766e; }
+  .detail-tabs { padding:0 18px;display:flex;gap:14px;border-bottom:1px solid #e2e8f0; }
+  .detail-tabs a { display:inline-flex;padding:12px 2px;font-size:0.82rem;font-weight:700;color:#64748b;border-bottom:2px solid transparent; }
+  .detail-tabs a.active { color:#0ea5e9;border-bottom-color:#0ea5e9; }
+  .detail-grid { padding:18px;display:grid;grid-template-columns:2fr 1fr;gap:14px; }
+  .detail-card { background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px; }
+  .detail-card h3 { margin:0 0 10px;font-size:1rem;font-weight:800;color:#0f172a; }
+  .detail-item { border:1px solid #eef2f7;background:#f8fafc;border-radius:10px;padding:10px;margin-bottom:8px; }
+  .detail-item:last-child { margin-bottom:0; }
+  .detail-item-title { font-size:0.86rem;font-weight:700;color:#0f172a; }
+  .detail-item-sub { font-size:0.78rem;color:#64748b;margin-top:2px;line-height:1.45; }
+  .profile-row { display:grid;grid-template-columns:140px 1fr;gap:8px;font-size:0.82rem;padding:6px 0;border-bottom:1px dashed #e2e8f0; }
+  .profile-row:last-child { border-bottom:none; }
+  .profile-row .k { color:#64748b; font-weight:600; }
+  .profile-row .v { color:#0f172a; font-weight:600; }
+  .verify-panel { margin-top:14px;padding-top:12px;border-top:1px solid #e2e8f0; }
+  .verify-panel textarea { width:100%;min-height:70px;border:1px solid #cbd5e1;border-radius:10px;padding:9px;font:inherit;margin:8px 0; }
+  .flash { padding:11px 13px;border-radius:10px;margin-bottom:14px;font-size:0.84rem;font-weight:700; }
+  .flash.success { background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0; }
+  .flash.error { background:#fef2f2;color:#991b1b;border:1px solid #fecaca; }
+  @media (max-width: 980px) { .detail-grid { grid-template-columns:1fr; } .detail-name { font-size:1.45rem; } }
+</style>
+
+<div style="margin-bottom:10px;">
+  <a href="dashboard-admin.php?tab=workers" style="font-size:0.84rem;font-weight:700;color:#334155;">&larr; Kembali</a>
+</div>
+
+<?php if ($flash !== ''): ?>
+  <div class="flash <?php echo htmlspecialchars($flashType, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($flash, ENT_QUOTES, 'UTF-8'); ?></div>
+<?php endif; ?>
+
+<section class="detail-wrap">
+  <div class="detail-top">
+    <div>
+      <div class="detail-id">Detail Gig Worker</div>
+      <div class="detail-name"><?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?></div>
+      <div class="detail-meta">
+        <span><?php echo htmlspecialchars((string)$worker['contact_email'], ENT_QUOTES, 'UTF-8'); ?></span>
+        <span><?php echo htmlspecialchars((string)$worker['contact_wa'], ENT_QUOTES, 'UTF-8'); ?></span>
+        <span><?php echo htmlspecialchars((string)$worker['bidang_keahlian'], ENT_QUOTES, 'UTF-8'); ?></span>
+      </div>
+    </div>
+    <div class="detail-actions">
+      <span class="detail-btn primary"><?php echo htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+      <button type="button" class="detail-btn" onclick="window.print()">Cetak Kartu</button>
+    </div>
+  </div>
+
+  <nav class="detail-tabs" aria-label="Detail tabs">
+    <a href="#" class="active">Biodata</a>
+    <a href="#">Pengalaman</a>
+    <a href="#">Portofolio</a>
+    <a href="#">Riwayat Verifikasi</a>
+  </nav>
+
+  <div class="detail-grid">
+    <div>
+      <article class="detail-card">
+        <h3>Pengalaman</h3>
+        <?php if ($projects === []): ?>
+          <div class="detail-item"><div class="detail-item-sub">Belum ada pengalaman proyek yang diisi.</div></div>
+        <?php endif; ?>
+        <?php foreach ($projects as $exp): ?>
+          <div class="detail-item">
+            <div class="detail-item-title"><?php echo htmlspecialchars((string)($exp['role'] ?? $exp['project'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
+            <div class="detail-item-sub"><?php echo htmlspecialchars((string)($exp['project'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?> · <?php echo htmlspecialchars((string)($exp['period'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
+            <?php if (!empty($exp['summary'])): ?>
+              <div class="detail-item-sub"><?php echo htmlspecialchars((string)$exp['summary'], ENT_QUOTES, 'UTF-8'); ?></div>
+            <?php endif; ?>
+          </div>
+        <?php endforeach; ?>
+      </article>
+
+      <article class="detail-card" style="margin-top:12px;">
+        <h3>Portofolio</h3>
+        <?php if ($portfolio === []): ?>
+          <div class="detail-item"><div class="detail-item-sub">Belum ada portofolio yang diisi.</div></div>
+        <?php endif; ?>
+        <?php foreach ($portfolio as $port): ?>
+          <div class="detail-item">
+            <div class="detail-item-title"><?php echo htmlspecialchars((string)($port['title'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
+            <div class="detail-item-sub"><?php echo htmlspecialchars((string)($port['type'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
+            <?php if (!empty($port['deliverable'])): ?>
+              <div class="detail-item-sub"><?php echo htmlspecialchars((string)$port['deliverable'], ENT_QUOTES, 'UTF-8'); ?></div>
+            <?php endif; ?>
+          </div>
+        <?php endforeach; ?>
+      </article>
+    </div>
+
+    <aside>
+      <article class="detail-card">
+        <h3>Profil</h3>
+        <div class="profile-row"><div class="k">Nama</div><div class="v"><?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?></div></div>
+        <div class="profile-row"><div class="k">Domisili</div><div class="v"><?php echo htmlspecialchars($domicile, ENT_QUOTES, 'UTF-8'); ?></div></div>
+        <div class="profile-row"><div class="k">Bidang</div><div class="v"><?php echo htmlspecialchars((string)$worker['bidang_keahlian'], ENT_QUOTES, 'UTF-8'); ?></div></div>
+        <div class="profile-row"><div class="k">Kontak</div><div class="v"><?php echo htmlspecialchars((string)$worker['contact_email'], ENT_QUOTES, 'UTF-8'); ?><br><?php echo htmlspecialchars((string)$worker['contact_wa'], ENT_QUOTES, 'UTF-8'); ?></div></div>
+        <div class="profile-row"><div class="k">Skill</div><div class="v"><?php echo htmlspecialchars($skills !== [] ? implode(', ', $skills) : '-', ENT_QUOTES, 'UTF-8'); ?></div></div>
+        <div class="profile-row"><div class="k">Video</div><div class="v"><?php echo !empty($worker['video_url']) ? '<a href="' . htmlspecialchars((string)$worker['video_url'], ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener">Lihat video</a>' : '-'; ?></div></div>
+        <div class="profile-row"><div class="k">Dikirim</div><div class="v"><?php echo htmlspecialchars((string)($worker['created_at'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div></div>
+        <div class="profile-row"><div class="k">Status</div><div class="v"><span style="background:<?php echo htmlspecialchars($statusBg, ENT_QUOTES, 'UTF-8'); ?>;color:<?php echo htmlspecialchars($statusColor, ENT_QUOTES, 'UTF-8'); ?>;padding:3px 8px;border-radius:999px;font-size:0.74rem;font-weight:800;"><?php echo htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8'); ?></span></div></div>
+
+        <?php if ($status === 'pending'): ?>
+          <div class="verify-panel">
+            <form method="post">
+              <label style="font-size:0.78rem;font-weight:700;color:#334155;">Catatan Verifikasi (opsional)</label>
+              <textarea name="admin_note" placeholder="Tulis catatan untuk worker..."></textarea>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn-approve" name="action" value="worker_approve" type="submit">Setujui</button>
+                <button class="btn-reject" name="action" value="worker_reject" type="submit">Tolak</button>
+              </div>
+            </form>
+          </div>
+        <?php elseif (!empty($worker['admin_note'])): ?>
+          <div class="verify-panel">
+            <div style="font-size:0.8rem;color:#334155;"><strong>Catatan Admin:</strong><br><?php echo htmlspecialchars((string)$worker['admin_note'], ENT_QUOTES, 'UTF-8'); ?></div>
+          </div>
+        <?php endif; ?>
+      </article>
+    </aside>
+  </div>
+</section>
+
+<?php require __DIR__ . '/includes/admin-layout-end.php'; ?>

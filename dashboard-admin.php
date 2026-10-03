@@ -409,21 +409,14 @@ require __DIR__ . '/includes/admin-layout-start.php';
                     <td><?php echo htmlspecialchars((string)$edit['reason_code'], ENT_QUOTES, 'UTF-8'); ?></td>
                     <td><?php echo admin_status_badge((string)($edit['status'] ?? 'pending')); ?></td>
                     <td>
-                      <details class="verify-detail-drawer">
-                        <summary>Lihat Detail</summary>
-                        <div class="verify-drawer-body">
-                          <p><strong>Ringkasan perubahan:</strong> <?php echo htmlspecialchars((string)$edit['change_summary'], ENT_QUOTES, 'UTF-8'); ?></p>
-                          <p><strong>Penjelasan alasan:</strong> <?php echo htmlspecialchars((string)$edit['reason_detail'], ENT_QUOTES, 'UTF-8'); ?></p>
-                          <p><strong>Draft profil baru:</strong> Nama <?php echo htmlspecialchars((string)($payload['name'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?> · Bidang <?php echo htmlspecialchars((string)($payload['title'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?> · Lokasi <?php echo htmlspecialchars((string)($payload['location'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></p>
-                          <form method="post" class="review-actions">
-                            <input type="hidden" name="tab" value="workers" />
-                            <input type="hidden" name="edit_id" value="<?php echo (int)$edit['id']; ?>" />
-                            <textarea name="admin_note" placeholder="Catatan verifikasi edit profil (opsional)"></textarea>
-                            <button class="btn-approve" name="action" value="worker_edit_approve" type="submit">Setujui Edit Profil</button>
-                            <button class="btn-reject" name="action" value="worker_edit_reject" type="submit">Tolak Edit Profil</button>
-                          </form>
-                        </div>
-                      </details>
+                      <a class="verify-open-link" href="admin-worker-detail.php?u=<?php echo urlencode((string)$edit['worker_username']); ?>&email=<?php echo urlencode((string)$edit['worker_email']); ?>">Lihat Detail</a>
+                      <form method="post" class="review-actions" style="margin-top:8px;">
+                        <input type="hidden" name="tab" value="workers" />
+                        <input type="hidden" name="edit_id" value="<?php echo (int)$edit['id']; ?>" />
+                        <textarea name="admin_note" placeholder="Catatan verifikasi edit profil (opsional)"></textarea>
+                        <button class="btn-approve" name="action" value="worker_edit_approve" type="submit">Setujui Edit Profil</button>
+                        <button class="btn-reject" name="action" value="worker_edit_reject" type="submit">Tolak Edit Profil</button>
+                      </form>
                     </td>
                   </tr>
                 <?php endforeach; ?>
@@ -452,23 +445,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
                     </td>
                     <td><?php echo admin_status_badge((string)($row['status'] ?? 'pending')); ?></td>
                     <td>
-                      <details class="verify-detail-drawer">
-                        <summary>Lihat Detail</summary>
-                        <div class="verify-drawer-body">
-                          <p><strong>Skills:</strong> <?php echo htmlspecialchars(is_array($row['skills']) ? implode(', ', $row['skills']) : (string)$row['skills'], ENT_QUOTES, 'UTF-8'); ?></p>
-                          <?php if (($row['status'] ?? '') === 'pending'): ?>
-                            <form method="post" class="review-actions">
-                              <input type="hidden" name="tab" value="workers" />
-                              <input type="hidden" name="username" value="<?php echo htmlspecialchars((string)$row['username'], ENT_QUOTES, 'UTF-8'); ?>" />
-                              <textarea name="admin_note" placeholder="Catatan verifikasi (opsional)"></textarea>
-                              <button class="btn-approve" name="action" value="worker_approve" type="submit">Setujui</button>
-                              <button class="btn-reject" name="action" value="worker_reject" type="submit">Tolak</button>
-                            </form>
-                          <?php elseif (!empty($row['admin_note'])): ?>
-                            <p><strong>Catatan Admin:</strong> <?php echo htmlspecialchars((string)$row['admin_note'], ENT_QUOTES, 'UTF-8'); ?></p>
-                          <?php endif; ?>
-                        </div>
-                      </details>
+                      <a class="verify-open-link" href="admin-worker-detail.php?u=<?php echo urlencode((string)$row['username']); ?>&email=<?php echo urlencode((string)$row['contact_email']); ?>">Lihat Detail</a>
                     </td>
                   </tr>
                 <?php endforeach; ?>
