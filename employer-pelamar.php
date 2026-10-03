@@ -73,7 +73,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
     <div class="privacy-lock-note">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      Klik <strong>Terima &amp; Setujui</strong> untuk merekrut Gig Worker. Kontak resmi langsung terbuka dan proyek masuk ke Proyek Aktif.
+      Klik <strong>Terima</strong> untuk merekrut Gig Worker. Kontak resmi langsung terbuka dan proyek masuk ke Proyek Aktif.
     </div>
 
     <div class="toolbar-filter">
@@ -139,7 +139,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <form method="post" action="" style="display:flex;gap:6px;flex-wrap:wrap;">
                 <input type="hidden" name="app_id" value="<?php echo htmlspecialchars($appId, ENT_QUOTES, 'UTF-8'); ?>" />
                 <button type="submit" name="app_action" value="accept" class="btn-hire" style="background:#16a34a;border-color:#15803d;padding:6px 12px;font-size:0.8rem;">
-                  ✓ Terima &amp; Setujui
+                  ✓ Terima
                 </button>
                 <button type="submit" name="app_action" value="reject" class="btn-action-sm" style="background:#fef2f2;color:#b91c1c;border-color:#fecdd3;padding:6px 10px;font-size:0.8rem;" onclick="return confirm('Tolak lamaran kandidat ini?')">
                   ✕ Tolak
