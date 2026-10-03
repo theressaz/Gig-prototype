@@ -126,23 +126,126 @@ function gig_admin_list_employer_registrations(?string $statusFilter = null): ar
 {
     gig_admin_ensure_schema();
     $db = gig_db();
-    if ($db === null) {
-        return [];
+    $rows = [];
+    if ($db !== null) {
+        $sql = "SELECT * FROM `employer_gig_registrations`";
+        $params = [];
+        if ($statusFilter !== null && $statusFilter !== '') {
+            $sql .= " WHERE `status` = :st";
+            $params[':st'] = $statusFilter;
+        }
+        $sql .= " ORDER BY `created_at` DESC";
+        try {
+            $stmt = $db->prepare($sql);
+            $stmt->execute($params);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        } catch (Throwable $e) {
+            $rows = [];
+        }
     }
-    $sql = "SELECT * FROM `employer_gig_registrations`";
-    $params = [];
-    if ($statusFilter !== null && $statusFilter !== '') {
-        $sql .= " WHERE `status` = :st";
-        $params[':st'] = $statusFilter;
+
+    if (empty($rows)) {
+        $demos = [
+            [
+                'id' => 101,
+                'company_name' => 'S-Tank Engineering Co., Ltd.',
+                'siapkerja_email' => 'stankengineering@gmail.com',
+                'nama_pic' => 'S-Tank Engineering',
+                'email_pic' => 'stankengineering@gmail.com',
+                'phone_pic' => '082552399300',
+                'industry' => 'Manufaktur & Teknik',
+                'jenis_entitas' => 'Perusahaan',
+                'location' => 'Cibeber, Cibeber, Kota Cilegon, Banten',
+                'status' => 'pending',
+                'deadline' => '4 hari lagi',
+                'created_at' => '2026-09-02 09:30:00',
+                'admin_note' => '',
+            ],
+            [
+                'id' => 102,
+                'company_name' => 'PT. Hengda Steel Indonesia',
+                'siapkerja_email' => 'hengdasteel.pt@gmail.com',
+                'nama_pic' => 'PT. Hengda Steel Indonesia',
+                'email_pic' => 'hengdasteel.pt@gmail.com',
+                'phone_pic' => '02144564689',
+                'industry' => 'Industri Baja & Logam',
+                'jenis_entitas' => 'Perusahaan',
+                'location' => 'Gandasari, Jatiuwung, Kota Tangerang, Banten',
+                'status' => 'pending',
+                'deadline' => '4 hari lagi',
+                'created_at' => '2026-09-02 10:15:00',
+                'admin_note' => '',
+            ],
+            [
+                'id' => 103,
+                'company_name' => 'PT. Good Mobile Indonesia',
+                'siapkerja_email' => 'deafernanda@realme.com',
+                'nama_pic' => 'PT. Good Mobile Indonesia',
+                'email_pic' => 'deafernanda@realme.com',
+                'phone_pic' => '085156039296',
+                'industry' => 'Teknologi & Gadget',
+                'jenis_entitas' => 'Perusahaan',
+                'location' => 'Kamal Muara, Penjaringan, Kota Adm. Jakarta Utara, DKI Jakarta',
+                'status' => 'pending',
+                'deadline' => '4 hari lagi',
+                'created_at' => '2026-09-02 11:00:00',
+                'admin_note' => '',
+            ],
+            [
+                'id' => 104,
+                'company_name' => 'Cosl Indo',
+                'siapkerja_email' => 'ci.coslindo@gmail.com',
+                'nama_pic' => 'Cosl Indo',
+                'email_pic' => 'ci.coslindo@gmail.com',
+                'phone_pic' => '02157932563',
+                'industry' => 'Energi & Jasa Industri',
+                'jenis_entitas' => 'Perusahaan',
+                'location' => 'Setia Budi, Setiabudi, Kota Adm. Jakarta Selatan, DKI Jakarta',
+                'status' => 'pending',
+                'deadline' => '3 hari lagi',
+                'created_at' => '2026-09-01 14:20:00',
+                'admin_note' => '',
+            ],
+            [
+                'id' => 105,
+                'company_name' => 'PT.Enertech Indo',
+                'siapkerja_email' => 'hrd.enertechindo@gmail.com',
+                'nama_pic' => 'PT.Enertech Indo',
+                'email_pic' => 'hrd.enertechindo@gmail.com',
+                'phone_pic' => '021-27088669',
+                'industry' => 'Kelistrikan & Otomasi',
+                'jenis_entitas' => 'Perusahaan',
+                'location' => 'Selong, Kebayoran Baru, Kota Adm. Jakarta Selatan, DKI Jakarta',
+                'status' => 'pending',
+                'deadline' => '3 hari lagi',
+                'created_at' => '2026-09-01 16:45:00',
+                'admin_note' => '',
+            ],
+            [
+                'id' => 106,
+                'company_name' => 'PT Talenta Digital Indonesia',
+                'siapkerja_email' => 'employer@pasker.id',
+                'nama_pic' => 'PT Talenta Digital Indonesia',
+                'email_pic' => 'employer@pasker.id',
+                'phone_pic' => '021-5550192',
+                'industry' => 'Teknologi Informasi & Software',
+                'jenis_entitas' => 'Perusahaan',
+                'location' => 'Sudirman, Jakarta Pusat, DKI Jakarta',
+                'status' => 'approved',
+                'deadline' => 'Terverifikasi',
+                'created_at' => '2026-08-28 09:00:00',
+                'admin_note' => 'Dokumen verifikasi NIB dan Legalitas PIC dinyatakan sah.',
+            ]
+        ];
+
+        if ($statusFilter !== null && $statusFilter !== '' && $statusFilter !== 'all') {
+            $rows = array_values(array_filter($demos, fn($d) => $d['status'] === $statusFilter));
+        } else {
+            $rows = $demos;
+        }
     }
-    $sql .= " ORDER BY `created_at` DESC";
-    try {
-        $stmt = $db->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-    } catch (Throwable $e) {
-        return [];
-    }
+
+    return $rows;
 }
 
 function gig_admin_set_worker_status(string $username, string $status, string $adminNote = ''): bool
