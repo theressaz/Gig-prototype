@@ -1,12 +1,24 @@
 <?php
 declare(strict_types=1);
-require_once __DIR__ . '/includes/worker-auth.php';
+
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/project-vacancies.php';
 
-$employerName = trim((string)($_GET['name'] ?? $_GET['employer'] ?? 'PT Talenta Digital Indonesia'));
+$role = (string)($_SESSION['role'] ?? 'employer');
+$username = (string)($_SESSION['username'] ?? 'PT Talenta Digital Indonesia');
+
+if (!isset($_SESSION['username']) && !isset($_SESSION['role'])) {
+    header("Location: welcome-screen.php");
+    exit;
+}
+
+$employerName = trim((string)($_GET['name'] ?? $_GET['employer'] ?? ''));
 if ($employerName === '') {
-    $employerName = 'PT Talenta Digital Indonesia';
+    $employerName = ($role === 'employer' && $username !== '') ? $username : 'PT Talenta Digital Indonesia';
 }
 
 $allVacancies = gig_project_vacancies();
@@ -23,10 +35,15 @@ if (empty($employerVacancies)) {
     $employerVacancies = array_slice($employerVacancies, 0, 3);
 }
 
-$pageTitle = 'Profil Pemberi Kerja · ' . $employerName;
-$pageKey = 'bursa';
-$breadcrumbCurrent = 'Profil Pemberi Kerja';
-require __DIR__ . '/includes/worker-layout-start.php';
+$pageTitle = 'Profil Perusahaan · ' . $employerName;
+$pageKey = 'profil';
+$breadcrumbCurrent = 'Profil Perusahaan';
+
+if ($role === 'employer') {
+    require __DIR__ . '/includes/employer-layout-start.php';
+} else {
+    require __DIR__ . '/includes/worker-layout-start.php';
+}
 ?>
 
 <style>
@@ -125,7 +142,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
   <section class="emp-card">
     <div class="emp-header-row">
       <div class="emp-avatar-box">
-        🏢
+        <?php echo htmlspecialchars(strtoupper(substr($employerName !== '' ? $employerName : 'P', 0, 1)), ENT_QUOTES, 'UTF-8'); ?>
       </div>
 
       <div style="flex-grow: 1;">
@@ -171,14 +188,16 @@ require __DIR__ . '/includes/worker-layout-start.php';
     </h3>
 
     <div style="display: flex; flex-direction: column; gap: 14px;">
-      <?php foreach ($employerVacancies as $job): ?>
+      <?php foreach ($employerVacancies as $job): 
+        $jobLink = $role === 'employer' ? ('employer-detail-lowongan.php?id=' . urlencode($job['id'])) : ('worker-project-detail.php?id=' . urlencode($job['id']));
+      ?>
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
           <div>
             <span style="font-size: 0.75rem; background: #eff6ff; color: #1d4ed8; font-weight: 700; padding: 3px 10px; border-radius: 9999px; margin-bottom: 6px; display: inline-block;">
               <?php echo htmlspecialchars($job['category'], ENT_QUOTES, 'UTF-8'); ?>
             </span>
             <h4 style="font-size: 0.98rem; font-weight: 800; color: #0f172a; margin: 4px 0;">
-              <a href="worker-project-detail.php?id=<?php echo urlencode($job['id']); ?>" style="color: inherit; text-decoration: none;">
+              <a href="<?php echo htmlspecialchars($jobLink, ENT_QUOTES, 'UTF-8'); ?>" style="color: inherit; text-decoration: none;">
                 <?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?>
               </a>
             </h4>
@@ -187,7 +206,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
             </div>
           </div>
 
-          <a href="worker-project-detail.php?id=<?php echo urlencode($job['id']); ?>" class="btn-primary-add" style="font-size: 0.82rem; padding: 8px 16px; text-decoration: none; flex-shrink: 0;">
+          <a href="<?php echo htmlspecialchars($jobLink, ENT_QUOTES, 'UTF-8'); ?>" class="btn-primary-add" style="font-size: 0.82rem; padding: 8px 16px; text-decoration: none; flex-shrink: 0;">
             Lihat Proyek &rarr;
           </a>
         </div>
@@ -197,4 +216,10 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
 </div>
 
-<?php require __DIR__ . '/includes/worker-layout-end.php'; ?>
+<?php 
+if ($role === 'employer') {
+    require __DIR__ . '/includes/employer-layout-end.php';
+} else {
+    require __DIR__ . '/includes/worker-layout-end.php';
+}
+?>

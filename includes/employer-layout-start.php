@@ -46,7 +46,7 @@ $navItems = [
       <a href="employer-pengaturan.php" class="sidebar-icon<?php echo $pageKey === 'pengaturan' ? ' active' : ''; ?>" title="Pengaturan">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </a>
-      <div class="sidebar-user-initials" title="<?php echo $companyLabel; ?>"><?php echo htmlspecialchars($userInitials, ENT_QUOTES, 'UTF-8'); ?></div>
+      <a href="employer-profile.php" class="sidebar-user-initials" title="<?php echo $companyLabel; ?>" style="text-decoration:none;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;"><?php echo htmlspecialchars($userInitials, ENT_QUOTES, 'UTF-8'); ?></a>
     </div>
   </aside>
 
@@ -108,7 +108,7 @@ $unreadNotifCount = count(array_filter($empNotifs, fn($n) => empty($n['is_read']
         </div>
 
         <div class="profile-menu">
-          <div class="profile-widget" onclick="document.getElementById('profileDropdown').classList.toggle('open')">
+          <div class="profile-widget" onclick="document.getElementById('profileDropdown').classList.toggle('open')" style="cursor:pointer;">
             <div style="width:36px;height:36px;border-radius:50%;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.95rem;flex-shrink:0;"><?php echo htmlspecialchars(strtoupper(substr($companyLabel !== '' ? $companyLabel : 'P', 0, 1)), ENT_QUOTES, 'UTF-8'); ?></div>
             <div class="profile-info">
               <span class="profile-name"><?php echo $companyLabel; ?></span>
@@ -117,6 +117,7 @@ $unreadNotifCount = count(array_filter($empNotifs, fn($n) => empty($n['is_read']
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
           <div class="profile-dropdown" id="profileDropdown">
+            <a href="employer-profile.php">Profil Perusahaan</a>
             <a href="employer-pengaturan.php">Pengaturan akun</a>
             <a href="karirhub-logout.php">Keluar</a>
           </div>
