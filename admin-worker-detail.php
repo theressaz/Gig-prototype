@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/includes/admin-auth.php';
 require_once __DIR__ . '/includes/admin-store.php';
+require_once __DIR__ . '/includes/worker-profiles.php';
 
 $workerParam = trim((string)($_GET['u'] ?? ''));
 $emailParam = trim((string)($_GET['email'] ?? ''));
@@ -33,6 +34,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $worker !== null) {
     } elseif ($action === 'worker_reject') {
         $ok = gig_admin_set_worker_status((string)$worker['username'], 'rejected', $note);
         $flash = $ok ? 'Verifikasi Gig Worker ditolak.' : 'Gagal menolak verifikasi.';
+        $flashType = $ok ? 'success' : 'error';
+    } elseif ($action === 'worker_edit_approve') {
+        $ok = gig_admin_set_worker_profile_edit_status((int)($_POST['edit_id'] ?? 0), 'approved', $note);
+        $flash = $ok ? 'Permintaan edit profil disetujui.' : 'Gagal menyetujui permintaan edit profil.';
+        $flashType = $ok ? 'success' : 'error';
+    } elseif ($action === 'worker_edit_reject') {
+        $ok = gig_admin_set_worker_profile_edit_status((int)($_POST['edit_id'] ?? 0), 'rejected', $note);
+        $flash = $ok ? 'Permintaan edit profil ditolak.' : 'Gagal menolak permintaan edit profil.';
         $flashType = $ok ? 'success' : 'error';
     }
 
@@ -75,6 +84,23 @@ $skills = is_array($worker['skills'] ?? null) ? $worker['skills'] : [];
 $projects = is_array($worker['previous_projects'] ?? null) ? $worker['previous_projects'] : [];
 $portfolio = is_array($worker['portfolio'] ?? null) ? $worker['portfolio'] : [];
 $status = (string)($worker['status'] ?? 'pending');
+
+$profileLookup = gig_find_worker((string)$worker['username']);
+if (!$profileLookup && !empty($worker['contact_email'])) {
+    $emailStem = explode('@', (string)$worker['contact_email'])[0] ?? '';
+    if ($emailStem !== '') {
+        $profileLookup = gig_find_worker($emailStem);
+    }
+}
+if ($projects === [] && is_array($profileLookup['experience'] ?? null)) {
+    $projects = $profileLookup['experience'];
+}
+if ($portfolio === [] && is_array($profileLookup['portfolio'] ?? null)) {
+    $portfolio = $profileLookup['portfolio'];
+}
+if ($skills === [] && is_array($profileLookup['skills'] ?? null)) {
+    $skills = $profileLookup['skills'];
+}
 $allProfileEdits = gig_admin_list_worker_profile_edits();
 $workerEditKey = gig_worker_profile_edit_key((string)($worker['username'] ?? ''));
 $relatedEdits = array_values(array_filter($allProfileEdits, static function (array $edit) use ($workerEditKey, $worker): bool {
@@ -152,6 +178,8 @@ if ($status === 'approved') {
   .profile-row .v { color:#0f172a; font-weight:600; }
   .verify-panel { margin-top:14px;padding-top:12px;border-top:1px solid #e2e8f0; }
   .verify-panel textarea { width:100%;min-height:70px;border:1px solid #cbd5e1;border-radius:10px;padding:9px;font:inherit;margin:8px 0; }
+  .edit-verify-actions { display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;margin-top:8px; }
+  .edit-verify-actions textarea { width:100%;min-height:70px;border:1px solid #cbd5e1;border-radius:10px;padding:9px;font:inherit; }
   .flash { padding:11px 13px;border-radius:10px;margin-bottom:14px;font-size:0.84rem;font-weight:700; }
   .flash.success { background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0; }
   .flash.error { background:#fef2f2;color:#991b1b;border:1px solid #fecaca; }
@@ -210,6 +238,14 @@ if ($status === 'approved') {
               Bidang <?php echo htmlspecialchars((string)($editPayload['title'] ?? ($worker['bidang_keahlian'] ?? '-')), ENT_QUOTES, 'UTF-8'); ?> ·
               Lokasi <?php echo htmlspecialchars((string)($editPayload['location'] ?? $domicile), ENT_QUOTES, 'UTF-8'); ?>
             </div>
+            <?php if ((string)($selectedEdit['status'] ?? '') === 'pending'): ?>
+              <form method="post" class="edit-verify-actions">
+                <input type="hidden" name="edit_id" value="<?php echo (int)$selectedEdit['id']; ?>">
+                <textarea name="admin_note" placeholder="Catatan verifikasi edit profil (opsional)"></textarea>
+                <button class="btn-approve" name="action" value="worker_edit_approve" type="submit">Setujui Edit Profil</button>
+                <button class="btn-reject" name="action" value="worker_edit_reject" type="submit">Tolak Edit Profil</button>
+              </form>
+            <?php endif; ?>
           </div>
         <?php endif; ?>
 
