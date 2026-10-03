@@ -1265,7 +1265,9 @@
       object-fit: cover;
     }
 
-    .verified-icon-badge {
+    .verified-icon-badge, .verified-dot, .mitra-verified-badge {
+      display: none !important;
+    }
       position: absolute;
       bottom: -2px;
       right: -2px;

@@ -354,9 +354,6 @@ require __DIR__ . '/includes/employer-layout-start.php';
             <div style="width:56px;height:56px;border-radius:50%;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.4rem;border:3px solid #ffffff;box-shadow:0 4px 10px rgba(0,0,0,0.12);">
               <?php echo htmlspecialchars(strtoupper(substr((string)$w['name'], 0, 1)), ENT_QUOTES, 'UTF-8'); ?>
             </div>
-            <?php if (!empty($w['verified'])): ?>
-              <span class="mitra-verified-badge" title="Profil Terverifikasi">✓</span>
-            <?php endif; ?>
           </div>
         </div>
 

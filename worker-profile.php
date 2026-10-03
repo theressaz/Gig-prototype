@@ -83,7 +83,6 @@ if ($role === 'worker') {
     <section class="profile-hero">
       <div class="profile-photo-wrap">
         <div class="profile-photo" style="width:80px;height:80px;border-radius:50%;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:2.2rem;box-shadow:0 4px 14px rgba(37,99,235,0.3);flex-shrink:0;"><?php echo htmlspecialchars(strtoupper(substr((string)$worker['name'], 0, 1)), ENT_QUOTES, 'UTF-8'); ?></div>
-        <?php if (!empty($worker['verified'])): ?><span class="verified-dot">✓</span><?php endif; ?>
       </div>
       <div class="profile-id">
         <div class="worker-display-name"><?php echo htmlspecialchars($worker['name'], ENT_QUOTES, 'UTF-8'); ?></div>

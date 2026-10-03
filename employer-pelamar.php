@@ -106,7 +106,6 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <div class="applicant-left-info">
             <a class="applicant-avatar" href="worker-profile.php?id=<?php echo urlencode($applicant['id']); ?>" style="background:<?php echo htmlspecialchars($applicant['color'], ENT_QUOTES, 'UTF-8'); ?>;display:flex;align-items:center;justify-content:center;color:#ffffff;font-weight:800;font-size:1.2rem;text-decoration:none;">
               <?php echo htmlspecialchars(strtoupper(substr((string)$applicant['name'], 0, 1)), ENT_QUOTES, 'UTF-8'); ?>
-              <?php if (!empty($applicant['verified'])): ?><span class="verified-icon-badge">✓</span><?php endif; ?>
             </a>
             <div class="applicant-details">
               <div class="applicant-name-row">
