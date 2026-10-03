@@ -390,7 +390,7 @@ $displayComment = $submitted
       <div class="white-card" style="padding:20px;">
         <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;">Pekerja Gig yang Dinilai</div>
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-          <img src="<?php echo htmlspecialchars($worker['photo'],ENT_QUOTES,'UTF-8'); ?>" alt="" style="width:50px;height:50px;border-radius:50%;background:#dbeafe;" />
+          <div style="width:50px;height:50px;border-radius:50%;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem;flex-shrink:0;"><?php echo htmlspecialchars(strtoupper(substr((string)$worker['name'], 0, 1)), ENT_QUOTES, 'UTF-8'); ?></div>
           <div>
             <h3 style="font-size:1.05rem;font-weight:800;margin:0;color:var(--text-main);"><?php echo htmlspecialchars($worker['name'],ENT_QUOTES,'UTF-8'); ?></h3>
             <span style="font-size:0.78rem;color:var(--text-muted);"><?php echo htmlspecialchars($worker['title'],ENT_QUOTES,'UTF-8'); ?></span>

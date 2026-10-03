@@ -576,17 +576,15 @@ $testimonials = [
               </div>
             <?php endif; ?>
             <button type="button" class="nav-avatar-btn" id="profileTrigger" aria-expanded="false" aria-controls="profilePanel" aria-label="Menu profil">
-              <img
-                class="nav-avatar"
-                src="<?php echo htmlspecialchars($profileAvatarUrl, ENT_QUOTES, 'UTF-8'); ?>"
-                alt=""
-                width="40"
-                height="40"
-              />
+              <div class="nav-avatar" style="width:40px;height:40px;border-radius:50%;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;flex-shrink:0;">
+                <?php echo htmlspecialchars(strtoupper(substr($displayName !== '' ? $displayName : 'T', 0, 1)), ENT_QUOTES, 'UTF-8'); ?>
+              </div>
             </button>
             <div class="profile-panel" id="profilePanel" role="dialog" aria-label="Menu profil pengguna">
               <div class="profile-panel-head">
-                <img src="<?php echo htmlspecialchars($profileAvatarUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="" width="48" height="48" />
+                <div style="width:48px;height:48px;border-radius:50%;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.15rem;flex-shrink:0;">
+                  <?php echo htmlspecialchars(strtoupper(substr($displayName !== '' ? $displayName : 'T', 0, 1)), ENT_QUOTES, 'UTF-8'); ?>
+                </div>
                 <div>
                   <div class="name"><?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?></div>
                   <div class="email"><?php echo htmlspecialchars($profileEmail, ENT_QUOTES, 'UTF-8'); ?></div>

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__ . '/includes/employer-auth.php';
 require_once __DIR__ . '/includes/project-vacancies.php';
-require_once __DIR__ . '/includes/worker-profiles.php';
+require_once __DIR__ . '/includes/project-applications.php';
 
 $jobId = trim((string)($_GET['id'] ?? 'GIG-2026-09-001'));
 $job = gig_find_vacancy($jobId);
@@ -12,9 +12,22 @@ if ($job === null) {
     exit;
 }
 
+$allApps = gig_get_all_applications();
+$appMapByWorker = [];
+foreach ($allApps as $ap) {
+    $wKey = strtolower(trim((string)$ap['worker_id']));
+    $appMapByWorker[$wKey] = $ap;
+}
+
 $workerProfiles = gig_worker_profiles();
-// Filter applicants matching this job title/category
-$applicants = array_filter($workerProfiles, function($w) use ($job) {
+// Filter applicants matching this job title/category, excluding accepted/hired candidates
+$applicants = array_filter($workerProfiles, function($w) use ($job, $appMapByWorker) {
+    $wKey = strtolower(trim((string)$w['id']));
+    $appData = $appMapByWorker[$wKey] ?? null;
+    $status = $appData['status'] ?? 'applied';
+    if (gig_is_hired_status($status)) {
+        return false;
+    }
     return strtolower($w['applied_project']) === strtolower($job['title']) 
         || strtolower($w['category']) === strtolower($job['category']);
 });
@@ -90,7 +103,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <?php foreach ($applicants as $app): ?>
                 <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
                   <div style="display:flex;align-items:center;gap:12px;">
-                    <img src="<?php echo htmlspecialchars($app['photo'], ENT_QUOTES, 'UTF-8'); ?>" alt="" style="width:40px;height:40px;border-radius:50%;background:#e2e8f0;" />
+                    <div style="width:40px;height:40px;border-radius:50%;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;flex-shrink:0;"><?php echo htmlspecialchars(strtoupper(substr((string)$app['name'], 0, 1)), ENT_QUOTES, 'UTF-8'); ?></div>
                     <div>
                       <div style="font-size:0.9rem;font-weight:700;">
                         <a href="worker-profile.php?id=<?php echo urlencode($app['id']); ?>" style="color:inherit;text-decoration:none;"><?php echo htmlspecialchars($app['name'], ENT_QUOTES, 'UTF-8'); ?></a>

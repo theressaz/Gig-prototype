@@ -72,7 +72,7 @@ foreach ($historyProjects as $p) {
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px;align-items:center;">
           <div style="display:flex;align-items:center;gap:12px;">
-            <img src="<?php echo htmlspecialchars($item['workerAvatar'], ENT_QUOTES, 'UTF-8'); ?>" alt="" style="width:42px;height:42px;border-radius:50%;background:#f1f5f9;" />
+            <div style="width:42px;height:42px;border-radius:50%;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.05rem;flex-shrink:0;"><?php echo htmlspecialchars(strtoupper(substr((string)$item['worker'], 0, 1)), ENT_QUOTES, 'UTF-8'); ?></div>
             <div>
               <div style="font-size:0.9rem;font-weight:700;">
                 <a href="worker-profile.php?id=<?php echo urlencode($item['workerId']); ?>" style="color:inherit;text-decoration:none;"><?php echo htmlspecialchars($item['worker'], ENT_QUOTES, 'UTF-8'); ?></a>

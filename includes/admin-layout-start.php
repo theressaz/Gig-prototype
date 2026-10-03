@@ -84,7 +84,7 @@ $sidebarTabs = [
       </div>
       <div class="navbar-right">
         <div class="admin-profile-chip">
-          <img src="<?php echo htmlspecialchars($adminAvatarUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="" />
+          <div style="width:36px;height:36px;border-radius:50%;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.95rem;flex-shrink:0;"><?php echo htmlspecialchars(strtoupper(substr($adminDisplayName !== '' ? $adminDisplayName : 'A', 0, 1)), ENT_QUOTES, 'UTF-8'); ?></div>
           <div>
             <div class="name"><?php echo $adminDisplayName; ?></div>
             <div class="role">Admin pusat</div>

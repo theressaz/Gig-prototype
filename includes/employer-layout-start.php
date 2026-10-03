@@ -109,7 +109,7 @@ $unreadNotifCount = count(array_filter($empNotifs, fn($n) => empty($n['is_read']
 
         <div class="profile-menu">
           <div class="profile-widget" onclick="document.getElementById('profileDropdown').classList.toggle('open')">
-            <img src="<?php echo htmlspecialchars($employerAvatarUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="Logo perusahaan" />
+            <div style="width:36px;height:36px;border-radius:50%;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.95rem;flex-shrink:0;"><?php echo htmlspecialchars(strtoupper(substr($companyLabel !== '' ? $companyLabel : 'P', 0, 1)), ENT_QUOTES, 'UTF-8'); ?></div>
             <div class="profile-info">
               <span class="profile-name"><?php echo $companyLabel; ?></span>
               <span class="profile-role">Perusahaan</span>

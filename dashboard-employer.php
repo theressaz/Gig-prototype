@@ -1,11 +1,23 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/includes/employer-auth.php';
-require_once __DIR__ . '/includes/worker-profiles.php';
-require_once __DIR__ . '/includes/project-vacancies.php';
-require_once __DIR__ . '/includes/project-schedule.php';
+require_once __DIR__ . '/includes/project-applications.php';
 
-$workerProfiles = gig_worker_profiles();
+$allApps = gig_get_all_applications();
+$appMapByWorker = [];
+foreach ($allApps as $ap) {
+    $wKey = strtolower(trim((string)$ap['worker_id']));
+    $appMapByWorker[$wKey] = $ap;
+}
+
+$rawWorkerProfiles = gig_worker_profiles();
+$workerProfiles = array_filter($rawWorkerProfiles, function($w) use ($appMapByWorker) {
+    $wKey = strtolower(trim((string)$w['id']));
+    $appData = $appMapByWorker[$wKey] ?? null;
+    $status = $appData['status'] ?? 'applied';
+    return !gig_is_hired_status($status);
+});
+
 $vacancies = gig_project_vacancies();
 $soonest = gig_demo_soonest_active_project();
 $otherActive = array_values(array_filter(
@@ -20,7 +32,6 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
     <div class="page-toolbar">
       <h1>Ringkasan</h1>
-      <button class="btn-primary-add" type="button" onclick="openPostProjectModal()">+ Pasang Proyek</button>
     </div>
 
     <div class="system-info-notice">
@@ -131,8 +142,8 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <?php foreach (array_slice($workerProfiles, 0, 3) as $recent): ?>
           <a class="recent-applicant-row" href="worker-profile.php?id=<?php echo urlencode($recent['id']); ?>">
             <div class="recent-applicant-left">
-              <div class="recent-avatar" style="background:<?php echo htmlspecialchars($recent['color'], ENT_QUOTES, 'UTF-8'); ?>">
-                <img src="<?php echo htmlspecialchars($recent['photo'], ENT_QUOTES, 'UTF-8'); ?>" alt="" />
+              <div class="recent-avatar" style="background:<?php echo htmlspecialchars($recent['color'], ENT_QUOTES, 'UTF-8'); ?>;display:flex;align-items:center;justify-content:center;color:#ffffff;font-weight:800;font-size:1.05rem;border-radius:50%;">
+                <?php echo htmlspecialchars(strtoupper(substr((string)$recent['name'], 0, 1)), ENT_QUOTES, 'UTF-8'); ?>
               </div>
               <div>
                 <div style="font-size:0.88rem;font-weight:800;"><?php echo htmlspecialchars($recent['name'], ENT_QUOTES, 'UTF-8'); ?></div>
