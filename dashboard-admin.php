@@ -200,7 +200,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
           <article class="admin-kpi-card">
             <div class="kpi-label">Pengajuan Gig Worker</div>
             <div class="kpi-value"><?php echo number_format($metrics['workers_total'], 0, ',', '.'); ?></div>
-            <div class="kpi-sub"><?php echo (int)$metrics['workers_pending']; ?> pendaftaran · <?php echo (int)$metrics['worker_profile_edits_pending']; ?> edit profil</div>
+            <div class="kpi-sub"><?php echo (int)$metrics['workers_pending']; ?> pendaftaran + <?php echo (int)$metrics['worker_profile_edits_pending']; ?> edit profil menunggu verifikasi</div>
           </article>
         </a>
         <a href="?tab=employers" class="admin-kpi-link">
@@ -319,204 +319,81 @@ require __DIR__ . '/includes/admin-layout-start.php';
     <?php endif; ?>
 
     <?php if ($tab === 'workers'): ?>
-      <h1 class="admin-dark-header">Verifikasi Gig Worker</h1>
+      <h2 style="font-size:1rem;font-weight:800;margin:0 0 10px 0;">Pengajuan Edit Profil Gig Worker</h2>
+      <?php if ($pendingProfileEdits === []): ?>
+        <div class="empty-state" style="margin-bottom:16px;">Tidak ada pengajuan edit profil worker yang menunggu verifikasi.</div>
+      <?php endif; ?>
+      <?php foreach ($pendingProfileEdits as $edit): ?>
+        <?php $payload = is_array($edit['proposed_payload'] ?? null) ? $edit['proposed_payload'] : []; ?>
+        <article class="review-card" style="border-left:4px solid #0ea5e9;">
+          <h3><?php echo htmlspecialchars((string)$edit['worker_username'], ENT_QUOTES, 'UTF-8'); ?> <?php echo admin_status_badge((string)($edit['status'] ?? 'pending')); ?></h3>
+          <div class="review-meta">Bidang diubah: <?php echo htmlspecialchars((string)$edit['edited_field'], ENT_QUOTES, 'UTF-8'); ?> · Alasan: <?php echo htmlspecialchars((string)$edit['reason_code'], ENT_QUOTES, 'UTF-8'); ?> · Email: <?php echo htmlspecialchars((string)$edit['worker_email'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <div class="review-detail"><strong>Ringkasan perubahan worker:</strong> <?php echo htmlspecialchars((string)$edit['change_summary'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <div class="review-detail"><strong>Penjelasan alasan:</strong> <?php echo htmlspecialchars((string)$edit['reason_detail'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <div class="review-detail">
+            <strong>Draft profil baru:</strong><br>
+            Nama: <?php echo htmlspecialchars((string)($payload['name'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?> ·
+            Bidang: <?php echo htmlspecialchars((string)($payload['title'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?> ·
+            Lokasi: <?php echo htmlspecialchars((string)($payload['location'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?><br>
+            Pengalaman: <?php echo count(is_array($payload['experience'] ?? null) ? $payload['experience'] : []); ?> item ·
+            Portofolio: <?php echo count(is_array($payload['portfolio'] ?? null) ? $payload['portfolio'] : []); ?> item
+          </div>
+          <form method="post" class="review-actions">
+            <input type="hidden" name="tab" value="workers" />
+            <input type="hidden" name="edit_id" value="<?php echo (int)$edit['id']; ?>" />
+            <textarea name="admin_note" placeholder="Catatan verifikasi edit profil (opsional)"></textarea>
+            <button class="btn-approve" name="action" value="worker_edit_approve" type="submit">Setujui Edit Profil</button>
+            <button class="btn-reject" name="action" value="worker_edit_reject" type="submit">Tolak Edit Profil</button>
+          </form>
+        </article>
+      <?php endforeach; ?>
 
-      <?php
-      $stFilter = strtolower((string)($_GET['status'] ?? 'pending'));
-      $pendingWorkerCount = count($pendingWorkers) + count($pendingProfileEdits);
-      ?>
-
-      <div class="admin-dark-subtabs">
-        <a href="?tab=workers&status=all" class="<?php echo $stFilter === 'all' ? 'active' : ''; ?>">Semua</a>
-        <a href="?tab=workers&status=pending" class="<?php echo $stFilter === 'pending' ? 'active' : ''; ?>">
-          Menunggu Verifikasi <?php if ($pendingWorkerCount > 0): ?><span class="badge-count-red"><?php echo $pendingWorkerCount; ?></span><?php endif; ?>
-        </a>
-        <a href="?tab=workers&status=revision" class="<?php echo $stFilter === 'revision' ? 'active' : ''; ?>">Revisi</a>
-        <a href="?tab=workers&status=approved" class="<?php echo $stFilter === 'approved' ? 'active' : ''; ?>">Terverifikasi</a>
-        <a href="?tab=workers&status=rejected" class="<?php echo $stFilter === 'rejected' ? 'active' : ''; ?>">Ditolak</a>
-      </div>
-
-      <div class="admin-dark-toolbar">
-        <div class="admin-dark-search-box">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" placeholder="Cari gig worker..." onkeyup="searchAdminDarkTable(this.value)" />
-        </div>
-        <button class="btn-dark-filter" type="button" onclick="alert('Filter kriteria aktif.')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-          Filter
-        </button>
-      </div>
-
-      <div class="admin-dark-table-card">
-        <table class="admin-dark-table" id="admin-dark-main-table">
-          <thead>
-            <tr>
-              <th>Nama Gig Worker <span class="sort-icon">↑↓</span></th>
-              <th>Keahlian / Profesi</th>
-              <th>Lokasi</th>
-              <th>Telepon / WA</th>
-              <th>Status</th>
-              <th>Deadline Verifikasi</th>
-              <th>Pemeriksa</th>
-              <th>Tanggal</th>
-              <th style="text-align:right;">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php 
-            $filteredWorkers = $workers;
-            if ($stFilter !== 'all') {
-                $filteredWorkers = array_values(array_filter($workers, fn($w) => ($w['status'] ?? 'pending') === $stFilter));
-            }
-            if (empty($filteredWorkers)): 
-            ?>
-              <tr>
-                <td colspan="9" style="text-align:center;padding:36px;color:#64748b;">
-                  Tidak ada data verifikasi gig worker untuk status ini.
-                </td>
-              </tr>
-            <?php else: ?>
-              <?php foreach ($filteredWorkers as $row): 
-                $wName = (string)($row['display_name'] ?: $row['username']);
-                $wEmail = (string)($row['contact_email'] ?? ($row['username'] . '@pasker.id'));
-                $wInit = strtoupper(substr($wName, 0, 2));
-                $st = (string)($row['status'] ?? 'pending');
-                $stClass = $st === 'approved' ? 'pill-status-green' : ($st === 'rejected' ? 'pill-status-red' : ($st === 'revision' ? 'pill-status-amber' : 'pill-status-blue'));
-                $stLabel = $st === 'approved' ? '• Terverifikasi' : ($st === 'rejected' ? '• Ditolak' : ($st === 'revision' ? '• Revisi' : '• Dikirim'));
-                $dlLabel = $st === 'approved' ? 'Terverifikasi' : '4 hari lagi';
-                $skill = (string)($row['bidang_keahlian'] ?? 'Gig Worker Professional');
-                $loc = (string)($row['domicile'] ?? 'Jakarta Selatan, DKI Jakarta');
-                $phone = (string)($row['contact_wa'] ?? '081298765432');
-                $dateStr = date('d M Y', strtotime($row['created_at'] ?? '2026-09-02'));
-              ?>
-                <tr>
-                  <td>
-                    <div class="dark-entity-info">
-                      <div class="dark-avatar-badge"><?php echo htmlspecialchars($wInit, ENT_QUOTES, 'UTF-8'); ?></div>
-                      <div class="dark-entity-details">
-                        <span class="dark-entity-name"><?php echo htmlspecialchars($wName, ENT_QUOTES, 'UTF-8'); ?></span>
-                        <span class="dark-entity-email"><?php echo htmlspecialchars($wEmail, ENT_QUOTES, 'UTF-8'); ?></span>
-                      </div>
-                    </div>
-                  </td>
-                  <td style="color:#cbd5e1;font-weight:600;"><?php echo htmlspecialchars($skill, ENT_QUOTES, 'UTF-8'); ?></td>
-                  <td style="max-width:220px;color:#94a3b8;"><?php echo htmlspecialchars($loc, ENT_QUOTES, 'UTF-8'); ?></td>
-                  <td style="color:#cbd5e1;"><?php echo htmlspecialchars($phone, ENT_QUOTES, 'UTF-8'); ?></td>
-                  <td><span class="<?php echo $stClass; ?>"><?php echo $stLabel; ?></span></td>
-                  <td><span class="pill-deadline-info">ℹ <?php echo htmlspecialchars($dlLabel, ENT_QUOTES, 'UTF-8'); ?></span></td>
-                  <td style="color:#64748b;">-</td>
-                  <td style="color:#94a3b8;white-space:nowrap;"><?php echo htmlspecialchars($dateStr, ENT_QUOTES, 'UTF-8'); ?></td>
-                  <td style="text-align:right;">
-                    <button type="button" class="btn-dark-outline-detail" onclick="openAdminDarkModal('worker', '<?php echo htmlspecialchars(addslashes($row['username']), ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes($wName), ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes($wEmail), ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes($phone), ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes($loc), ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes($row['admin_note'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>')">
-                      Lihat Detail
-                    </button>
-                  </td>
-                </tr>
-              <?php endforeach; ?>
-            <?php endif; ?>
-          </tbody>
-        </table>
-      </div>
+      <h2 style="font-size:1rem;font-weight:800;margin:20px 0 10px 0;">Pendaftaran Gig Worker</h2>
+      <?php if ($workers === []): ?>
+        <div class="empty-state">Belum ada pendaftaran Gig Worker<?php echo $searchQ !== '' ? ' yang cocok dengan pencarian.' : ' di database.'; ?></div>
+      <?php endif; ?>
+      <?php foreach ($workers as $row): ?>
+        <article class="review-card">
+          <h3><?php echo htmlspecialchars((string)$row['username'], ENT_QUOTES, 'UTF-8'); ?> <?php echo admin_status_badge((string)($row['status'] ?? 'pending')); ?></h3>
+          <div class="review-meta">Bidang: <?php echo htmlspecialchars((string)$row['bidang_keahlian'], ENT_QUOTES, 'UTF-8'); ?> · Email: <?php echo htmlspecialchars((string)$row['contact_email'], ENT_QUOTES, 'UTF-8'); ?> · WA: <?php echo htmlspecialchars((string)$row['contact_wa'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <div class="review-detail">Skills: <?php echo htmlspecialchars(is_array($row['skills']) ? implode(', ', $row['skills']) : (string)$row['skills'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <?php if (($row['status'] ?? '') === 'pending'): ?>
+            <form method="post" class="review-actions">
+              <input type="hidden" name="tab" value="workers" />
+              <input type="hidden" name="username" value="<?php echo htmlspecialchars((string)$row['username'], ENT_QUOTES, 'UTF-8'); ?>" />
+              <textarea name="admin_note" placeholder="Catatan verifikasi (opsional)"></textarea>
+              <button class="btn-approve" name="action" value="worker_approve" type="submit">Setujui</button>
+              <button class="btn-reject" name="action" value="worker_reject" type="submit">Tolak</button>
+            </form>
+          <?php elseif (!empty($row['admin_note'])): ?>
+            <div class="review-detail"><strong>Catatan Admin:</strong> <?php echo htmlspecialchars((string)$row['admin_note'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <?php endif; ?>
+        </article>
+      <?php endforeach; ?>
     <?php endif; ?>
 
     <?php if ($tab === 'employers'): ?>
-      <h1 class="admin-dark-header">Verifikasi Pemberi Kerja</h1>
-
-      <?php
-      $stFilter = strtolower((string)($_GET['status'] ?? 'pending'));
-      $pendingEmpCount = count($pendingEmployers);
-      ?>
-
-      <div class="admin-dark-subtabs">
-        <a href="?tab=employers&status=all" class="<?php echo $stFilter === 'all' ? 'active' : ''; ?>">Semua</a>
-        <a href="?tab=employers&status=pending" class="<?php echo $stFilter === 'pending' ? 'active' : ''; ?>">
-          Menunggu Verifikasi <?php if ($pendingEmpCount > 0): ?><span class="badge-count-red"><?php echo $pendingEmpCount; ?></span><?php endif; ?>
-        </a>
-        <a href="?tab=employers&status=revision" class="<?php echo $stFilter === 'revision' ? 'active' : ''; ?>">Revisi</a>
-        <a href="?tab=employers&status=approved" class="<?php echo $stFilter === 'approved' ? 'active' : ''; ?>">Terverifikasi</a>
-        <a href="?tab=employers&status=rejected" class="<?php echo $stFilter === 'rejected' ? 'active' : ''; ?>">Ditolak</a>
-      </div>
-
-      <div class="admin-dark-toolbar">
-        <div class="admin-dark-search-box">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" placeholder="Cari pemberi kerja..." onkeyup="searchAdminDarkTable(this.value)" />
-        </div>
-        <button class="btn-dark-filter" type="button" onclick="alert('Filter kriteria aktif.')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-          Filter
-        </button>
-      </div>
-
-      <div class="admin-dark-table-card">
-        <table class="admin-dark-table" id="admin-dark-main-table">
-          <thead>
-            <tr>
-              <th>Nama Pemberi Kerja <span class="sort-icon">↑↓</span></th>
-              <th>Jenis Entitas</th>
-              <th>Lokasi</th>
-              <th>Telepon</th>
-              <th>Status</th>
-              <th>Deadline Verifikasi</th>
-              <th>Pemeriksa</th>
-              <th>Tanggal</th>
-              <th style="text-align:right;">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php 
-            $filteredEmployers = $employers;
-            if ($stFilter !== 'all') {
-                $filteredEmployers = array_values(array_filter($employers, fn($e) => ($e['status'] ?? 'pending') === $stFilter));
-            }
-            if (empty($filteredEmployers)): 
-            ?>
-              <tr>
-                <td colspan="9" style="text-align:center;padding:36px;color:#64748b;">
-                  Tidak ada data verifikasi pemberi kerja untuk status ini.
-                </td>
-              </tr>
-            <?php else: ?>
-              <?php foreach ($filteredEmployers as $row): 
-                $cName = (string)($row['company_name'] ?: $row['nama_pic']);
-                $cEmail = (string)($row['email_pic'] ?: $row['siapkerja_email']);
-                $cInit = strtoupper(substr($cName, 0, 2));
-                $st = (string)($row['status'] ?? 'pending');
-                $stClass = $st === 'approved' ? 'pill-status-green' : ($st === 'rejected' ? 'pill-status-red' : ($st === 'revision' ? 'pill-status-amber' : 'pill-status-blue'));
-                $stLabel = $st === 'approved' ? '• Terverifikasi' : ($st === 'rejected' ? '• Ditolak' : ($st === 'revision' ? '• Revisi' : '• Dikirim'));
-                $dlLabel = $st === 'approved' ? 'Terverifikasi' : ($row['deadline'] ?? '4 hari lagi');
-                $loc = $row['location'] ?? ($row['industry'] . ', Indonesia');
-                $phone = $row['phone_pic'] ?? '082552399300';
-                $dateStr = date('d M Y', strtotime($row['created_at'] ?? '2026-09-02'));
-              ?>
-                <tr>
-                  <td>
-                    <div class="dark-entity-info">
-                      <div class="dark-avatar-badge"><?php echo htmlspecialchars($cInit, ENT_QUOTES, 'UTF-8'); ?></div>
-                      <div class="dark-entity-details">
-                        <span class="dark-entity-name"><?php echo htmlspecialchars($cName, ENT_QUOTES, 'UTF-8'); ?></span>
-                        <span class="dark-entity-email"><?php echo htmlspecialchars($cEmail, ENT_QUOTES, 'UTF-8'); ?></span>
-                      </div>
-                    </div>
-                  </td>
-                  <td style="color:#cbd5e1;font-weight:600;"><?php echo htmlspecialchars($row['jenis_entitas'] ?? 'Perusahaan', ENT_QUOTES, 'UTF-8'); ?></td>
-                  <td style="max-width:220px;color:#94a3b8;"><?php echo htmlspecialchars($loc, ENT_QUOTES, 'UTF-8'); ?></td>
-                  <td style="color:#cbd5e1;"><?php echo htmlspecialchars($phone, ENT_QUOTES, 'UTF-8'); ?></td>
-                  <td><span class="<?php echo $stClass; ?>"><?php echo $stLabel; ?></span></td>
-                  <td><span class="pill-deadline-info">ℹ <?php echo htmlspecialchars($dlLabel, ENT_QUOTES, 'UTF-8'); ?></span></td>
-                  <td style="color:#64748b;">-</td>
-                  <td style="color:#94a3b8;white-space:nowrap;"><?php echo htmlspecialchars($dateStr, ENT_QUOTES, 'UTF-8'); ?></td>
-                  <td style="text-align:right;">
-                    <button type="button" class="btn-dark-outline-detail" onclick="openAdminDarkModal('emp', '<?php echo (int)$row['id']; ?>', '<?php echo htmlspecialchars(addslashes($cName), ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes($cEmail), ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes($phone), ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes($loc), ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes($row['admin_note'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>')">
-                      Lihat Detail
-                    </button>
-                  </td>
-                </tr>
-              <?php endforeach; ?>
-            <?php endif; ?>
-          </tbody>
-        </table>
-      </div>
+      <?php if ($employers === []): ?>
+        <div class="empty-state">Belum ada pendaftaran pemberi kerja Gig Worker.</div>
+      <?php endif; ?>
+      <?php foreach ($employers as $row): ?>
+        <article class="review-card">
+          <h3><?php echo htmlspecialchars((string)$row['nama_pic'], ENT_QUOTES, 'UTF-8'); ?> <?php echo admin_status_badge((string)($row['status'] ?? 'pending')); ?></h3>
+          <div class="review-meta">Perusahaan: <?php echo htmlspecialchars((string)$row['company_name'], ENT_QUOTES, 'UTF-8'); ?> · SIAPkerja: <?php echo htmlspecialchars((string)$row['siapkerja_email'], ENT_QUOTES, 'UTF-8'); ?> · Industri: <?php echo htmlspecialchars((string)$row['industry'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <div class="review-detail">PIC: <?php echo htmlspecialchars((string)$row['nama_pic'], ENT_QUOTES, 'UTF-8'); ?> · Email: <?php echo htmlspecialchars((string)$row['email_pic'], ENT_QUOTES, 'UTF-8'); ?> · Telp: <?php echo htmlspecialchars((string)$row['phone_pic'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <?php if (($row['status'] ?? '') === 'pending'): ?>
+            <form method="post" class="review-actions">
+              <input type="hidden" name="tab" value="employers" />
+              <input type="hidden" name="id" value="<?php echo (int)$row['id']; ?>" />
+              <textarea name="admin_note" placeholder="Catatan verifikasi (opsional)"></textarea>
+              <button class="btn-approve" name="action" value="employer_approve" type="submit">Setujui</button>
+              <button class="btn-reject" name="action" value="employer_reject" type="submit">Tolak</button>
+            </form>
+          <?php elseif (!empty($row['admin_note'])): ?>
+            <div class="review-detail"><strong>Catatan Admin:</strong> <?php echo htmlspecialchars((string)$row['admin_note'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <?php endif; ?>
+        </article>
+      <?php endforeach; ?>
     <?php endif; ?>
 
     <?php if ($tab === 'projects'): ?>

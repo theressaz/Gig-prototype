@@ -45,12 +45,10 @@ $sidebarTabs = [
     .empty-state { background: #fff; border: 1px dashed var(--border-light); border-radius: 12px; padding: 28px; text-align: center; color: var(--text-muted); }
   </style>
 </head>
-<body class="admin-dark-body">
+<body>
 <div class="app-layout">
   <aside class="app-sidebar">
-    <a href="dashboard-admin.php" class="sidebar-logo" title="KarirHub Admin">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    </a>
+    <a href="dashboard-admin.php" class="sidebar-logo" title="KarirHub Admin">K</a>
     <div class="sidebar-menu">
       <?php foreach ($sidebarTabs as $key => $item): ?>
         <a href="dashboard-admin.php?tab=<?php echo urlencode($key); ?>" class="sidebar-icon<?php echo $adminTab === $key ? ' active' : ''; ?>" title="<?php echo htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8'); ?>">
@@ -65,17 +63,14 @@ $sidebarTabs = [
       <a href="karirhub-logout.php" class="sidebar-icon" title="Keluar">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </a>
-      <div class="sidebar-user-initials" title="<?php echo $adminDisplayName; ?>">TZ</div>
+      <div class="sidebar-user-initials" title="<?php echo $adminDisplayName; ?>">AD</div>
     </div>
   </aside>
 
   <div class="app-main">
     <header class="app-navbar">
       <div class="navbar-left">
-        <div class="breadcrumbs" style="display:flex;align-items:center;gap:8px;">
-          <svg class="nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onclick="history.back()" style="cursor:pointer;"><polyline points="15 18 9 12 15 6"/></svg>
-          <svg class="nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onclick="history.forward()" style="cursor:pointer;"><polyline points="9 18 15 12 9 6"/></svg>
-          <span style="margin: 0 4px; color: #334155;">|</span>
+        <div class="breadcrumbs">
           <a href="karirhub-home.php" style="color:inherit;text-decoration:none;">Beranda</a>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
           <span class="current"><?php echo htmlspecialchars($breadcrumbCurrent, ENT_QUOTES, 'UTF-8'); ?></span>
@@ -84,17 +79,15 @@ $sidebarTabs = [
       <div class="navbar-center">
         <form class="search-bar admin-search-mini" method="get" action="dashboard-admin.php">
           <input type="hidden" name="tab" value="<?php echo htmlspecialchars($adminTab, ENT_QUOTES, 'UTF-8'); ?>" />
-          <input type="text" name="q" placeholder="Cari lowongan, pemberi kerja, pencari kerja, ata" value="<?php echo htmlspecialchars($adminSearchQ, ENT_QUOTES, 'UTF-8'); ?>" />
+          <input type="text" name="q" placeholder="Cari pendaftaran, pemberi kerja, atau lowongan..." value="<?php echo htmlspecialchars($adminSearchQ, ENT_QUOTES, 'UTF-8'); ?>" />
         </form>
       </div>
       <div class="navbar-right">
-        <div class="admin-profile-chip" style="background:#181c26;border:1px solid #282f42;padding:4px 12px 4px 6px;border-radius:9999px;">
-          <div style="width:32px;height:32px;border-radius:50%;background:#0284c7;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.85rem;flex-shrink:0;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </div>
+        <div class="admin-profile-chip">
+          <div style="width:36px;height:36px;border-radius:50%;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.95rem;flex-shrink:0;"><?php echo htmlspecialchars(strtoupper(substr($adminDisplayName !== '' ? $adminDisplayName : 'A', 0, 1)), ENT_QUOTES, 'UTF-8'); ?></div>
           <div>
-            <div class="name" style="font-size:0.82rem;font-weight:800;color:#fff;">Admin</div>
-            <div class="role" style="font-size:0.7rem;color:#808ea3;">Admin pusat</div>
+            <div class="name"><?php echo $adminDisplayName; ?></div>
+            <div class="role">Admin pusat</div>
           </div>
         </div>
       </div>
