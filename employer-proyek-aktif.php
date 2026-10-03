@@ -113,7 +113,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
           </div>
         </div>
 
-        <div class="active-proj-body">
+        <div class="active-proj-body" style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
           <div class="freelancer-profile-box" style="flex:1;min-width:200px;">
             <div class="fl-avatar" style="background:#2563eb;">T</div>
             <div>
@@ -125,8 +125,15 @@ require __DIR__ . '/includes/employer-layout-start.php';
             </div>
           </div>
 
+          <div class="proj-deliverable-box" style="flex:1.2;min-width:240px;background:#ffffff;border:1px solid #cbd5e1;padding:10px 14px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+            <div style="font-size:0.7rem;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:2px;">Target Deliverable</div>
+            <div style="font-size:0.82rem;color:#1e293b;font-weight:600;line-height:1.35;">
+              Redesign UI/UX Aplikasi Mobile &amp; Design System Component Kit
+            </div>
+          </div>
+
           <!-- Countdown Widget (Replaces Milestones) -->
-          <div class="countdown-widget-box" style="background:#ffffff;border:1px solid #cbd5e1;padding:10px 14px;border-radius:10px;flex:1;max-width:420px;width:100%;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+          <div class="countdown-widget-box" style="background:#ffffff;border:1px solid #cbd5e1;padding:10px 14px;border-radius:10px;flex:1.1;min-width:280px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
             <div style="display:flex;flex-direction:column;gap:1px;margin-bottom:6px;">
               <span style="font-size:0.78rem;font-weight:700;color:var(--text-dark);">Countdown Durasi Proyek</span>
               <span style="font-size:0.7rem;color:#475569;font-weight:600;">Tenggat: <?php echo htmlspecialchars($p1['deadline'], ENT_QUOTES, 'UTF-8'); ?></span>
@@ -274,7 +281,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
           </div>
         </div>
 
-        <div class="active-proj-body">
+        <div class="active-proj-body" style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
           <div class="freelancer-profile-box" style="flex:1;min-width:200px;">
             <div class="fl-avatar" style="background:#0891b2;">R</div>
             <div>
@@ -286,8 +293,15 @@ require __DIR__ . '/includes/employer-layout-start.php';
             </div>
           </div>
 
+          <div class="proj-deliverable-box" style="flex:1.2;min-width:240px;background:#ffffff;border:1px solid #cbd5e1;padding:10px 14px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+            <div style="font-size:0.7rem;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:2px;">Target Deliverable</div>
+            <div style="font-size:0.82rem;color:#1e293b;font-weight:600;line-height:1.35;">
+              Integrasi Payment Gateway &amp; Microservices API REST Implementation
+            </div>
+          </div>
+
           <!-- Countdown Widget (Replaces Milestones) -->
-          <div class="countdown-widget-box" style="background:#ffffff;border:1px solid #cbd5e1;padding:10px 14px;border-radius:10px;flex:1;max-width:420px;width:100%;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+          <div class="countdown-widget-box" style="background:#ffffff;border:1px solid #cbd5e1;padding:10px 14px;border-radius:10px;flex:1.1;min-width:280px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
             <div style="display:flex;flex-direction:column;gap:1px;margin-bottom:6px;">
               <span style="font-size:0.78rem;font-weight:700;color:var(--text-dark);">Countdown Durasi Proyek</span>
               <span style="font-size:0.7rem;color:#475569;font-weight:600;">Tenggat: <?php echo htmlspecialchars($p2['deadline'], ENT_QUOTES, 'UTF-8'); ?></span>

@@ -90,7 +90,7 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
         </div>
       </div>
 
-      <div class="active-proj-body">
+      <div class="active-proj-body" style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
         <div class="freelancer-profile-box" style="flex:1;min-width:200px;">
           <div class="fl-avatar" style="background:#1d4ed8;color:#fff;font-weight:800;font-size:1.1rem;">🏢</div>
           <div>
@@ -104,7 +104,14 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
           </div>
         </div>
 
-        <div class="countdown-widget-box" style="background:#ffffff;border:1px solid #cbd5e1;padding:10px 14px;border-radius:10px;flex:1;max-width:420px;width:100%;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+        <div class="proj-deliverable-box" style="flex:1.2;min-width:240px;background:#ffffff;border:1px solid #cbd5e1;padding:10px 14px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+          <div style="font-size:0.7rem;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:2px;">Target Deliverable</div>
+          <div style="font-size:0.82rem;color:#1e293b;font-weight:600;line-height:1.35;">
+            <?php echo htmlspecialchars((string)$proj['deliverable_note'], ENT_QUOTES, 'UTF-8'); ?>
+          </div>
+        </div>
+
+        <div class="countdown-widget-box" style="background:#ffffff;border:1px solid #cbd5e1;padding:10px 14px;border-radius:10px;flex:1.1;min-width:280px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
           <div style="display:flex;flex-direction:column;gap:1px;margin-bottom:6px;">
             <span style="font-size:0.78rem;font-weight:700;color:var(--text-dark);">Countdown Durasi Proyek</span>
             <span style="font-size:0.7rem;color:#475569;font-weight:600;">Tenggat: <?php echo htmlspecialchars((string)$proj['deadline'], ENT_QUOTES, 'UTF-8'); ?></span>
@@ -130,8 +137,7 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
         </div>
       </div>
 
-      <div class="active-proj-actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
-        <span style="font-size:0.8rem;color:var(--text-muted);"><?php echo htmlspecialchars((string)$proj['deliverable_note'], ENT_QUOTES, 'UTF-8'); ?></span>
+      <div class="active-proj-actions" style="justify-content:flex-end;flex-wrap:wrap;gap:10px;">
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <button class="btn-action-sm" type="button"
             data-contact-role="Pemberi Kerja"

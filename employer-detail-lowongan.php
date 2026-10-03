@@ -27,7 +27,6 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
     <div class="page-toolbar">
       <div>
-        <div style="font-size:0.8rem;color:var(--text-muted);font-weight:700;margin-bottom:2px;">ID LOWONGAN: <?php echo htmlspecialchars($job['id'], ENT_QUOTES, 'UTF-8'); ?></div>
         <h1><?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?></h1>
       </div>
       <a class="btn-action-sm" href="employer-lowongan.php">← Kembali ke Lowongan</a>
