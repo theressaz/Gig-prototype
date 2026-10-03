@@ -1805,7 +1805,7 @@
     .profile-dropdown {
       display: none; position: absolute; right: 0; top: calc(100% + 8px);
       background: #fff; border: 1px solid var(--border-subtle);
-      border-radius: 10px; min-width: 180px; box-shadow: var(--shadow-md); z-index: 30;
+      border-radius: 10px; min-width: 190px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 999;
       overflow: hidden;
     }
     .profile-dropdown.open { display: block; }
