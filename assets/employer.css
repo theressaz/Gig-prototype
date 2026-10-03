@@ -612,6 +612,7 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 16px;
+      align-items: stretch;
     }
 
     @media (max-width: 960px) {
@@ -637,6 +638,8 @@
       box-shadow: var(--shadow-sm);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       cursor: pointer;
+      height: 100%;
+      box-sizing: border-box;
     }
 
     .stat-card:hover {
