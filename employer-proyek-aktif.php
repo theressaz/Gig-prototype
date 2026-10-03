@@ -93,67 +93,70 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
       <?php if (!$completedP1): ?>
       <!-- Project 1 -->
-      <div class="active-project-card" id="project-GIG-2026-09-001" style="<?php echo $completedP1 ? 'border-color:#10b981;background:#f0fdf4;' : ''; ?>">
+      <div class="active-project-card" id="project-GIG-2026-09-001" style="<?php echo $completedP1 ? 'border-left-color:#10b981;background:#f0fdf4;' : ''; ?>">
         <div class="active-proj-header">
           <div>
-            <div class="active-proj-title" style="display:flex;align-items:center;gap:10px;">
+            <div class="active-proj-title">
               <span>Redesign UI/UX Dashboard Prototype KarirHub</span>
               <?php if ($isExpiredP1 && !$completedP1): ?>
-                <span class="badge-status cancelled">Tidak Selesai</span>
+                <span class="badge-status cancelled" style="padding:4px 12px;border-radius:9999px;font-size:0.75rem;font-weight:700;">Tidak Selesai</span>
               <?php else: ?>
-                <span class="badge-status in-progress"><?php echo htmlspecialchars((string)($p1['status_label'] ?? 'Berjalan'), ENT_QUOTES, 'UTF-8'); ?></span>
+                <span class="badge-status in-progress" style="padding:4px 12px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;display:inline-flex;align-items:center;gap:6px;">
+                  <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#2563eb;"></span>
+                  <?php echo htmlspecialchars((string)($p1['status_label'] ?? 'Berjalan'), ENT_QUOTES, 'UTF-8'); ?>
+                </span>
               <?php endif; ?>
               <?php if ($completedP1): ?>
-                <span style="display:inline-block;padding:3px 10px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#d1fae5;color:#047857;">✓ Selesai &amp; Dinilai</span>
+                <span style="display:inline-block;padding:4px 12px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#d1fae5;color:#047857;">✓ Selesai &amp; Dinilai</span>
               <?php endif; ?>
             </div>
-            <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">
-              Mulai: <strong><?php echo htmlspecialchars($p1['hired_label'], ENT_QUOTES, 'UTF-8'); ?></strong> · Durasi Disepakati: <strong><?php echo htmlspecialchars($p1['duration'], ENT_QUOTES, 'UTF-8'); ?></strong>
+            <div style="font-size:0.8rem;color:#64748b;margin-top:4px;">
+              Mulai: <strong style="color:#334155;"><?php echo htmlspecialchars($p1['hired_label'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Durasi Disepakati: <strong style="color:#334155;"><?php echo htmlspecialchars($p1['duration'], ENT_QUOTES, 'UTF-8'); ?></strong>
             </div>
           </div>
         </div>
 
-        <div class="active-proj-body" style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
-          <div class="freelancer-profile-box" style="flex:1;min-width:200px;">
-            <div class="fl-avatar" style="background:#2563eb;">T</div>
+        <div class="active-proj-body">
+          <div class="freelancer-profile-box" style="flex:1;min-width:210px;">
+            <div class="fl-avatar" style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:1.05rem;box-shadow:0 4px 12px rgba(37,99,235,0.25);flex-shrink:0;">T</div>
             <div>
-              <div class="fl-info-name">
-                <a href="worker-profile.php?active=1&id=tessa" style="color:inherit;text-decoration:none;">Theressa Zaratrusha</a>
-                <span class="fl-rating-badge">★ 5</span>
+              <div class="fl-info-name" style="display:flex;align-items:center;gap:8px;">
+                <a href="worker-profile.php?active=1&id=tessa" style="color:#0f172a;text-decoration:none;font-weight:800;font-size:0.95rem;">Theressa Zaratrusha</a>
+                <span class="fl-rating-badge" style="background:#fffbeeb;color:#b45309;border:1px solid #fef3c7;border-radius:9999px;padding:2px 8px;font-size:0.72rem;font-weight:700;">★ 5</span>
               </div>
-              <div class="fl-info-sub">Lead UI/UX Designer</div>
+              <div class="fl-info-sub" style="font-size:0.78rem;color:#64748b;margin-top:2px;">Lead UI/UX Designer</div>
             </div>
           </div>
 
-          <div class="proj-deliverable-box" style="flex:1.2;min-width:240px;background:#ffffff;border:1px solid #cbd5e1;padding:10px 14px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-            <div style="font-size:0.7rem;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:2px;">Target Deliverable</div>
-            <div style="font-size:0.82rem;color:#1e293b;font-weight:600;line-height:1.35;">
+          <div class="proj-deliverable-box" style="flex:1.2;min-width:240px;background:#ffffff;border:1px solid #cbd5e1;padding:12px 14px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+            <div style="font-size:0.68rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px;">Target Deliverable</div>
+            <div style="font-size:0.83rem;color:#1e293b;font-weight:600;line-height:1.4;">
               Redesign UI/UX Aplikasi Mobile &amp; Design System Component Kit
             </div>
           </div>
 
-          <!-- Countdown Widget (Replaces Milestones) -->
-          <div class="countdown-widget-box" style="background:#ffffff;border:1px solid #cbd5e1;padding:10px 14px;border-radius:10px;flex:1.1;min-width:280px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-            <div style="display:flex;flex-direction:column;gap:1px;margin-bottom:6px;">
-              <span style="font-size:0.78rem;font-weight:700;color:var(--text-dark);">Countdown Durasi Proyek</span>
+          <!-- Countdown Widget -->
+          <div class="countdown-widget-box" style="background:#ffffff;border:1px solid #cbd5e1;padding:12px 14px;border-radius:10px;flex:1.1;min-width:280px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span style="font-size:0.78rem;font-weight:700;color:#0f172a;">Countdown Durasi Proyek</span>
               <span style="font-size:0.7rem;color:#475569;font-weight:600;">Tenggat: <?php echo htmlspecialchars($p1['deadline'], ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
             <div style="display:flex;gap:6px;text-align:center;" class="js-project-countdown" data-deadline="<?php echo htmlspecialchars($p1['deadline_iso'], ENT_QUOTES, 'UTF-8'); ?>" id="countdown-proj-1">
-              <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:4px 4px;border-radius:6px;flex:1;">
-                <span class="c-days" style="font-size:1.05rem;font-weight:800;color:#1e293b;display:block;line-height:1.2;"><?php echo (int)$p1['days_left']; ?></span>
-                <span style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Hari</span>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
+                <span class="c-days" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo (int)$p1['days_left']; ?></span>
+                <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Hari</span>
               </div>
-              <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:4px 4px;border-radius:6px;flex:1;">
-                <span class="c-hours" style="font-size:1.05rem;font-weight:800;color:#1e293b;display:block;line-height:1.2;"><?php echo sprintf('%02d', (int)$p1['hours_left']); ?></span>
-                <span style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Jam</span>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
+                <span class="c-hours" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p1['hours_left']); ?></span>
+                <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Jam</span>
               </div>
-              <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:4px 4px;border-radius:6px;flex:1;">
-                <span class="c-mins" style="font-size:1.05rem;font-weight:800;color:#1e293b;display:block;line-height:1.2;"><?php echo sprintf('%02d', (int)$p1['mins_left']); ?></span>
-                <span style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Menit</span>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
+                <span class="c-mins" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p1['mins_left']); ?></span>
+                <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Menit</span>
               </div>
-              <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:4px 4px;border-radius:6px;flex:1;">
-                <span class="c-secs" style="font-size:1.05rem;font-weight:800;color:#2563eb;display:block;line-height:1.2;"><?php echo sprintf('%02d', (int)$p1['secs_left']); ?></span>
-                <span style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Detik</span>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
+                <span class="c-secs" style="font-size:1.1rem;font-weight:800;color:#2563eb;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p1['secs_left']); ?></span>
+                <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Detik</span>
               </div>
             </div>
           </div>
@@ -224,34 +227,37 @@ require __DIR__ . '/includes/employer-layout-start.php';
           </div>
         </div>
 
-        <div class="active-proj-actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <div class="active-proj-actions" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid #f1f5f9;">
           <div>
             <?php if ($completedP1): ?>
               <span style="font-size:0.82rem;color:#047857;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
                <span>⭐</span> Rating Diberikan: <?php echo (int)$ratingP1; ?>/5
               </span>
             <?php else: ?>
-              <span style="font-size:0.8rem;color:var(--text-muted);">Selesaikan proyek &amp; beri rating.</span>
+              <span style="font-size:0.8rem;color:#64748b;">✓ Koordinasi aktif &bull; Selesaikan proyek saat deliverable diterima.</span>
             <?php endif; ?>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <?php if (!$completedP1 && !$pendingExtP1 && !$isExpiredP1): ?>
-              <button type="button" class="btn-outline-blue" onclick="openExtensionModal('ext-modal-employer-p1')">Ajukan Perpanjangan</button>
-            <?php endif; ?>
             <button class="btn-action-sm" type="button"
               data-contact-role="Gig Worker"
               data-contact-name="Theressa Zaratrusha"
               data-contact-phone="0812-3456-7890"
               data-contact-email="theressaz@pasker.id"
-              onclick="openContactModal(this)">Kontak Freelancer</button>
-            <a class="btn-outline-blue" href="worker-profile.php?active=1&id=tessa">Lihat Profil</a>
-            
+              onclick="openContactModal(this)"
+              style="padding:7px 14px;font-size:0.82rem;font-weight:600;border-radius:8px;">Kontak Freelancer</button>
+
+            <?php if (!$completedP1 && !$pendingExtP1 && !$isExpiredP1): ?>
+              <button type="button" class="btn-outline-blue" onclick="openExtensionModal('ext-modal-employer-p1')" style="padding:7px 14px;font-size:0.82rem;font-weight:600;border-radius:8px;">Ajukan Perpanjangan</button>
+            <?php elseif ($pendingExtP1): ?>
+              <button type="button" class="btn-outline-blue" disabled style="padding:7px 14px;font-size:0.82rem;font-weight:600;border-radius:8px;opacity:0.65;cursor:not-allowed;">Perpanjangan Pending</button>
+            <?php endif; ?>
+
             <?php if ($completedP1): ?>
-              <a class="btn-create-post" href="employer-riwayat-proyek.php" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:#059669;border-color:#047857;">
+              <a class="btn-create-post" href="employer-riwayat-proyek.php" style="text-decoration:none;padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:#059669;border-color:#047857;">
                 Buka di Riwayat →
               </a>
             <?php else: ?>
-              <a class="btn-create-post" href="employer-rating-worker.php?contract=CTR-GIG-2026-0811&worker=tessa" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 10px rgba(217,119,6,0.35);">
+              <a class="btn-create-post" href="employer-rating-worker.php?contract=CTR-GIG-2026-0811&worker=tessa" style="text-decoration:none;padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 12px rgba(217,119,6,0.3);border:none;">
                 ★ Selesaikan &amp; Beri Rating
               </a>
             <?php endif; ?>
@@ -262,67 +268,70 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
       <?php if (!$completedP2): ?>
       <!-- Project 2 -->
-      <div class="active-project-card" id="project-GIG-2026-09-002" style="<?php echo $completedP2 ? 'border-color:#10b981;background:#f0fdf4;' : ''; ?>">
+      <div class="active-project-card" id="project-GIG-2026-09-002" style="<?php echo $completedP2 ? 'border-left-color:#10b981;background:#f0fdf4;' : ''; ?>">
         <div class="active-proj-header">
           <div>
-            <div class="active-proj-title" style="display:flex;align-items:center;gap:10px;">
+            <div class="active-proj-title">
               <span>Integrasi REST API Modul Notifikasi SMS &amp; WhatsApp</span>
               <?php if ($isExpiredP2 && !$completedP2): ?>
-                <span class="badge-status cancelled">Tidak Selesai</span>
+                <span class="badge-status cancelled" style="padding:4px 12px;border-radius:9999px;font-size:0.75rem;font-weight:700;">Tidak Selesai</span>
               <?php else: ?>
-                <span class="badge-status in-progress"><?php echo htmlspecialchars((string)($p2['status_label'] ?? 'Berjalan'), ENT_QUOTES, 'UTF-8'); ?></span>
+                <span class="badge-status in-progress" style="padding:4px 12px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;display:inline-flex;align-items:center;gap:6px;">
+                  <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#2563eb;"></span>
+                  <?php echo htmlspecialchars((string)($p2['status_label'] ?? 'Berjalan'), ENT_QUOTES, 'UTF-8'); ?>
+                </span>
               <?php endif; ?>
               <?php if ($completedP2): ?>
-                <span style="display:inline-block;padding:3px 10px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#d1fae5;color:#047857;">✓ Selesai &amp; Dinilai</span>
+                <span style="display:inline-block;padding:4px 12px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#d1fae5;color:#047857;">✓ Selesai &amp; Dinilai</span>
               <?php endif; ?>
             </div>
-            <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">
-              Mulai: <strong><?php echo htmlspecialchars($p2['hired_label'], ENT_QUOTES, 'UTF-8'); ?></strong> · Durasi Disepakati: <strong><?php echo htmlspecialchars($p2['duration'], ENT_QUOTES, 'UTF-8'); ?></strong>
+            <div style="font-size:0.8rem;color:#64748b;margin-top:4px;">
+              Mulai: <strong style="color:#334155;"><?php echo htmlspecialchars($p2['hired_label'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Durasi Disepakati: <strong style="color:#334155;"><?php echo htmlspecialchars($p2['duration'], ENT_QUOTES, 'UTF-8'); ?></strong>
             </div>
           </div>
         </div>
 
-        <div class="active-proj-body" style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
-          <div class="freelancer-profile-box" style="flex:1;min-width:200px;">
-            <div class="fl-avatar" style="background:#0891b2;">R</div>
+        <div class="active-proj-body">
+          <div class="freelancer-profile-box" style="flex:1;min-width:210px;">
+            <div class="fl-avatar" style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#0891b2,#0e7490);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:1.05rem;box-shadow:0 4px 12px rgba(8,145,178,0.25);flex-shrink:0;">R</div>
             <div>
-              <div class="fl-info-name">
-                <a href="worker-profile.php?active=1&id=rian" style="color:inherit;text-decoration:none;">Rian Ardiansyah</a>
-                <span class="fl-rating-badge">★ 5</span>
+              <div class="fl-info-name" style="display:flex;align-items:center;gap:8px;">
+                <a href="worker-profile.php?active=1&id=rian" style="color:#0f172a;text-decoration:none;font-weight:800;font-size:0.95rem;">Rian Ardiansyah</a>
+                <span class="fl-rating-badge" style="background:#fffbeeb;color:#b45309;border:1px solid #fef3c7;border-radius:9999px;padding:2px 8px;font-size:0.72rem;font-weight:700;">★ 5</span>
               </div>
-              <div class="fl-info-sub">Backend API Developer</div>
+              <div class="fl-info-sub" style="font-size:0.78rem;color:#64748b;margin-top:2px;">Backend API Developer</div>
             </div>
           </div>
 
-          <div class="proj-deliverable-box" style="flex:1.2;min-width:240px;background:#ffffff;border:1px solid #cbd5e1;padding:10px 14px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-            <div style="font-size:0.7rem;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:2px;">Target Deliverable</div>
-            <div style="font-size:0.82rem;color:#1e293b;font-weight:600;line-height:1.35;">
+          <div class="proj-deliverable-box" style="flex:1.2;min-width:240px;background:#ffffff;border:1px solid #cbd5e1;padding:12px 14px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+            <div style="font-size:0.68rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px;">Target Deliverable</div>
+            <div style="font-size:0.83rem;color:#1e293b;font-weight:600;line-height:1.4;">
               Integrasi Payment Gateway &amp; Microservices API REST Implementation
             </div>
           </div>
 
-          <!-- Countdown Widget (Replaces Milestones) -->
-          <div class="countdown-widget-box" style="background:#ffffff;border:1px solid #cbd5e1;padding:10px 14px;border-radius:10px;flex:1.1;min-width:280px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-            <div style="display:flex;flex-direction:column;gap:1px;margin-bottom:6px;">
-              <span style="font-size:0.78rem;font-weight:700;color:var(--text-dark);">Countdown Durasi Proyek</span>
+          <!-- Countdown Widget -->
+          <div class="countdown-widget-box" style="background:#ffffff;border:1px solid #cbd5e1;padding:12px 14px;border-radius:10px;flex:1.1;min-width:280px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span style="font-size:0.78rem;font-weight:700;color:#0f172a;">Countdown Durasi Proyek</span>
               <span style="font-size:0.7rem;color:#475569;font-weight:600;">Tenggat: <?php echo htmlspecialchars($p2['deadline'], ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
             <div style="display:flex;gap:6px;text-align:center;" class="js-project-countdown" data-deadline="<?php echo htmlspecialchars($p2['deadline_iso'], ENT_QUOTES, 'UTF-8'); ?>" id="countdown-proj-2">
-              <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:4px 4px;border-radius:6px;flex:1;">
-                <span class="c-days" style="font-size:1.05rem;font-weight:800;color:#1e293b;display:block;line-height:1.2;"><?php echo (int)$p2['days_left']; ?></span>
-                <span style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Hari</span>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
+                <span class="c-days" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo (int)$p2['days_left']; ?></span>
+                <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Hari</span>
               </div>
-              <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:4px 4px;border-radius:6px;flex:1;">
-                <span class="c-hours" style="font-size:1.05rem;font-weight:800;color:#1e293b;display:block;line-height:1.2;"><?php echo sprintf('%02d', (int)$p2['hours_left']); ?></span>
-                <span style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Jam</span>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
+                <span class="c-hours" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p2['hours_left']); ?></span>
+                <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Jam</span>
               </div>
-              <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:4px 4px;border-radius:6px;flex:1;">
-                <span class="c-mins" style="font-size:1.05rem;font-weight:800;color:#1e293b;display:block;line-height:1.2;"><?php echo sprintf('%02d', (int)$p2['mins_left']); ?></span>
-                <span style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Menit</span>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
+                <span class="c-mins" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p2['mins_left']); ?></span>
+                <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Menit</span>
               </div>
-              <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:4px 4px;border-radius:6px;flex:1;">
-                <span class="c-secs" style="font-size:1.05rem;font-weight:800;color:#0891b2;display:block;line-height:1.2;"><?php echo sprintf('%02d', (int)$p2['secs_left']); ?></span>
-                <span style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Detik</span>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
+                <span class="c-secs" style="font-size:1.1rem;font-weight:800;color:#0891b2;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p2['secs_left']); ?></span>
+                <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Detik</span>
               </div>
             </div>
           </div>
@@ -393,34 +402,37 @@ require __DIR__ . '/includes/employer-layout-start.php';
           </div>
         </div>
 
-        <div class="active-proj-actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <div class="active-proj-actions" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid #f1f5f9;">
           <div>
             <?php if ($completedP2): ?>
               <span style="font-size:0.82rem;color:#047857;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
                <span>⭐</span> Rating Diberikan: <?php echo (int)$ratingP2; ?>/5
               </span>
             <?php else: ?>
-              <span style="font-size:0.8rem;color:var(--text-muted);">Selesaikan proyek &amp; beri rating.</span>
+              <span style="font-size:0.8rem;color:#64748b;">✓ Koordinasi aktif &bull; Selesaikan proyek saat deliverable diterima.</span>
             <?php endif; ?>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <?php if (!$completedP2 && !$pendingExtP2 && !$isExpiredP2): ?>
-              <button type="button" class="btn-outline-blue" onclick="openExtensionModal('ext-modal-employer-p2')">Ajukan Perpanjangan</button>
-            <?php endif; ?>
             <button class="btn-action-sm" type="button"
               data-contact-role="Gig Worker"
               data-contact-name="Rian Ardiansyah"
               data-contact-phone="0813-8899-7711"
               data-contact-email="rian.dev@email.com"
-              onclick="openContactModal(this)">Kontak Freelancer</button>
-            <a class="btn-outline-blue" href="worker-profile.php?active=1&id=rian">Lihat Profil</a>
-            
+              onclick="openContactModal(this)"
+              style="padding:7px 14px;font-size:0.82rem;font-weight:600;border-radius:8px;">Kontak Freelancer</button>
+
+            <?php if (!$completedP2 && !$pendingExtP2 && !$isExpiredP2): ?>
+              <button type="button" class="btn-outline-blue" onclick="openExtensionModal('ext-modal-employer-p2')" style="padding:7px 14px;font-size:0.82rem;font-weight:600;border-radius:8px;">Ajukan Perpanjangan</button>
+            <?php elseif ($pendingExtP2): ?>
+              <button type="button" class="btn-outline-blue" disabled style="padding:7px 14px;font-size:0.82rem;font-weight:600;border-radius:8px;opacity:0.65;cursor:not-allowed;">Perpanjangan Pending</button>
+            <?php endif; ?>
+
             <?php if ($completedP2): ?>
-              <a class="btn-create-post" href="employer-riwayat-proyek.php" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:#059669;border-color:#047857;">
+              <a class="btn-create-post" href="employer-riwayat-proyek.php" style="text-decoration:none;padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:#059669;border-color:#047857;">
                 Buka di Riwayat →
               </a>
             <?php else: ?>
-              <a class="btn-create-post" href="employer-rating-worker.php?contract=CTR-GIG-2026-0819&worker=rian" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 10px rgba(217,119,6,0.35);">
+              <a class="btn-create-post" href="employer-rating-worker.php?contract=CTR-GIG-2026-0819&worker=rian" style="text-decoration:none;padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 12px rgba(217,119,6,0.3);border:none;">
                 ★ Selesaikan &amp; Beri Rating
               </a>
             <?php endif; ?>
