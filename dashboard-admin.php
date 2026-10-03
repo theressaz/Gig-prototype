@@ -136,6 +136,14 @@ $pendingWorkers = array_values(array_filter($workers, fn($r) => ($r['status'] ??
 $pendingEmployers = array_values(array_filter($employers, fn($r) => ($r['status'] ?? 'pending') === 'pending'));
 $pendingProjects = array_values(array_filter($vacancies, fn($v) => ($v['status'] ?? '') === 'review'));
 $pendingProfileEdits = array_values(array_filter($workerProfileEdits, fn($r) => ($r['status'] ?? 'pending') === 'pending'));
+$pendingEditsByWorkerKey = [];
+foreach ($pendingProfileEdits as $edit) {
+    $wKey = gig_worker_profile_edit_key((string)($edit['worker_username'] ?? ''));
+    if (!isset($pendingEditsByWorkerKey[$wKey])) {
+        $pendingEditsByWorkerKey[$wKey] = [];
+    }
+    $pendingEditsByWorkerKey[$wKey][] = $edit;
+}
 $nextPendingTab = $metrics['workers_pending'] > 0
     ? 'workers'
     : ($metrics['employers_pending'] > 0 ? 'employers' : ($metrics['vacancies_review'] > 0 ? 'projects' : 'verification'));
@@ -436,8 +444,20 @@ require __DIR__ . '/includes/admin-layout-start.php';
                   <tr><td colspan="5"><div class="empty-state">Belum ada data Gig Worker<?php echo $searchQ !== '' ? ' yang cocok dengan pencarian.' : '.'; ?></div></td></tr>
                 <?php endif; ?>
                 <?php foreach ($workerRows as $row): ?>
+                  <?php
+                    $rowKey = gig_worker_profile_edit_key((string)($row['username'] ?? ''));
+                    $rowPendingEdits = $pendingEditsByWorkerKey[$rowKey] ?? [];
+                    $firstPendingEdit = $rowPendingEdits[0] ?? null;
+                  ?>
                   <tr>
-                    <td><div class="verify-main-text"><?php echo htmlspecialchars((string)$row['username'], ENT_QUOTES, 'UTF-8'); ?></div></td>
+                    <td>
+                      <div class="verify-main-text"><?php echo htmlspecialchars((string)$row['username'], ENT_QUOTES, 'UTF-8'); ?></div>
+                      <?php if ($rowPendingEdits !== []): ?>
+                        <div class="verify-sub-text" style="margin-top:4px;">
+                          <span style="display:inline-flex;padding:2px 8px;border-radius:999px;background:#ffedd5;color:#9a3412;font-weight:700;font-size:0.7rem;">Permintaan Edit Profil: <?php echo count($rowPendingEdits); ?></span>
+                        </div>
+                      <?php endif; ?>
+                    </td>
                     <td><?php echo htmlspecialchars((string)$row['bidang_keahlian'], ENT_QUOTES, 'UTF-8'); ?></td>
                     <td>
                       <div class="verify-sub-text"><?php echo htmlspecialchars((string)$row['contact_email'], ENT_QUOTES, 'UTF-8'); ?></div>
@@ -445,7 +465,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
                     </td>
                     <td><?php echo admin_status_badge((string)($row['status'] ?? 'pending')); ?></td>
                     <td>
-                      <a class="verify-open-link" href="admin-worker-detail.php?u=<?php echo urlencode((string)$row['username']); ?>&email=<?php echo urlencode((string)$row['contact_email']); ?>">Lihat Detail</a>
+                      <a class="verify-open-link" href="admin-worker-detail.php?u=<?php echo urlencode((string)$row['username']); ?>&email=<?php echo urlencode((string)$row['contact_email']); ?><?php echo $firstPendingEdit ? '&edit_id=' . (int)$firstPendingEdit['id'] : ''; ?>">Lihat Detail</a>
                     </td>
                   </tr>
                 <?php endforeach; ?>

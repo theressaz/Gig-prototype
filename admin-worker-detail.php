@@ -6,6 +6,7 @@ require_once __DIR__ . '/includes/admin-store.php';
 
 $workerParam = trim((string)($_GET['u'] ?? ''));
 $emailParam = trim((string)($_GET['email'] ?? ''));
+$editIdParam = (int)($_GET['edit_id'] ?? 0);
 $flash = '';
 $flashType = 'success';
 
@@ -74,6 +75,43 @@ $skills = is_array($worker['skills'] ?? null) ? $worker['skills'] : [];
 $projects = is_array($worker['previous_projects'] ?? null) ? $worker['previous_projects'] : [];
 $portfolio = is_array($worker['portfolio'] ?? null) ? $worker['portfolio'] : [];
 $status = (string)($worker['status'] ?? 'pending');
+$allProfileEdits = gig_admin_list_worker_profile_edits();
+$workerEditKey = gig_worker_profile_edit_key((string)($worker['username'] ?? ''));
+$relatedEdits = array_values(array_filter($allProfileEdits, static function (array $edit) use ($workerEditKey, $worker): bool {
+    $editKey = gig_worker_profile_edit_key((string)($edit['worker_username'] ?? ''));
+    $emailMatch = !empty($edit['worker_email']) && strcasecmp((string)$edit['worker_email'], (string)($worker['contact_email'] ?? '')) === 0;
+    return $editKey === $workerEditKey || $emailMatch;
+}));
+$selectedEdit = null;
+if ($editIdParam > 0) {
+    foreach ($relatedEdits as $edit) {
+        if ((int)($edit['id'] ?? 0) === $editIdParam) {
+            $selectedEdit = $edit;
+            break;
+        }
+    }
+}
+if ($selectedEdit === null) {
+    foreach ($relatedEdits as $edit) {
+        if ((string)($edit['status'] ?? '') === 'pending') {
+            $selectedEdit = $edit;
+            break;
+        }
+    }
+}
+if ($selectedEdit === null && $relatedEdits !== []) {
+    $selectedEdit = $relatedEdits[0];
+}
+
+$editStatusBadge = static function (string $st): string {
+    $map = [
+        'pending' => ['Menunggu Revisi', '#fef3c7', '#92400e'],
+        'approved' => ['Disetujui', '#d1fae5', '#065f46'],
+        'rejected' => ['Ditolak', '#fee2e2', '#991b1b'],
+    ];
+    $item = $map[$st] ?? [$st, '#f1f5f9', '#334155'];
+    return '<span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;background:' . $item[1] . ';color:' . $item[2] . ';">' . htmlspecialchars($item[0], ENT_QUOTES, 'UTF-8') . '</span>';
+};
 
 $statusLabel = 'Menunggu Verifikasi';
 $statusColor = '#1d4ed8';
@@ -155,7 +193,27 @@ if ($status === 'approved') {
   <div class="detail-grid">
     <div>
       <article class="detail-card">
-        <h3>Pengalaman</h3>
+        <?php if ($selectedEdit !== null): ?>
+          <?php $editPayload = is_array($selectedEdit['proposed_payload'] ?? null) ? $selectedEdit['proposed_payload'] : []; ?>
+          <h3>Permintaan Edit Profil</h3>
+          <div class="detail-item" style="border-color:#fed7aa;background:#fff7ed;">
+            <div class="detail-item-title">
+              Status: <?php echo $editStatusBadge((string)($selectedEdit['status'] ?? 'pending')); ?>
+            </div>
+            <div class="detail-item-sub"><strong>Bidang diubah:</strong> <?php echo htmlspecialchars((string)($selectedEdit['edited_field'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
+            <div class="detail-item-sub"><strong>Alasan:</strong> <?php echo htmlspecialchars((string)($selectedEdit['reason_code'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
+            <div class="detail-item-sub"><strong>Ringkasan perubahan:</strong> <?php echo htmlspecialchars((string)($selectedEdit['change_summary'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
+            <div class="detail-item-sub"><strong>Penjelasan:</strong> <?php echo htmlspecialchars((string)($selectedEdit['reason_detail'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
+            <div class="detail-item-sub">
+              <strong>Draft profil baru:</strong>
+              Nama <?php echo htmlspecialchars((string)($editPayload['name'] ?? $displayName), ENT_QUOTES, 'UTF-8'); ?> ·
+              Bidang <?php echo htmlspecialchars((string)($editPayload['title'] ?? ($worker['bidang_keahlian'] ?? '-')), ENT_QUOTES, 'UTF-8'); ?> ·
+              Lokasi <?php echo htmlspecialchars((string)($editPayload['location'] ?? $domicile), ENT_QUOTES, 'UTF-8'); ?>
+            </div>
+          </div>
+        <?php endif; ?>
+
+        <h3 style="margin-top:<?php echo $selectedEdit !== null ? '14px' : '0'; ?>;">Pengalaman</h3>
         <?php if ($projects === []): ?>
           <div class="detail-item"><div class="detail-item-sub">Belum ada pengalaman proyek yang diisi.</div></div>
         <?php endif; ?>
@@ -198,6 +256,7 @@ if ($status === 'approved') {
         <div class="profile-row"><div class="k">Video</div><div class="v"><?php echo !empty($worker['video_url']) ? '<a href="' . htmlspecialchars((string)$worker['video_url'], ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener">Lihat video</a>' : '-'; ?></div></div>
         <div class="profile-row"><div class="k">Dikirim</div><div class="v"><?php echo htmlspecialchars((string)($worker['created_at'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div></div>
         <div class="profile-row"><div class="k">Status</div><div class="v"><span style="background:<?php echo htmlspecialchars($statusBg, ENT_QUOTES, 'UTF-8'); ?>;color:<?php echo htmlspecialchars($statusColor, ENT_QUOTES, 'UTF-8'); ?>;padding:3px 8px;border-radius:999px;font-size:0.74rem;font-weight:800;"><?php echo htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8'); ?></span></div></div>
+        <div class="profile-row"><div class="k">Edit Profil</div><div class="v"><?php echo count($relatedEdits); ?> pengajuan</div></div>
 
         <?php if ($status === 'pending'): ?>
           <div class="verify-panel">
