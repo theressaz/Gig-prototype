@@ -350,7 +350,7 @@ function gig_demo_active_projects(): array
             'mins_left' => $cdApi['mins'],
             'secs_left' => $cdApi['secs'],
             'progress' => 90,
-            'status_label' => 'Revisi Terakhir',
+            'status_label' => 'Sedang Berjalan',
             'status_badge_class' => 'badge-status active',
             'deliverable_status' => 'UAT & Endpoint Test Selesai',
             'deliverable_note' => 'Menunggu verifikasi rilis resmi',

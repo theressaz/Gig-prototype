@@ -83,7 +83,6 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
             <?php endif; ?>
           </div>
           <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">
-            No. Kontrak: <strong><?php echo htmlspecialchars((string)$proj['contract_id'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull;
             Mulai: <strong><?php echo htmlspecialchars((string)$proj['hired_label'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull;
             Durasi Disepakati: <strong><?php echo htmlspecialchars((string)$proj['duration'], ENT_QUOTES, 'UTF-8'); ?></strong>
           </div>
@@ -137,7 +136,8 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
         </div>
       </div>
 
-      <div class="active-proj-actions" style="justify-content:flex-end;flex-wrap:wrap;gap:10px;">
+      <div class="active-proj-actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <span style="font-size:0.8rem;color:var(--text-muted);">Proyek aktif dan sedang berjalan.</span>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <button class="btn-action-sm" type="button"
             data-contact-role="Pemberi Kerja"

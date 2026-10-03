@@ -108,7 +108,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <?php endif; ?>
             </div>
             <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">
-              No. Kontrak: <strong>CTR-GIG-2026-0811</strong> · Mulai: <strong><?php echo htmlspecialchars($p1['hired_label'], ENT_QUOTES, 'UTF-8'); ?></strong> · Durasi Disepakati: <strong><?php echo htmlspecialchars($p1['duration'], ENT_QUOTES, 'UTF-8'); ?></strong>
+              Mulai: <strong><?php echo htmlspecialchars($p1['hired_label'], ENT_QUOTES, 'UTF-8'); ?></strong> · Durasi Disepakati: <strong><?php echo htmlspecialchars($p1['duration'], ENT_QUOTES, 'UTF-8'); ?></strong>
             </div>
           </div>
         </div>
@@ -157,74 +157,72 @@ require __DIR__ . '/includes/employer-layout-start.php';
               </div>
             </div>
           </div>
+        </div>
 
-          <div style="margin-top:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;">
-            <div style="font-size:0.82rem;font-weight:800;color:#0f172a;margin-bottom:8px;">Perpanjangan Durasi</div>
-            <?php if (!empty($p1['approved_extension_days'])): ?>
-              <div style="font-size:0.78rem;color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;padding:8px 10px;border-radius:8px;margin-bottom:8px;">
-                Disetujui: <?php echo htmlspecialchars(gig_format_extension_label((int)$p1['approved_extension_days']), ENT_QUOTES, 'UTF-8'); ?>. Deadline sudah diperbarui.
-              </div>
-            <?php endif; ?>
+        <?php if (!empty($p1['approved_extension_days'])): ?>
+          <div style="margin:12px 0 0 0;font-size:0.78rem;color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;padding:8px 12px;border-radius:8px;">
+            Disetujui: <?php echo htmlspecialchars(gig_format_extension_label((int)$p1['approved_extension_days']), ENT_QUOTES, 'UTF-8'); ?>. Deadline sudah diperbarui.
+          </div>
+        <?php endif; ?>
 
-            <?php if ($isExpiredP1): ?>
-              <div style="font-size:0.78rem;color:#991b1b;background:#fef2f2;border:1px solid #fecaca;padding:8px 10px;border-radius:8px;">
-                Deadline terlewati dan proyek belum selesai. Status otomatis menjadi <strong>Tidak Selesai</strong>.
-              </div>
-            <?php elseif ($pendingExtP1): ?>
-              <div style="font-size:0.78rem;color:#1e293b;background:#eff6ff;border:1px solid #bfdbfe;padding:8px 10px;border-radius:8px;">
-                Pengajuan pending dari <strong><?php echo $pendingExtP1['requested_by_role'] === 'worker' ? 'Gig Worker' : 'Pemberi Kerja'; ?></strong>:
-                <strong><?php echo htmlspecialchars(gig_format_extension_label((int)$pendingExtP1['amount_days']), ENT_QUOTES, 'UTF-8'); ?></strong>
-                <?php if (!empty($pendingExtP1['reason'])): ?>
-                  <div style="margin-top:4px;color:#334155;">Alasan: <?php echo htmlspecialchars((string)$pendingExtP1['reason'], ENT_QUOTES, 'UTF-8'); ?></div>
-                <?php endif; ?>
-              </div>
-              <?php if (($pendingExtP1['requested_by_role'] ?? '') !== 'employer'): ?>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-                  <form method="POST" action="" style="margin:0;">
-                    <input type="hidden" name="ext_action" value="approve_extension">
-                    <input type="hidden" name="request_id" value="<?php echo (int)$pendingExtP1['id']; ?>">
-                    <button type="submit" class="btn-create-post" style="padding:6px 12px;font-size:0.78rem;background:#059669;border-color:#047857;">Setujui Perpanjangan</button>
-                  </form>
-                  <form method="POST" action="" style="margin:0;">
-                    <input type="hidden" name="ext_action" value="reject_extension">
-                    <input type="hidden" name="request_id" value="<?php echo (int)$pendingExtP1['id']; ?>">
-                    <button type="submit" class="btn-outline-blue" style="padding:6px 12px;font-size:0.78rem;">Tolak</button>
-                  </form>
-                </div>
+        <?php if ($isExpiredP1): ?>
+          <div style="margin:12px 0 0 0;font-size:0.78rem;color:#991b1b;background:#fef2f2;border:1px solid #fecaca;padding:8px 12px;border-radius:8px;">
+            Deadline terlewati dan proyek belum selesai. Status otomatis menjadi <strong>Tidak Selesai</strong>.
+          </div>
+        <?php elseif ($pendingExtP1): ?>
+          <div style="margin:12px 0 0 0;font-size:0.78rem;color:#1e293b;background:#eff6ff;border:1px solid #bfdbfe;padding:10px 12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <div>
+              Pengajuan perpanjangan pending dari <strong><?php echo $pendingExtP1['requested_by_role'] === 'worker' ? 'Gig Worker' : 'Pemberi Kerja'; ?></strong>:
+              <strong><?php echo htmlspecialchars(gig_format_extension_label((int)$pendingExtP1['amount_days']), ENT_QUOTES, 'UTF-8'); ?></strong>
+              <?php if (!empty($pendingExtP1['reason'])): ?>
+                <span style="color:#334155;margin-left:6px;">(Alasan: <?php echo htmlspecialchars((string)$pendingExtP1['reason'], ENT_QUOTES, 'UTF-8'); ?>)</span>
               <?php endif; ?>
-            <?php else: ?>
-              <button type="button" class="btn-action-sm" onclick="openExtensionModal('ext-modal-employer-p1')">Ajukan Perpanjangan</button>
-              <div id="ext-modal-employer-p1" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(15,23,42,0.45);padding:16px;">
-                <div style="max-width:560px;margin:7vh auto 0;background:#fff;border-radius:14px;box-shadow:0 20px 50px rgba(15,23,42,0.24);overflow:hidden;">
-                  <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid #e2e8f0;">
-                    <strong style="font-size:0.95rem;color:#0f172a;">Ajukan Perpanjangan Durasi</strong>
-                    <button type="button" onclick="closeExtensionModal('ext-modal-employer-p1')" style="border:none;background:#f1f5f9;color:#334155;border-radius:8px;padding:4px 8px;cursor:pointer;">Tutup</button>
-                  </div>
-                  <form method="POST" action="" style="padding:14px;display:flex;flex-direction:column;gap:10px;">
-                    <input type="hidden" name="ext_action" value="request_extension">
-                    <input type="hidden" name="contract_id" value="<?php echo htmlspecialchars((string)$p1['contract_id'], ENT_QUOTES, 'UTF-8'); ?>">
-                    <label style="font-size:0.8rem;font-weight:700;color:#334155;">Jumlah Perpanjangan</label>
-                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                      <input type="number" min="1" name="ext_amount" value="1" required style="width:92px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;">
-                      <select name="ext_unit" style="padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;">
-                        <option value="day">Hari</option>
-                        <option value="week">Minggu</option>
-                        <option value="month">Bulan</option>
-                      </select>
-                    </div>
-                    <label style="font-size:0.8rem;font-weight:700;color:#334155;">Alasan Perpanjangan</label>
-                    <textarea name="ext_reason" required rows="3" placeholder="Jelaskan alasan kenapa butuh tambahan durasi" style="resize:vertical;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;"></textarea>
-                    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px;">
-                      <button type="button" class="btn-outline-blue" onclick="closeExtensionModal('ext-modal-employer-p1')">Batal</button>
-                      <button type="submit" class="btn-action-sm">Kirim Pengajuan</button>
-                    </div>
-                  </form>
-                </div>
+            </div>
+            <?php if (($pendingExtP1['requested_by_role'] ?? '') !== 'employer'): ?>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <form method="POST" action="" style="margin:0;">
+                  <input type="hidden" name="ext_action" value="approve_extension">
+                  <input type="hidden" name="request_id" value="<?php echo (int)$pendingExtP1['id']; ?>">
+                  <button type="submit" class="btn-create-post" style="padding:4px 10px;font-size:0.75rem;background:#059669;border-color:#047857;">Setujui</button>
+                </form>
+                <form method="POST" action="" style="margin:0;">
+                  <input type="hidden" name="ext_action" value="reject_extension">
+                  <input type="hidden" name="request_id" value="<?php echo (int)$pendingExtP1['id']; ?>">
+                  <button type="submit" class="btn-outline-blue" style="padding:4px 10px;font-size:0.75rem;">Tolak</button>
+                </form>
               </div>
             <?php endif; ?>
           </div>
+        <?php endif; ?>
 
+        <!-- Extension Modal -->
+        <div id="ext-modal-employer-p1" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(15,23,42,0.45);padding:16px;">
+          <div style="max-width:560px;margin:7vh auto 0;background:#fff;border-radius:14px;box-shadow:0 20px 50px rgba(15,23,42,0.24);overflow:hidden;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid #e2e8f0;">
+              <strong style="font-size:0.95rem;color:#0f172a;">Ajukan Perpanjangan Durasi</strong>
+              <button type="button" onclick="closeExtensionModal('ext-modal-employer-p1')" style="border:none;background:#f1f5f9;color:#334155;border-radius:8px;padding:4px 8px;cursor:pointer;">Tutup</button>
+            </div>
+            <form method="POST" action="" style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+              <input type="hidden" name="ext_action" value="request_extension">
+              <input type="hidden" name="contract_id" value="<?php echo htmlspecialchars((string)$p1['contract_id'], ENT_QUOTES, 'UTF-8'); ?>">
+              <label style="font-size:0.8rem;font-weight:700;color:#334155;">Jumlah Perpanjangan</label>
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <input type="number" min="1" name="ext_amount" value="1" required style="width:92px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;">
+                <select name="ext_unit" style="padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;">
+                  <option value="day">Hari</option>
+                  <option value="week">Minggu</option>
+                  <option value="month">Bulan</option>
+                </select>
+              </div>
+              <label style="font-size:0.8rem;font-weight:700;color:#334155;">Alasan Perpanjangan</label>
+              <textarea name="ext_reason" required rows="3" placeholder="Jelaskan alasan kenapa butuh tambahan durasi" style="resize:vertical;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;"></textarea>
+              <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px;">
+                <button type="button" class="btn-outline-blue" onclick="closeExtensionModal('ext-modal-employer-p1')">Batal</button>
+                <button type="submit" class="btn-action-sm">Kirim Pengajuan</button>
+              </div>
+            </form>
           </div>
+        </div>
 
         <div class="active-proj-actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
           <div>
@@ -233,10 +231,13 @@ require __DIR__ . '/includes/employer-layout-start.php';
                <span>⭐</span> Rating Diberikan: <?php echo (int)$ratingP1; ?>/5
               </span>
             <?php else: ?>
-              <span style="font-size:0.8rem;color:var(--text-muted);">Deliverable siap? Selesaikan proyek dan tinggalkan penilaian.</span>
+              <span style="font-size:0.8rem;color:var(--text-muted);">Selesaikan proyek &amp; beri rating.</span>
             <?php endif; ?>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <?php if (!$completedP1 && !$pendingExtP1 && !$isExpiredP1): ?>
+              <button type="button" class="btn-outline-blue" onclick="openExtensionModal('ext-modal-employer-p1')">Ajukan Perpanjangan</button>
+            <?php endif; ?>
             <button class="btn-action-sm" type="button"
               data-contact-role="Gig Worker"
               data-contact-name="Theressa Zaratrusha"
@@ -276,7 +277,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <?php endif; ?>
             </div>
             <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">
-              No. Kontrak: <strong>CTR-GIG-2026-0819</strong> · Mulai: <strong><?php echo htmlspecialchars($p2['hired_label'], ENT_QUOTES, 'UTF-8'); ?></strong> · Durasi Disepakati: <strong><?php echo htmlspecialchars($p2['duration'], ENT_QUOTES, 'UTF-8'); ?></strong>
+              Mulai: <strong><?php echo htmlspecialchars($p2['hired_label'], ENT_QUOTES, 'UTF-8'); ?></strong> · Durasi Disepakati: <strong><?php echo htmlspecialchars($p2['duration'], ENT_QUOTES, 'UTF-8'); ?></strong>
             </div>
           </div>
         </div>
@@ -325,74 +326,72 @@ require __DIR__ . '/includes/employer-layout-start.php';
               </div>
             </div>
           </div>
+        </div>
 
-          <div style="margin-top:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;">
-            <div style="font-size:0.82rem;font-weight:800;color:#0f172a;margin-bottom:8px;">Perpanjangan Durasi</div>
-            <?php if (!empty($p2['approved_extension_days'])): ?>
-              <div style="font-size:0.78rem;color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;padding:8px 10px;border-radius:8px;margin-bottom:8px;">
-                Disetujui: <?php echo htmlspecialchars(gig_format_extension_label((int)$p2['approved_extension_days']), ENT_QUOTES, 'UTF-8'); ?>. Deadline sudah diperbarui.
-              </div>
-            <?php endif; ?>
+        <?php if (!empty($p2['approved_extension_days'])): ?>
+          <div style="margin:12px 0 0 0;font-size:0.78rem;color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;padding:8px 12px;border-radius:8px;">
+            Disetujui: <?php echo htmlspecialchars(gig_format_extension_label((int)$p2['approved_extension_days']), ENT_QUOTES, 'UTF-8'); ?>. Deadline sudah diperbarui.
+          </div>
+        <?php endif; ?>
 
-            <?php if ($isExpiredP2): ?>
-              <div style="font-size:0.78rem;color:#991b1b;background:#fef2f2;border:1px solid #fecaca;padding:8px 10px;border-radius:8px;">
-                Deadline terlewati dan proyek belum selesai. Status otomatis menjadi <strong>Tidak Selesai</strong>.
-              </div>
-            <?php elseif ($pendingExtP2): ?>
-              <div style="font-size:0.78rem;color:#1e293b;background:#eff6ff;border:1px solid #bfdbfe;padding:8px 10px;border-radius:8px;">
-                Pengajuan pending dari <strong><?php echo $pendingExtP2['requested_by_role'] === 'worker' ? 'Gig Worker' : 'Pemberi Kerja'; ?></strong>:
-                <strong><?php echo htmlspecialchars(gig_format_extension_label((int)$pendingExtP2['amount_days']), ENT_QUOTES, 'UTF-8'); ?></strong>
-                <?php if (!empty($pendingExtP2['reason'])): ?>
-                  <div style="margin-top:4px;color:#334155;">Alasan: <?php echo htmlspecialchars((string)$pendingExtP2['reason'], ENT_QUOTES, 'UTF-8'); ?></div>
-                <?php endif; ?>
-              </div>
-              <?php if (($pendingExtP2['requested_by_role'] ?? '') !== 'employer'): ?>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-                  <form method="POST" action="" style="margin:0;">
-                    <input type="hidden" name="ext_action" value="approve_extension">
-                    <input type="hidden" name="request_id" value="<?php echo (int)$pendingExtP2['id']; ?>">
-                    <button type="submit" class="btn-create-post" style="padding:6px 12px;font-size:0.78rem;background:#059669;border-color:#047857;">Setujui Perpanjangan</button>
-                  </form>
-                  <form method="POST" action="" style="margin:0;">
-                    <input type="hidden" name="ext_action" value="reject_extension">
-                    <input type="hidden" name="request_id" value="<?php echo (int)$pendingExtP2['id']; ?>">
-                    <button type="submit" class="btn-outline-blue" style="padding:6px 12px;font-size:0.78rem;">Tolak</button>
-                  </form>
-                </div>
+        <?php if ($isExpiredP2): ?>
+          <div style="margin:12px 0 0 0;font-size:0.78rem;color:#991b1b;background:#fef2f2;border:1px solid #fecaca;padding:8px 12px;border-radius:8px;">
+            Deadline terlewati dan proyek belum selesai. Status otomatis menjadi <strong>Tidak Selesai</strong>.
+          </div>
+        <?php elseif ($pendingExtP2): ?>
+          <div style="margin:12px 0 0 0;font-size:0.78rem;color:#1e293b;background:#eff6ff;border:1px solid #bfdbfe;padding:10px 12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <div>
+              Pengajuan perpanjangan pending dari <strong><?php echo $pendingExtP2['requested_by_role'] === 'worker' ? 'Gig Worker' : 'Pemberi Kerja'; ?></strong>:
+              <strong><?php echo htmlspecialchars(gig_format_extension_label((int)$pendingExtP2['amount_days']), ENT_QUOTES, 'UTF-8'); ?></strong>
+              <?php if (!empty($pendingExtP2['reason'])): ?>
+                <span style="color:#334155;margin-left:6px;">(Alasan: <?php echo htmlspecialchars((string)$pendingExtP2['reason'], ENT_QUOTES, 'UTF-8'); ?>)</span>
               <?php endif; ?>
-            <?php else: ?>
-              <button type="button" class="btn-action-sm" onclick="openExtensionModal('ext-modal-employer-p2')">Ajukan Perpanjangan</button>
-              <div id="ext-modal-employer-p2" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(15,23,42,0.45);padding:16px;">
-                <div style="max-width:560px;margin:7vh auto 0;background:#fff;border-radius:14px;box-shadow:0 20px 50px rgba(15,23,42,0.24);overflow:hidden;">
-                  <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid #e2e8f0;">
-                    <strong style="font-size:0.95rem;color:#0f172a;">Ajukan Perpanjangan Durasi</strong>
-                    <button type="button" onclick="closeExtensionModal('ext-modal-employer-p2')" style="border:none;background:#f1f5f9;color:#334155;border-radius:8px;padding:4px 8px;cursor:pointer;">Tutup</button>
-                  </div>
-                  <form method="POST" action="" style="padding:14px;display:flex;flex-direction:column;gap:10px;">
-                    <input type="hidden" name="ext_action" value="request_extension">
-                    <input type="hidden" name="contract_id" value="<?php echo htmlspecialchars((string)$p2['contract_id'], ENT_QUOTES, 'UTF-8'); ?>">
-                    <label style="font-size:0.8rem;font-weight:700;color:#334155;">Jumlah Perpanjangan</label>
-                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                      <input type="number" min="1" name="ext_amount" value="1" required style="width:92px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;">
-                      <select name="ext_unit" style="padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;">
-                        <option value="day">Hari</option>
-                        <option value="week">Minggu</option>
-                        <option value="month">Bulan</option>
-                      </select>
-                    </div>
-                    <label style="font-size:0.8rem;font-weight:700;color:#334155;">Alasan Perpanjangan</label>
-                    <textarea name="ext_reason" required rows="3" placeholder="Jelaskan alasan kenapa butuh tambahan durasi" style="resize:vertical;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;"></textarea>
-                    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px;">
-                      <button type="button" class="btn-outline-blue" onclick="closeExtensionModal('ext-modal-employer-p2')">Batal</button>
-                      <button type="submit" class="btn-action-sm">Kirim Pengajuan</button>
-                    </div>
-                  </form>
-                </div>
+            </div>
+            <?php if (($pendingExtP2['requested_by_role'] ?? '') !== 'employer'): ?>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <form method="POST" action="" style="margin:0;">
+                  <input type="hidden" name="ext_action" value="approve_extension">
+                  <input type="hidden" name="request_id" value="<?php echo (int)$pendingExtP2['id']; ?>">
+                  <button type="submit" class="btn-create-post" style="padding:4px 10px;font-size:0.75rem;background:#059669;border-color:#047857;">Setujui</button>
+                </form>
+                <form method="POST" action="" style="margin:0;">
+                  <input type="hidden" name="ext_action" value="reject_extension">
+                  <input type="hidden" name="request_id" value="<?php echo (int)$pendingExtP2['id']; ?>">
+                  <button type="submit" class="btn-outline-blue" style="padding:4px 10px;font-size:0.75rem;">Tolak</button>
+                </form>
               </div>
             <?php endif; ?>
           </div>
+        <?php endif; ?>
 
+        <!-- Extension Modal -->
+        <div id="ext-modal-employer-p2" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(15,23,42,0.45);padding:16px;">
+          <div style="max-width:560px;margin:7vh auto 0;background:#fff;border-radius:14px;box-shadow:0 20px 50px rgba(15,23,42,0.24);overflow:hidden;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid #e2e8f0;">
+              <strong style="font-size:0.95rem;color:#0f172a;">Ajukan Perpanjangan Durasi</strong>
+              <button type="button" onclick="closeExtensionModal('ext-modal-employer-p2')" style="border:none;background:#f1f5f9;color:#334155;border-radius:8px;padding:4px 8px;cursor:pointer;">Tutup</button>
+            </div>
+            <form method="POST" action="" style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+              <input type="hidden" name="ext_action" value="request_extension">
+              <input type="hidden" name="contract_id" value="<?php echo htmlspecialchars((string)$p2['contract_id'], ENT_QUOTES, 'UTF-8'); ?>">
+              <label style="font-size:0.8rem;font-weight:700;color:#334155;">Jumlah Perpanjangan</label>
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <input type="number" min="1" name="ext_amount" value="1" required style="width:92px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;">
+                <select name="ext_unit" style="padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;">
+                  <option value="day">Hari</option>
+                  <option value="week">Minggu</option>
+                  <option value="month">Bulan</option>
+                </select>
+              </div>
+              <label style="font-size:0.8rem;font-weight:700;color:#334155;">Alasan Perpanjangan</label>
+              <textarea name="ext_reason" required rows="3" placeholder="Jelaskan alasan kenapa butuh tambahan durasi" style="resize:vertical;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;"></textarea>
+              <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px;">
+                <button type="button" class="btn-outline-blue" onclick="closeExtensionModal('ext-modal-employer-p2')">Batal</button>
+                <button type="submit" class="btn-action-sm">Kirim Pengajuan</button>
+              </div>
+            </form>
           </div>
+        </div>
 
         <div class="active-proj-actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
           <div>
@@ -401,10 +400,13 @@ require __DIR__ . '/includes/employer-layout-start.php';
                <span>⭐</span> Rating Diberikan: <?php echo (int)$ratingP2; ?>/5
               </span>
             <?php else: ?>
-              <span style="font-size:0.8rem;color:var(--text-muted);">Deliverable siap? Selesaikan proyek dan tinggalkan penilaian.</span>
+              <span style="font-size:0.8rem;color:var(--text-muted);">Selesaikan proyek &amp; beri rating.</span>
             <?php endif; ?>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <?php if (!$completedP2 && !$pendingExtP2 && !$isExpiredP2): ?>
+              <button type="button" class="btn-outline-blue" onclick="openExtensionModal('ext-modal-employer-p2')">Ajukan Perpanjangan</button>
+            <?php endif; ?>
             <button class="btn-action-sm" type="button"
               data-contact-role="Gig Worker"
               data-contact-name="Rian Ardiansyah"
