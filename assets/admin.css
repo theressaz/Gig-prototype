@@ -13,6 +13,8 @@ a, a:hover, a:focus, a:active, a:visited {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 125px;
+  align-self: stretch;
   text-decoration: none !important;
   color: inherit;
 }
@@ -48,6 +50,7 @@ a, a:hover, a:focus, a:active, a:visited {
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
+  min-height: 125px;
   box-sizing: border-box;
 }
 .admin-kpi-card::before {
@@ -67,19 +70,24 @@ a, a:hover, a:focus, a:active, a:visited {
   font-weight: 700;
   color: var(--text-muted);
   line-height: 1.35;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  min-height: 18px;
 }
 .admin-kpi-card .kpi-value {
   font-size: 1.65rem;
   font-weight: 800;
   color: #0f172a;
   letter-spacing: -0.02em;
+  margin-bottom: 4px;
 }
 .admin-kpi-card .kpi-sub {
   font-size: 0.76rem;
   color: #64748b;
   margin-top: auto;
-  padding-top: 6px;
+  min-height: 36px;
+  display: flex;
+  align-items: flex-start;
+  line-height: 1.35;
 }
 .admin-chart-grid {
   display: grid;
