@@ -200,7 +200,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
           <article class="admin-kpi-card">
             <div class="kpi-label">Pengajuan Gig Worker</div>
             <div class="kpi-value"><?php echo number_format($metrics['workers_total'], 0, ',', '.'); ?></div>
-            <div class="kpi-sub"><?php echo (int)$metrics['workers_pending']; ?> pendaftaran + <?php echo (int)$metrics['worker_profile_edits_pending']; ?> edit profil menunggu verifikasi</div>
+            <div class="kpi-sub"><?php echo (int)$metrics['workers_pending']; ?> pendaftaran · <?php echo (int)$metrics['worker_profile_edits_pending']; ?> edit profil</div>
           </article>
         </a>
         <a href="?tab=employers" class="admin-kpi-link">
