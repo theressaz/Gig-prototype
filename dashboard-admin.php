@@ -391,7 +391,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
         </div>
 
         <div class="verify-table-wrap">
-          <table class="verify-table">
+          <table class="verify-table is-scrollable">
             <?php if ($state === 'revision'): ?>
               <thead>
                 <tr>
@@ -438,11 +438,12 @@ require __DIR__ . '/includes/admin-layout-start.php';
                   <th>Bidang Keahlian</th>
                   <th>Status</th>
                   <th>Tanggal Daftar</th>
+                  <th class="verify-sticky-action">Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 <?php if ($workerRows === []): ?>
-                  <tr><td colspan="6"><div class="empty-state">Belum ada data Gig Worker<?php echo $searchQ !== '' ? ' yang cocok dengan pencarian.' : '.'; ?></div></td></tr>
+                  <tr><td colspan="7"><div class="empty-state">Belum ada data Gig Worker<?php echo $searchQ !== '' ? ' yang cocok dengan pencarian.' : '.'; ?></div></td></tr>
                 <?php endif; ?>
                 <?php foreach ($workerRows as $row): ?>
                   <?php
@@ -468,6 +469,9 @@ require __DIR__ . '/includes/admin-layout-start.php';
                     <td><?php echo htmlspecialchars((string)$row['bidang_keahlian'], ENT_QUOTES, 'UTF-8'); ?></td>
                     <td><?php echo admin_status_badge((string)($row['status'] ?? 'pending')); ?></td>
                     <td><?php echo htmlspecialchars($createdLabel, ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td class="verify-sticky-action">
+                      <a class="verify-open-link" href="admin-worker-detail.php?u=<?php echo urlencode((string)$row['username']); ?>&email=<?php echo urlencode((string)$row['contact_email']); ?><?php echo $firstPendingEdit ? '&edit_id=' . (int)$firstPendingEdit['id'] : ''; ?>">Lihat Detail</a>
+                    </td>
                   </tr>
                 <?php endforeach; ?>
               </tbody>
