@@ -460,7 +460,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
                       </a>
                       <?php if ($rowPendingEdits !== []): ?>
                         <div class="verify-sub-text" style="margin-top:4px;">
-                          <span style="display:inline-flex;padding:2px 8px;border-radius:999px;background:#ffedd5;color:#9a3412;font-weight:700;font-size:0.7rem;">Permintaan Edit Profil: <?php echo count($rowPendingEdits); ?></span>
+                          <span class="verify-edit-chip">Permintaan Edit Profil: <?php echo count($rowPendingEdits); ?></span>
                         </div>
                       <?php endif; ?>
                     </td>

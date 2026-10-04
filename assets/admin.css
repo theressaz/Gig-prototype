@@ -370,12 +370,13 @@ a, a:hover, a:focus, a:active, a:visited {
 }
 .verify-table-wrap {
   overflow-x: auto;
+  border-top: 1px solid #eef2f7;
 }
 .verify-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 0.83rem;
+  font-size: 0.84rem;
 }
 .verify-table th {
   text-align: left;
@@ -383,17 +384,24 @@ a, a:hover, a:focus, a:active, a:visited {
   font-size: 0.74rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-  padding: 12px 14px;
+  padding: 13px 16px;
   border-bottom: 1px solid #eef2f7;
   background: #f8fafc;
+  white-space: nowrap;
 }
 .verify-table td {
-  padding: 12px 14px;
+  padding: 13px 16px;
   border-bottom: 1px solid #f1f5f9;
-  vertical-align: top;
+  vertical-align: middle;
 }
 .verify-table.is-scrollable {
-  min-width: 1100px;
+  min-width: 1220px;
+}
+.verify-table tbody tr {
+  transition: background-color 0.16s ease;
+}
+.verify-table tbody tr:hover {
+  background: #f8fafc;
 }
 .verify-table th.verify-sticky-action,
 .verify-table td.verify-sticky-action {
@@ -401,10 +409,14 @@ a, a:hover, a:focus, a:active, a:visited {
   right: 0;
   z-index: 3;
   background: #fff;
-  box-shadow: -6px 0 8px -8px rgba(15, 23, 42, 0.35);
+  box-shadow: -8px 0 10px -10px rgba(15, 23, 42, 0.35);
+  border-left: 1px solid #eef2f7;
 }
 .verify-table th.verify-sticky-action {
   z-index: 4;
+  background: #f8fafc;
+}
+.verify-table tbody tr:hover td.verify-sticky-action {
   background: #f8fafc;
 }
 .verify-main-text {
@@ -412,10 +424,24 @@ a, a:hover, a:focus, a:active, a:visited {
   color: #0f172a;
   line-height: 1.35;
 }
+.verify-main-text:hover {
+  color: #1d4ed8;
+}
 .verify-sub-text {
   font-size: 0.78rem;
   color: #64748b;
   margin-top: 2px;
+}
+.verify-edit-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #ffedd5;
+  color: #9a3412;
+  font-weight: 700;
+  font-size: 0.7rem;
+  border: 1px solid #fed7aa;
 }
 .verify-detail-drawer summary {
   list-style: none;
@@ -445,7 +471,7 @@ a, a:hover, a:focus, a:active, a:visited {
   background: #fff;
   color: #0f172a;
   border-radius: 10px;
-  padding: 8px 12px;
+  padding: 7px 12px;
   font-weight: 700;
   font-size: 0.8rem;
   white-space: nowrap;
@@ -454,6 +480,19 @@ a, a:hover, a:focus, a:active, a:visited {
   border-color: #bfdbfe;
   background: #eff6ff;
   color: #1d4ed8;
+}
+.verify-table.is-scrollable th:nth-child(2),
+.verify-table.is-scrollable td:nth-child(2) {
+  min-width: 240px;
+}
+.verify-table.is-scrollable td:nth-child(3) {
+  white-space: nowrap;
+}
+.verify-table.is-scrollable th:nth-child(6),
+.verify-table.is-scrollable td:nth-child(6),
+.verify-table.is-scrollable th:nth-child(7),
+.verify-table.is-scrollable td:nth-child(7) {
+  white-space: nowrap;
 }
 .verify-drawer-body {
   margin-top: 10px;
