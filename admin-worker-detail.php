@@ -172,6 +172,9 @@ if ($status === 'approved') {
   .detail-item:last-child { margin-bottom:0; }
   .detail-item-title { font-size:0.86rem;font-weight:700;color:#0f172a; }
   .detail-item-sub { font-size:0.78rem;color:#64748b;margin-top:2px;line-height:1.45; }
+.portfolio-files { margin-top:8px; display:grid; gap:6px; }
+.portfolio-file-link { display:inline-flex; align-items:center; gap:6px; font-size:0.78rem; font-weight:700; color:#1d4ed8; text-decoration:none; }
+.portfolio-file-link:hover { text-decoration:underline; }
   .profile-row { display:grid;grid-template-columns:140px 1fr;gap:8px;font-size:0.82rem;padding:6px 0;border-bottom:1px dashed #e2e8f0; }
   .profile-row:last-child { border-bottom:none; }
   .profile-row .k { color:#64748b; font-weight:600; }
@@ -270,11 +273,46 @@ if ($status === 'approved') {
           <div class="detail-item"><div class="detail-item-sub">Belum ada portofolio yang diisi.</div></div>
         <?php endif; ?>
         <?php foreach ($portfolio as $port): ?>
+          <?php
+            $portFiles = [];
+            if (!empty($port['files']) && is_array($port['files'])) {
+                foreach ($port['files'] as $file) {
+                    $fUrl = trim((string)($file['url'] ?? ''));
+                    if ($fUrl !== '' && $fUrl !== '#') {
+                        $portFiles[] = [
+                            'name' => (string)($file['name'] ?? 'Berkas Portofolio'),
+                            'type' => (string)($file['type'] ?? ''),
+                            'url' => $fUrl,
+                        ];
+                    }
+                }
+            }
+            if ($portFiles === []) {
+                $singleUrl = trim((string)($port['url'] ?? ''));
+                if ($singleUrl !== '' && $singleUrl !== '#') {
+                    $portFiles[] = [
+                        'name' => (string)($port['title'] ?? 'Berkas Portofolio'),
+                        'type' => (string)($port['type'] ?? ''),
+                        'url' => $singleUrl,
+                    ];
+                }
+            }
+          ?>
           <div class="detail-item">
             <div class="detail-item-title"><?php echo htmlspecialchars((string)($port['title'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
             <div class="detail-item-sub"><?php echo htmlspecialchars((string)($port['type'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
             <?php if (!empty($port['deliverable'])): ?>
               <div class="detail-item-sub"><?php echo htmlspecialchars((string)$port['deliverable'], ENT_QUOTES, 'UTF-8'); ?></div>
+            <?php endif; ?>
+            <?php if ($portFiles !== []): ?>
+              <div class="portfolio-files">
+                <?php foreach ($portFiles as $file): ?>
+                  <a class="portfolio-file-link" href="<?php echo htmlspecialchars((string)$file['url'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener">
+                    Buka File/Link
+                    <span style="font-weight:600;color:#475569;">· <?php echo htmlspecialchars((string)$file['name'], ENT_QUOTES, 'UTF-8'); ?><?php echo $file['type'] !== '' ? ' (' . htmlspecialchars((string)$file['type'], ENT_QUOTES, 'UTF-8') . ')' : ''; ?></span>
+                  </a>
+                <?php endforeach; ?>
+              </div>
             <?php endif; ?>
           </div>
         <?php endforeach; ?>

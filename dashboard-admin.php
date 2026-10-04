@@ -433,40 +433,41 @@ require __DIR__ . '/includes/admin-layout-start.php';
               <thead>
                 <tr>
                   <th>Gig Worker</th>
+                  <th>Email</th>
+                  <th>No. Telepon</th>
                   <th>Bidang Keahlian</th>
-                  <th>Kontak</th>
                   <th>Status</th>
-                  <th>Aksi</th>
+                  <th>Tanggal Daftar</th>
                 </tr>
               </thead>
               <tbody>
                 <?php if ($workerRows === []): ?>
-                  <tr><td colspan="5"><div class="empty-state">Belum ada data Gig Worker<?php echo $searchQ !== '' ? ' yang cocok dengan pencarian.' : '.'; ?></div></td></tr>
+                  <tr><td colspan="6"><div class="empty-state">Belum ada data Gig Worker<?php echo $searchQ !== '' ? ' yang cocok dengan pencarian.' : '.'; ?></div></td></tr>
                 <?php endif; ?>
                 <?php foreach ($workerRows as $row): ?>
                   <?php
                     $rowKey = gig_worker_profile_edit_key((string)($row['username'] ?? ''));
                     $rowPendingEdits = $pendingEditsByWorkerKey[$rowKey] ?? [];
                     $firstPendingEdit = $rowPendingEdits[0] ?? null;
+                    $createdAt = trim((string)($row['created_at'] ?? ''));
+                    $createdLabel = $createdAt !== '' ? date('d M Y', strtotime($createdAt)) : '-';
                   ?>
                   <tr>
                     <td>
-                      <div class="verify-main-text"><?php echo htmlspecialchars((string)$row['username'], ENT_QUOTES, 'UTF-8'); ?></div>
+                      <a class="verify-main-text" href="admin-worker-detail.php?u=<?php echo urlencode((string)$row['username']); ?>&email=<?php echo urlencode((string)$row['contact_email']); ?><?php echo $firstPendingEdit ? '&edit_id=' . (int)$firstPendingEdit['id'] : ''; ?>" style="text-decoration:none;color:inherit;">
+                        <?php echo htmlspecialchars((string)$row['username'], ENT_QUOTES, 'UTF-8'); ?>
+                      </a>
                       <?php if ($rowPendingEdits !== []): ?>
                         <div class="verify-sub-text" style="margin-top:4px;">
                           <span style="display:inline-flex;padding:2px 8px;border-radius:999px;background:#ffedd5;color:#9a3412;font-weight:700;font-size:0.7rem;">Permintaan Edit Profil: <?php echo count($rowPendingEdits); ?></span>
                         </div>
                       <?php endif; ?>
                     </td>
+                    <td><?php echo htmlspecialchars((string)$row['contact_email'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?php echo htmlspecialchars((string)$row['contact_wa'], ENT_QUOTES, 'UTF-8'); ?></td>
                     <td><?php echo htmlspecialchars((string)$row['bidang_keahlian'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td>
-                      <div class="verify-sub-text"><?php echo htmlspecialchars((string)$row['contact_email'], ENT_QUOTES, 'UTF-8'); ?></div>
-                      <div class="verify-sub-text"><?php echo htmlspecialchars((string)$row['contact_wa'], ENT_QUOTES, 'UTF-8'); ?></div>
-                    </td>
                     <td><?php echo admin_status_badge((string)($row['status'] ?? 'pending')); ?></td>
-                    <td>
-                      <a class="verify-open-link" href="admin-worker-detail.php?u=<?php echo urlencode((string)$row['username']); ?>&email=<?php echo urlencode((string)$row['contact_email']); ?><?php echo $firstPendingEdit ? '&edit_id=' . (int)$firstPendingEdit['id'] : ''; ?>">Lihat Detail</a>
-                    </td>
+                    <td><?php echo htmlspecialchars($createdLabel, ENT_QUOTES, 'UTF-8'); ?></td>
                   </tr>
                 <?php endforeach; ?>
               </tbody>
