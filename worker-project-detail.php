@@ -465,13 +465,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
       </div>
       <form method="post" action="" class="modal-body">
         <input type="hidden" name="do_apply" value="1" />
-        <div style="font-size: 0.88rem; color: var(--text-main); font-weight: 700; margin-bottom: 6px;">
-          <?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?>
-        </div>
-        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">
-          Lamaran akan dikirim berdasarkan profil dan portofolio Gig Worker Anda.
-        </div>
-
         <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 12px; font-size: 0.78rem; color: #1e40af; margin-bottom: 20px;">
           ℹ Profil Gig Worker dan portofolio Anda akan dikirimkan ke Pemberi Kerja. Kontak pribadi Anda tetap terlindungi hingga disetujui.
         </div>
