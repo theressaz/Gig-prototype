@@ -264,7 +264,7 @@ function gig_demo_active_projects(): array
     $hireUi = new DateTimeImmutable('2026-09-20 11:13:00');
     $hireApi = new DateTimeImmutable('2026-09-19 09:00:00');
     $hireMob = new DateTimeImmutable('2026-09-22 10:00:00');
-    $hireAudit = new DateTimeImmutable('2026-09-24 14:00:00');
+    $hireAudit = new DateTimeImmutable('2026-09-30 14:00:00');
 
     $uiDuration = '3 Minggu';
     $apiDuration = '2 Minggu';
