@@ -460,7 +460,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
   <div class="modal-backdrop" id="applyModal" onclick="if(event.target.id==='applyModal') closeApplyModal();">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 style="font-size: 1rem; font-weight: 800;">Persetujuan Risiko Pembayaran</h3>
+        <h3 style="font-size: 1rem; font-weight: 800; color:#ffffff;">Persetujuan Risiko Pembayaran</h3>
         <button type="button" onclick="closeApplyModal()" style="background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer;">&times;</button>
       </div>
       <form method="post" action="" class="modal-body">
