@@ -389,92 +389,6 @@ if ($status === 'approved') {
   .verify-panel textarea { width:100%;min-height:70px;border:1px solid #cbd5e1;border-radius:10px;padding:9px;font:inherit;margin:8px 0; }
   .edit-verify-actions { display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;margin-top:8px; }
   .edit-verify-actions textarea { width:100%;min-height:70px;border:1px solid #cbd5e1;border-radius:10px;padding:9px;font:inherit; }
-  .decision-modal-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.55);
-    z-index: 1400;
-    padding: 14px;
-  }
-  .decision-modal {
-    max-width: 760px;
-    margin: 2vh auto 0;
-    background: #fff;
-    border-radius: 16px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.3);
-    overflow: hidden;
-  }
-  .decision-modal-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 16px 18px 12px;
-    border-bottom: 1px solid #e2e8f0;
-  }
-  .decision-modal-title { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
-  .decision-modal-sub { font-size: 0.95rem; color: #64748b; line-height: 1.45; }
-  .decision-close {
-    border: 1px solid #e2e8f0;
-    background: #fff;
-    border-radius: 999px;
-    width: 40px;
-    height: 40px;
-    font-size: 1.6rem;
-    line-height: 1;
-    color: #64748b;
-    cursor: pointer;
-  }
-  .decision-modal-body { max-height: 70vh; overflow: auto; padding: 14px 18px 10px; }
-  .decision-group-title { font-size: 1.2rem; font-weight: 800; color: #0f172a; margin-bottom: 2px; }
-  .decision-group-sub { font-size: 0.9rem; color: #64748b; margin-bottom: 10px; }
-  .decision-options { display: grid; gap: 10px; margin-bottom: 10px; }
-  .decision-option {
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    background: #fff;
-    padding: 12px 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #0f172a;
-  }
-  .decision-option input { accent-color: #0ea5e9; width: 18px; height: 18px; }
-  .decision-option.is-selected { border-color: #7dd3fc; background: #f0f9ff; }
-  .decision-note-wrap { margin-top: 10px; display: none; }
-  .decision-note-wrap.show { display: block; }
-  .decision-note-label { font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 6px; display:block; }
-  .decision-note-label .req { color: #ef4444; }
-  .decision-note { width: 100%; min-height: 130px; border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px 12px; font: inherit; font-size: 0.95rem; }
-  .decision-hint {
-    margin-top: 10px;
-    border: 1px solid #d1fae5;
-    background: #ecfdf5;
-    color: #065f46;
-    border-radius: 12px;
-    padding: 10px 12px;
-    font-size: 0.95rem;
-    line-height: 1.45;
-  }
-  .decision-hint.warn { border-color:#fecaca; background:#fef2f2; color:#991b1b; }
-  .decision-hint.rev { border-color:#fde68a; background:#fffbeb; color:#92400e; }
-  .decision-modal-foot {
-    border-top: 1px solid #e2e8f0;
-    padding: 12px 18px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-  .btn-cancel { border:1px solid #e2e8f0;background:#fff;color:#0f172a;border-radius:10px;padding:9px 16px;font-size:0.95rem;font-weight:700;cursor:pointer; }
-  .btn-confirm { border:none;border-radius:10px;padding:9px 16px;font-size:0.95rem;font-weight:800;color:#fff;cursor:pointer;background:#0ea5e9; }
-  .btn-confirm.approve { background:#059669; }
-  .btn-confirm.reject { background:#f43f5e; }
-  .btn-confirm.revision { background:#f59e0b; color:#1f2937; }
   .flash { padding:11px 13px;border-radius:10px;margin-bottom:14px;font-size:0.84rem;font-weight:700; }
   .flash.success { background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0; }
   .flash.error { background:#fef2f2;color:#991b1b;border:1px solid #fecaca; }
@@ -501,7 +415,6 @@ if ($status === 'approved') {
       </div>
     </div>
     <div class="detail-actions">
-      <span class="detail-btn primary"><?php echo htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8'); ?></span>
       <button type="button" class="detail-btn" onclick="openAdminDecisionModal({entityType:'worker', entityName:'profil Gig Worker', username:'<?php echo htmlspecialchars((string)$worker['username'], ENT_QUOTES, 'UTF-8'); ?>', action:'worker_take_decision'})">Ambil Keputusan</button>
       <button type="button" class="detail-btn" onclick="window.print()">Cetak Kartu</button>
     </div>
@@ -651,7 +564,26 @@ if ($status === 'approved') {
     </div>
 
     <aside>
-      <article class="detail-card" style="margin-bottom:12px;">
+      <article class="detail-card">
+        <h3>Profil</h3>
+        <div class="profile-row"><div class="k">Nama</div><div class="v"><?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?></div></div>
+        <div class="profile-row"><div class="k">Domisili</div><div class="v"><?php echo htmlspecialchars($domicile, ENT_QUOTES, 'UTF-8'); ?></div></div>
+        <div class="profile-row"><div class="k">Bidang</div><div class="v"><?php echo htmlspecialchars((string)$worker['bidang_keahlian'], ENT_QUOTES, 'UTF-8'); ?></div></div>
+        <div class="profile-row"><div class="k">Kontak</div><div class="v"><?php echo htmlspecialchars((string)$worker['contact_email'], ENT_QUOTES, 'UTF-8'); ?><br><?php echo htmlspecialchars((string)$worker['contact_wa'], ENT_QUOTES, 'UTF-8'); ?></div></div>
+        <div class="profile-row"><div class="k">Skill</div><div class="v"><?php echo htmlspecialchars($skills !== [] ? implode(', ', $skills) : '-', ENT_QUOTES, 'UTF-8'); ?></div></div>
+        <div class="profile-row"><div class="k">Video</div><div class="v"><?php echo !empty($worker['video_url']) ? '<a href="' . htmlspecialchars((string)$worker['video_url'], ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener">Lihat video</a>' : '-'; ?></div></div>
+        <div class="profile-row"><div class="k">Dikirim</div><div class="v"><?php echo htmlspecialchars((string)($worker['created_at'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div></div>
+        <div class="profile-row"><div class="k">Status</div><div class="v"><span style="background:<?php echo htmlspecialchars($statusBg, ENT_QUOTES, 'UTF-8'); ?>;color:<?php echo htmlspecialchars($statusColor, ENT_QUOTES, 'UTF-8'); ?>;padding:3px 8px;border-radius:999px;font-size:0.74rem;font-weight:800;"><?php echo htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8'); ?></span></div></div>
+        <div class="profile-row"><div class="k">Edit Profil</div><div class="v"><?php echo count($relatedEdits); ?> pengajuan</div></div>
+
+        <?php if (!empty($worker['admin_note'])): ?>
+          <div class="verify-panel">
+            <div style="font-size:0.8rem;color:#334155;"><strong>Catatan Admin:</strong><br><?php echo htmlspecialchars((string)$worker['admin_note'], ENT_QUOTES, 'UTF-8'); ?></div>
+          </div>
+        <?php endif; ?>
+      </article>
+
+      <article class="detail-card" style="margin-top:12px;">
         <h3>Aktivitas &amp; Audit Log</h3>
         <?php if ($auditLogs === []): ?>
           <div class="detail-item"><div class="detail-item-sub">Belum ada aktivitas tercatat.</div></div>
@@ -667,49 +599,8 @@ if ($status === 'approved') {
           </div>
         <?php endif; ?>
       </article>
-
-      <article class="detail-card">
-        <h3>Profil</h3>
-        <div class="profile-row"><div class="k">Nama</div><div class="v"><?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?></div></div>
-        <div class="profile-row"><div class="k">Domisili</div><div class="v"><?php echo htmlspecialchars($domicile, ENT_QUOTES, 'UTF-8'); ?></div></div>
-        <div class="profile-row"><div class="k">Bidang</div><div class="v"><?php echo htmlspecialchars((string)$worker['bidang_keahlian'], ENT_QUOTES, 'UTF-8'); ?></div></div>
-        <div class="profile-row"><div class="k">Kontak</div><div class="v"><?php echo htmlspecialchars((string)$worker['contact_email'], ENT_QUOTES, 'UTF-8'); ?><br><?php echo htmlspecialchars((string)$worker['contact_wa'], ENT_QUOTES, 'UTF-8'); ?></div></div>
-        <div class="profile-row"><div class="k">Skill</div><div class="v"><?php echo htmlspecialchars($skills !== [] ? implode(', ', $skills) : '-', ENT_QUOTES, 'UTF-8'); ?></div></div>
-        <div class="profile-row"><div class="k">Video</div><div class="v"><?php echo !empty($worker['video_url']) ? '<a href="' . htmlspecialchars((string)$worker['video_url'], ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener">Lihat video</a>' : '-'; ?></div></div>
-        <div class="profile-row"><div class="k">Dikirim</div><div class="v"><?php echo htmlspecialchars((string)($worker['created_at'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div></div>
-        <div class="profile-row"><div class="k">Status</div><div class="v"><span style="background:<?php echo htmlspecialchars($statusBg, ENT_QUOTES, 'UTF-8'); ?>;color:<?php echo htmlspecialchars($statusColor, ENT_QUOTES, 'UTF-8'); ?>;padding:3px 8px;border-radius:999px;font-size:0.74rem;font-weight:800;"><?php echo htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8'); ?></span></div></div>
-        <div class="profile-row"><div class="k">Edit Profil</div><div class="v"><?php echo count($relatedEdits); ?> pengajuan</div></div>
-
-        <?php if ($status === 'pending'): ?>
-          <div class="verify-panel">
-            <form method="post">
-              <label style="font-size:0.78rem;font-weight:700;color:#334155;">Catatan Verifikasi (opsional)</label>
-              <textarea name="admin_note" placeholder="Tulis catatan untuk worker..."></textarea>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button class="btn-approve" name="action" value="worker_approve" type="submit">Setujui</button>
-                <button class="btn-reject" name="action" value="worker_reject" type="submit">Tolak</button>
-              </div>
-            </form>
-          </div>
-        <?php elseif (!empty($worker['admin_note'])): ?>
-          <div class="verify-panel">
-            <div style="font-size:0.8rem;color:#334155;"><strong>Catatan Admin:</strong><br><?php echo htmlspecialchars((string)$worker['admin_note'], ENT_QUOTES, 'UTF-8'); ?></div>
-          </div>
-        <?php endif; ?>
-      </article>
     </aside>
   </div>
 </section>
-
-<script>
-function openDecisionModal() {
-  openAdminDecisionModal({
-    entityType: 'worker',
-    entityName: 'profil Gig Worker',
-    username: <?php echo json_encode((string)($worker['username'] ?? ''), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>,
-    action: 'worker_take_decision'
-  });
-}
-</script>
 
 <?php require __DIR__ . '/includes/admin-layout-end.php'; ?>

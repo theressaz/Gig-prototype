@@ -130,6 +130,43 @@ declare(strict_types=1);
 let currentEntityName = 'lowongan';
 let currentEntityType = 'vacancy';
 
+function getComplianceReasonSet(entityType) {
+  if (entityType === 'worker') {
+    return [
+      'Data profil Gig Worker tidak lengkap',
+      'Portofolio/berkas pendukung tidak valid',
+      'Pengalaman atau keahlian tidak sesuai klaim',
+      'Informasi kontak/identitas tidak valid'
+    ];
+  }
+  if (entityType === 'employer') {
+    return [
+      'Data perusahaan tidak lengkap',
+      'Dokumen/legalitas perusahaan tidak valid',
+      'Informasi PIC tidak sesuai',
+      'Kontak perusahaan tidak dapat diverifikasi'
+    ];
+  }
+  return [
+    'Data tidak lengkap',
+    'Tidak sesuai substansi',
+    'Tidak sesuai dengan aturan',
+    'Tidak sesuai dengan aturan anti diskriminasi'
+  ];
+}
+
+function applyComplianceReasons(entityType) {
+  const reasons = getComplianceReasonSet(entityType);
+  const cards = document.querySelectorAll('.compliance-card');
+  cards.forEach((card, idx) => {
+    const reason = reasons[idx] || reasons[0] || 'Data tidak lengkap';
+    const label = card.querySelector('.compliance-label');
+    const input = card.querySelector('input[type="checkbox"]');
+    if (label) label.innerText = reason;
+    if (input) input.value = reason;
+  });
+}
+
 function openAdminDecisionModal(config = {}) {
   const modalBackdrop = document.getElementById('decision-modal-backdrop');
   if (!modalBackdrop) return;
@@ -154,6 +191,7 @@ function openAdminDecisionModal(config = {}) {
   document.getElementById('modal-sub-text').innerText = `Pilih keputusan untuk ${entityName} ini. Pastikan Anda telah memeriksa seluruh data ${entityName} dengan seksama.`;
   document.getElementById('compliance-sec-sub').innerText = `Aktifkan salah satu item di bawah ini apabila terdapat ketidakpatuhan pada ${entityName} ini`;
   document.getElementById('decision-sec-sub').innerText = `Tentukan keputusan sebelum memverifikasi ${entityName} ini`;
+  applyComplianceReasons(entityType);
 
   const checkBoxes = document.querySelectorAll('.compliance-card input[type="checkbox"]');
   checkBoxes.forEach(cb => {

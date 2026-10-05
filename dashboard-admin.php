@@ -533,7 +533,6 @@ require __DIR__ . '/includes/admin-layout-start.php';
                     <td class="verify-col-date"><?php echo htmlspecialchars($createdLabel, ENT_QUOTES, 'UTF-8'); ?></td>
                     <td class="verify-col-action verify-sticky-action">
                       <a class="verify-open-link" href="admin-worker-detail.php?u=<?php echo urlencode((string)$row['username']); ?>&email=<?php echo urlencode((string)$row['contact_email']); ?><?php echo $firstPendingEdit ? '&edit_id=' . (int)$firstPendingEdit['id'] : ''; ?>">Lihat Detail</a>
-                      <button type="button" class="verify-open-link" style="margin-left:4px;background:#0ea5e9;color:#fff;border:none;cursor:pointer;" onclick="openAdminDecisionModal({entityType:'worker', entityName:'profil Gig Worker', username:<?php echo json_encode((string)$row['username']); ?>, action:'worker_decision', tab:'workers'})">Proses</button>
                     </td>
                   </tr>
                 <?php endforeach; ?>
