@@ -88,26 +88,30 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
     }
     gig_sort_experience_timeline($projects);
 
-    // Process portfolios with multiple attached files
+    // Process portfolios with multiple attached files/links
     $portfolios = [];
     if (!empty($_POST["portfolio_title"]) && is_array($_POST["portfolio_title"])) {
         foreach ($_POST["portfolio_title"] as $idx => $pTitle) {
             $pt = trim((string)$pTitle);
             if ($pt !== "") {
                 $itemFiles = [];
-                if (!empty($_POST["portfolio_file_name"][$idx]) && is_array($_POST["portfolio_file_name"][$idx])) {
-                    foreach ($_POST["portfolio_file_name"][$idx] as $fIdx => $fName) {
-                        $fn = trim((string)$fName);
-                        $fu = trim((string)($_POST["portfolio_file_url"][$idx][$fIdx] ?? '#'));
-                        $ft = trim((string)($_POST["portfolio_file_type"][$idx][$fIdx] ?? 'Dokumen PDF'));
-                        if ($fn !== "" || ($fu !== "" && $fu !== "#")) {
-                            $itemFiles[] = [
-                                'name' => $fn !== "" ? $fn : 'Berkas_' . ($fIdx + 1),
-                                'type' => $ft !== "" ? $ft : 'Dokumen PDF',
-                                'size' => 'Akses Web / File',
-                                'url'  => $fu !== "" ? $fu : '#'
-                            ];
+                $urlRows = $_POST["portfolio_file_url"][$idx] ?? [];
+                $nameRows = $_POST["portfolio_file_name"][$idx] ?? [];
+                $typeRows = $_POST["portfolio_file_type"][$idx] ?? [];
+                if (is_array($urlRows)) {
+                    foreach ($urlRows as $fIdx => $rawUrl) {
+                        $fu = trim((string)$rawUrl);
+                        if ($fu === '' || $fu === '#') {
+                            continue;
                         }
+                        $fn = trim((string)($nameRows[$fIdx] ?? ''));
+                        $ft = trim((string)($typeRows[$fIdx] ?? 'Dokumen/Link'));
+                        $itemFiles[] = [
+                            'name' => $fn !== '' ? $fn : 'Link Deliverable ' . ($fIdx + 1),
+                            'type' => $ft !== '' ? $ft : 'Dokumen/Link',
+                            'size' => 'Akses Web / File',
+                            'url'  => $fu
+                        ];
                     }
                 }
 
@@ -129,7 +133,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
                     'title'       => $pt,
                     'type'        => trim((string)($_POST["portfolio_type"][$idx] ?? "Proyek Portfolio")),
                     'deliverable' => trim((string)($_POST["portfolio_desc"][$idx] ?? "")),
-                    'url'         => !empty($itemFiles[0]['url']) ? $itemFiles[0]['url'] : '#',
+                    'url'         => !empty($itemFiles[0]['url']) ? $itemFiles[0]['url'] : '',
                     'client'      => 'Klien Terverifikasi',
                     'year'        => date('Y'),
                     'files'       => $itemFiles

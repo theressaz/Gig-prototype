@@ -229,6 +229,64 @@ if ($status === 'approved') {
     $statusColor = '#991b1b';
     $statusBg = '#fee2e2';
 }
+
+$extractPortfolioLinks = static function (array $portItem): array {
+    $links = [];
+    $seen = [];
+
+    $addLink = static function (string $url, string $name, string $type) use (&$links, &$seen): void {
+        $cleanUrl = trim($url);
+        if ($cleanUrl === '' || $cleanUrl === '#') {
+            return;
+        }
+        $key = strtolower($cleanUrl);
+        if (isset($seen[$key])) {
+            return;
+        }
+        $seen[$key] = true;
+        $links[] = [
+            'url' => $cleanUrl,
+            'name' => trim($name) !== '' ? trim($name) : 'Tautan Portofolio',
+            'type' => trim($type),
+        ];
+    };
+
+    if (!empty($portItem['files']) && is_array($portItem['files'])) {
+        foreach ($portItem['files'] as $fileItem) {
+            if (is_array($fileItem)) {
+                $addLink(
+                    (string)($fileItem['url'] ?? $fileItem['link'] ?? ''),
+                    (string)($fileItem['name'] ?? ''),
+                    (string)($fileItem['type'] ?? '')
+                );
+            } elseif (is_string($fileItem)) {
+                $addLink($fileItem, '', '');
+            }
+        }
+    }
+
+    if (!empty($portItem['links']) && is_array($portItem['links'])) {
+        foreach ($portItem['links'] as $linkItem) {
+            if (is_string($linkItem)) {
+                $addLink($linkItem, '', '');
+            } elseif (is_array($linkItem)) {
+                $addLink(
+                    (string)($linkItem['url'] ?? $linkItem['link'] ?? ''),
+                    (string)($linkItem['name'] ?? ''),
+                    (string)($linkItem['type'] ?? '')
+                );
+            }
+        }
+    }
+
+    $addLink(
+        (string)($portItem['url'] ?? $portItem['link'] ?? ''),
+        (string)($portItem['title'] ?? ''),
+        (string)($portItem['type'] ?? '')
+    );
+
+    return $links;
+};
 ?>
 
 <style>
@@ -296,6 +354,16 @@ if ($status === 'approved') {
   }
   .portfolio-file-btn:hover {
     background: #dbeafe;
+  }
+  .portfolio-empty-note {
+    margin-top: 8px;
+    border: 1px dashed #cbd5e1;
+    background: #f8fafc;
+    color: #64748b;
+    border-radius: 10px;
+    padding: 9px 10px;
+    font-size: 0.78rem;
+    line-height: 1.45;
   }
   .edit-request-panel {
     border: 1px solid #dbeafe;
@@ -513,29 +581,7 @@ if ($status === 'approved') {
         <?php endif; ?>
         <?php foreach ($portfolio as $port): ?>
           <?php
-            $portFiles = [];
-            if (!empty($port['files']) && is_array($port['files'])) {
-                foreach ($port['files'] as $file) {
-                    $fUrl = trim((string)($file['url'] ?? ''));
-                    if ($fUrl !== '' && $fUrl !== '#') {
-                        $portFiles[] = [
-                            'name' => (string)($file['name'] ?? 'Berkas Portofolio'),
-                            'type' => (string)($file['type'] ?? ''),
-                            'url' => $fUrl,
-                        ];
-                    }
-                }
-            }
-            if ($portFiles === []) {
-                $singleUrl = trim((string)($port['url'] ?? ''));
-                if ($singleUrl !== '' && $singleUrl !== '#') {
-                    $portFiles[] = [
-                        'name' => (string)($port['title'] ?? 'Berkas Portofolio'),
-                        'type' => (string)($port['type'] ?? ''),
-                        'url' => $singleUrl,
-                    ];
-                }
-            }
+            $portFiles = $extractPortfolioLinks(is_array($port) ? $port : []);
           ?>
           <div class="detail-item">
             <div class="detail-item-title"><?php echo htmlspecialchars((string)($port['title'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
@@ -552,10 +598,14 @@ if ($status === 'approved') {
                       Tipe: <?php echo $file['type'] !== '' ? htmlspecialchars((string)$file['type'], ENT_QUOTES, 'UTF-8') : 'Dokumen/Link'; ?>
                     </div>
                     <a class="portfolio-file-btn" href="<?php echo htmlspecialchars((string)$file['url'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener">
-                      Buka File <?php echo (int)$idxFile + 1; ?>
+                      Buka Tautan <?php echo (int)$idxFile + 1; ?>
                     </a>
                   </div>
                 <?php endforeach; ?>
+              </div>
+            <?php else: ?>
+              <div class="portfolio-empty-note">
+                Gig Worker belum menyertakan tautan akses pada item portofolio ini.
               </div>
             <?php endif; ?>
           </div>
