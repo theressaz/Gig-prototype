@@ -25,8 +25,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['app_action'], $_POST[
 
 $workers = gig_worker_profiles();
 $workerById = [];
+$workerByEmail = [];
+$workerByName = [];
 foreach ($workers as $w) {
-    $workerById[strtolower(trim((string)($w['id'] ?? '')))] = $w;
+    $idKey = strtolower(trim((string)($w['id'] ?? '')));
+    if ($idKey !== '') {
+        $workerById[$idKey] = $w;
+    }
+    $emailKey = strtolower(trim((string)($w['contact']['email'] ?? '')));
+    if ($emailKey !== '') {
+        $workerByEmail[$emailKey] = $w;
+    }
+    $nameKey = strtolower(trim((string)($w['name'] ?? '')));
+    if ($nameKey !== '') {
+        $workerByName[$nameKey] = $w;
+    }
 }
 
 $jobApplications = [];
@@ -70,14 +83,17 @@ foreach ($jobApplications as $app) {
     $status = (string)($app['status'] ?? 'applied');
     $lane = $statusToLane[$status] ?? 'incoming';
     $workerId = strtolower(trim((string)($app['worker_id'] ?? '')));
-    $profile = $workerById[$workerId] ?? null;
+    $workerName = strtolower(trim((string)($app['worker_name'] ?? '')));
+    $profile = $workerById[$workerId]
+        ?? $workerByEmail[$workerId]
+        ?? $workerByName[$workerName]
+        ?? null;
 
     $lanes[$lane][] = [
         'id' => (string)($app['id'] ?? ''),
         'worker_id' => (string)($app['worker_id'] ?? ''),
         'name' => (string)($profile['name'] ?? $app['worker_name'] ?? 'Gig Worker'),
         'title' => (string)($profile['title'] ?? 'Gig Worker'),
-        'location' => (string)($profile['location'] ?? 'Lokasi belum diisi'),
         'rating' => (float)($profile['rating'] ?? 0),
         'bid' => (string)($app['bid_amount'] ?? $job['budget'] ?? '-'),
         'status' => $status,
@@ -116,7 +132,6 @@ require __DIR__ . '/includes/employer-layout-start.php';
   .jobd-card-name { font-size:0.84rem; font-weight:800; color:#0f172a; margin-bottom:2px; }
   .jobd-card-sub { font-size:0.74rem; color:#64748b; margin-bottom:6px; }
   .jobd-card-meta { font-size:0.72rem; color:#475569; display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
-  .jobd-card-actions { display:flex; gap:6px; margin-top:8px; }
   .jobd-empty { font-size:0.8rem; color:#94a3b8; text-align:center; padding:24px 10px; }
   .jobd-info { display:none; background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:18px; }
   .jobd-info.active { display:block; }
@@ -173,24 +188,13 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <div class="jobd-empty">Tidak ada data.</div>
             <?php endif; ?>
             <?php foreach ($cards as $c): ?>
-              <div class="jobd-card candidate-card" data-search="<?php echo htmlspecialchars(strtolower($c['name'] . ' ' . $c['title'] . ' ' . $c['location']), ENT_QUOTES, 'UTF-8'); ?>">
+              <div class="jobd-card candidate-card" data-search="<?php echo htmlspecialchars(strtolower($c['name'] . ' ' . $c['title']), ENT_QUOTES, 'UTF-8'); ?>">
                 <div class="jobd-card-name"><?php echo htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8'); ?></div>
                 <div class="jobd-card-sub"><?php echo htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8'); ?></div>
                 <div class="jobd-card-meta">
-                  <span>📍 <?php echo htmlspecialchars($c['location'], ENT_QUOTES, 'UTF-8'); ?></span>
                   <span>★ <?php echo number_format((float)$c['rating'], 1); ?></span>
                 </div>
                 <div style="font-size:0.76rem;font-weight:800;color:#2563eb;"><?php echo htmlspecialchars($c['bid'], ENT_QUOTES, 'UTF-8'); ?></div>
-                <div class="jobd-card-actions">
-                  <a class="btn-outline-blue" style="padding:4px 8px;font-size:0.72rem;" href="worker-profile.php?id=<?php echo urlencode($c['worker_id']); ?>&from=kandidat">Profil</a>
-                  <?php if ($key === 'incoming' || $key === 'reviewed' || $key === 'interview'): ?>
-                    <form method="post" action="" style="display:inline-flex;gap:4px;">
-                      <input type="hidden" name="app_id" value="<?php echo htmlspecialchars($c['id'], ENT_QUOTES, 'UTF-8'); ?>">
-                      <button class="btn-action-sm" type="submit" name="app_action" value="accept" style="padding:4px 8px;font-size:0.72rem;background:#dcfce7;color:#166534;border-color:#bbf7d0;">Terima</button>
-                      <button class="btn-action-sm" type="submit" name="app_action" value="reject" style="padding:4px 8px;font-size:0.72rem;background:#fef2f2;color:#b91c1c;border-color:#fecaca;" onclick="return confirm('Tolak kandidat ini?');">Tolak</button>
-                    </form>
-                  <?php endif; ?>
-                </div>
               </div>
             <?php endforeach; ?>
           </div>
