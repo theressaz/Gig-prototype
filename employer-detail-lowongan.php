@@ -170,6 +170,15 @@ foreach ($jobApplications as $app) {
     if (!empty($profile['portfolio'][0]['files'][0]['url'])) {
         $resumeUrl = (string)$profile['portfolio'][0]['files'][0]['url'];
     }
+    $portfolioRows = [];
+    foreach (array_slice((array)($profile['portfolio'] ?? []), 0, 3) as $pf) {
+        $pt = trim((string)($pf['title'] ?? ''));
+        $pc = trim((string)($pf['client'] ?? ''));
+        if ($pt !== '') {
+            $portfolioRows[] = $pt . ($pc !== '' ? (' - ' . $pc) : '');
+        }
+    }
+    $portfolioSummary = implode(' || ', $portfolioRows);
     $expRows = [];
     foreach (array_slice((array)($profile['experience'] ?? []), 0, 3) as $exp) {
         $period = trim((string)($exp['period'] ?? ''));
@@ -184,6 +193,14 @@ foreach ($jobApplications as $app) {
     $titleInfo = trim((string)($profile['title'] ?? 'Gig Worker'));
     $projectsInfo = (string)($profile['completed_projects'] ?? 0) . ' proyek selesai';
     $reviewsInfo = (string)($profile['reviews_count'] ?? 0) . ' ulasan';
+    $bidangMap = [
+        'ui-ux' => 'UI/UX & Desain',
+        'backend' => 'IT & Pemrograman',
+        'marketing' => 'Pemasaran & Konten',
+        'general' => 'Gig Worker Professional',
+    ];
+    $bidangLabel = $bidangMap[(string)($profile['category'] ?? 'general')] ?? $titleInfo;
+    $contactUnlocked = gig_is_hired_status($status);
 
     $lanes[$lane][] = [
         'id' => (string)($app['id'] ?? ''),
@@ -202,6 +219,9 @@ foreach ($jobApplications as $app) {
         'resume_url' => $resumeUrl,
         'contact_email' => (string)($profile['contact']['email'] ?? ''),
         'contact_wa' => (string)($profile['contact']['wa'] ?? ''),
+        'contact_unlocked' => $contactUnlocked ? '1' : '0',
+        'bidang_label' => $bidangLabel,
+        'portfolio_lines' => $portfolioSummary,
         'title_info' => $titleInfo,
         'projects_info' => $projectsInfo,
         'reviews_info' => $reviewsInfo,
@@ -337,6 +357,9 @@ require __DIR__ . '/includes/employer-layout-start.php';
                 data-resume="<?php echo htmlspecialchars($c['resume_url'], ENT_QUOTES, 'UTF-8'); ?>"
                 data-contact-email="<?php echo htmlspecialchars($c['contact_email'], ENT_QUOTES, 'UTF-8'); ?>"
                 data-contact-wa="<?php echo htmlspecialchars($c['contact_wa'], ENT_QUOTES, 'UTF-8'); ?>"
+                data-contact-unlocked="<?php echo htmlspecialchars($c['contact_unlocked'], ENT_QUOTES, 'UTF-8'); ?>"
+                data-bidang-label="<?php echo htmlspecialchars($c['bidang_label'], ENT_QUOTES, 'UTF-8'); ?>"
+                data-portfolio-lines="<?php echo htmlspecialchars($c['portfolio_lines'], ENT_QUOTES, 'UTF-8'); ?>"
                 data-title-info="<?php echo htmlspecialchars($c['title_info'], ENT_QUOTES, 'UTF-8'); ?>"
                 data-projects-info="<?php echo htmlspecialchars($c['projects_info'], ENT_QUOTES, 'UTF-8'); ?>"
                 data-reviews-info="<?php echo htmlspecialchars($c['reviews_info'], ENT_QUOTES, 'UTF-8'); ?>"
@@ -390,6 +413,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
   <div class="cand-body">
     <div class="cand-row"><div class="cand-label">📍 Lokasi</div><div id="candLocation" class="cand-value">-</div></div>
     <div class="cand-row"><div class="cand-label">🏷️ Tag Seleksi</div><div id="candTags" class="cand-value">-</div></div>
+    <div class="cand-row"><div class="cand-label">🧩 Bidang</div><div id="candBidang" class="cand-value">-</div></div>
     <div class="cand-row"><div class="cand-label">ℹ️ Tentang</div><div id="candAbout" class="cand-value" style="font-weight:500;line-height:1.45;">-</div></div>
     <div class="cand-row">
       <div class="cand-label">📎 Resume</div>
@@ -420,6 +444,10 @@ require __DIR__ . '/includes/employer-layout-start.php';
       <div class="cand-row">
         <div class="cand-label">📚 Riwayat Pengalaman</div>
         <div id="candExperienceList" class="cand-value" style="font-weight:500;line-height:1.5;">Belum ada riwayat pengalaman.</div>
+      </div>
+      <div class="cand-row">
+        <div class="cand-label">🗂️ Portofolio</div>
+        <div id="candPortfolioList" class="cand-value" style="font-weight:500;line-height:1.5;">Belum ada data portofolio.</div>
       </div>
     </div>
   </div>
@@ -475,6 +503,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
       statusText: document.getElementById('candStatusText'),
       location: document.getElementById('candLocation'),
       tags: document.getElementById('candTags'),
+      bidang: document.getElementById('candBidang'),
       about: document.getElementById('candAbout'),
       resume: document.getElementById('candResumeLink'),
       contactEmail: document.getElementById('candContactEmail'),
@@ -484,6 +513,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
       reviewsInfo: document.getElementById('candReviewsInfo'),
       activity: document.getElementById('candActivity'),
       experienceList: document.getElementById('candExperienceList'),
+      portfolioList: document.getElementById('candPortfolioList'),
     };
     const tabProfileBtn = document.getElementById('candTabProfileBtn');
     const tabActivityBtn = document.getElementById('candTabActivityBtn');
@@ -509,10 +539,20 @@ require __DIR__ . '/includes/employer-layout-start.php';
       if (fields.statusText) fields.statusText.textContent = statusText;
       if (fields.location) fields.location.textContent = card.getAttribute('data-location') || '-';
       if (fields.tags) fields.tags.textContent = card.getAttribute('data-tags') || '-';
+      if (fields.bidang) fields.bidang.textContent = card.getAttribute('data-bidang-label') || '-';
       if (fields.about) fields.about.textContent = card.getAttribute('data-about') || '-';
       if (fields.resume) fields.resume.setAttribute('href', resume);
-      if (fields.contactEmail) fields.contactEmail.textContent = card.getAttribute('data-contact-email') || 'tidak tersedia';
-      if (fields.contactWa) fields.contactWa.textContent = card.getAttribute('data-contact-wa') || 'tidak tersedia';
+      const contactUnlocked = (card.getAttribute('data-contact-unlocked') || '0') === '1';
+      if (fields.contactEmail) {
+        fields.contactEmail.textContent = contactUnlocked
+          ? (card.getAttribute('data-contact-email') || 'tidak tersedia')
+          : 'Terkunci sampai kandidat diterima';
+      }
+      if (fields.contactWa) {
+        fields.contactWa.textContent = contactUnlocked
+          ? (card.getAttribute('data-contact-wa') || 'tidak tersedia')
+          : 'Terkunci sampai kandidat diterima';
+      }
       if (fields.titleInfo) fields.titleInfo.textContent = card.getAttribute('data-title-info') || 'Gig Worker';
       if (fields.projectsInfo) fields.projectsInfo.textContent = card.getAttribute('data-projects-info') || '0 proyek selesai';
       if (fields.reviewsInfo) fields.reviewsInfo.textContent = card.getAttribute('data-reviews-info') || '0 ulasan';
@@ -522,6 +562,12 @@ require __DIR__ . '/includes/employer-layout-start.php';
         fields.experienceList.innerHTML = lines.length
           ? lines.map(function(line) { return '<div style="margin-bottom:6px;">• ' + line + '</div>'; }).join('')
           : 'Belum ada riwayat pengalaman.';
+      }
+      if (fields.portfolioList) {
+        const pfLines = (card.getAttribute('data-portfolio-lines') || '').split(' || ').filter(Boolean);
+        fields.portfolioList.innerHTML = pfLines.length
+          ? pfLines.map(function(line) { return '<div style="margin-bottom:6px;">• ' + line + '</div>'; }).join('')
+          : 'Belum ada data portofolio.';
       }
       if (appIdInput) appIdInput.value = card.getAttribute('data-app-id') || '';
       if (statusSelect) statusSelect.value = card.getAttribute('data-status-ui') || 'applied';
