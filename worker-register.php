@@ -125,7 +125,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
         }
     }
 
-    if ($bidangKeahlian === "") {
+    if (!$isEditMode && empty($_POST['consent_truth'])) {
+        $errorMessage = "Harap centang persetujuan kebenaran data sebelum mengirim pendaftaran.";
+    } elseif ($bidangKeahlian === "") {
         $errorMessage = "Harap pilih Bidang Keahlian Anda.";
     } elseif ($skillsRaw === "") {
         $errorMessage = "Harap cantumkan minimal 1 Skill / Keahlian spesifik.";
@@ -751,10 +753,22 @@ $backHref = $isEditMode
       </div>
 
       <!-- SUBMIT -->
+      <?php if (!$isEditMode): ?>
+      <div style="margin-top:24px;padding:14px 16px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;">
+        <label for="consent_truth" style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;">
+          <input type="checkbox" id="consent_truth" name="consent_truth" value="1" style="margin-top:3px;accent-color:#0284c7;" />
+          <span style="font-size:0.84rem;color:#334155;line-height:1.5;">
+            Saya menyatakan bahwa seluruh data yang saya submit adalah benar. Saya bersedia memenuhi kewajiban saya sebagai Gig Worker, dan apabila ditemukan bahwa saya tidak melaksanakan kewajiban sebagaimana mestinya, saya bersedia dimintai pertanggungjawaban berdasarkan peraturan perundang-undangan.
+          </span>
+        </label>
+      </div>
+      <?php endif; ?>
+
       <div style="display: flex; justify-content: flex-end; gap: 14px; margin-top: 32px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
         <a href="pilih-pendaftaran.php" style="padding:14px 24px; text-decoration:none; color:#64748b; font-weight:700; font-size:0.9rem;">Batal</a>
-        <button type="submit" class="btn-submit">
+        <button type="submit" class="btn-submit" id="worker-register-submit-btn" <?php echo !$isEditMode ? 'disabled style="background:#9ca3af;cursor:not-allowed;box-shadow:none;"' : ''; ?>>
           <?php echo $isEditMode ? 'Simpan Pembaruan Profil' : 'Kirim Pengajuan Verifikasi'; ?>
+        </button>
       </div>
     </form>
 
@@ -884,6 +898,30 @@ $backHref = $isEditMode
         statusDiv.innerHTML = 'ℹ Tautan video terdaftar. Pastikan akses video diset ke Publik/Unlisted.';
       }
     }
+
+    function syncRegisterConsentState() {
+      const consentCb = document.getElementById('consent_truth');
+      const submitBtn = document.getElementById('worker-register-submit-btn');
+      if (!submitBtn) return;
+      if (!consentCb) return;
+      submitBtn.disabled = !consentCb.checked;
+      if (consentCb.checked) {
+        submitBtn.style.background = '#0284c7';
+        submitBtn.style.cursor = 'pointer';
+        submitBtn.style.boxShadow = '0 4px 12px rgba(2, 132, 199, 0.2)';
+      } else {
+        submitBtn.style.background = '#9ca3af';
+        submitBtn.style.cursor = 'not-allowed';
+        submitBtn.style.boxShadow = 'none';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const consentCb = document.getElementById('consent_truth');
+      if (!consentCb) return;
+      consentCb.addEventListener('change', syncRegisterConsentState);
+      syncRegisterConsentState();
+    });
   </script>
         </div>
     </main>
