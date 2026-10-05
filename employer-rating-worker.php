@@ -116,9 +116,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
     $selectedBadges = is_array($_POST['badges'] ?? null) ? $_POST['badges'] : [];
     $recommend      = !empty($_POST['recommend_worker']) || !empty($_POST['recommend_employer']);
     $confirmDone    = !empty($_POST['confirm_deliverables']);
+    $confirmGiven   = !empty($_POST['confirm_given_deliverables']);
 
-    if (!$confirmDone) {
-        $errorMessage = 'Centang konfirmasi bahwa deliverable telah diterima untuk mengirim ulasan.';
+    if (!$confirmDone || !$confirmGiven) {
+        $errorMessage = 'Centang seluruh konfirmasi deliverable yang wajib untuk mengirim ulasan.';
     } elseif ($comment === '') {
         $errorMessage = 'Mohon tuliskan ulasan atau testimoni singkat untuk mitra proyek.';
     } else {
@@ -436,20 +437,21 @@ $displayComment = $submitted
 
       <!-- 4. CONFIRMATIONS -->
       <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:28px;display:flex;flex-direction:column;gap:12px;">
-        <?php if (!$isWorker): ?>
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--text-dark);line-height:1.4;">
-            <input type="checkbox" name="recommend_worker" value="1" checked style="accent-color:#2563eb;margin-top:2px;" />
-            <span><strong>Rekomendasi Publik:</strong> Tampilkan lencana rekomendasi pada profil publik Gig Worker untuk perusahaan lain di KarirHub.</span>
-          </label>
-        <?php else: ?>
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--text-dark);line-height:1.4;">
-            <input type="checkbox" name="recommend_employer" value="1" checked style="accent-color:#2563eb;margin-top:2px;" />
-            <span><strong>Rekomendasi Publik:</strong> Tandai pemberi kerja ini sebagai mitra proyek yang direkomendasikan.</span>
-          </label>
-        <?php endif; ?>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--text-dark);line-height:1.4;">
+          <input type="checkbox" required id="confirm_given_deliverables" name="confirm_given_deliverables" value="1" style="accent-color:#2563eb;margin-top:2px;" />
+          <?php if ($isWorker): ?>
+            <span><strong>Konfirmasi Gig Worker Sudah Menyerahkan Deliverable <span style="color:#ef4444;">*</span>:</strong> Saya menyatakan seluruh deliverable telah saya serahkan kepada pemberi kerja.</span>
+          <?php else: ?>
+            <span><strong>Konfirmasi Gig Worker Sudah Menyerahkan Deliverable <span style="color:#ef4444;">*</span>:</strong> Saya menyatakan Gig Worker telah menyerahkan seluruh deliverable proyek.</span>
+          <?php endif; ?>
+        </label>
         <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--text-dark);line-height:1.4;">
           <input type="checkbox" required id="confirm_deliverables" name="confirm_deliverables" value="1" style="accent-color:#2563eb;margin-top:2px;" />
-          <span><strong>Konfirmasi Deliverable Selesai:</strong> Saya menyatakan seluruh deliverable telah diserahkan, diuji, dan diterima dengan baik.</span>
+          <?php if ($isWorker): ?>
+            <span><strong>Konfirmasi Pemberi Kerja Sudah Menerima Deliverable <span style="color:#ef4444;">*</span>:</strong> Saya menyatakan pemberi kerja telah menerima deliverable dengan baik.</span>
+          <?php else: ?>
+            <span><strong>Konfirmasi Pemberi Kerja Sudah Menerima Deliverable <span style="color:#ef4444;">*</span>:</strong> Saya menyatakan seluruh deliverable telah diterima dengan baik oleh pemberi kerja.</span>
+          <?php endif; ?>
         </label>
       </div>
 
@@ -507,44 +509,46 @@ $displayComment = $submitted
       const starContainer = document.getElementById('starContainer');
       const hiddenInput   = document.getElementById('overall_rating');
       const ratingLabel   = document.getElementById('ratingLabel');
+      const confirmGivenDeliverables = document.getElementById('confirm_given_deliverables');
       const confirmDeliverables = document.getElementById('confirm_deliverables');
       const submitBtn = document.getElementById('submit_review_btn');
-      if (!starContainer || !hiddenInput || !ratingLabel) return;
 
-      const stars = starContainer.querySelectorAll('.star-item');
-      const labels = {
-        1: '★☆☆☆☆ 1.0 · Buruk (Tidak Memuaskan)',
-        2: '★★☆☆☆ 2.0 · Kurang (Perlu Perbaikan)',
-        3: '★★★☆☆ 3.0 · Cukup (Sesuai Standar)',
-        4: '★★★★☆ 4.0 · Baik (Memuaskan)',
-        5: '★★★★★ 5.0 · Sangat Memuaskan (Luar Biasa)',
-      };
+      if (starContainer && hiddenInput && ratingLabel) {
+        const stars = starContainer.querySelectorAll('.star-item');
+        const labels = {
+          1: '★☆☆☆☆ 1.0 · Buruk (Tidak Memuaskan)',
+          2: '★★☆☆☆ 2.0 · Kurang (Perlu Perbaikan)',
+          3: '★★★☆☆ 3.0 · Cukup (Sesuai Standar)',
+          4: '★★★★☆ 4.0 · Baik (Memuaskan)',
+          5: '★★★★★ 5.0 · Sangat Memuaskan (Luar Biasa)',
+        };
 
-      function updateStars(val) {
-        val = parseInt(val, 10);
-        stars.forEach(function(star, idx) {
-          star.innerText = idx < val ? '★' : '☆';
-          star.style.color = idx < val ? '#f59e0b' : '#cbd5e1';
+        function updateStars(val) {
+          val = parseInt(val, 10);
+          stars.forEach(function(star, idx) {
+            star.innerText = idx < val ? '★' : '☆';
+            star.style.color = idx < val ? '#f59e0b' : '#cbd5e1';
+          });
+          ratingLabel.innerText = labels[val] || '';
+        }
+
+        stars.forEach(function(star) {
+          star.addEventListener('click', function() {
+            hiddenInput.value = this.getAttribute('data-val');
+            updateStars(hiddenInput.value);
+          });
+          star.addEventListener('mouseenter', function() {
+            updateStars(this.getAttribute('data-val'));
+          });
         });
-        ratingLabel.innerText = labels[val] || '';
-      }
-
-      stars.forEach(function(star) {
-        star.addEventListener('click', function() {
-          hiddenInput.value = this.getAttribute('data-val');
+        starContainer.addEventListener('mouseleave', function() {
           updateStars(hiddenInput.value);
         });
-        star.addEventListener('mouseenter', function() {
-          updateStars(this.getAttribute('data-val'));
-        });
-      });
-      starContainer.addEventListener('mouseleave', function() {
+
         updateStars(hiddenInput.value);
-      });
+      }
 
-      updateStars(hiddenInput.value);
-
-      if (confirmDeliverables && submitBtn) {
+      if (confirmDeliverables && confirmGivenDeliverables && submitBtn) {
         const enabledStyles = {
           background: '',
           borderColor: '',
@@ -553,7 +557,7 @@ $displayComment = $submitted
         };
 
         function syncSubmitState() {
-          const isChecked = !!confirmDeliverables.checked;
+          const isChecked = !!confirmDeliverables.checked && !!confirmGivenDeliverables.checked;
           submitBtn.disabled = !isChecked;
           submitBtn.setAttribute('aria-disabled', isChecked ? 'false' : 'true');
           if (isChecked) {
@@ -570,6 +574,7 @@ $displayComment = $submitted
         }
 
         confirmDeliverables.addEventListener('change', syncSubmitState);
+        confirmGivenDeliverables.addEventListener('change', syncSubmitState);
         syncSubmitState();
       }
     })();
