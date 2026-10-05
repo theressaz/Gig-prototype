@@ -82,8 +82,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
     $comment        = trim((string)($_POST['comment'] ?? ''));
     $selectedBadges = is_array($_POST['badges'] ?? null) ? $_POST['badges'] : [];
     $recommend      = !empty($_POST['recommend_worker']);
+    $confirmDone    = !empty($_POST['confirm_deliverables']);
 
-    if ($comment === '') {
+    if (!$confirmDone) {
+        $errorMessage = 'Centang konfirmasi bahwa deliverable telah diterima untuk mengirim ulasan.';
+    } elseif ($comment === '') {
         $errorMessage = 'Mohon tuliskan ulasan atau testimoni singkat untuk mitra proyek.';
     } else {
         $badgesJson   = implode('||', $selectedBadges);
@@ -367,7 +370,7 @@ $displayComment = $submitted
       <!-- 5. CONFIRMATIONS -->
       <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:28px;display:flex;flex-direction:column;gap:12px;">
         <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--text-dark);line-height:1.4;">
-          <input type="checkbox" required name="confirm_deliverables" value="1" style="accent-color:#2563eb;margin-top:2px;" />
+          <input type="checkbox" required id="confirm_deliverables" name="confirm_deliverables" value="1" style="accent-color:#2563eb;margin-top:2px;" />
           <span><strong>Konfirmasi Deliverable Selesai:</strong> Saya menyatakan seluruh deliverable telah diserahkan, diuji, dan diterima dengan baik.</span>
         </label>
         <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--text-dark);line-height:1.4;">
@@ -378,7 +381,7 @@ $displayComment = $submitted
 
       <div style="display:flex;gap:12px;justify-content:flex-end;align-items:center;">
         <a href="employer-proyek-aktif.php" class="filter-btn-pill" style="text-decoration:none;padding:10px 18px;font-size:0.88rem;">Batal</a>
-        <button type="submit" name="submit_review" value="1" class="btn-create-post" style="padding:10px 24px;font-size:0.9rem;">
+        <button type="submit" id="submit_review_btn" name="submit_review" value="1" class="btn-create-post" disabled aria-disabled="true" style="padding:10px 24px;font-size:0.9rem;background:#9ca3af;border-color:#9ca3af;cursor:not-allowed;opacity:0.9;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
           Kirim Ulasan &amp; Selesaikan Proyek
         </button>
@@ -432,6 +435,8 @@ $displayComment = $submitted
       const starContainer = document.getElementById('starContainer');
       const hiddenInput   = document.getElementById('overall_rating');
       const ratingLabel   = document.getElementById('ratingLabel');
+      const confirmDeliverables = document.getElementById('confirm_deliverables');
+      const submitBtn = document.getElementById('submit_review_btn');
       if (!starContainer || !hiddenInput || !ratingLabel) return;
 
       const stars = starContainer.querySelectorAll('.star-item');
@@ -466,6 +471,35 @@ $displayComment = $submitted
       });
 
       updateStars(hiddenInput.value);
+
+      if (confirmDeliverables && submitBtn) {
+        const enabledStyles = {
+          background: '',
+          borderColor: '',
+          cursor: '',
+          opacity: '',
+        };
+
+        function syncSubmitState() {
+          const isChecked = !!confirmDeliverables.checked;
+          submitBtn.disabled = !isChecked;
+          submitBtn.setAttribute('aria-disabled', isChecked ? 'false' : 'true');
+          if (isChecked) {
+            submitBtn.style.background = enabledStyles.background;
+            submitBtn.style.borderColor = enabledStyles.borderColor;
+            submitBtn.style.cursor = enabledStyles.cursor;
+            submitBtn.style.opacity = enabledStyles.opacity;
+            return;
+          }
+          submitBtn.style.background = '#9ca3af';
+          submitBtn.style.borderColor = '#9ca3af';
+          submitBtn.style.cursor = 'not-allowed';
+          submitBtn.style.opacity = '0.9';
+        }
+
+        confirmDeliverables.addEventListener('change', syncSubmitState);
+        syncSubmitState();
+      }
     })();
   </script>
 
