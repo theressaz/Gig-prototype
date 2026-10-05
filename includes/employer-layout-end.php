@@ -428,7 +428,6 @@ declare(strict_types=1);
                     <input type="checkbox" id="proj_show_salary" checked />
                     <span>Tampilkan rentang gaji di postingan lowongan</span>
                   </label>
-                  <div class="gig-checkbox-note">Matikan opsi ini jika Anda ingin menampilkan "Gaji dapat dinegosiasikan".</div>
                 </div>
 
                 <div class="gig-grid-2">
