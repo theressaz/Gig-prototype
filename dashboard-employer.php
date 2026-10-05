@@ -3,6 +3,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/employer-auth.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/project-applications.php';
+require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/project-schedule.php';
 
 $allApps = gig_get_all_applications();
 $appMapByWorker = [];
@@ -20,11 +22,41 @@ $workerProfiles = array_filter($rawWorkerProfiles, function($w) use ($appMapByWo
 });
 
 $vacancies = gig_project_vacancies();
-$soonest = gig_demo_soonest_active_project();
-$otherActive = array_values(array_filter(
-    gig_demo_active_projects(),
-    static fn($p) => $soonest && $p['contract_id'] !== $soonest['contract_id']
-));
+$activeProjectIds = ['GIG-2026-09-001', 'GIG-2026-09-002'];
+$activeProjects = [];
+foreach ($activeProjectIds as $projId) {
+    $project = gig_demo_active_project_by_id($projId);
+    if (is_array($project)) {
+        $activeProjects[] = $project;
+    }
+}
+
+$completedContracts = [];
+$pdo = gig_db();
+if ($pdo !== null) {
+    try {
+        $stmt = $pdo->prepare("SELECT `contract_id` FROM `project_completions` WHERE `employer_username` = :emp");
+        $stmt->execute([':emp' => $username]);
+        foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $cid) {
+            $completedContracts[(string)$cid] = true;
+        }
+    } catch (Throwable $ignored) {
+    }
+}
+if (isset($_SESSION['completed_projects']) && is_array($_SESSION['completed_projects'])) {
+    foreach (array_keys($_SESSION['completed_projects']) as $cid) {
+        $completedContracts[(string)$cid] = true;
+    }
+}
+
+$activeProjects = array_values(array_filter($activeProjects, static function (array $project) use ($completedContracts): bool {
+    $cid = (string)($project['contract_id'] ?? '');
+    return $cid === '' || !isset($completedContracts[$cid]);
+}));
+usort($activeProjects, static fn($a, $b) => strcmp((string)($a['deadline_iso'] ?? ''), (string)($b['deadline_iso'] ?? '')));
+
+$soonest = $activeProjects[0] ?? null;
+$otherActive = array_slice($activeProjects, 1);
 $pageTitle = 'Ringkasan';
 $pageKey = 'overview';
 $breadcrumbCurrent = 'Ringkasan';
@@ -121,6 +153,10 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Detik</span>
             </div>
           </div>
+        </div>
+        <?php else: ?>
+        <div style="margin-top:14px;padding:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;">
+          <div style="font-size:0.84rem;color:#64748b;">Belum ada proyek aktif yang perlu countdown.</div>
         </div>
         <?php endif; ?>
 
