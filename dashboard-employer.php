@@ -22,14 +22,8 @@ $workerProfiles = array_filter($rawWorkerProfiles, function($w) use ($appMapByWo
 });
 
 $vacancies = gig_project_vacancies();
-$activeProjectIds = ['GIG-2026-09-001', 'GIG-2026-09-002'];
-$activeProjects = [];
-foreach ($activeProjectIds as $projId) {
-    $project = gig_demo_active_project_by_id($projId);
-    if (is_array($project)) {
-        $activeProjects[] = $project;
-    }
-}
+$p1 = gig_demo_active_project_by_id('GIG-2026-09-001');
+$p2 = gig_demo_active_project_by_id('GIG-2026-09-002');
 
 $completedContracts = [];
 $pdo = gig_db();
@@ -49,10 +43,19 @@ if (isset($_SESSION['completed_projects']) && is_array($_SESSION['completed_proj
     }
 }
 
-$activeProjects = array_values(array_filter($activeProjects, static function (array $project) use ($completedContracts): bool {
-    $cid = (string)($project['contract_id'] ?? '');
-    return $cid === '' || !isset($completedContracts[$cid]);
-}));
+$activeProjects = [];
+if (is_array($p1)) {
+    $p1Contract = (string)($p1['contract_id'] ?? '');
+    if ($p1Contract === '' || !isset($completedContracts[$p1Contract])) {
+        $activeProjects[] = $p1;
+    }
+}
+if (is_array($p2)) {
+    $p2Contract = (string)($p2['contract_id'] ?? '');
+    if ($p2Contract === '' || !isset($completedContracts[$p2Contract])) {
+        $activeProjects[] = $p2;
+    }
+}
 usort($activeProjects, static fn($a, $b) => strcmp((string)($a['deadline_iso'] ?? ''), (string)($b['deadline_iso'] ?? '')));
 
 $soonest = $activeProjects[0] ?? null;
