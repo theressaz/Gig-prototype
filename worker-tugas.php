@@ -30,10 +30,17 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     } elseif ($action === 'cancel_extension') {
         $requestId = (int)($_POST['request_id'] ?? 0);
         $res = gig_cancel_project_extension($requestId, 'worker', $username);
-        $flashMsg = !empty($res['ok'])
-            ? 'Pengajuan perpanjangan berhasil dibatalkan.'
-            : (string)($res['error'] ?? 'Gagal membatalkan pengajuan perpanjangan.');
-        $flashErr = empty($res['ok']);
+        $errMsg = (string)($res['error'] ?? '');
+        if (str_contains(strtolower($errMsg), 'sudah diproses')) {
+            // Treat as idempotent cancel: no need to show noisy error banner.
+            $flashMsg = '';
+            $flashErr = false;
+        } else {
+            $flashMsg = !empty($res['ok'])
+                ? 'Pengajuan perpanjangan berhasil dibatalkan.'
+                : ($errMsg !== '' ? $errMsg : 'Gagal membatalkan pengajuan perpanjangan.');
+            $flashErr = empty($res['ok']);
+        }
     }
 }
 
