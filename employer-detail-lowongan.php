@@ -7,160 +7,241 @@ require_once __DIR__ . '/includes/project-applications.php';
 
 $jobId = trim((string)($_GET['id'] ?? 'GIG-2026-09-001'));
 $job = gig_find_vacancy($jobId);
-
 if ($job === null) {
     header('Location: employer-lowongan.php');
     exit;
 }
 
-$allApps = gig_get_all_applications();
-$appMapByWorker = [];
-foreach ($allApps as $ap) {
-    $wKey = strtolower(trim((string)$ap['worker_id']));
-    $appMapByWorker[$wKey] = $ap;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['app_action'], $_POST['app_id'])) {
+    $appId = trim((string)$_POST['app_id']);
+    $action = trim((string)$_POST['app_action']);
+    if ($appId !== '' && in_array($action, ['accept', 'reject'], true)) {
+        $decision = $action === 'accept' ? 'accept' : 'reject';
+        gig_employer_respond_application($appId, $decision, (string)($_SESSION['username'] ?? ''));
+        header('Location: employer-detail-lowongan.php?id=' . urlencode($jobId));
+        exit;
+    }
 }
 
-$workerProfiles = gig_worker_profiles();
-// Filter applicants matching this job title/category, excluding accepted/hired candidates
-$applicants = array_filter($workerProfiles, function($w) use ($job, $appMapByWorker) {
-    $wKey = strtolower(trim((string)$w['id']));
-    $appData = $appMapByWorker[$wKey] ?? null;
-    $status = $appData['status'] ?? 'applied';
-    if (gig_is_hired_status($status)) {
-        return false;
+$workers = gig_worker_profiles();
+$workerById = [];
+foreach ($workers as $w) {
+    $workerById[strtolower(trim((string)($w['id'] ?? '')))] = $w;
+}
+
+$jobApplications = [];
+foreach (gig_get_all_applications() as $app) {
+    if (strcasecmp((string)($app['vacancy_id'] ?? ''), (string)$job['id']) === 0) {
+        $jobApplications[] = $app;
     }
-    return strtolower($w['applied_project']) === strtolower($job['title']) 
-        || strtolower($w['category']) === strtolower($job['category']);
+}
+
+usort($jobApplications, static function(array $a, array $b): int {
+    return strtotime((string)($b['updated_at'] ?? '')) <=> strtotime((string)($a['updated_at'] ?? ''));
 });
 
+$statusToLane = [
+    'applied' => 'incoming',
+    'reviewing' => 'reviewed',
+    'interview' => 'interview',
+    'confirmed_by_worker' => 'accepted',
+    'accepted_by_employer' => 'accepted',
+    'rejected_by_employer' => 'rejected',
+    'declined_by_worker' => 'rejected',
+];
+
+$laneMeta = [
+    'incoming' => ['label' => 'Lamaran Masuk', 'dot' => '#f59e0b'],
+    'reviewed' => ['label' => 'Sedang Dipelajari', 'dot' => '#fb923c'],
+    'interview' => ['label' => 'Wawancara', 'dot' => '#3b82f6'],
+    'accepted' => ['label' => 'Diterima', 'dot' => '#22c55e'],
+    'rejected' => ['label' => 'Ditolak', 'dot' => '#ef4444'],
+];
+
+$lanes = [
+    'incoming' => [],
+    'reviewed' => [],
+    'interview' => [],
+    'accepted' => [],
+    'rejected' => [],
+];
+
+foreach ($jobApplications as $app) {
+    $status = (string)($app['status'] ?? 'applied');
+    $lane = $statusToLane[$status] ?? 'incoming';
+    $workerId = strtolower(trim((string)($app['worker_id'] ?? '')));
+    $profile = $workerById[$workerId] ?? null;
+
+    $lanes[$lane][] = [
+        'id' => (string)($app['id'] ?? ''),
+        'worker_id' => (string)($app['worker_id'] ?? ''),
+        'name' => (string)($profile['name'] ?? $app['worker_name'] ?? 'Gig Worker'),
+        'title' => (string)($profile['title'] ?? 'Gig Worker'),
+        'location' => (string)($profile['location'] ?? 'Lokasi belum diisi'),
+        'rating' => (float)($profile['rating'] ?? 0),
+        'bid' => (string)($app['bid_amount'] ?? $job['budget'] ?? '-'),
+        'status' => $status,
+    ];
+}
+
+$statusLabel = (string)($job['statusLabel'] ?? 'Draft');
 $pageTitle = 'Detail Lowongan · ' . $job['title'];
 $pageKey = 'lowongan';
 $breadcrumbCurrent = 'Detail Lowongan';
 require __DIR__ . '/includes/employer-layout-start.php';
 ?>
 
-    <div class="page-toolbar">
+<style>
+  .jobd-shell { display:flex; flex-direction:column; gap:16px; }
+  .jobd-head { background:#fff; border:1px solid var(--border-subtle); border-radius:14px; padding:18px 20px; box-shadow:var(--shadow-sm); }
+  .jobd-head-top { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+  .jobd-title { font-size:2rem; font-weight:800; color:#0f172a; line-height:1.1; margin:0 0 8px 0; }
+  .jobd-meta { display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:0.82rem; color:#64748b; }
+  .jobd-pill { background:#f1f5f9; border:1px solid #e2e8f0; border-radius:9999px; padding:4px 10px; font-weight:700; color:#334155; }
+  .jobd-kpi { display:grid; grid-template-columns:repeat(3,minmax(140px,1fr)); gap:14px; margin-top:14px; border-top:1px solid #eef2ff; padding-top:14px; }
+  .jobd-kpi .lbl { font-size:0.76rem; color:#64748b; margin-bottom:2px; display:block; }
+  .jobd-kpi .val { font-size:0.9rem; font-weight:800; color:#0f172a; }
+  .jobd-tabs { display:flex; gap:16px; border-bottom:1px solid #e2e8f0; margin-top:8px; }
+  .jobd-tab { border:none; background:none; padding:10px 2px; font-size:0.9rem; color:#64748b; font-weight:700; border-bottom:2px solid transparent; cursor:pointer; }
+  .jobd-tab.active { color:#0284c7; border-bottom-color:#0ea5e9; }
+  .jobd-tools { display:flex; justify-content:space-between; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .jobd-search { display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:8px 10px; min-width:260px; }
+  .jobd-search input { border:none; outline:none; width:100%; font-size:0.86rem; }
+  .jobd-board { display:grid; grid-template-columns:repeat(5,minmax(220px,1fr)); gap:12px; overflow-x:auto; padding-bottom:4px; }
+  .jobd-col { min-width:220px; background:#fff; border:1px solid #e2e8f0; border-radius:12px; display:flex; flex-direction:column; max-height:540px; }
+  .jobd-col-head { padding:10px 12px; border-bottom:1px solid #eef2ff; display:flex; justify-content:space-between; align-items:center; font-size:0.84rem; font-weight:800; color:#1e293b; }
+  .jobd-dot { width:7px; height:7px; border-radius:9999px; display:inline-block; margin-right:7px; vertical-align:middle; }
+  .jobd-col-body { padding:10px; overflow:auto; display:flex; flex-direction:column; gap:8px; }
+  .jobd-card { border:1px solid #e2e8f0; border-radius:10px; padding:10px; background:#f8fafc; }
+  .jobd-card-name { font-size:0.84rem; font-weight:800; color:#0f172a; margin-bottom:2px; }
+  .jobd-card-sub { font-size:0.74rem; color:#64748b; margin-bottom:6px; }
+  .jobd-card-meta { font-size:0.72rem; color:#475569; display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+  .jobd-card-actions { display:flex; gap:6px; margin-top:8px; }
+  .jobd-empty { font-size:0.8rem; color:#94a3b8; text-align:center; padding:24px 10px; }
+  .jobd-info { display:none; background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:18px; }
+  .jobd-info.active { display:block; }
+</style>
+
+<div class="jobd-shell">
+  <div class="jobd-head">
+    <div class="jobd-head-top">
       <div>
-        <h1><?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?></h1>
+        <a class="btn-action-sm" href="employer-lowongan.php" style="margin-bottom:10px;display:inline-flex;">← Kembali ke Lowongan</a>
+        <h1 class="jobd-title"><?php echo htmlspecialchars((string)$job['title'], ENT_QUOTES, 'UTF-8'); ?></h1>
+        <div class="jobd-meta">
+          <span class="jobd-pill"><?php echo htmlspecialchars((string)($job['workType'] ?? 'Full time'), ENT_QUOTES, 'UTF-8'); ?></span>
+          <span>•</span>
+          <span>Dibuat <?php echo htmlspecialchars((string)$job['posted'], ENT_QUOTES, 'UTF-8'); ?></span>
+          <span>•</span>
+          <span>Status: <strong><?php echo htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8'); ?></strong></span>
+        </div>
       </div>
-      <a class="btn-action-sm" href="employer-lowongan.php">← Kembali ke Lowongan</a>
+      <button type="button" class="btn-primary-add" onclick="showToast('Fitur re-open lowongan siap digunakan.');">Buka Kembali Lowongan</button>
+    </div>
+    <div class="jobd-kpi">
+      <div><span class="lbl">Tayang</span><span class="val"><?php echo htmlspecialchars((string)$job['posted'], ENT_QUOTES, 'UTF-8'); ?></span></div>
+      <div><span class="lbl">Kadaluarsa</span><span class="val"><?php echo htmlspecialchars((string)$job['deadline'], ENT_QUOTES, 'UTF-8'); ?></span></div>
+      <div><span class="lbl">Lokasi</span><span class="val"><?php echo htmlspecialchars((string)$job['location'], ENT_QUOTES, 'UTF-8'); ?></span></div>
+    </div>
+  </div>
+
+  <div class="jobd-tabs">
+    <button class="jobd-tab active" type="button" data-tab="lamaran">Lamaran</button>
+    <button class="jobd-tab" type="button" data-tab="detail">Detail Lowongan</button>
+  </div>
+
+  <section id="tab-lamaran" class="jobd-pane">
+    <div class="jobd-tools">
+      <div class="jobd-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="candidateSearchInput" type="text" placeholder="Cari pelamar..." />
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="filter-btn-pill" type="button">Filter</button>
+      </div>
     </div>
 
-    <?php if ($job['status'] === 'revision'): ?>
-      <div style="background:#fff7ed;border:1px solid #ffedd5;border-left:4px solid #ea580c;padding:14px 18px;border-radius:10px;margin-bottom:20px;">
-        <div style="display:flex;align-items:center;gap:8px;font-weight:800;color:#c2410c;font-size:0.95rem;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          Status: Perlu Revisi oleh Pemberi Kerja
-        </div>
-        <p style="margin:6px 0 10px 0;font-size:0.85rem;color:#7c2d12;line-height:1.5;">
-          <strong>Catatan Admin Verification:</strong> <?php echo htmlspecialchars($job['adminNote'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
-        </p>
-        <button class="btn-action-sm" type="button" onclick="showToast('Modul edit rincian lowongan dibuka. Silakan sesuaikan deskripsi.')" style="background:#ea580c;color:#fff;border:none;">Edit &amp; Ajukan Ulang Verifikasi</button>
-      </div>
-    <?php elseif ($job['status'] === 'rejected'): ?>
-      <div style="background:#fef2f2;border:1px solid #fee2e2;border-left:4px solid #dc2626;padding:14px 18px;border-radius:10px;margin-bottom:20px;">
-        <div style="display:flex;align-items:center;gap:8px;font-weight:800;color:#991b1b;font-size:0.95rem;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-          Status: Lowongan Ditolak Admin
-        </div>
-        <p style="margin:6px 0 0 0;font-size:0.85rem;color:#7f1d1d;line-height:1.5;">
-          <strong>Alasan Penolakan:</strong> <?php echo htmlspecialchars($job['adminNote'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
-        </p>
-      </div>
-    <?php elseif ($job['status'] === 'review'): ?>
-      <div style="background:#eff6ff;border:1px solid #dbeafe;border-left:4px solid #2563eb;padding:14px 18px;border-radius:10px;margin-bottom:20px;">
-        <div style="display:flex;align-items:center;gap:8px;font-weight:800;color:#1e40af;font-size:0.95rem;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Status: Menunggu Verifikasi Admin
-        </div>
-        <p style="margin:6px 0 0 0;font-size:0.85rem;color:#1e3a8a;line-height:1.5;">
-          Lowongan ini sedang diperiksa oleh tim Admin KarirHub. Setelah disetujui, lowongan akan otomatis berstatus <strong>Tayang Aktif</strong> dan dipublikasikan ke pencari kerja.
-        </p>
-      </div>
-    <?php endif; ?>
-
-    <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;">
-      <div>
-        <section class="section-card">
-          <h2>Rincian Deskripsi Lowongan</h2>
-          <p style="font-size:0.92rem;line-height:1.6;color:var(--text-dark);"><?php echo htmlspecialchars($job['desc'], ENT_QUOTES, 'UTF-8'); ?></p>
-          
-          <h3 style="font-size:0.9rem;font-weight:700;margin-top:16px;">Keahlian / Skill yang Dibutuhkan</h3>
-          <div class="skill-row" style="margin-top:6px;">
-            <?php foreach ($job['skills'] as $skill): ?>
-              <span class="skill-tag"><?php echo htmlspecialchars((string)$skill, ENT_QUOTES, 'UTF-8'); ?></span>
+    <div class="jobd-board" id="kanbanBoard" style="margin-top:10px;">
+      <?php foreach ($lanes as $key => $cards): ?>
+        <div class="jobd-col" data-lane="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+          <div class="jobd-col-head">
+            <span><span class="jobd-dot" style="background:<?php echo htmlspecialchars($laneMeta[$key]['dot'], ENT_QUOTES, 'UTF-8'); ?>"></span><?php echo htmlspecialchars($laneMeta[$key]['label'], ENT_QUOTES, 'UTF-8'); ?></span>
+            <span><?php echo count($cards); ?></span>
+          </div>
+          <div class="jobd-col-body">
+            <?php if (count($cards) === 0): ?>
+              <div class="jobd-empty">Tidak ada data.</div>
+            <?php endif; ?>
+            <?php foreach ($cards as $c): ?>
+              <div class="jobd-card candidate-card" data-search="<?php echo htmlspecialchars(strtolower($c['name'] . ' ' . $c['title'] . ' ' . $c['location']), ENT_QUOTES, 'UTF-8'); ?>">
+                <div class="jobd-card-name"><?php echo htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8'); ?></div>
+                <div class="jobd-card-sub"><?php echo htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8'); ?></div>
+                <div class="jobd-card-meta">
+                  <span>📍 <?php echo htmlspecialchars($c['location'], ENT_QUOTES, 'UTF-8'); ?></span>
+                  <span>★ <?php echo number_format((float)$c['rating'], 1); ?></span>
+                </div>
+                <div style="font-size:0.76rem;font-weight:800;color:#2563eb;"><?php echo htmlspecialchars($c['bid'], ENT_QUOTES, 'UTF-8'); ?></div>
+                <div class="jobd-card-actions">
+                  <a class="btn-outline-blue" style="padding:4px 8px;font-size:0.72rem;" href="worker-profile.php?id=<?php echo urlencode($c['worker_id']); ?>&from=kandidat">Profil</a>
+                  <?php if ($key === 'incoming' || $key === 'reviewed' || $key === 'interview'): ?>
+                    <form method="post" action="" style="display:inline-flex;gap:4px;">
+                      <input type="hidden" name="app_id" value="<?php echo htmlspecialchars($c['id'], ENT_QUOTES, 'UTF-8'); ?>">
+                      <button class="btn-action-sm" type="submit" name="app_action" value="accept" style="padding:4px 8px;font-size:0.72rem;background:#dcfce7;color:#166534;border-color:#bbf7d0;">Terima</button>
+                      <button class="btn-action-sm" type="submit" name="app_action" value="reject" style="padding:4px 8px;font-size:0.72rem;background:#fef2f2;color:#b91c1c;border-color:#fecaca;" onclick="return confirm('Tolak kandidat ini?');">Tolak</button>
+                    </form>
+                  <?php endif; ?>
+                </div>
+              </div>
             <?php endforeach; ?>
           </div>
-        </section>
-
-        <section class="section-card" style="margin-top:20px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <h2>Daftar Pelamar Masuk (<?php echo count($applicants); ?>)</h2>
-            <a class="btn-action-sm" href="employer-pelamar.php">Kelola Semua Pelamar</a>
-          </div>
-
-          <?php if (count($applicants) > 0): ?>
-            <div style="display:flex;flex-direction:column;gap:12px;margin-top:14px;">
-              <?php foreach ($applicants as $app): ?>
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
-                  <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="width:40px;height:40px;border-radius:50%;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;flex-shrink:0;"><?php echo htmlspecialchars(strtoupper(substr((string)$app['name'], 0, 1)), ENT_QUOTES, 'UTF-8'); ?></div>
-                    <div>
-                      <div style="font-size:0.9rem;font-weight:700;">
-                        <a href="worker-profile.php?id=<?php echo urlencode($app['id']); ?>" style="color:inherit;text-decoration:none;"><?php echo htmlspecialchars($app['name'], ENT_QUOTES, 'UTF-8'); ?></a>
-                        <span style="font-size:0.75rem;color:#f59e0b;font-weight:800;margin-left:6px;">★ <?php echo (int)$app['rating']; ?></span>
-                      </div>
-                      <div style="font-size:0.76rem;color:var(--text-muted);"><?php echo htmlspecialchars($app['title'], ENT_QUOTES, 'UTF-8'); ?></div>
-                    </div>
-                  </div>
-                  <div style="text-align:right;">
-                    <div style="font-size:0.85rem;font-weight:800;color:var(--primary-blue);"><?php echo htmlspecialchars($app['bid'], ENT_QUOTES, 'UTF-8'); ?></div>
-                    <a class="btn-outline-blue" href="worker-profile.php?id=<?php echo urlencode($app['id']); ?>" style="padding:4px 10px;font-size:0.76rem;margin-top:4px;display:inline-block;">Lihat Profil</a>
-                  </div>
-                </div>
-              <?php endforeach; ?>
-            </div>
-          <?php else: ?>
-            <div style="padding:20px;text-align:center;color:var(--text-muted);font-size:0.85rem;">Belum ada pelamar untuk lowongan ini.</div>
-          <?php endif; ?>
-        </section>
-      </div>
-
-      <div>
-        <section class="section-card">
-          <h2>Ringkasan Lowongan</h2>
-          <div style="display:flex;flex-direction:column;gap:12px;font-size:0.84rem;margin-top:10px;">
-            <div>
-              <span style="color:var(--text-muted);display:block;">Status Publikasi</span>
-              <strong style="font-size:0.9rem;"><?php echo htmlspecialchars($job['statusLabel'], ENT_QUOTES, 'UTF-8'); ?></strong>
-            </div>
-            <div>
-              <span style="color:var(--text-muted);display:block;">Gaji Proyek</span>
-              <strong style="font-size:1.05rem;color:var(--primary-blue);"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></strong>
-            </div>
-            <div>
-              <span style="color:var(--text-muted);display:block;">Estimasi Durasi</span>
-              <strong><?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?></strong>
-            </div>
-            <div>
-              <span style="color:var(--text-muted);display:block;">Batas Waktu Lamaran</span>
-              <strong><?php echo htmlspecialchars($job['deadline'], ENT_QUOTES, 'UTF-8'); ?></strong>
-            </div>
-            <div>
-              <span style="color:var(--text-muted);display:block;">Lokasi</span>
-              <strong><?php echo htmlspecialchars($job['location'], ENT_QUOTES, 'UTF-8'); ?></strong>
-            </div>
-            <div>
-              <span style="color:var(--text-muted);display:block;">Penempatan Gig Worker</span>
-              <strong><?php echo (int)$job['acceptedCount'] > 0 ? 'Sudah Terisi' : 'Belum Terisi'; ?></strong>
-            </div>
-            <div>
-              <span style="color:var(--text-muted);display:block;">Tanggal Dipasang</span>
-              <strong><?php echo htmlspecialchars($job['posted'], ENT_QUOTES, 'UTF-8'); ?></strong>
-            </div>
-          </div>
-        </section>
-      </div>
+        </div>
+      <?php endforeach; ?>
     </div>
+  </section>
+
+  <section id="tab-detail" class="jobd-info">
+    <h2 style="font-size:1rem;font-weight:800;color:#0f172a;margin:0 0 10px 0;">Detail Lowongan</h2>
+    <p style="font-size:0.9rem;line-height:1.6;color:#334155;"><?php echo htmlspecialchars((string)$job['desc'], ENT_QUOTES, 'UTF-8'); ?></p>
+    <div class="skill-row" style="margin-top:12px;">
+      <?php foreach (($job['skills'] ?? []) as $skill): ?>
+        <span class="skill-tag"><?php echo htmlspecialchars((string)$skill, ENT_QUOTES, 'UTF-8'); ?></span>
+      <?php endforeach; ?>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(160px,1fr));gap:12px;margin-top:16px;">
+      <div><span style="font-size:0.74rem;color:#64748b;display:block;">Gaji</span><strong><?php echo htmlspecialchars((string)$job['budget'], ENT_QUOTES, 'UTF-8'); ?></strong></div>
+      <div><span style="font-size:0.74rem;color:#64748b;display:block;">Durasi</span><strong><?php echo htmlspecialchars((string)$job['duration'], ENT_QUOTES, 'UTF-8'); ?></strong></div>
+      <div><span style="font-size:0.74rem;color:#64748b;display:block;">Lokasi</span><strong><?php echo htmlspecialchars((string)$job['location'], ENT_QUOTES, 'UTF-8'); ?></strong></div>
+      <div><span style="font-size:0.74rem;color:#64748b;display:block;">Status Verifikasi</span><strong><?php echo htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8'); ?></strong></div>
+    </div>
+  </section>
+</div>
+
+<script>
+  (function() {
+    const tabs = document.querySelectorAll('.jobd-tab');
+    const lamaranPane = document.getElementById('tab-lamaran');
+    const detailPane = document.getElementById('tab-detail');
+    tabs.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        tabs.forEach(function(x) { x.classList.remove('active'); });
+        btn.classList.add('active');
+        const isLamaran = btn.getAttribute('data-tab') === 'lamaran';
+        lamaranPane.style.display = isLamaran ? 'block' : 'none';
+        detailPane.classList.toggle('active', !isLamaran);
+      });
+    });
+
+    const searchInput = document.getElementById('candidateSearchInput');
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        const q = (searchInput.value || '').toLowerCase().trim();
+        document.querySelectorAll('.candidate-card').forEach(function(card) {
+          const hay = card.getAttribute('data-search') || '';
+          card.style.display = (!q || hay.indexOf(q) !== -1) ? 'block' : 'none';
+        });
+      });
+    }
+  })();
+</script>
 
 <?php require __DIR__ . '/includes/employer-layout-end.php'; ?>
