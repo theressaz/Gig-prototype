@@ -283,6 +283,15 @@ $targetLink = $isWorker
     ? 'employer-profile.php?employer=' . urlencode($targetName)
     : 'worker-profile.php?id=' . urlencode((string)($worker['id'] ?? '')) . '&active=1';
 $targetLinkText = $isWorker ? 'Lihat Profil Perusahaan ↗' : 'Lihat Profil Lengkap & Portofolio ↗';
+$deliverablesReceivedText = trim((string)($projectData['deliverables'] ?? ''));
+if ($deliverablesReceivedText === '') {
+    $deliverableStatus = trim((string)($projectData['deliverable_status'] ?? ''));
+    $deliverableNote = trim((string)($projectData['deliverable_note'] ?? ''));
+    $deliverablesReceivedText = trim($deliverableStatus . ($deliverableNote !== '' ? ' — ' . $deliverableNote : ''));
+}
+if ($deliverablesReceivedText === '') {
+    $deliverablesReceivedText = 'Deliverable proyek telah diserahkan sesuai ruang lingkup pekerjaan.';
+}
 $undoLink = 'employer-rating-worker.php?contract=' . urlencode((string)($projectData['contract_id'] ?? $projectData['id']))
     . '&worker=' . urlencode((string)($worker['id'] ?? ''))
     . ($isWorker ? '&from=worker' : '')
@@ -498,7 +507,7 @@ $displayComment = $submitted
         </div>
         <div style="padding-top:10px;border-top:1px solid #f1f5f9;">
           <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-bottom:4px;">Deliverable yang Diterima:</span>
-          <p style="font-size:0.78rem;color:#334155;background:#f8fafc;padding:8px 10px;border-radius:6px;margin:0;"><?php echo htmlspecialchars($projectData['deliverables'],ENT_QUOTES,'UTF-8'); ?></p>
+          <p style="font-size:0.78rem;color:#334155;background:#f8fafc;padding:8px 10px;border-radius:6px;margin:0;"><?php echo htmlspecialchars($deliverablesReceivedText,ENT_QUOTES,'UTF-8'); ?></p>
         </div>
       </div>
     </aside>
