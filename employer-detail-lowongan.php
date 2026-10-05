@@ -170,6 +170,20 @@ foreach ($jobApplications as $app) {
     if (!empty($profile['portfolio'][0]['files'][0]['url'])) {
         $resumeUrl = (string)$profile['portfolio'][0]['files'][0]['url'];
     }
+    $expRows = [];
+    foreach (array_slice((array)($profile['experience'] ?? []), 0, 3) as $exp) {
+        $period = trim((string)($exp['period'] ?? ''));
+        $role = trim((string)($exp['role'] ?? ''));
+        $inst = trim((string)($exp['institution'] ?? $exp['project'] ?? ''));
+        $line = trim(($period !== '' ? ($period . ' - ') : '') . $role . ($inst !== '' ? (' (' . $inst . ')') : ''));
+        if ($line !== '') {
+            $expRows[] = $line;
+        }
+    }
+    $experienceSummary = implode(' || ', $expRows);
+    $titleInfo = trim((string)($profile['title'] ?? 'Gig Worker'));
+    $projectsInfo = (string)($profile['completed_projects'] ?? 0) . ' proyek selesai';
+    $reviewsInfo = (string)($profile['reviews_count'] ?? 0) . ' ulasan';
 
     $lanes[$lane][] = [
         'id' => (string)($app['id'] ?? ''),
@@ -187,6 +201,11 @@ foreach ($jobApplications as $app) {
         'tags' => $tags,
         'resume_url' => $resumeUrl,
         'contact_email' => (string)($profile['contact']['email'] ?? ''),
+        'contact_wa' => (string)($profile['contact']['wa'] ?? ''),
+        'title_info' => $titleInfo,
+        'projects_info' => $projectsInfo,
+        'reviews_info' => $reviewsInfo,
+        'experience_lines' => $experienceSummary,
         'activity_note' => (string)($profile['experience'][0]['summary'] ?? 'Belum ada aktivitas terbaru.'),
     ];
 }
@@ -317,6 +336,11 @@ require __DIR__ . '/includes/employer-layout-start.php';
                 data-tags="<?php echo htmlspecialchars($c['tags'], ENT_QUOTES, 'UTF-8'); ?>"
                 data-resume="<?php echo htmlspecialchars($c['resume_url'], ENT_QUOTES, 'UTF-8'); ?>"
                 data-contact-email="<?php echo htmlspecialchars($c['contact_email'], ENT_QUOTES, 'UTF-8'); ?>"
+                data-contact-wa="<?php echo htmlspecialchars($c['contact_wa'], ENT_QUOTES, 'UTF-8'); ?>"
+                data-title-info="<?php echo htmlspecialchars($c['title_info'], ENT_QUOTES, 'UTF-8'); ?>"
+                data-projects-info="<?php echo htmlspecialchars($c['projects_info'], ENT_QUOTES, 'UTF-8'); ?>"
+                data-reviews-info="<?php echo htmlspecialchars($c['reviews_info'], ENT_QUOTES, 'UTF-8'); ?>"
+                data-experience-lines="<?php echo htmlspecialchars($c['experience_lines'], ENT_QUOTES, 'UTF-8'); ?>"
                 data-activity="<?php echo htmlspecialchars($c['activity_note'], ENT_QUOTES, 'UTF-8'); ?>"
               >
                 <div class="jobd-card-name"><?php echo htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8'); ?></div>
@@ -374,19 +398,29 @@ require __DIR__ . '/includes/employer-layout-start.php';
       </div>
     </div>
     <div class="cand-tabline">
-      <span class="active">Profil</span>
-      <span>Riwayat Aktivitas</span>
+      <span id="candTabProfileBtn" class="active" style="cursor:pointer;">Profil</span>
+      <span id="candTabActivityBtn" style="cursor:pointer;">Riwayat Aktivitas</span>
     </div>
-    <div class="cand-row">
-      <div class="cand-label">👤 Informasi Profil</div>
-      <div class="cand-value" style="font-weight:500;">
-        <div style="margin-bottom:6px;color:#0f172a;">Tempat, tanggal lahir: Tidak tersedia</div>
-        <div style="color:#64748b;">Kontak email kandidat: <strong id="candContactEmail">tidak tersedia</strong></div>
+    <div id="candProfilePanel">
+      <div class="cand-row">
+        <div class="cand-label">👤 Informasi Profil</div>
+        <div class="cand-value" style="font-weight:500;">
+          <div style="margin-bottom:6px;color:#0f172a;"><strong id="candTitleInfo">Gig Worker</strong></div>
+          <div style="margin-bottom:6px;color:#64748b;"><span id="candProjectsInfo">0 proyek selesai</span> · <span id="candReviewsInfo">0 ulasan</span></div>
+          <div style="color:#64748b;">Kontak email kandidat: <strong id="candContactEmail">tidak tersedia</strong></div>
+          <div style="color:#64748b;">WhatsApp kandidat: <strong id="candContactWa">tidak tersedia</strong></div>
+        </div>
+      </div>
+      <div class="cand-row">
+        <div class="cand-label">🕘 Aktivitas</div>
+        <div id="candActivity" class="cand-value" style="font-weight:500;">Belum ada aktivitas.</div>
       </div>
     </div>
-    <div class="cand-row">
-      <div class="cand-label">🕘 Aktivitas</div>
-      <div id="candActivity" class="cand-value" style="font-weight:500;">Belum ada aktivitas.</div>
+    <div id="candActivityPanel" style="display:none;">
+      <div class="cand-row">
+        <div class="cand-label">📚 Riwayat Pengalaman</div>
+        <div id="candExperienceList" class="cand-value" style="font-weight:500;line-height:1.5;">Belum ada riwayat pengalaman.</div>
+      </div>
     </div>
   </div>
   <div class="cand-foot">
@@ -444,8 +478,25 @@ require __DIR__ . '/includes/employer-layout-start.php';
       about: document.getElementById('candAbout'),
       resume: document.getElementById('candResumeLink'),
       contactEmail: document.getElementById('candContactEmail'),
+      contactWa: document.getElementById('candContactWa'),
+      titleInfo: document.getElementById('candTitleInfo'),
+      projectsInfo: document.getElementById('candProjectsInfo'),
+      reviewsInfo: document.getElementById('candReviewsInfo'),
       activity: document.getElementById('candActivity'),
+      experienceList: document.getElementById('candExperienceList'),
     };
+    const tabProfileBtn = document.getElementById('candTabProfileBtn');
+    const tabActivityBtn = document.getElementById('candTabActivityBtn');
+    const profilePanel = document.getElementById('candProfilePanel');
+    const activityPanel = document.getElementById('candActivityPanel');
+
+    function setDrawerTab(tab) {
+      const isProfile = tab !== 'activity';
+      if (tabProfileBtn) tabProfileBtn.classList.toggle('active', isProfile);
+      if (tabActivityBtn) tabActivityBtn.classList.toggle('active', !isProfile);
+      if (profilePanel) profilePanel.style.display = isProfile ? '' : 'none';
+      if (activityPanel) activityPanel.style.display = isProfile ? 'none' : '';
+    }
 
     function openCandidateDrawer(card) {
       if (!card || !overlay || !drawer) return;
@@ -461,10 +512,21 @@ require __DIR__ . '/includes/employer-layout-start.php';
       if (fields.about) fields.about.textContent = card.getAttribute('data-about') || '-';
       if (fields.resume) fields.resume.setAttribute('href', resume);
       if (fields.contactEmail) fields.contactEmail.textContent = card.getAttribute('data-contact-email') || 'tidak tersedia';
+      if (fields.contactWa) fields.contactWa.textContent = card.getAttribute('data-contact-wa') || 'tidak tersedia';
+      if (fields.titleInfo) fields.titleInfo.textContent = card.getAttribute('data-title-info') || 'Gig Worker';
+      if (fields.projectsInfo) fields.projectsInfo.textContent = card.getAttribute('data-projects-info') || '0 proyek selesai';
+      if (fields.reviewsInfo) fields.reviewsInfo.textContent = card.getAttribute('data-reviews-info') || '0 ulasan';
       if (fields.activity) fields.activity.textContent = card.getAttribute('data-activity') || 'Belum ada aktivitas.';
+      if (fields.experienceList) {
+        const lines = (card.getAttribute('data-experience-lines') || '').split(' || ').filter(Boolean);
+        fields.experienceList.innerHTML = lines.length
+          ? lines.map(function(line) { return '<div style="margin-bottom:6px;">• ' + line + '</div>'; }).join('')
+          : 'Belum ada riwayat pengalaman.';
+      }
       if (appIdInput) appIdInput.value = card.getAttribute('data-app-id') || '';
       if (statusSelect) statusSelect.value = card.getAttribute('data-status-ui') || 'applied';
 
+      setDrawerTab('profile');
       overlay.classList.add('open');
       drawer.classList.add('open');
       drawer.setAttribute('aria-hidden', 'false');
@@ -482,6 +544,13 @@ require __DIR__ . '/includes/employer-layout-start.php';
       drawer.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
     };
+
+    if (tabProfileBtn) {
+      tabProfileBtn.addEventListener('click', function() { setDrawerTab('profile'); });
+    }
+    if (tabActivityBtn) {
+      tabActivityBtn.addEventListener('click', function() { setDrawerTab('activity'); });
+    }
   })();
 </script>
 
