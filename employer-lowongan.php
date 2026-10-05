@@ -101,8 +101,8 @@ $colors = ['#2563eb', '#0891b2', '#7c3aed', '#059669', '#ea580c', '#db2777'];
         <thead>
           <tr>
             <th>Lowongan</th>
-            <th>Penempatan</th>
-            <th>Status Penempatan</th>
+            <th>Lokasi</th>
+            <th>Status Rekrutmen</th>
             <th>Kandidat</th>
             <th>Status Verifikasi</th>
             <th>Aksi</th>

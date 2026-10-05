@@ -62,8 +62,10 @@ if ($job) {
     }
 }
 
-$rawLocation = (string)(($job ?? [])['location'] ?? 'Remote');
-$displayLocation = (stripos($rawLocation, 'remote') !== false) ? 'Remote' : $rawLocation;
+$displayLocation = trim((string)(($job ?? [])['location'] ?? ''));
+if ($displayLocation === '') {
+    $displayLocation = 'Lokasi belum diisi';
+}
 $employerName = (string)(($job ?? [])['employer'] ?? ($job ?? [])['client'] ?? 'Pemberi kerja');
 
 $matchedOffer = null;
@@ -372,7 +374,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
             <strong style="color: #0f172a;"><?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?></strong>
           </div>
           <div>
-            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Lokasi Penempatan</div>
+            <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Lokasi</div>
             <strong style="color: #0f172a;"><?php echo htmlspecialchars($displayLocation, ENT_QUOTES, 'UTF-8'); ?></strong>
           </div>
         </div>

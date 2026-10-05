@@ -147,7 +147,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <strong><?php echo htmlspecialchars($job['deadline'], ENT_QUOTES, 'UTF-8'); ?></strong>
             </div>
             <div>
-              <span style="color:var(--text-muted);display:block;">Lokasi Penempatan</span>
+              <span style="color:var(--text-muted);display:block;">Lokasi</span>
               <strong><?php echo htmlspecialchars($job['location'], ENT_QUOTES, 'UTF-8'); ?></strong>
             </div>
             <div>

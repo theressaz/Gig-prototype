@@ -182,7 +182,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
       <div class="proj-mini-grid">
         <div><div class="proj-mini-label">Jenis Lowongan</div><div class="proj-mini-value">Lowongan Kerja Proyek</div></div>
         <div><div class="proj-mini-label">Tanggal Pengajuan</div><div class="proj-mini-value"><?php echo htmlspecialchars(date('d M Y, H:i', $postedStamp), ENT_QUOTES, 'UTF-8'); ?></div></div>
-        <div><div class="proj-mini-label">Wilayah</div><div class="proj-mini-value"><?php echo htmlspecialchars((string)($vacancy['location'] ?? 'Remote'), ENT_QUOTES, 'UTF-8'); ?></div></div>
+        <div><div class="proj-mini-label">Wilayah</div><div class="proj-mini-value"><?php echo htmlspecialchars((string)($vacancy['location'] ?? 'Lokasi belum diisi'), ENT_QUOTES, 'UTF-8'); ?></div></div>
         <div><div class="proj-mini-label">Blacklist</div><div class="proj-mini-value" style="color:#065f46;"><?php echo htmlspecialchars($blacklistStatus, ENT_QUOTES, 'UTF-8'); ?></div></div>
         <div><div class="proj-mini-label">SLA Verifikasi</div><div class="proj-mini-value"><?php echo htmlspecialchars($slaLabel, ENT_QUOTES, 'UTF-8'); ?></div></div>
       </div>

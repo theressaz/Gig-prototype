@@ -106,7 +106,7 @@ function gig_offer_enrich(array $offer): array
     $offer['budget'] = $vacancy['budget'] ?? '—';
     $offer['duration'] = $vacancy['duration'] ?? '—';
     $offer['category'] = $vacancy['category'] ?? 'Proyek';
-    $offer['location'] = $vacancy['location'] ?? 'Remote';
+    $offer['location'] = $vacancy['location'] ?? 'Lokasi belum diisi';
     $offer['skills'] = $vacancy['skills'] ?? [];
     $offer['deadline'] = $vacancy['deadline'] ?? '';
     $offer['employer_display'] = $vacancy['employer']

@@ -434,7 +434,7 @@ a.proyek-card-item:hover {
                 <div class="employer-avatar-circle-sm">🏢</div>
                 <div>
                   <div class="card-employer-name"><?php echo htmlspecialchars($employerDisplayName, ENT_QUOTES, 'UTF-8'); ?></div>
-                  <div class="card-employer-sub">📍 <?php echo htmlspecialchars($job['location'] ?? 'Remote', ENT_QUOTES, 'UTF-8'); ?></div>
+                  <div class="card-employer-sub">📍 <?php echo htmlspecialchars((string)($job['location'] ?? 'Lokasi belum diisi'), ENT_QUOTES, 'UTF-8'); ?></div>
                 </div>
               </div>
               <span class="card-cat-badge"><?php echo htmlspecialchars($badgeLabel, ENT_QUOTES, 'UTF-8'); ?></span>

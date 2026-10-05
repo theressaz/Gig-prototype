@@ -8,10 +8,40 @@ declare(strict_types=1);
           max-width: 860px !important;
           border-radius: 18px;
           overflow: hidden;
+          box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
         }
         .gig-post-modal .modal-header {
           border-bottom: 1px solid #e2e8f0;
-          padding: 16px 20px 12px;
+          padding: 18px 22px 14px;
+          background: #ffffff;
+        }
+        .gig-post-modal .modal-body {
+          max-height: 72vh;
+          overflow-y: auto;
+          padding: 16px 18px;
+          background: #f8fafc;
+        }
+        .gig-post-modal .modal-footer {
+          padding: 14px 18px;
+          border-top: 1px solid #e2e8f0;
+          background: #ffffff;
+          position: sticky;
+          bottom: 0;
+          z-index: 4;
+        }
+        .gig-post-modal .modal-close-btn {
+          width: 34px;
+          height: 34px;
+          border-radius: 999px;
+          border: 1px solid #e2e8f0;
+          background: #ffffff;
+          color: #64748b;
+          font-size: 1.25rem;
+          line-height: 1;
+        }
+        .gig-post-modal .modal-close-btn:hover {
+          background: #f8fafc;
+          color: #0f172a;
         }
         .gig-post-head-title {
           font-size: 1.35rem;
@@ -63,14 +93,17 @@ declare(strict_types=1);
           border: 1px solid #e2e8f0;
           border-radius: 14px;
           background: #ffffff;
-          padding: 14px 14px 12px;
-          margin-bottom: 12px;
+          padding: 14px 14px 14px;
+          margin-bottom: 13px;
+          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
         }
         .gig-section-head {
           display: flex;
           align-items: flex-start;
           gap: 10px;
-          margin-bottom: 10px;
+          margin-bottom: 12px;
+          padding-bottom: 8px;
+          border-bottom: 1px solid #f1f5f9;
         }
         .gig-section-icon {
           width: 28px;
@@ -100,9 +133,53 @@ declare(strict_types=1);
           grid-template-columns: 1fr 1fr;
           gap: 12px;
         }
+        .gig-post-modal .form-row {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          margin-bottom: 12px;
+        }
+        .gig-post-modal .form-row:last-child {
+          margin-bottom: 0;
+        }
+        .gig-post-modal .form-row label {
+          font-size: 0.84rem;
+          color: #1e293b;
+          font-weight: 700;
+        }
+        .gig-post-modal input[type="text"],
+        .gig-post-modal input[type="number"],
+        .gig-post-modal input[type="date"],
+        .gig-post-modal select,
+        .gig-post-modal textarea {
+          width: 100%;
+          border: 1px solid #cbd5e1;
+          border-radius: 12px;
+          background: #ffffff;
+          color: #0f172a;
+          font-size: 0.9rem;
+          padding: 10px 12px;
+          transition: border-color .16s ease, box-shadow .16s ease;
+        }
+        .gig-post-modal textarea {
+          resize: vertical;
+          min-height: 84px;
+        }
+        .gig-post-modal input:focus,
+        .gig-post-modal select:focus,
+        .gig-post-modal textarea:focus {
+          outline: none;
+          border-color: #38bdf8;
+          box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.12);
+        }
+        .gig-duration-split {
+          display: grid;
+          grid-template-columns: 1fr 1.25fr;
+          gap: 8px;
+        }
         .gig-inline-radio {
           display: flex;
-          gap: 14px;
+          gap: 10px;
           flex-wrap: wrap;
           margin-top: 4px;
         }
@@ -110,13 +187,26 @@ declare(strict_types=1);
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          font-size: 0.84rem;
+          font-size: 0.82rem;
           color: #334155;
-          font-weight: 500;
+          font-weight: 600;
           cursor: pointer;
+          border: 1px solid #e2e8f0;
+          background: #ffffff;
+          padding: 8px 10px;
+          border-radius: 10px;
         }
         .gig-inline-radio input {
           accent-color: #0ea5e9;
+        }
+        .gig-form-callout {
+          font-size: 0.8rem;
+          color: #1e40af;
+          background: #eff6ff;
+          border: 1px solid #bfdbfe;
+          border-radius: 10px;
+          padding: 10px 12px;
+          margin-bottom: 14px;
         }
         .gig-note {
           font-size: 0.74rem;
@@ -126,6 +216,9 @@ declare(strict_types=1);
         }
         @media (max-width: 760px) {
           .gig-grid-2 {
+            grid-template-columns: 1fr;
+          }
+          .gig-duration-split {
             grid-template-columns: 1fr;
           }
         }
@@ -148,9 +241,9 @@ declare(strict_types=1);
             <button class="modal-close-btn" type="button" onclick="closePostProjectModal()">&times;</button>
           </div>
           <form id="newProjectForm" onsubmit="handleCreateProject(event)">
-            <div class="modal-body" style="max-height:72vh;overflow-y:auto;padding:18px;">
+            <div class="modal-body">
 
-              <div style="font-size:0.8rem;color:#1e40af;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:10px 12px;margin-bottom:14px;">
+              <div class="gig-form-callout">
                 &#9432; Lowongan akan diverifikasi Admin terlebih dahulu sebelum tayang ke Gig Worker.
               </div>
 
@@ -196,14 +289,14 @@ declare(strict_types=1);
                 <div class="gig-grid-2">
                   <div class="form-row">
                     <label for="proj_duration">Durasi Proyek *</label>
-                    <select id="proj_duration" required>
-                      <option value="1 Minggu">1 Minggu</option>
-                      <option value="2 Minggu" selected>2 Minggu</option>
-                      <option value="1 Bulan">1 Bulan</option>
-                      <option value="2 Bulan">2 Bulan</option>
-                      <option value="3 Bulan">3 Bulan</option>
-                      <option value="6 Bulan">6 Bulan</option>
-                    </select>
+                    <div class="gig-duration-split">
+                      <input type="number" id="proj_duration_value" min="1" max="36" value="1" required />
+                      <select id="proj_duration_unit" required>
+                        <option value="Hari">Hari</option>
+                        <option value="Minggu" selected>Minggu</option>
+                        <option value="Bulan">Bulan</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
@@ -332,6 +425,13 @@ declare(strict_types=1);
     e.preventDefault();
     const title = document.getElementById('proj_title').value;
     const locRadio = document.querySelector('input[name="proj_lokasi_type"]:checked');
+    const durationValue = Number(document.getElementById('proj_duration_value').value || 0);
+    const durationUnit = document.getElementById('proj_duration_unit').value || 'Minggu';
+    if (!durationValue || durationValue < 1) {
+      showToast('Durasi proyek harus diisi minimal 1.');
+      return;
+    }
+    const durationLabel = String(durationValue) + ' ' + String(durationUnit);
     const province = (document.getElementById('proj_province').value || '').trim();
     const city = (document.getElementById('proj_city').value || '').trim();
     if (!province || !city) {
@@ -351,7 +451,7 @@ declare(strict_types=1);
       title: title,
       category: document.getElementById('proj_category').value,
       kbji: document.getElementById('proj_kbji').value,
-      duration: document.getElementById('proj_duration').value,
+      duration: durationLabel,
       desc: document.getElementById('proj_desc').value,
       target: document.getElementById('proj_target').value,
       qualifications: document.getElementById('proj_kualifikasi').value,

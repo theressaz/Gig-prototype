@@ -41,13 +41,14 @@ if ($showSalary) {
     }
 }
 
-$locType = (string)($payload['location_type'] ?? 'remote');
+$locType = (string)($payload['location_type'] ?? 'luring');
 $locDetail = trim((string)($payload['location_detail'] ?? ''));
 $locCity = trim((string)($payload['location_city'] ?? ''));
 $locProvince = trim((string)($payload['location_province'] ?? ''));
-$location = $locType === 'remote'
-    ? ($locDetail !== '' ? 'Remote (' . $locDetail . ')' : 'Remote')
-    : ($locDetail !== '' ? $locDetail : 'Hybrid');
+$location = $locDetail !== '' ? $locDetail : trim($locCity . ', ' . $locProvince, ', ');
+if ($location === '') {
+    $location = 'Lokasi belum diisi';
+}
 
 $vacancy = [
     'title' => $title,
@@ -57,7 +58,7 @@ $vacancy = [
     'desc' => (string)($payload['desc'] ?? ''),
     'deliverables' => (string)($payload['target'] ?? ''),
     'qualifications' => (string)($payload['qualifications'] ?? ''),
-    'work_type' => (string)($payload['work_type'] ?? ''),
+    'work_type' => $locType === 'remote' ? 'Remote' : 'On-site/Hybrid',
     'industry' => (string)($payload['industry'] ?? ''),
     'experience_level' => (string)($payload['experience_level'] ?? ''),
     'visibility' => (string)($payload['visibility'] ?? 'public'),

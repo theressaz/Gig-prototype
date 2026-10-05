@@ -112,7 +112,7 @@ function gig_vacancy_migrate_legacy_tables(PDO $pdo): void
                 'applicantsCount' => 0,
                 'acceptedCount' => 0,
                 'quota' => 1,
-                'location' => (string)($payload['location'] ?? 'Remote'),
+                'location' => (string)($payload['location'] ?? 'Lokasi belum diisi'),
                 'posted' => date('d M Y', strtotime((string)$sub['created_at'])),
                 'skills' => $payload['skills'] ?? [],
                 'desc' => (string)($payload['desc'] ?? ''),
@@ -144,6 +144,20 @@ function gig_vacancy_normalize(array $vacancy): array
     }
     // Platform policy: each posting can only recruit one Gig Worker.
     $vacancy['quota'] = 1;
+
+    // Keep "Lokasi" as a concrete city/province value, never plain "Remote".
+    $rawLocation = trim((string)($vacancy['location'] ?? ''));
+    if (preg_match('/^remote\s*\((.+)\)$/i', $rawLocation, $m) === 1) {
+        $vacancy['location'] = trim((string)$m[1]);
+    } elseif (strcasecmp($rawLocation, 'remote') === 0) {
+        $city = trim((string)($vacancy['location_city'] ?? ''));
+        $province = trim((string)($vacancy['location_province'] ?? ''));
+        $resolved = trim($city . ', ' . $province, ', ');
+        $vacancy['location'] = $resolved !== '' ? $resolved : 'Lokasi belum diisi';
+    } elseif ($rawLocation === '') {
+        $vacancy['location'] = 'Lokasi belum diisi';
+    }
+
     return $vacancy;
 }
 
@@ -252,7 +266,7 @@ function gig_vacancy_save_submission(string $employerUsername, array $vacancy): 
         'applicantsCount' => 0,
         'acceptedCount' => 0,
         'quota' => 1,
-        'location' => (string)($vacancy['location'] ?? 'Remote'),
+        'location' => (string)($vacancy['location'] ?? 'Lokasi belum diisi'),
         'posted' => date('d M Y'),
         'skills' => $vacancy['skills'] ?? [],
         'desc' => (string)($vacancy['desc'] ?? ''),
