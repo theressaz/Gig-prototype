@@ -175,6 +175,45 @@ if ($status === 'approved') {
 .portfolio-files { margin-top:8px; display:grid; gap:6px; }
 .portfolio-file-link { display:inline-flex; align-items:center; gap:6px; font-size:0.78rem; font-weight:700; color:#1d4ed8; text-decoration:none; }
 .portfolio-file-link:hover { text-decoration:underline; }
+  .portfolio-file-list {
+    margin-top: 10px;
+    display: grid;
+    gap: 8px;
+  }
+  .portfolio-file-item {
+    background: #ffffff;
+    border: 1px solid #dbeafe;
+    border-radius: 10px;
+    padding: 9px 10px;
+  }
+  .portfolio-file-meta {
+    font-size: 0.76rem;
+    color: #64748b;
+    line-height: 1.4;
+    margin-bottom: 7px;
+  }
+  .portfolio-file-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 3px;
+  }
+  .portfolio-file-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #bfdbfe;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-decoration: none;
+  }
+  .portfolio-file-btn:hover {
+    background: #dbeafe;
+  }
   .edit-request-panel {
     border: 1px solid #dbeafe;
     background: #f8fbff;
@@ -221,6 +260,43 @@ if ($status === 'approved') {
     line-height: 1.45;
     font-weight: 600;
   }
+  .edit-help-note {
+    margin-top: 8px;
+    font-size: 0.78rem;
+    color: #475569;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 8px 10px;
+    line-height: 1.45;
+  }
+  .edit-compare-grid {
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .edit-compare-col {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 8px 10px;
+    background: #ffffff;
+  }
+  .edit-compare-col h4 {
+    margin: 0 0 6px 0;
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .edit-compare-col p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #1e293b;
+    line-height: 1.45;
+    font-weight: 600;
+  }
   .edit-field.full { grid-column: 1 / -1; }
   .profile-row { display:grid;grid-template-columns:140px 1fr;gap:8px;font-size:0.82rem;padding:6px 0;border-bottom:1px dashed #e2e8f0; }
   .profile-row:last-child { border-bottom:none; }
@@ -233,7 +309,7 @@ if ($status === 'approved') {
   .flash { padding:11px 13px;border-radius:10px;margin-bottom:14px;font-size:0.84rem;font-weight:700; }
   .flash.success { background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0; }
   .flash.error { background:#fef2f2;color:#991b1b;border:1px solid #fecaca; }
-  @media (max-width: 980px) { .detail-grid { grid-template-columns:1fr; } .detail-name { font-size:1.45rem; } .edit-request-grid { grid-template-columns:1fr; } }
+  @media (max-width: 980px) { .detail-grid { grid-template-columns:1fr; } .detail-name { font-size:1.45rem; } .edit-request-grid { grid-template-columns:1fr; } .edit-compare-grid { grid-template-columns:1fr; } }
 </style>
 
 <div style="margin-bottom:10px;">
@@ -297,11 +373,27 @@ if ($status === 'approved') {
                 <div class="edit-field-value"><?php echo htmlspecialchars((string)($selectedEdit['reason_detail'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
               </div>
               <div class="edit-field full">
-                <div class="edit-field-label">Draft Profil Baru</div>
-                <div class="edit-field-value">
-                  Nama <?php echo htmlspecialchars((string)($editPayload['name'] ?? $displayName), ENT_QUOTES, 'UTF-8'); ?> ·
-                  Bidang <?php echo htmlspecialchars((string)($editPayload['title'] ?? ($worker['bidang_keahlian'] ?? '-')), ENT_QUOTES, 'UTF-8'); ?> ·
-                  Lokasi <?php echo htmlspecialchars((string)($editPayload['location'] ?? $domicile), ENT_QUOTES, 'UTF-8'); ?>
+                <div class="edit-field-label">Data Profil yang Diajukan</div>
+                <div class="edit-help-note">
+                  Ini adalah versi data profil baru yang diajukan oleh Gig Worker. Jika admin menyetujui pengajuan, data di kolom <strong>Data Diajukan</strong> akan menggantikan data saat ini.
+                </div>
+                <div class="edit-compare-grid">
+                  <div class="edit-compare-col">
+                    <h4>Data Saat Ini</h4>
+                    <p>
+                      Nama: <?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?><br>
+                      Bidang: <?php echo htmlspecialchars((string)($worker['bidang_keahlian'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?><br>
+                      Lokasi: <?php echo htmlspecialchars($domicile, ENT_QUOTES, 'UTF-8'); ?>
+                    </p>
+                  </div>
+                  <div class="edit-compare-col">
+                    <h4>Data Diajukan</h4>
+                    <p>
+                      Nama: <?php echo htmlspecialchars((string)($editPayload['name'] ?? $displayName), ENT_QUOTES, 'UTF-8'); ?><br>
+                      Bidang: <?php echo htmlspecialchars((string)($editPayload['title'] ?? ($worker['bidang_keahlian'] ?? '-')), ENT_QUOTES, 'UTF-8'); ?><br>
+                      Lokasi: <?php echo htmlspecialchars((string)($editPayload['location'] ?? $domicile), ENT_QUOTES, 'UTF-8'); ?>
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -369,12 +461,17 @@ if ($status === 'approved') {
               <div class="detail-item-sub"><?php echo htmlspecialchars((string)$port['deliverable'], ENT_QUOTES, 'UTF-8'); ?></div>
             <?php endif; ?>
             <?php if ($portFiles !== []): ?>
-              <div class="portfolio-files">
-                <?php foreach ($portFiles as $file): ?>
-                  <a class="portfolio-file-link" href="<?php echo htmlspecialchars((string)$file['url'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener">
-                    Buka File/Link
-                    <span style="font-weight:600;color:#475569;">· <?php echo htmlspecialchars((string)$file['name'], ENT_QUOTES, 'UTF-8'); ?><?php echo $file['type'] !== '' ? ' (' . htmlspecialchars((string)$file['type'], ENT_QUOTES, 'UTF-8') . ')' : ''; ?></span>
-                  </a>
+              <div class="portfolio-file-list">
+                <?php foreach ($portFiles as $idxFile => $file): ?>
+                  <div class="portfolio-file-item">
+                    <div class="portfolio-file-name">File <?php echo (int)$idxFile + 1; ?>: <?php echo htmlspecialchars((string)$file['name'], ENT_QUOTES, 'UTF-8'); ?></div>
+                    <div class="portfolio-file-meta">
+                      Tipe: <?php echo $file['type'] !== '' ? htmlspecialchars((string)$file['type'], ENT_QUOTES, 'UTF-8') : 'Dokumen/Link'; ?>
+                    </div>
+                    <a class="portfolio-file-btn" href="<?php echo htmlspecialchars((string)$file['url'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener">
+                      Buka File <?php echo (int)$idxFile + 1; ?>
+                    </a>
+                  </div>
                 <?php endforeach; ?>
               </div>
             <?php endif; ?>
