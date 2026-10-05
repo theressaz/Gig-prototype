@@ -467,12 +467,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?>
         </div>
         <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">
-          Gaji: <?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?> &bull; Durasi: <?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?>
-        </div>
-
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label class="form-label">Pesan / Catatan Singkat untuk Pemberi Kerja (Opsional)</label>
-          <textarea name="apply_note" class="form-input" rows="3" style="font-size: 0.86rem;" placeholder="Sampaikan pengenalan singkat atau ketersediaan waktu pengerjaan Anda..."></textarea>
+          Lamaran akan dikirim berdasarkan profil dan portofolio Gig Worker Anda.
         </div>
 
         <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 12px; font-size: 0.78rem; color: #1e40af; margin-bottom: 20px;">
