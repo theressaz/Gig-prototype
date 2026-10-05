@@ -178,26 +178,74 @@ declare(strict_types=1);
           gap: 8px;
         }
         .gig-inline-radio {
-          display: flex;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
           gap: 10px;
-          flex-wrap: wrap;
-          margin-top: 4px;
+          margin-top: 6px;
         }
         .gig-inline-radio label {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 0.82rem;
-          color: #334155;
-          font-weight: 600;
+          display: flex;
+          align-items: flex-start;
+          gap: 8px;
+          font-size: 0.84rem;
+          color: #1e293b;
+          font-weight: 700;
           cursor: pointer;
           border: 1px solid #e2e8f0;
-          background: #ffffff;
-          padding: 8px 10px;
+          background: #f8fafc;
+          padding: 10px 12px;
           border-radius: 10px;
+          line-height: 1.35;
+          min-height: 64px;
+          transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
         }
-        .gig-inline-radio input {
+        .gig-inline-radio label:hover {
+          border-color: #bae6fd;
+          background: #f0f9ff;
+        }
+        .gig-inline-radio input[type="radio"] {
+          margin-top: 2px;
           accent-color: #0ea5e9;
+        }
+        .gig-inline-radio input[type="radio"]:checked + span {
+          color: #0c4a6e;
+        }
+        .gig-inline-radio small {
+          display: block;
+          margin-top: 2px;
+          color: #64748b;
+          font-size: 0.75rem;
+          font-weight: 600;
+        }
+        .gig-toggle-row {
+          margin: 4px 0 2px;
+          padding: 10px 12px;
+          border: 1px solid #e2e8f0;
+          border-radius: 10px;
+          background: #f8fafc;
+        }
+        .gig-checkbox-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 700;
+          font-size: 0.84rem;
+          color: #1e293b;
+          cursor: pointer;
+          margin: 0;
+        }
+        .gig-checkbox-label input[type="checkbox"] {
+          width: 16px;
+          height: 16px;
+          accent-color: #0ea5e9;
+          flex-shrink: 0;
+        }
+        .gig-checkbox-note {
+          margin-top: 4px;
+          margin-left: 24px;
+          font-size: 0.74rem;
+          color: #64748b;
+          line-height: 1.4;
         }
         .gig-form-callout {
           font-size: 0.8rem;
@@ -216,6 +264,9 @@ declare(strict_types=1);
         }
         @media (max-width: 760px) {
           .gig-grid-2 {
+            grid-template-columns: 1fr;
+          }
+          .gig-inline-radio {
             grid-template-columns: 1fr;
           }
           .gig-duration-split {
@@ -349,8 +400,14 @@ declare(strict_types=1);
                 <div class="form-row">
                   <label>Opsi Pengerjaan Remote</label>
                   <div class="gig-inline-radio">
-                    <label><input type="radio" name="proj_lokasi_type" value="luring" checked> Tidak Remote (On-site/Hybrid)</label>
-                    <label><input type="radio" name="proj_lokasi_type" value="remote"> Ya, project remote</label>
+                    <label>
+                      <input type="radio" name="proj_lokasi_type" value="luring" checked>
+                      <span>Tidak Remote<small>Pengerjaan on-site atau hybrid.</small></span>
+                    </label>
+                    <label>
+                      <input type="radio" name="proj_lokasi_type" value="remote">
+                      <span>Ya, project remote<small>Pengerjaan jarak jauh dari lokasi manapun.</small></span>
+                    </label>
                   </div>
                   <div class="gig-note">Lokasi provinsi dan kota tetap wajib diisi pada bagian Informasi Proyek.</div>
                 </div>
@@ -366,11 +423,12 @@ declare(strict_types=1);
                   </div>
                 </div>
 
-                <div class="form-row">
-                  <label style="display:flex;align-items:center;gap:8px;font-weight:500;font-size:0.84rem;cursor:pointer;">
+                <div class="gig-toggle-row">
+                  <label for="proj_show_salary" class="gig-checkbox-label">
                     <input type="checkbox" id="proj_show_salary" checked />
                     <span>Tampilkan rentang gaji di postingan lowongan</span>
                   </label>
+                  <div class="gig-checkbox-note">Matikan opsi ini jika Anda ingin menampilkan "Gaji dapat dinegosiasikan".</div>
                 </div>
 
                 <div class="gig-grid-2">
