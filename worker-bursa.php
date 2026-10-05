@@ -420,9 +420,11 @@ a.proyek-card-item:hover {
 }
 
 .card-apply-deadline {
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   color: #64748b;
-  margin-top: 4px;
+  margin-top: 6px;
+  margin-bottom: 8px;
+  font-weight: 500;
 }
 
 .card-skills-row {
@@ -624,13 +626,12 @@ a.proyek-card-item:hover {
                 </div>
 
                 <h3 class="card-project-title"><?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
-                <div class="card-company-line"><?php echo htmlspecialchars($employerDisplayName, ENT_QUOTES, 'UTF-8'); ?></div>
+
 
                 <div class="card-meta-detail">
                   <div class="card-salary">Kisaran Gaji</div>
                   <div class="card-salary-value"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></div>
                   <div class="meta-pill-info">Durasi: <?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?></div>
-                  <div class="card-apply-deadline">Lamar sebelum <?php echo htmlspecialchars((string)($job['deadline'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
                 </div>
 
                 <div class="card-skills-row">
@@ -641,12 +642,11 @@ a.proyek-card-item:hover {
                     <span class="skill-pill-more">+<?php echo $remainingCount; ?></span>
                   <?php endif; ?>
                 </div>
+
+                <div class="card-apply-deadline">Lamar sebelum <?php echo htmlspecialchars((string)($job['deadline'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
               </div>
 
-              <div class="card-action-footer">
-                <span>Lihat Detail Proyek</span>
-                <span>&rarr;</span>
-              </div>
+
             </a>
           <?php endforeach; ?>
         </div>
