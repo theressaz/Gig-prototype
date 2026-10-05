@@ -31,7 +31,20 @@ $currentContactWa = $_POST['contact_wa_new'] ?? ($existingReg['contact_wa'] ?? '
 $currentVideoUrl = $_POST['video_url'] ?? ($existingReg['video_url'] ?? ($workerProfile['video_url'] ?? ''));
 
 $currentPortfolio = !empty($existingReg['portfolio']) && is_array($existingReg['portfolio']) ? $existingReg['portfolio'] : ($workerProfile['portfolio'] ?? []);
-$currentProjects = !empty($existingReg['previous_projects']) && is_array($existingReg['previous_projects']) ? $existingReg['previous_projects'] : ($workerProfile['experience'] ?? []);
+$siapkerjaExperienceDefaults = [];
+if (!empty($siapkerja['pengalaman_siapkerja']) && is_array($siapkerja['pengalaman_siapkerja'])) {
+    foreach ($siapkerja['pengalaman_siapkerja'] as $skExp) {
+        $siapkerjaExperienceDefaults[] = [
+            'role' => (string)($skExp['role'] ?? ''),
+            'project' => (string)($skExp['institution'] ?? ''),
+            'period' => (string)($skExp['period'] ?? ''),
+            'summary' => (string)($skExp['summary'] ?? ''),
+        ];
+    }
+}
+$currentProjects = !empty($existingReg['previous_projects']) && is_array($existingReg['previous_projects'])
+    ? $existingReg['previous_projects']
+    : (!empty($workerProfile['experience']) && is_array($workerProfile['experience']) ? $workerProfile['experience'] : $siapkerjaExperienceDefaults);
 if (is_array($currentProjects)) {
     gig_sort_experience_timeline($currentProjects);
 }
@@ -503,50 +516,55 @@ $backHref = $isEditMode
       </div>
     <?php endif; ?>
 
-    <div class="siapkerja-box">
-      <div class="siapkerja-badge">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-        Terintegrasi SIAPKerja
-      </div>
-      
-      <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
-        <div style="width:48px; height:48px; border-radius:50%; background:#0284c7; color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.2rem; font-weight:800; flex-shrink:0;">
-          <?php echo strtoupper(substr($siapkerja['nama'], 0, 2)); ?>
-        </div>
-        <div>
-          <h3 style="font-size:1.05rem; font-weight:800; color:#0f172a; margin-bottom:2px;"><?php echo htmlspecialchars($siapkerja['nama'], ENT_QUOTES, 'UTF-8'); ?></h3>
-          <div style="font-size:0.82rem; color:#64748b;">
-            Domisili: <strong><?php echo htmlspecialchars($siapkerja['lokasi'], ENT_QUOTES, 'UTF-8'); ?></strong>
-          </div>
-        </div>
-      </div>
-
-      <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:14px 16px;">
-        <div style="font-size:0.78rem; font-weight:700; text-transform:uppercase; color:#64748b; margin-bottom:8px;">Informasi Terhubung dari Akun SIAPKerja</div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size:0.85rem; color:#334155;">
-          <div>
-            <strong>Nama Lengkap:</strong><br />
-            <span><?php echo htmlspecialchars($siapkerja['nama'], ENT_QUOTES, 'UTF-8'); ?></span>
-          </div>
-          <div>
-            <strong>Kontak Default:</strong><br />
-            <span>WA: <?php echo htmlspecialchars($siapkerja['wa'], ENT_QUOTES, 'UTF-8'); ?> &bull; Email: <?php echo htmlspecialchars($siapkerja['email'], ENT_QUOTES, 'UTF-8'); ?></span>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- FORM PENDAFTARAN GIG WORKER -->
     <form method="POST" action="" style="display:flex; flex-direction:column;">
       <input type="hidden" name="action" value="register_gig_worker" />
 
-      <!-- BAGIAN 1: PILIHAN KONTAK -->
+      <!-- BAGIAN 1: IDENTITAS DARI SIAPKERJA -->
       <div class="form-section-header">
-        <h2 class="form-section-title">1. INFORMASI KONTAK GIG WORKER</h2>
+        <h2 class="form-section-title">1. IDENTITAS PERORANGAN</h2>
         <p class="form-section-subtitle">
-          Pilih apakah Anda ingin menggunakan informasi kontak resmi dari SIAPKerja atau mencantumkan kontak baru khusus layanan Gig Worker.
+          Data pada segmen ini ditarik dari akun SIAPKerja Anda. Nama dan NIK bersifat read-only.
         </p>
       </div>
+
+      <div class="form-grid-2col">
+        <div class="form-group">
+          <label class="form-label" for="siap_nama">Nama Gig Worker <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="siap_nama" class="form-input" value="<?php echo htmlspecialchars((string)$siapkerja['nama'], ENT_QUOTES, 'UTF-8'); ?>" readonly />
+          <span class="form-hint">Data nama terisi otomatis (prefill) dari akun SIAPKerja.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="siap_nik">NIK <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="siap_nik" class="form-input" value="<?php echo htmlspecialchars((string)$siapkerja['nik'], ENT_QUOTES, 'UTF-8'); ?>" readonly />
+          <span class="form-hint">Data NIK terisi otomatis (prefill) dari akun SIAPKerja.</span>
+        </div>
+      </div>
+
+      <div class="form-grid-2col" style="margin-top:14px;">
+        <div class="form-group">
+          <label class="form-label" for="siap_alamat">Alamat</label>
+          <input type="text" id="siap_alamat" class="form-input" value="<?php echo htmlspecialchars((string)$siapkerja['lokasi'], ENT_QUOTES, 'UTF-8'); ?>" readonly />
+          <span class="form-hint">Alamat terhubung dari akun SIAPKerja.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="siap_email">Email <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="siap_email" class="form-input" value="<?php echo htmlspecialchars((string)$siapkerja['email'], ENT_QUOTES, 'UTF-8'); ?>" readonly />
+          <span class="form-hint">Email SIAPKerja bersifat read-only.</span>
+        </div>
+      </div>
+
+      <div class="form-grid-2col" style="margin-top:14px;">
+        <div class="form-group">
+          <label class="form-label" for="siap_phone">Nomor Telepon Aktif <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="siap_phone" class="form-input" value="<?php echo htmlspecialchars((string)$siapkerja['wa'], ENT_QUOTES, 'UTF-8'); ?>" readonly />
+          <span class="form-hint">Nomor telepon SIAPKerja bersifat read-only.</span>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;padding:14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;">
+        <div style="font-size:0.82rem;font-weight:800;color:#0f172a;margin-bottom:8px;">Pilihan Kontak untuk Proyek Gig Worker</div>
+        <p style="font-size:0.78rem;color:#64748b;margin-bottom:10px;">Anda dapat menggunakan kontak SIAPKerja atau input kontak baru khusus untuk layanan Gig Worker.</p>
 
         <div class="contact-options">
           <label class="contact-option-card <?php echo $currentContactChoice === 'siapkerja' ? 'active' : ''; ?>" id="opt-siapkerja" onclick="selectContactOption('siapkerja')">
@@ -565,7 +583,7 @@ $backHref = $isEditMode
             <div>
               <strong style="font-size:0.9rem; color:var(--text-main);">Input Informasi Kontak Baru</strong>
               <div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">
-                Gunakan alamat email atau nomor WA alternatif khusus untuk proyek Gig Worker.
+                Gunakan alamat email atau nomor telepon/WA alternatif khusus proyek Gig Worker.
               </div>
             </div>
           </label>
@@ -582,13 +600,86 @@ $backHref = $isEditMode
             <input type="text" id="contact_wa_new" name="contact_wa_new" class="form-input" value="<?php echo htmlspecialchars($currentContactWa, ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: 0812-9988-7766" />
           </div>
         </div>
-      </section>
+      </div>
 
       <div class="form-divider"></div>
 
-      <!-- BAGIAN 2: BIDANG KEAHLIAN & SKILL -->
+      <!-- BAGIAN 2: PENGALAMAN -->
       <div class="form-section-header">
-        <h2 class="form-section-title">2. BIDANG KEAHLIAN &amp; SKILL SPESIFIK</h2>
+        <h2 class="form-section-title">2. PENGALAMAN</h2>
+        <p class="form-section-subtitle">Data pengalaman ditarik dari SIAPKerja, dan Anda dapat menambah atau menghapus pengalaman sesuai kebutuhan.</p>
+      </div>
+
+      <div id="projectContainer">
+        <?php if (!empty($currentProjects) && is_array($currentProjects)): ?>
+          <?php foreach ($currentProjects as $projIdx => $proj): ?>
+            <div class="dynamic-item" id="proj-item-<?php echo $projIdx; ?>">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed #cbd5e1;">
+                <strong style="font-size:0.95rem;color:#0f172a;">Pengalaman #<?php echo $projIdx + 1; ?></strong>
+                <?php if ($projIdx > 0): ?>
+                  <button type="button" class="btn-remove-item" onclick="document.getElementById('proj-item-<?php echo $projIdx; ?>').remove()">Hapus Pengalaman</button>
+                <?php endif; ?>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
+                <div class="form-group">
+                  <label class="form-label">Nama Proyek / Perusahaan</label>
+                  <input type="text" name="project_title[]" class="form-input" value="<?php echo htmlspecialchars((string)($proj['project'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: Portal E-Government" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Peran / Posisi Anda</label>
+                  <input type="text" name="project_role[]" class="form-input" value="<?php echo htmlspecialchars((string)($proj['role'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: UI Designer / Web Dev" />
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 2fr;gap:12px;">
+                <div class="form-group">
+                  <label class="form-label">Periode Waktu</label>
+                  <input type="text" name="project_period[]" class="form-input" value="<?php echo htmlspecialchars((string)($proj['period'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: 2025 (6 Bulan)" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Ringkasan Tugas &amp; Hasil</label>
+                  <input type="text" name="project_summary[]" class="form-input" value="<?php echo htmlspecialchars((string)($proj['summary'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" placeholder="Deskripsikan peran dan pencapaian Anda" />
+                </div>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <div class="dynamic-item" id="proj-item-0">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed #cbd5e1;">
+              <strong style="font-size:0.95rem;color:#0f172a;">Pengalaman #1</strong>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
+              <div class="form-group">
+                <label class="form-label">Nama Proyek / Perusahaan</label>
+                <input type="text" name="project_title[]" class="form-input" placeholder="contoh: Portal E-Government" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Peran / Posisi Anda</label>
+                <input type="text" name="project_role[]" class="form-input" placeholder="contoh: UI Designer / Web Dev" />
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 2fr;gap:12px;">
+              <div class="form-group">
+                <label class="form-label">Periode Waktu</label>
+                <input type="text" name="project_period[]" class="form-input" placeholder="contoh: 2025 (6 Bulan)" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Ringkasan Tugas &amp; Hasil</label>
+                <input type="text" name="project_summary[]" class="form-input" placeholder="Deskripsikan peran dan pencapaian Anda" />
+              </div>
+            </div>
+          </div>
+        <?php endif; ?>
+      </div>
+
+      <button type="button" class="btn-add-item" onclick="addProjectItem()" style="margin-top:8px;align-self:flex-start;">
+        + Tambah Pengalaman
+      </button>
+
+      <div class="form-divider"></div>
+
+      <!-- BAGIAN 3: BIDANG KEAHLIAN & SKILL -->
+      <div class="form-section-header">
+        <h2 class="form-section-title">3. BIDANG KEAHLIAN &amp; SKILL SPESIFIK</h2>
         <p class="form-section-subtitle">Tentukan spesialisasi utama dan daftar keahlian teknis Anda.</p>
       </div>
 
@@ -626,9 +717,9 @@ $backHref = $isEditMode
 
       <div class="form-divider"></div>
 
-      <!-- BAGIAN 3: PORTOFOLIO -->
+      <!-- BAGIAN 4: PORTOFOLIO -->
       <div class="form-section-header">
-        <h2 class="form-section-title">3. PORTOFOLIO HASIL PEKERJAAN</h2>
+        <h2 class="form-section-title">4. PORTOFOLIO HASIL PEKERJAAN</h2>
         <p class="form-section-subtitle">
           Tampilkan contoh hasil proyek terbaik Anda (link berkas, desain Figma, atau repositori code) agar calon Pemberi Kerja dapat menilai kualitas kerja Anda.
         </p>
@@ -738,9 +829,9 @@ $backHref = $isEditMode
 
       <div class="form-divider"></div>
 
-      <!-- BAGIAN 4: LINK VIDEO PROFIL -->
+      <!-- BAGIAN 5: LINK VIDEO PROFIL -->
       <div class="form-section-header">
-        <h2 class="form-section-title">4. LINK VIDEO PROFIL GIG WORKER</h2>
+        <h2 class="form-section-title">5. LINK VIDEO PROFIL GIG WORKER</h2>
         <p class="form-section-subtitle">
           Sampaikan perkenalan singkat diri dan keahlian Anda melalui video (misal: YouTube, Loom, atau Google Drive Video).
         </p>
@@ -790,7 +881,7 @@ $backHref = $isEditMode
       }
     }
 
-    let projectCount = 0;
+    let projectCount = <?php echo max(1, is_array($currentProjects) ? count($currentProjects) : 1); ?>;
     function addProjectItem() {
       projectCount++;
       const container = document.getElementById('projectContainer');
