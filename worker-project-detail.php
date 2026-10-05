@@ -479,9 +479,19 @@ require __DIR__ . '/includes/worker-layout-start.php';
           ℹ Profil Gig Worker dan portofolio Anda akan dikirimkan ke Pemberi Kerja. Kontak pribadi Anda tetap terlindungi hingga disetujui.
         </div>
 
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-bottom:16px;">
+          <div style="font-size:0.78rem;color:#334155;line-height:1.5;margin-bottom:10px;">
+            Saya memahami bahwa Karirhub tidak menahan dana pembayaran. Segala risiko terkait penipuan atau gagal bayar oleh Pemberi Kerja berada di luar tanggung jawab Karirhub. Pastikan Anda telah menyepakati metode pembayaran sebelum mulai bekerja.
+          </div>
+          <label style="display:flex;align-items:flex-start;gap:8px;font-size:0.8rem;color:#0f172a;font-weight:600;cursor:pointer;">
+            <input type="checkbox" id="applyConsentCheckbox" style="margin-top:2px;accent-color:#2563eb;" />
+            <span>Saya menyetujui pernyataan di atas.</span>
+          </label>
+        </div>
+
         <div style="display: flex; justify-content: flex-end; gap: 10px;">
           <button type="button" class="btn-action-sm" onclick="closeApplyModal()" style="background:#f1f5f9; color:var(--text-main);">Batal</button>
-          <button type="submit" class="btn-primary-add" style="padding:10px 20px;">Kirim Lamaran Proyek</button>
+          <button type="submit" id="applySubmitBtn" class="btn-primary-add" style="padding:10px 20px;background:#9ca3af;border-color:#9ca3af;cursor:not-allowed;opacity:0.9;" disabled>Kirim Lamaran Proyek</button>
         </div>
       </form>
     </div>
@@ -489,9 +499,30 @@ require __DIR__ . '/includes/worker-layout-start.php';
   <?php endif; ?>
 
   <script>
+    function syncApplyConsentState() {
+      const cb = document.getElementById('applyConsentCheckbox');
+      const submitBtn = document.getElementById('applySubmitBtn');
+      if (!cb || !submitBtn) return;
+      submitBtn.disabled = !cb.checked;
+      if (cb.checked) {
+        submitBtn.style.background = '';
+        submitBtn.style.borderColor = '';
+        submitBtn.style.cursor = '';
+        submitBtn.style.opacity = '';
+      } else {
+        submitBtn.style.background = '#9ca3af';
+        submitBtn.style.borderColor = '#9ca3af';
+        submitBtn.style.cursor = 'not-allowed';
+        submitBtn.style.opacity = '0.9';
+      }
+    }
+
     function openApplyModal() {
       const modal = document.getElementById('applyModal');
       if (modal) modal.classList.add('open');
+      const cb = document.getElementById('applyConsentCheckbox');
+      if (cb) cb.checked = false;
+      syncApplyConsentState();
     }
 
     function closeApplyModal() {
@@ -516,6 +547,14 @@ require __DIR__ . '/includes/worker-layout-start.php';
         alert('Lamaran proyek berhasil dikirim ke Pemberi Kerja!');
       }
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const cb = document.getElementById('applyConsentCheckbox');
+      if (cb) {
+        cb.addEventListener('change', syncApplyConsentState);
+      }
+      syncApplyConsentState();
+    });
   </script>
 
 <?php endif; ?>
