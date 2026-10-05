@@ -432,13 +432,13 @@ require __DIR__ . '/includes/admin-layout-start.php';
             <?php else: ?>
               <thead>
                 <tr>
-                  <th>Gig Worker</th>
-                  <th>Email</th>
-                  <th>No. Telepon</th>
-                  <th>Bidang Keahlian</th>
-                  <th>Status</th>
-                  <th>Tanggal Daftar</th>
-                  <th class="verify-sticky-action">Aksi</th>
+                  <th class="verify-col-name">Gig Worker</th>
+                  <th class="verify-col-email">Email</th>
+                  <th class="verify-col-phone">No. Telepon</th>
+                  <th class="verify-col-field">Bidang Keahlian</th>
+                  <th class="verify-col-status">Status</th>
+                  <th class="verify-col-date">Tanggal Daftar</th>
+                  <th class="verify-col-action verify-sticky-action">Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -454,7 +454,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
                     $createdLabel = $createdAt !== '' ? date('d M Y', strtotime($createdAt)) : '-';
                   ?>
                   <tr>
-                    <td>
+                    <td class="verify-col-name">
                       <a class="verify-main-text" href="admin-worker-detail.php?u=<?php echo urlencode((string)$row['username']); ?>&email=<?php echo urlencode((string)$row['contact_email']); ?><?php echo $firstPendingEdit ? '&edit_id=' . (int)$firstPendingEdit['id'] : ''; ?>" style="text-decoration:none;color:inherit;">
                         <?php echo htmlspecialchars((string)$row['username'], ENT_QUOTES, 'UTF-8'); ?>
                       </a>
@@ -464,12 +464,12 @@ require __DIR__ . '/includes/admin-layout-start.php';
                         </div>
                       <?php endif; ?>
                     </td>
-                    <td><?php echo htmlspecialchars((string)$row['contact_email'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars((string)$row['contact_wa'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars((string)$row['bidang_keahlian'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo admin_status_badge((string)($row['status'] ?? 'pending')); ?></td>
-                    <td><?php echo htmlspecialchars($createdLabel, ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td class="verify-sticky-action">
+                    <td class="verify-col-email"><span class="verify-cell-ellipsis" title="<?php echo htmlspecialchars((string)$row['contact_email'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars((string)$row['contact_email'], ENT_QUOTES, 'UTF-8'); ?></span></td>
+                    <td class="verify-col-phone"><?php echo htmlspecialchars((string)$row['contact_wa'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td class="verify-col-field"><span class="verify-cell-ellipsis" title="<?php echo htmlspecialchars((string)$row['bidang_keahlian'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars((string)$row['bidang_keahlian'], ENT_QUOTES, 'UTF-8'); ?></span></td>
+                    <td class="verify-col-status"><?php echo admin_status_badge((string)($row['status'] ?? 'pending')); ?></td>
+                    <td class="verify-col-date"><?php echo htmlspecialchars($createdLabel, ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td class="verify-col-action verify-sticky-action">
                       <a class="verify-open-link" href="admin-worker-detail.php?u=<?php echo urlencode((string)$row['username']); ?>&email=<?php echo urlencode((string)$row['contact_email']); ?><?php echo $firstPendingEdit ? '&edit_id=' . (int)$firstPendingEdit['id'] : ''; ?>">Lihat Detail</a>
                     </td>
                   </tr>

@@ -395,7 +395,8 @@ a, a:hover, a:focus, a:active, a:visited {
   vertical-align: middle;
 }
 .verify-table.is-scrollable {
-  min-width: 1220px;
+  min-width: 1260px;
+  table-layout: fixed;
 }
 .verify-table tbody tr {
   transition: background-color 0.16s ease;
@@ -481,18 +482,25 @@ a, a:hover, a:focus, a:active, a:visited {
   background: #eff6ff;
   color: #1d4ed8;
 }
-.verify-table.is-scrollable th:nth-child(2),
-.verify-table.is-scrollable td:nth-child(2) {
-  min-width: 240px;
-}
-.verify-table.is-scrollable td:nth-child(3) {
+.verify-cell-ellipsis {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
+  vertical-align: middle;
 }
-.verify-table.is-scrollable th:nth-child(6),
-.verify-table.is-scrollable td:nth-child(6),
-.verify-table.is-scrollable th:nth-child(7),
-.verify-table.is-scrollable td:nth-child(7) {
-  white-space: nowrap;
+.verify-col-name { width: 150px; }
+.verify-col-email { width: 240px; }
+.verify-col-phone { width: 120px; white-space: nowrap; }
+.verify-col-field { width: 210px; }
+.verify-col-status { width: 110px; text-align: center !important; white-space: nowrap; }
+.verify-col-date { width: 120px; white-space: nowrap; }
+.verify-col-action { width: 130px; text-align: center !important; white-space: nowrap; }
+.verify-table td.verify-col-status .badge-status,
+.verify-table td.verify-col-status span[style*="border-radius:999px"] {
+  display: inline-flex;
+  justify-content: center;
 }
 .verify-drawer-body {
   margin-top: 10px;
