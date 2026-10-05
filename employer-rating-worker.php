@@ -14,6 +14,30 @@ $isWorker = ($userRole === 'worker') || (isset($_GET['from']) && $_GET['from'] =
 require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/project-history.php';
+require_once __DIR__ . '/includes/project-schedule.php';
+
+/**
+ * Store worker -> employer ratings separately so they don't overwrite
+ * employer -> worker reputation data.
+ */
+function gig_ensure_employer_reviews_table(PDO $pdo): void
+{
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS `employer_reviews` (
+            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `contract_id` VARCHAR(50) NOT NULL,
+            `worker_id` VARCHAR(50) NOT NULL,
+            `employer_username` VARCHAR(100) NOT NULL,
+            `project_title` VARCHAR(255) NOT NULL,
+            `overall_rating` TINYINT UNSIGNED NOT NULL DEFAULT 5,
+            `comment` TEXT NOT NULL,
+            `badges` TEXT NOT NULL DEFAULT '',
+            `recommend_employer` TINYINT(1) NOT NULL DEFAULT 1,
+            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY `uniq_contract_worker` (`contract_id`, `worker_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+}
 
 // ── Active contracts ─────────────────────────────────────────────────────────
 $activeContracts = [
@@ -42,7 +66,7 @@ $activeContracts = [
 ];
 
 $contractId  = trim((string)($_GET['contract'] ?? 'CTR-GIG-2026-0811'));
-$projectData = $activeContracts[$contractId] ?? reset($activeContracts);
+$projectData = gig_demo_active_project_by_id($contractId) ?? ($activeContracts[$contractId] ?? reset($activeContracts));
 
 $workerId = trim((string)($_GET['worker'] ?? $projectData['workerId']));
 $worker   = gig_find_worker($workerId) ?? gig_find_worker($projectData['workerId']);
@@ -55,8 +79,14 @@ $errorMessage = '';
 if (isset($_GET['undo']) && $_GET['undo'] === '1') {
     $undoContract = trim((string)($_GET['contract'] ?? ''));
     if ($undoContract !== '' && $pdo !== null) {
-        $stmt = $pdo->prepare("DELETE FROM `project_reviews` WHERE `contract_id` = :cid");
-        $stmt->execute([':cid' => $undoContract]);
+        if ($isWorker) {
+            gig_ensure_employer_reviews_table($pdo);
+            $stmt = $pdo->prepare("DELETE FROM `employer_reviews` WHERE `contract_id` = :cid AND `worker_id` = :wid");
+            $stmt->execute([':cid' => $undoContract, ':wid' => (string)($worker['id'] ?? $username)]);
+        } else {
+            $stmt = $pdo->prepare("DELETE FROM `project_reviews` WHERE `contract_id` = :cid");
+            $stmt->execute([':cid' => $undoContract]);
+        }
         $stmt = $pdo->prepare("DELETE FROM `project_completions` WHERE `contract_id` = :cid");
         $stmt->execute([':cid' => $undoContract]);
     }
@@ -67,6 +97,9 @@ if (isset($_GET['undo']) && $_GET['undo'] === '1') {
             $revs = array_values(array_filter($revs, fn($r) => ($r['contractId'] ?? '') !== $undoContract));
         }
         unset($revs);
+    }
+    if (isset($_SESSION['worker_employer_reviews'][$undoContract])) {
+        unset($_SESSION['worker_employer_reviews'][$undoContract]);
     }
     header('Location: ' . ($isWorker ? 'worker-tugas.php' : 'employer-proyek-aktif.php'));
     exit;
@@ -81,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
 
     $comment        = trim((string)($_POST['comment'] ?? ''));
     $selectedBadges = is_array($_POST['badges'] ?? null) ? $_POST['badges'] : [];
-    $recommend      = !empty($_POST['recommend_worker']);
+    $recommend      = !empty($_POST['recommend_worker']) || !empty($_POST['recommend_employer']);
     $confirmDone    = !empty($_POST['confirm_deliverables']);
 
     if (!$confirmDone) {
@@ -93,38 +126,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
         $todayDate    = date('Y-m-d');
 
         if ($pdo !== null) {
-            // Insert or update in project_reviews (UNIQUE on contract_id)
-            $stmt = $pdo->prepare("
-                INSERT INTO `project_reviews`
-                    (`contract_id`, `worker_id`, `employer_username`, `project_title`,
-                     `overall_rating`, `rating_quality`, `rating_communication`, `rating_timeliness`,
-                     `comment`, `badges`, `recommend_worker`)
-                VALUES
-                    (:cid, :wid, :emp, :title,
-                     :overall, :quality, :comm, :time,
-                     :comment, :badges, :rec)
-                ON DUPLICATE KEY UPDATE
-                    `overall_rating`       = VALUES(`overall_rating`),
-                    `rating_quality`       = VALUES(`rating_quality`),
-                    `rating_communication` = VALUES(`rating_communication`),
-                    `rating_timeliness`    = VALUES(`rating_timeliness`),
-                    `comment`              = VALUES(`comment`),
-                    `badges`               = VALUES(`badges`),
-                    `recommend_worker`     = VALUES(`recommend_worker`)
-            ");
-            $stmt->execute([
-                ':cid'     => $projectData['id'],
-                ':wid'     => $worker['id'],
-                ':emp'     => $username,
-                ':title'   => $projectData['title'],
-                ':overall' => $overallRating,
-                ':quality' => $ratingQuality,
-                ':comm'    => $ratingCommunication,
-                ':time'    => $ratingTimeliness,
-                ':comment' => $comment,
-                ':badges'  => $badgesJson,
-                ':rec'     => $recommend ? 1 : 0,
-            ]);
+            if ($isWorker) {
+                gig_ensure_employer_reviews_table($pdo);
+                $stmt = $pdo->prepare("
+                    INSERT INTO `employer_reviews`
+                        (`contract_id`, `worker_id`, `employer_username`, `project_title`,
+                         `overall_rating`, `comment`, `badges`, `recommend_employer`)
+                    VALUES
+                        (:cid, :wid, :emp, :title,
+                         :overall, :comment, :badges, :rec)
+                    ON DUPLICATE KEY UPDATE
+                        `overall_rating`      = VALUES(`overall_rating`),
+                        `comment`             = VALUES(`comment`),
+                        `badges`              = VALUES(`badges`),
+                        `recommend_employer`  = VALUES(`recommend_employer`)
+                ");
+                $stmt->execute([
+                    ':cid'     => (string)($projectData['contract_id'] ?? $projectData['id']),
+                    ':wid'     => (string)($worker['id'] ?? $username),
+                    ':emp'     => (string)($projectData['employer'] ?? 'PT Perusahaan'),
+                    ':title'   => (string)($projectData['title'] ?? 'Proyek'),
+                    ':overall' => $overallRating,
+                    ':comment' => $comment,
+                    ':badges'  => $badgesJson,
+                    ':rec'     => $recommend ? 1 : 0,
+                ]);
+            } else {
+                // Insert or update in project_reviews (UNIQUE on contract_id)
+                $stmt = $pdo->prepare("
+                    INSERT INTO `project_reviews`
+                        (`contract_id`, `worker_id`, `employer_username`, `project_title`,
+                         `overall_rating`, `rating_quality`, `rating_communication`, `rating_timeliness`,
+                         `comment`, `badges`, `recommend_worker`)
+                    VALUES
+                        (:cid, :wid, :emp, :title,
+                         :overall, :quality, :comm, :time,
+                         :comment, :badges, :rec)
+                    ON DUPLICATE KEY UPDATE
+                        `overall_rating`       = VALUES(`overall_rating`),
+                        `rating_quality`       = VALUES(`rating_quality`),
+                        `rating_communication` = VALUES(`rating_communication`),
+                        `rating_timeliness`    = VALUES(`rating_timeliness`),
+                        `comment`              = VALUES(`comment`),
+                        `badges`               = VALUES(`badges`),
+                        `recommend_worker`     = VALUES(`recommend_worker`)
+                ");
+                $stmt->execute([
+                    ':cid'     => (string)($projectData['contract_id'] ?? $projectData['id']),
+                    ':wid'     => (string)$worker['id'],
+                    ':emp'     => $username,
+                    ':title'   => (string)$projectData['title'],
+                    ':overall' => $overallRating,
+                    ':quality' => $ratingQuality,
+                    ':comm'    => $ratingCommunication,
+                    ':time'    => $ratingTimeliness,
+                    ':comment' => $comment,
+                    ':badges'  => $badgesJson,
+                    ':rec'     => $recommend ? 1 : 0,
+                ]);
+            }
 
             // Insert or update project_completions
             $stmt2 = $pdo->prepare("
@@ -138,21 +198,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
                     `completed_date`= VALUES(`completed_date`)
             ");
             $stmt2->execute([
-                ':cid'    => $projectData['id'],
-                ':wid'    => $worker['id'],
-                ':emp'    => $username,
+                ':cid'    => (string)($projectData['contract_id'] ?? $projectData['id']),
+                ':wid'    => (string)($worker['id'] ?? $username),
+                ':emp'    => (string)($projectData['employer'] ?? $username),
                 ':rating' => $overallRating,
                 ':review' => $comment,
                 ':date'   => $todayDate,
             ]);
 
             gig_upsert_project_history([
-                'contract_id' => $projectData['id'],
-                'worker_id' => $worker['id'],
+                'contract_id' => (string)($projectData['contract_id'] ?? $projectData['id']),
+                'worker_id' => (string)($worker['id'] ?? $username),
                 'worker_name' => $worker['name'] ?? '',
                 'worker_role' => $worker['title'] ?? '',
                 'worker_avatar' => $worker['photo'] ?? '',
-                'employer_username' => $isWorker ? 'PT ABC' : $username,
+                'employer_username' => (string)($projectData['employer'] ?? ($isWorker ? 'PT ABC' : $username)),
                 'project_title' => $projectData['title'],
                 'status' => 'completed',
                 'budget' => $projectData['budget'] ?? '',
@@ -165,13 +225,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
 
         // Also cache in session for immediate page rendering
         if (!isset($_SESSION['completed_projects'])) $_SESSION['completed_projects'] = [];
-        $_SESSION['completed_projects'][$projectData['id']] = [
+        $_SESSION['completed_projects'][(string)($projectData['contract_id'] ?? $projectData['id'])] = [
             'status'        => 'Selesai',
             'statusCode'    => 'completed',
             'ratingGiven'   => $overallRating,
             'reviewGiven'   => $comment,
             'completedDate' => date('d M Y'),
         ];
+        if ($isWorker) {
+            if (!isset($_SESSION['worker_employer_reviews'])) {
+                $_SESSION['worker_employer_reviews'] = [];
+            }
+            $_SESSION['worker_employer_reviews'][(string)($projectData['contract_id'] ?? $projectData['id'])] = [
+                'overall_rating' => $overallRating,
+                'comment' => $comment,
+            ];
+        }
 
         $submitted = true;
     }
@@ -181,13 +250,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
 $alreadyRated = false;
 $existingRating = null;
 if ($pdo !== null) {
-    $stmt = $pdo->prepare("SELECT * FROM `project_reviews` WHERE `contract_id` = :cid LIMIT 1");
-    $stmt->execute([':cid' => $projectData['id']]);
-    $existingRating = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    if ($isWorker) {
+        gig_ensure_employer_reviews_table($pdo);
+        $stmt = $pdo->prepare("SELECT * FROM `employer_reviews` WHERE `contract_id` = :cid AND `worker_id` = :wid LIMIT 1");
+        $stmt->execute([
+            ':cid' => (string)($projectData['contract_id'] ?? $projectData['id']),
+            ':wid' => (string)($worker['id'] ?? $username),
+        ]);
+        $existingRating = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    } else {
+        $stmt = $pdo->prepare("SELECT * FROM `project_reviews` WHERE `contract_id` = :cid LIMIT 1");
+        $stmt->execute([':cid' => (string)($projectData['contract_id'] ?? $projectData['id'])]);
+        $existingRating = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
     $alreadyRated   = ($existingRating !== null);
-} elseif (isset($_SESSION['completed_projects'][$projectData['id']])) {
+} elseif (
+    isset($_SESSION['completed_projects'][(string)($projectData['contract_id'] ?? $projectData['id'])])
+    || ($isWorker && isset($_SESSION['worker_employer_reviews'][(string)($projectData['contract_id'] ?? $projectData['id'])]))
+) {
     $alreadyRated = true;
 }
+
+$targetName = $isWorker
+    ? (string)($projectData['employer'] ?? 'Pemberi Kerja')
+    : (string)($worker['name'] ?? 'Gig Worker');
+$targetRole = $isWorker
+    ? (string)($projectData['employer_category'] ?? 'Pemberi Kerja')
+    : (string)($worker['title'] ?? 'Gig Worker');
+$targetTitle = $isWorker ? 'Pemberi Kerja yang Dinilai' : 'Pekerja Gig yang Dinilai';
+$targetLink = $isWorker
+    ? 'employer-profile.php?employer=' . urlencode($targetName)
+    : 'worker-profile.php?id=' . urlencode((string)($worker['id'] ?? '')) . '&active=1';
+$targetLinkText = $isWorker ? 'Lihat Profil Perusahaan ↗' : 'Lihat Profil Lengkap & Portofolio ↗';
+$undoLink = 'employer-rating-worker.php?contract=' . urlencode((string)($projectData['contract_id'] ?? $projectData['id']))
+    . '&worker=' . urlencode((string)($worker['id'] ?? ''))
+    . ($isWorker ? '&from=worker' : '')
+    . '&undo=1';
 
 $pageTitle          = 'Beri Ulasan & Selesaikan Proyek';
 $pageKey            = $isWorker ? 'tugas' : 'aktif';
@@ -204,19 +302,16 @@ if ($isWorker) {
   <div>
     <h1>Selesaikan Proyek &amp; Berikan Penilaian</h1>
     <p style="font-size:0.86rem;color:var(--text-muted);margin-top:4px;">
-      Konfirmasi penyelesaian pekerjaan untuk kontrak <strong><?php echo htmlspecialchars($projectData['id'], ENT_QUOTES, 'UTF-8'); ?></strong> dan berikan ulasan objektif bagi mitra kerja.
+      Konfirmasi penyelesaian pekerjaan untuk kontrak <strong><?php echo htmlspecialchars((string)($projectData['contract_id'] ?? $projectData['id']), ENT_QUOTES, 'UTF-8'); ?></strong> dan berikan ulasan objektif bagi mitra kerja.
     </p>
   </div>
   <div style="display:flex;gap:10px;align-items:center;">
     <a class="btn-action-sm" href="<?php echo $isWorker ? 'worker-tugas.php' : 'employer-proyek-aktif.php'; ?>" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12" 19 5 12 12 5"/></svg>
       Kembali ke Proyek Aktif
-    </a>btn-action-sm" href="employer-proyek-aktif.php" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-      Kembali ke Proyek Aktif
     </a>
     <?php if ($alreadyRated && !$submitted): ?>
-      <a class="btn-action-sm" href="employer-rating-worker.php?contract=<?php echo urlencode($projectData['id']); ?>&worker=<?php echo urlencode($worker['id']); ?>&undo=1"
+      <a class="btn-action-sm" href="<?php echo htmlspecialchars($undoLink, ENT_QUOTES, 'UTF-8'); ?>"
          style="background:#fef2f2;border-color:#fecdd3;color:#b91c1c;text-decoration:none;"
          onclick="return confirm('Batalkan rating untuk proyek ini? Data penilaian akan dihapus permanen.')">
         🗑 Batalkan Rating
@@ -230,17 +325,17 @@ if ($isWorker) {
 // Determine which rating to display
 $displayRating  = $submitted
     ? (int)($_POST['overall_rating'] ?? 5)
-    : ($existingRating ? (int)$existingRating['overall_rating'] : ($alreadyRated ? (int)($_SESSION['completed_projects'][$projectData['id']]['ratingGiven'] ?? 5) : 5));
+    : ($existingRating ? (int)$existingRating['overall_rating'] : ($alreadyRated ? (int)($_SESSION['completed_projects'][(string)($projectData['contract_id'] ?? $projectData['id'])]['ratingGiven'] ?? 5) : 5));
 $displayComment = $submitted
     ? (string)($_POST['comment'] ?? '')
-    : ($existingRating ? $existingRating['comment'] : ($alreadyRated ? ($_SESSION['completed_projects'][$projectData['id']]['reviewGiven'] ?? '') : ''));
+    : ($existingRating ? $existingRating['comment'] : ($alreadyRated ? ($_SESSION['completed_projects'][(string)($projectData['contract_id'] ?? $projectData['id'])]['reviewGiven'] ?? '') : ''));
 ?>
   <!-- SUCCESS / ALREADY RATED STATE -->
   <div class="white-card" style="text-align:center;padding:48px 24px;border:2px solid #10b981;background:linear-gradient(to bottom,#ffffff,#f0fdf4);max-width:760px;margin:0 auto;">
     <div style="width:72px;height:72px;background:#10b981;color:#ffffff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 18px;box-shadow:0 8px 20px rgba(16,185,129,0.3);">✓</div>
     <h2 style="font-size:1.5rem;font-weight:800;color:#065f46;margin-bottom:8px;">Penilaian Berhasil Disimpan!</h2>
     <p style="font-size:0.95rem;color:#047857;max-width:540px;margin:0 auto 24px;line-height:1.5;">
-      Rating untuk <strong><?php echo htmlspecialchars($worker['name'], ENT_QUOTES, 'UTF-8'); ?></strong> telah disimpan ke database dan ditampilkan pada profil publik Gig Worker.
+      Rating untuk <strong><?php echo htmlspecialchars($targetName, ENT_QUOTES, 'UTF-8'); ?></strong> telah disimpan.
     </p>
 
     <div style="background:#ffffff;border:1px solid #bbf7d0;border-radius:12px;padding:16px 20px;max-width:500px;margin:0 auto 28px;text-align:left;">
@@ -252,13 +347,13 @@ $displayComment = $submitted
     </div>
 
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-      <a href="worker-profile.php?id=<?php echo urlencode($worker['id']); ?>&active=1" class="btn-create-post" style="background:#2563eb;text-decoration:none;padding:10px 24px;font-size:0.9rem;">
-        Lihat Profil <?php echo htmlspecialchars($worker['name'], ENT_QUOTES, 'UTF-8'); ?> →
+      <a href="<?php echo htmlspecialchars($targetLink, ENT_QUOTES, 'UTF-8'); ?>" class="btn-create-post" style="background:#2563eb;text-decoration:none;padding:10px 24px;font-size:0.9rem;">
+        Lihat Profil <?php echo htmlspecialchars($targetName, ENT_QUOTES, 'UTF-8'); ?> →
       </a>
       <a href="<?php echo $isWorker ? 'worker-riwayat.php' : 'employer-riwayat-proyek.php'; ?>" class="btn-create-post" style="background:#059669;border-color:#047857;text-decoration:none;padding:10px 24px;font-size:0.9rem;">
         Riwayat Proyek →
       </a>
-      <a href="employer-rating-worker.php?contract=<?php echo urlencode($projectData['id']); ?>&worker=<?php echo urlencode($worker['id']); ?>&undo=1"
+      <a href="<?php echo htmlspecialchars($undoLink, ENT_QUOTES, 'UTF-8'); ?>"
          class="filter-btn-pill" style="text-decoration:none;padding:10px 20px;font-size:0.9rem;border-color:#fecdd3;color:#b91c1c;background:#fff1f2;"
          onclick="return confirm('Batalkan rating ini? Data penilaian akan dihapus permanen.')">
         🗑 Batalkan Rating
@@ -345,10 +440,17 @@ $displayComment = $submitted
           <input type="checkbox" required id="confirm_deliverables" name="confirm_deliverables" value="1" style="accent-color:#2563eb;margin-top:2px;" />
           <span><strong>Konfirmasi Deliverable Selesai:</strong> Saya menyatakan seluruh deliverable telah diserahkan, diuji, dan diterima dengan baik.</span>
         </label>
-        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--text-dark);line-height:1.4;">
-          <input type="checkbox" name="recommend_worker" value="1" checked style="accent-color:#2563eb;margin-top:2px;" />
-          <span><strong>Rekomendasi Publik:</strong> Tampilkan lencana rekomendasi pada profil publik Gig Worker untuk perusahaan lain di KarirHub.</span>
-        </label>
+        <?php if (!$isWorker): ?>
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--text-dark);line-height:1.4;">
+            <input type="checkbox" name="recommend_worker" value="1" checked style="accent-color:#2563eb;margin-top:2px;" />
+            <span><strong>Rekomendasi Publik:</strong> Tampilkan lencana rekomendasi pada profil publik Gig Worker untuk perusahaan lain di KarirHub.</span>
+          </label>
+        <?php else: ?>
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--text-dark);line-height:1.4;">
+            <input type="checkbox" name="recommend_employer" value="1" checked style="accent-color:#2563eb;margin-top:2px;" />
+            <span><strong>Rekomendasi Publik:</strong> Tandai pemberi kerja ini sebagai mitra proyek yang direkomendasikan.</span>
+          </label>
+        <?php endif; ?>
       </div>
 
       <div style="display:flex;gap:12px;justify-content:flex-end;align-items:center;">
@@ -363,19 +465,21 @@ $displayComment = $submitted
     <!-- SIDEBAR -->
     <aside style="display:flex;flex-direction:column;gap:18px;">
       <div class="white-card" style="padding:20px;">
-        <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;">Pekerja Gig yang Dinilai</div>
+        <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;"><?php echo htmlspecialchars($targetTitle, ENT_QUOTES, 'UTF-8'); ?></div>
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-          <div style="width:50px;height:50px;border-radius:50%;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem;flex-shrink:0;"><?php echo htmlspecialchars(strtoupper(substr((string)$worker['name'], 0, 1)), ENT_QUOTES, 'UTF-8'); ?></div>
+          <div style="width:50px;height:50px;border-radius:50%;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem;flex-shrink:0;"><?php echo htmlspecialchars(strtoupper(substr($targetName, 0, 1)), ENT_QUOTES, 'UTF-8'); ?></div>
           <div>
-            <h3 style="font-size:1.05rem;font-weight:800;margin:0;color:var(--text-main);"><?php echo htmlspecialchars($worker['name'],ENT_QUOTES,'UTF-8'); ?></h3>
-            <span style="font-size:0.78rem;color:var(--text-muted);"><?php echo htmlspecialchars($worker['title'],ENT_QUOTES,'UTF-8'); ?></span>
+            <h3 style="font-size:1.05rem;font-weight:800;margin:0;color:var(--text-main);"><?php echo htmlspecialchars($targetName,ENT_QUOTES,'UTF-8'); ?></h3>
+            <span style="font-size:0.78rem;color:var(--text-muted);"><?php echo htmlspecialchars($targetRole,ENT_QUOTES,'UTF-8'); ?></span>
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f8fafc;border-radius:8px;font-size:0.8rem;margin-bottom:14px;">
-          <span style="color:#f59e0b;font-weight:800;">★ <?php echo number_format((float)$worker['rating'],1); ?></span>
-          <span style="color:var(--text-muted);">· <?php echo (int)$worker['reviews_count']; ?> ulasan sebelumnya</span>
-        </div>
-        <a href="worker-profile.php?id=<?php echo urlencode($worker['id']); ?>&active=1" target="_blank" style="font-size:0.8rem;color:var(--primary-blue);text-decoration:none;font-weight:700;">Lihat Profil Lengkap &amp; Portofolio ↗</a>
+        <?php if (!$isWorker): ?>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f8fafc;border-radius:8px;font-size:0.8rem;margin-bottom:14px;">
+            <span style="color:#f59e0b;font-weight:800;">★ <?php echo number_format((float)$worker['rating'],1); ?></span>
+            <span style="color:var(--text-muted);">· <?php echo (int)$worker['reviews_count']; ?> ulasan sebelumnya</span>
+          </div>
+        <?php endif; ?>
+        <a href="<?php echo htmlspecialchars($targetLink, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" style="font-size:0.8rem;color:var(--primary-blue);text-decoration:none;font-weight:700;"><?php echo htmlspecialchars($targetLinkText, ENT_QUOTES, 'UTF-8'); ?></a>
       </div>
 
       <div class="white-card" style="padding:20px;">
