@@ -732,22 +732,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
                   <td class="project-col-blacklist"><span class="project-safe-chip">Aman</span></td>
                   <td class="project-col-date"><?php echo htmlspecialchars(date('d M Y, H:i', $submittedTs), ENT_QUOTES, 'UTF-8'); ?></td>
                   <td class="project-col-action verify-sticky-action">
-                    <details class="verify-detail-drawer">
-                      <summary>Lihat Detail</summary>
-                      <div class="verify-drawer-body">
-                        <p><strong>ID:</strong> <?php echo htmlspecialchars((string)$job['id'], ENT_QUOTES, 'UTF-8'); ?></p>
-                        <p><strong>Kategori:</strong> <?php echo htmlspecialchars((string)($job['category'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></p>
-                        <p><strong>Lokasi:</strong> <?php echo htmlspecialchars((string)($job['location'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></p>
-                        <p><strong>Budget:</strong> <?php echo htmlspecialchars((string)($job['budget'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></p>
-                        <p><strong>Durasi:</strong> <?php echo htmlspecialchars((string)($job['duration'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></p>
-                        <?php if (!empty($job['adminNote'])): ?>
-                          <p><strong>Catatan Admin:</strong> <?php echo htmlspecialchars((string)$job['adminNote'], ENT_QUOTES, 'UTF-8'); ?></p>
-                        <?php endif; ?>
-                        <div style="margin-top:10px;">
-                          <button type="button" class="verify-open-link" style="background:#0ea5e9;color:#fff;border:none;cursor:pointer;" onclick="openAdminDecisionModal({entityType:'vacancy', entityName:'lowongan ini', vacancyId:<?php echo json_encode((string)$job['id']); ?>, action:'vacancy_decision', tab:'projects'})">Ambil Keputusan</button>
-                        </div>
-                      </div>
-                    </details>
+                    <a class="verify-open-link" href="admin-project-detail.php?id=<?php echo urlencode((string)$job['id']); ?>">Lihat Detail</a>
                   </td>
                 </tr>
               <?php endforeach; ?>

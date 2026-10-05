@@ -43,7 +43,11 @@ if ($showSalary) {
 
 $locType = (string)($payload['location_type'] ?? 'remote');
 $locDetail = trim((string)($payload['location_detail'] ?? ''));
-$location = $locType === 'remote' ? 'Remote' : ($locDetail !== '' ? $locDetail : 'Hybrid');
+$locCity = trim((string)($payload['location_city'] ?? ''));
+$locProvince = trim((string)($payload['location_province'] ?? ''));
+$location = $locType === 'remote'
+    ? ($locDetail !== '' ? 'Remote (' . $locDetail . ')' : 'Remote')
+    : ($locDetail !== '' ? $locDetail : 'Hybrid');
 
 $vacancy = [
     'title' => $title,
@@ -60,6 +64,8 @@ $vacancy = [
     'quota' => 1,
     'deadline' => (string)($payload['deadline'] ?? ''),
     'location' => $location,
+    'location_city' => $locCity,
+    'location_province' => $locProvince,
     'budget' => $budget,
     'skills' => array_filter(array_map('trim', explode(',', (string)($payload['skills'] ?? '')))),
 ];

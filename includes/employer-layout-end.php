@@ -159,7 +159,7 @@ declare(strict_types=1);
                   <span class="gig-section-icon">1</span>
                   <div>
                     <div class="gig-section-title">Informasi Proyek</div>
-                    <div class="gig-section-sub">Judul, deskripsi, bidang, dan konteks proyek.</div>
+                    <div class="gig-section-sub">Judul, deskripsi, durasi, deliverable, dan lokasi proyek.</div>
                   </div>
                 </div>
 
@@ -195,42 +195,7 @@ declare(strict_types=1);
 
                 <div class="gig-grid-2">
                   <div class="form-row">
-                    <label for="proj_work_type">Jenis Pekerjaan *</label>
-                    <select id="proj_work_type" required>
-                      <option value="">-- Pilih jenis pekerjaan --</option>
-                      <option value="Project-based" selected>Project-based</option>
-                      <option value="Part-time">Part-time</option>
-                      <option value="Freelance Kontrak">Freelance Kontrak</option>
-                    </select>
-                  </div>
-                  <div class="form-row">
-                    <label for="proj_industry">Industri / Sektor *</label>
-                    <input type="text" id="proj_industry" required placeholder="Contoh: Teknologi Finansial / Retail / Edukasi" />
-                  </div>
-                </div>
-              </section>
-
-              <section class="gig-section-card">
-                <div class="gig-section-head">
-                  <span class="gig-section-icon">2</span>
-                  <div>
-                    <div class="gig-section-title">Kriteria Gig Worker</div>
-                    <div class="gig-section-sub">Atur skill, pengalaman, dan ekspektasi hasil kerja.</div>
-                  </div>
-                </div>
-
-                <div class="gig-grid-2">
-                  <div class="form-row">
-                    <label for="proj_exp_level">Tingkat Pengalaman *</label>
-                    <select id="proj_exp_level" required>
-                      <option value="">-- Pilih tingkat pengalaman --</option>
-                      <option value="Junior (0-2 Tahun)">Junior (0-2 Tahun)</option>
-                      <option value="Menengah (2-4 Tahun)" selected>Menengah (2-4 Tahun)</option>
-                      <option value="Senior (4+ Tahun)">Senior (4+ Tahun)</option>
-                    </select>
-                  </div>
-                  <div class="form-row">
-                    <label for="proj_duration">Estimasi Durasi Proyek *</label>
+                    <label for="proj_duration">Durasi Proyek *</label>
                     <select id="proj_duration" required>
                       <option value="1 Minggu">1 Minggu</option>
                       <option value="2 Minggu" selected>2 Minggu</option>
@@ -243,13 +208,34 @@ declare(strict_types=1);
                 </div>
 
                 <div class="form-row">
-                  <label for="proj_skills">Skill Wajib *</label>
-                  <input type="text" id="proj_skills" required placeholder="Contoh: Figma, UI Audit, Design System (pisahkan dengan koma)" />
+                  <label for="proj_target">Target / Deliverable Proyek *</label>
+                  <textarea id="proj_target" rows="3" required placeholder="Contoh: 12 layar high-fidelity + prototype interaktif + style guide komponen"></textarea>
+                </div>
+
+                <div class="gig-grid-2">
+                  <div class="form-row">
+                    <label for="proj_province">Lokasi (Provinsi) *</label>
+                    <input type="text" id="proj_province" required placeholder="Contoh: DKI Jakarta" />
+                  </div>
+                  <div class="form-row">
+                    <label for="proj_city">Lokasi (Kota/Kabupaten) *</label>
+                    <input type="text" id="proj_city" required placeholder="Contoh: Jakarta Selatan" />
+                  </div>
+                </div>
+              </section>
+
+              <section class="gig-section-card">
+                <div class="gig-section-head">
+                  <span class="gig-section-icon">2</span>
+                  <div>
+                    <div class="gig-section-title">Kriteria Gig Worker</div>
+                    <div class="gig-section-sub">Atur skill wajib dan kualifikasi kandidat.</div>
+                  </div>
                 </div>
 
                 <div class="form-row">
-                  <label for="proj_target">Target / Deliverable Proyek *</label>
-                  <textarea id="proj_target" rows="3" required placeholder="Contoh: 12 layar high-fidelity + prototype interaktif + style guide komponen"></textarea>
+                  <label for="proj_skills">Skill Wajib *</label>
+                  <input type="text" id="proj_skills" required placeholder="Contoh: Figma, UI Audit, Design System (pisahkan dengan koma)" />
                 </div>
 
                 <div class="form-row">
@@ -263,20 +249,17 @@ declare(strict_types=1);
                   <span class="gig-section-icon">3</span>
                   <div>
                     <div class="gig-section-title">Tambahan &amp; Publikasi</div>
-                    <div class="gig-section-sub">Lokasi kerja, rentang gaji, dan periode tayang lowongan.</div>
+                    <div class="gig-section-sub">Opsi remote, rentang gaji, dan periode tayang lowongan.</div>
                   </div>
                 </div>
 
                 <div class="form-row">
-                  <label>Lokasi Pekerjaan *</label>
+                  <label>Opsi Pengerjaan Remote</label>
                   <div class="gig-inline-radio">
-                    <label><input type="radio" name="proj_lokasi_type" value="remote" checked onchange="toggleLokasiInput(this)"> Remote</label>
-                    <label><input type="radio" name="proj_lokasi_type" value="hybrid" onchange="toggleLokasiInput(this)"> Hybrid</label>
-                    <label><input type="radio" name="proj_lokasi_type" value="luring" onchange="toggleLokasiInput(this)"> Luring / On-site</label>
+                    <label><input type="radio" name="proj_lokasi_type" value="luring" checked> Tidak Remote (On-site/Hybrid)</label>
+                    <label><input type="radio" name="proj_lokasi_type" value="remote"> Ya, project remote</label>
                   </div>
-                  <div id="lokasi-detail-wrap" style="display:none;margin-top:8px;">
-                    <input type="text" id="proj_lokasi_detail" placeholder="Contoh: Jakarta Selatan, Jl. Sudirman No. 12" />
-                  </div>
+                  <div class="gig-note">Lokasi provinsi dan kota tetap wajib diisi pada bagian Informasi Proyek.</div>
                 </div>
 
                 <div class="gig-grid-2">
@@ -349,6 +332,12 @@ declare(strict_types=1);
     e.preventDefault();
     const title = document.getElementById('proj_title').value;
     const locRadio = document.querySelector('input[name="proj_lokasi_type"]:checked');
+    const province = (document.getElementById('proj_province').value || '').trim();
+    const city = (document.getElementById('proj_city').value || '').trim();
+    if (!province || !city) {
+      showToast('Lokasi proyek wajib diisi: provinsi dan kota/kabupaten.');
+      return;
+    }
     const salaryMinRaw = document.getElementById('proj_salary_min').value || '';
     const salaryMaxRaw = document.getElementById('proj_salary_max').value || '';
     const salaryMin = Number((salaryMinRaw + '').replace(/[^\d]/g, ''));
@@ -366,9 +355,6 @@ declare(strict_types=1);
       desc: document.getElementById('proj_desc').value,
       target: document.getElementById('proj_target').value,
       qualifications: document.getElementById('proj_kualifikasi').value,
-      work_type: document.getElementById('proj_work_type').value,
-      industry: document.getElementById('proj_industry').value,
-      experience_level: document.getElementById('proj_exp_level').value,
       visibility: document.getElementById('proj_visibility').value,
       skills: document.getElementById('proj_skills').value,
       budget_min: salaryMin,
@@ -376,8 +362,10 @@ declare(strict_types=1);
       deadline: document.getElementById('proj_deadline').value,
       budget: salaryMin + ' - ' + salaryMax,
       show_salary: document.getElementById('proj_show_salary').checked,
-      location_type: locRadio ? locRadio.value : 'remote',
-      location_detail: document.getElementById('proj_lokasi_detail').value
+      location_type: locRadio ? locRadio.value : 'luring',
+      location_detail: city + ', ' + province,
+      location_city: city,
+      location_province: province
     };
     fetch('vacancy-submit.php', {
       method: 'POST',
@@ -386,7 +374,6 @@ declare(strict_types=1);
     }).then(function (r) { return r.json(); }).then(function (data) {
       closePostProjectModal();
       document.getElementById('newProjectForm').reset();
-      document.getElementById('lokasi-detail-wrap').style.display = 'none';
       if (data && data.ok) {
         showToast('Lowongan "' + title + '" berhasil diajukan. Menunggu verifikasi Admin KarirHub.');
         setTimeout(function () { window.location.href = 'employer-lowongan.php'; }, 700);
@@ -396,13 +383,6 @@ declare(strict_types=1);
     }).catch(function () {
       showToast('Gagal mengajukan lowongan. Periksa koneksi server.');
     });
-  }
-  function toggleLokasiInput(radio) {
-    const wrap = document.getElementById('lokasi-detail-wrap');
-    if (!wrap) return;
-    wrap.style.display = (radio.value === 'hybrid' || radio.value === 'luring') ? 'block' : 'none';
-    const input = document.getElementById('proj_lokasi_detail');
-    if (input) input.required = (radio.value !== 'remote');
   }
   function copyContact(name, phone, email) {
     const textToCopy = 'Nama: ' + name + '\nWhatsApp: ' + phone + '\nEmail: ' + email;
