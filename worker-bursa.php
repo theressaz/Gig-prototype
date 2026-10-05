@@ -530,7 +530,7 @@ a.proyek-card-item:hover {
 
   <section class="page-title-block">
     <div>
-      <h1 class="page-title">Lowongan Dalam Negeri</h1>
+      <h1 class="page-title">Cari Proyek</h1>
       <p class="page-title-sub">Temukan lowongan proyek yang sesuai dengan keahlian Anda.</p>
     </div>
   </section>
