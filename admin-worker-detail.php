@@ -131,7 +131,7 @@ if ($selectedEdit === null && $relatedEdits !== []) {
 
 $editStatusBadge = static function (string $st): string {
     $map = [
-        'pending' => ['Menunggu Revisi', '#fef3c7', '#92400e'],
+        'pending' => ['Menunggu Review', '#dbeafe', '#1d4ed8'],
         'approved' => ['Disetujui', '#d1fae5', '#065f46'],
         'rejected' => ['Ditolak', '#fee2e2', '#991b1b'],
     ];
@@ -175,6 +175,53 @@ if ($status === 'approved') {
 .portfolio-files { margin-top:8px; display:grid; gap:6px; }
 .portfolio-file-link { display:inline-flex; align-items:center; gap:6px; font-size:0.78rem; font-weight:700; color:#1d4ed8; text-decoration:none; }
 .portfolio-file-link:hover { text-decoration:underline; }
+  .edit-request-panel {
+    border: 1px solid #dbeafe;
+    background: #f8fbff;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 6px;
+  }
+  .edit-request-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .edit-request-title {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #0f172a;
+  }
+  .edit-request-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 14px;
+  }
+  .edit-field {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 8px 10px;
+  }
+  .edit-field-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 4px;
+  }
+  .edit-field-value {
+    font-size: 0.82rem;
+    color: #1e293b;
+    line-height: 1.45;
+    font-weight: 600;
+  }
+  .edit-field.full { grid-column: 1 / -1; }
   .profile-row { display:grid;grid-template-columns:140px 1fr;gap:8px;font-size:0.82rem;padding:6px 0;border-bottom:1px dashed #e2e8f0; }
   .profile-row:last-child { border-bottom:none; }
   .profile-row .k { color:#64748b; font-weight:600; }
@@ -186,7 +233,7 @@ if ($status === 'approved') {
   .flash { padding:11px 13px;border-radius:10px;margin-bottom:14px;font-size:0.84rem;font-weight:700; }
   .flash.success { background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0; }
   .flash.error { background:#fef2f2;color:#991b1b;border:1px solid #fecaca; }
-  @media (max-width: 980px) { .detail-grid { grid-template-columns:1fr; } .detail-name { font-size:1.45rem; } }
+  @media (max-width: 980px) { .detail-grid { grid-template-columns:1fr; } .detail-name { font-size:1.45rem; } .edit-request-grid { grid-template-columns:1fr; } }
 </style>
 
 <div style="margin-bottom:10px;">
@@ -227,19 +274,36 @@ if ($status === 'approved') {
         <?php if ($selectedEdit !== null): ?>
           <?php $editPayload = is_array($selectedEdit['proposed_payload'] ?? null) ? $selectedEdit['proposed_payload'] : []; ?>
           <h3>Permintaan Edit Profil</h3>
-          <div class="detail-item" style="border-color:#fed7aa;background:#fff7ed;">
-            <div class="detail-item-title">
-              Status: <?php echo $editStatusBadge((string)($selectedEdit['status'] ?? 'pending')); ?>
+          <div class="edit-request-panel">
+            <div class="edit-request-head">
+              <div class="edit-request-title">Ringkasan Pengajuan</div>
+              <div><?php echo $editStatusBadge((string)($selectedEdit['status'] ?? 'pending')); ?></div>
             </div>
-            <div class="detail-item-sub"><strong>Bidang diubah:</strong> <?php echo htmlspecialchars((string)($selectedEdit['edited_field'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
-            <div class="detail-item-sub"><strong>Alasan:</strong> <?php echo htmlspecialchars((string)($selectedEdit['reason_code'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
-            <div class="detail-item-sub"><strong>Ringkasan perubahan:</strong> <?php echo htmlspecialchars((string)($selectedEdit['change_summary'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
-            <div class="detail-item-sub"><strong>Penjelasan:</strong> <?php echo htmlspecialchars((string)($selectedEdit['reason_detail'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
-            <div class="detail-item-sub">
-              <strong>Draft profil baru:</strong>
-              Nama <?php echo htmlspecialchars((string)($editPayload['name'] ?? $displayName), ENT_QUOTES, 'UTF-8'); ?> ·
-              Bidang <?php echo htmlspecialchars((string)($editPayload['title'] ?? ($worker['bidang_keahlian'] ?? '-')), ENT_QUOTES, 'UTF-8'); ?> ·
-              Lokasi <?php echo htmlspecialchars((string)($editPayload['location'] ?? $domicile), ENT_QUOTES, 'UTF-8'); ?>
+            <div class="edit-request-grid">
+              <div class="edit-field">
+                <div class="edit-field-label">Bidang Diubah</div>
+                <div class="edit-field-value"><?php echo htmlspecialchars((string)($selectedEdit['edited_field'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
+              </div>
+              <div class="edit-field">
+                <div class="edit-field-label">Alasan</div>
+                <div class="edit-field-value"><?php echo htmlspecialchars((string)($selectedEdit['reason_code'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
+              </div>
+              <div class="edit-field full">
+                <div class="edit-field-label">Ringkasan Perubahan</div>
+                <div class="edit-field-value"><?php echo htmlspecialchars((string)($selectedEdit['change_summary'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
+              </div>
+              <div class="edit-field full">
+                <div class="edit-field-label">Penjelasan User</div>
+                <div class="edit-field-value"><?php echo htmlspecialchars((string)($selectedEdit['reason_detail'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
+              </div>
+              <div class="edit-field full">
+                <div class="edit-field-label">Draft Profil Baru</div>
+                <div class="edit-field-value">
+                  Nama <?php echo htmlspecialchars((string)($editPayload['name'] ?? $displayName), ENT_QUOTES, 'UTF-8'); ?> ·
+                  Bidang <?php echo htmlspecialchars((string)($editPayload['title'] ?? ($worker['bidang_keahlian'] ?? '-')), ENT_QUOTES, 'UTF-8'); ?> ·
+                  Lokasi <?php echo htmlspecialchars((string)($editPayload['location'] ?? $domicile), ENT_QUOTES, 'UTF-8'); ?>
+                </div>
+              </div>
             </div>
             <?php if ((string)($selectedEdit['status'] ?? '') === 'pending'): ?>
               <form method="post" class="edit-verify-actions">
