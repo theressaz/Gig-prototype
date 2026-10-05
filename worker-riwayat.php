@@ -62,7 +62,7 @@ foreach ($historyProjects as $p) {
               <?php endif; ?>
             </div>
             <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">
-              No. Kontrak: <strong><?php echo htmlspecialchars($item['id'], ENT_QUOTES, 'UTF-8'); ?></strong> · Periode: <strong><?php echo htmlspecialchars($item['startDate'], ENT_QUOTES, 'UTF-8'); ?> — <?php echo htmlspecialchars($item['endDate'], ENT_QUOTES, 'UTF-8'); ?></strong>
+              Periode: <strong><?php echo htmlspecialchars($item['startDate'], ENT_QUOTES, 'UTF-8'); ?> — <?php echo htmlspecialchars($item['endDate'], ENT_QUOTES, 'UTF-8'); ?></strong>
             </div>
           </div>
           <div style="text-align:right;">
