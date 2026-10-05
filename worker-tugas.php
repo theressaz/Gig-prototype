@@ -27,6 +27,13 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             ? (($action === 'approve_extension') ? 'Perpanjangan disetujui. Deadline proyek diperbarui.' : 'Perpanjangan ditolak. Deadline tetap sesuai kesepakatan.')
             : (string)($res['error'] ?? 'Gagal memproses konfirmasi perpanjangan.');
         $flashErr = empty($res['ok']);
+    } elseif ($action === 'cancel_extension') {
+        $requestId = (int)($_POST['request_id'] ?? 0);
+        $res = gig_cancel_project_extension($requestId, 'worker', $username);
+        $flashMsg = !empty($res['ok'])
+            ? 'Pengajuan perpanjangan berhasil dibatalkan.'
+            : (string)($res['error'] ?? 'Gagal membatalkan pengajuan perpanjangan.');
+        $flashErr = empty($res['ok']);
     }
 }
 
@@ -185,8 +192,13 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
               <button class="btn-action-sm" type="submit" style="background:#dc2626;color:#fff;border:none;">Tolak Perpanjangan</button>
             </form>
           <?php elseif ($pendingExt): ?>
-            <div style="font-size:0.78rem;color:#92400e;background:#fffbeb;border:1px solid #fde68a;padding:7px 9px;border-radius:8px;display:inline-block;">
-              Pengajuan perpanjangan Anda (<?php echo htmlspecialchars(gig_format_extension_label((int)$pendingExt['amount'], (string)$pendingExt['unit']), ENT_QUOTES, 'UTF-8'); ?>) menunggu konfirmasi pemberi kerja.
+            <div style="font-size:0.78rem;color:#92400e;background:#fffbeb;border:1px solid #fde68a;padding:8px 10px;border-radius:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <span>Pengajuan perpanjangan Anda (<?php echo htmlspecialchars(gig_format_extension_label((int)$pendingExt['amount'], (string)$pendingExt['unit']), ENT_QUOTES, 'UTF-8'); ?>) menunggu konfirmasi pemberi kerja.</span>
+              <form method="post" style="margin:0;">
+                <input type="hidden" name="ext_action" value="cancel_extension">
+                <input type="hidden" name="request_id" value="<?php echo (int)$pendingExt['id']; ?>">
+                <button class="btn-action-sm" type="submit" style="background:#f8fafc;border:1px solid #f59e0b;color:#92400e;padding:4px 10px;">Batalkan Pengajuan</button>
+              </form>
             </div>
           <?php endif; ?>
         </div>

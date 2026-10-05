@@ -206,6 +206,48 @@ function gig_decide_project_extension(int $requestId, string $deciderRole, bool 
     }
 }
 
+function gig_cancel_project_extension(int $requestId, string $requesterRole, string $requesterId): array
+{
+    $role = strtolower(trim($requesterRole));
+    $reqId = strtolower(trim($requesterId));
+    if (!in_array($role, ['worker', 'employer'], true)) {
+        return ['ok' => false, 'error' => 'Peran pengaju tidak valid.'];
+    }
+    $pdo = function_exists('gig_db') ? gig_db() : null;
+    if (!$pdo) {
+        return ['ok' => false, 'error' => 'Database tidak tersedia.'];
+    }
+    gig_extension_ensure_table($pdo);
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM `project_extension_requests` WHERE `id` = :id LIMIT 1");
+        $stmt->execute([':id' => $requestId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) {
+            return ['ok' => false, 'error' => 'Pengajuan tidak ditemukan.'];
+        }
+        if (($row['status'] ?? '') !== 'pending') {
+            return ['ok' => false, 'error' => 'Pengajuan tidak bisa dibatalkan karena sudah diproses.'];
+        }
+        if (($row['requester_role'] ?? '') !== $role) {
+            return ['ok' => false, 'error' => 'Hanya pengaju yang bisa membatalkan.'];
+        }
+        $owner = strtolower(trim((string)($row['requester_id'] ?? '')));
+        if ($owner !== '' && $reqId !== '' && $owner !== $reqId) {
+            return ['ok' => false, 'error' => 'Anda bukan pemilik pengajuan ini.'];
+        }
+
+        $up = $pdo->prepare(
+            "UPDATE `project_extension_requests`
+             SET `status` = 'cancelled', `decision_by_role` = :role, `reviewed_at` = NOW()
+             WHERE `id` = :id"
+        );
+        $up->execute([':role' => $role, ':id' => $requestId]);
+        return ['ok' => true];
+    } catch (Throwable $e) {
+        return ['ok' => false, 'error' => 'Gagal membatalkan pengajuan perpanjangan.'];
+    }
+}
+
 function gig_format_extension_label(int $amount, string $unit): string
 {
     if ($unit === 'week') return $amount . ' minggu';
