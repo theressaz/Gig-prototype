@@ -164,7 +164,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
         <?php if (!empty($p1['approved_extension_days'])): ?>
           <div style="margin:12px 0 0 0;font-size:0.78rem;color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;padding:8px 12px;border-radius:8px;">
-            Disetujui: <?php echo htmlspecialchars(gig_format_extension_label((int)$p1['approved_extension_days']), ENT_QUOTES, 'UTF-8'); ?>. Deadline sudah diperbarui.
+            Disetujui: <?php echo htmlspecialchars(gig_format_extension_label((int)$p1['approved_extension_days'], 'day'), ENT_QUOTES, 'UTF-8'); ?>. Deadline sudah diperbarui.
           </div>
         <?php endif; ?>
 
@@ -175,13 +175,13 @@ require __DIR__ . '/includes/employer-layout-start.php';
         <?php elseif ($pendingExtP1): ?>
           <div style="margin:12px 0 0 0;font-size:0.78rem;color:#1e293b;background:#eff6ff;border:1px solid #bfdbfe;padding:10px 12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
             <div>
-              Pengajuan perpanjangan pending dari <strong><?php echo $pendingExtP1['requested_by_role'] === 'worker' ? 'Gig Worker' : 'Pemberi Kerja'; ?></strong>:
-              <strong><?php echo htmlspecialchars(gig_format_extension_label((int)$pendingExtP1['amount_days']), ENT_QUOTES, 'UTF-8'); ?></strong>
-              <?php if (!empty($pendingExtP1['reason'])): ?>
-                <span style="color:#334155;margin-left:6px;">(Alasan: <?php echo htmlspecialchars((string)$pendingExtP1['reason'], ENT_QUOTES, 'UTF-8'); ?>)</span>
+              Pengajuan perpanjangan pending dari <strong><?php echo ($pendingExtP1['requester_role'] ?? '') === 'worker' ? 'Gig Worker' : 'Pemberi Kerja'; ?></strong>:
+              <strong><?php echo htmlspecialchars(gig_format_extension_label((int)($pendingExtP1['amount'] ?? 0), (string)($pendingExtP1['unit'] ?? 'day')), ENT_QUOTES, 'UTF-8'); ?></strong>
+              <?php if (!empty($pendingExtP1['reason_note'])): ?>
+                <span style="color:#334155;margin-left:6px;">(Alasan: <?php echo htmlspecialchars((string)$pendingExtP1['reason_note'], ENT_QUOTES, 'UTF-8'); ?>)</span>
               <?php endif; ?>
             </div>
-            <?php if (($pendingExtP1['requested_by_role'] ?? '') !== 'employer'): ?>
+            <?php if (($pendingExtP1['requester_role'] ?? '') !== 'employer'): ?>
               <div style="display:flex;gap:8px;align-items:center;">
                 <form method="POST" action="" style="margin:0;">
                   <input type="hidden" name="ext_action" value="approve_extension">
@@ -339,7 +339,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
         <?php if (!empty($p2['approved_extension_days'])): ?>
           <div style="margin:12px 0 0 0;font-size:0.78rem;color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;padding:8px 12px;border-radius:8px;">
-            Disetujui: <?php echo htmlspecialchars(gig_format_extension_label((int)$p2['approved_extension_days']), ENT_QUOTES, 'UTF-8'); ?>. Deadline sudah diperbarui.
+            Disetujui: <?php echo htmlspecialchars(gig_format_extension_label((int)$p2['approved_extension_days'], 'day'), ENT_QUOTES, 'UTF-8'); ?>. Deadline sudah diperbarui.
           </div>
         <?php endif; ?>
 
@@ -350,13 +350,13 @@ require __DIR__ . '/includes/employer-layout-start.php';
         <?php elseif ($pendingExtP2): ?>
           <div style="margin:12px 0 0 0;font-size:0.78rem;color:#1e293b;background:#eff6ff;border:1px solid #bfdbfe;padding:10px 12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
             <div>
-              Pengajuan perpanjangan pending dari <strong><?php echo $pendingExtP2['requested_by_role'] === 'worker' ? 'Gig Worker' : 'Pemberi Kerja'; ?></strong>:
-              <strong><?php echo htmlspecialchars(gig_format_extension_label((int)$pendingExtP2['amount_days']), ENT_QUOTES, 'UTF-8'); ?></strong>
-              <?php if (!empty($pendingExtP2['reason'])): ?>
-                <span style="color:#334155;margin-left:6px;">(Alasan: <?php echo htmlspecialchars((string)$pendingExtP2['reason'], ENT_QUOTES, 'UTF-8'); ?>)</span>
+              Pengajuan perpanjangan pending dari <strong><?php echo ($pendingExtP2['requester_role'] ?? '') === 'worker' ? 'Gig Worker' : 'Pemberi Kerja'; ?></strong>:
+              <strong><?php echo htmlspecialchars(gig_format_extension_label((int)($pendingExtP2['amount'] ?? 0), (string)($pendingExtP2['unit'] ?? 'day')), ENT_QUOTES, 'UTF-8'); ?></strong>
+              <?php if (!empty($pendingExtP2['reason_note'])): ?>
+                <span style="color:#334155;margin-left:6px;">(Alasan: <?php echo htmlspecialchars((string)$pendingExtP2['reason_note'], ENT_QUOTES, 'UTF-8'); ?>)</span>
               <?php endif; ?>
             </div>
-            <?php if (($pendingExtP2['requested_by_role'] ?? '') !== 'employer'): ?>
+            <?php if (($pendingExtP2['requester_role'] ?? '') !== 'employer'): ?>
               <div style="display:flex;gap:8px;align-items:center;">
                 <form method="POST" action="" style="margin:0;">
                   <input type="hidden" name="ext_action" value="approve_extension">
