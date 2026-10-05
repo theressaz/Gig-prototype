@@ -661,32 +661,30 @@ $backHref = $isEditMode
 
               <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-top: 10px;">
                 <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-                  <span>📂 Lampiran Berkas / Link File</span>
-                  <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">PDF, Figma, Code Repo, ZIP, Video, dll.</span>
+                  <span>🔗 Tautan Link Portofolio / Deliverable</span>
+                  <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">Link Figma, GitHub, Google Drive, Dribbble, Video, dll.</span>
                 </div>
 
                 <div id="file-list-<?php echo $pIdx; ?>">
                   <?php 
                     $files = !empty($pItem['files']) && is_array($pItem['files']) ? $pItem['files'] : [];
                     if (empty($files) && !empty($pItem['url'])) {
-                        $files = [['name' => 'Berkas Deliverable Utama', 'type' => ($pItem['type'] ?? 'Dokumen PDF'), 'url' => $pItem['url']]];
+                        $files = [['url' => $pItem['url']]];
                     }
                     if (empty($files)) {
-                        $files = [['name' => '', 'type' => 'Dokumen PDF / Link', 'url' => '']];
+                        $files = [['url' => '']];
                     }
                   ?>
                   <?php foreach ($files as $fIdx => $f): ?>
-                    <div class="file-item-row" style="display: grid; grid-template-columns: 2fr 1.5fr 3fr 30px; gap: 8px; align-items: center; margin-bottom: 8px;">
-                      <input type="text" name="portfolio_file_name[<?php echo $pIdx; ?>][]" class="form-input" style="font-size:0.82rem;" value="<?php echo htmlspecialchars($f['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="Nama Berkas (e.g. Wireframe UI PDF)" />
-                      <input type="text" name="portfolio_file_type[<?php echo $pIdx; ?>][]" class="form-input" style="font-size:0.82rem;" value="<?php echo htmlspecialchars($f['type'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="Tipe (PDF, Figma, Code)" />
-                      <input type="url" name="portfolio_file_url[<?php echo $pIdx; ?>][]" class="form-input" style="font-size:0.82rem;" value="<?php echo htmlspecialchars($f['url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://..." />
-                      <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer;" title="Hapus file ini">&times;</button>
+                    <div class="file-item-row" style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                      <input type="url" name="portfolio_file_url[<?php echo $pIdx; ?>][]" class="form-input" style="font-size:0.85rem; flex:1;" value="<?php echo htmlspecialchars($f['url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://... (Masukkan Tautan Link Deliverable)" />
+                      <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer; padding:0 4px;" title="Hapus link ini">&times;</button>
                     </div>
                   <?php endforeach; ?>
                 </div>
 
                 <button type="button" class="btn-add-item" style="font-size: 0.78rem; padding: 5px 12px; margin-top: 4px;" onclick="addFileToPortfolio(<?php echo $pIdx; ?>)">
-                  + Tambah Berkas / Link File Lainnya
+                  + Tambah Link Tautan Lainnya
                 </button>
               </div>
             </div>
@@ -713,21 +711,19 @@ $backHref = $isEditMode
 
             <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-top: 10px;">
               <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-                <span>📂 Lampiran Berkas / Link File</span>
-                <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">PDF, Figma, Code Repo, ZIP, Video, dll.</span>
+                <span>🔗 Tautan Link Portofolio / Deliverable</span>
+                <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">Link Figma, GitHub, Google Drive, Dribbble, Video, dll.</span>
               </div>
 
               <div id="file-list-0">
-                <div class="file-item-row" style="display: grid; grid-template-columns: 2fr 1.5fr 3fr 30px; gap: 8px; align-items: center; margin-bottom: 8px;">
-                  <input type="text" name="portfolio_file_name[0][]" class="form-input" style="font-size:0.82rem;" placeholder="Nama Berkas (e.g. Wireframe UI PDF)" />
-                  <input type="text" name="portfolio_file_type[0][]" class="form-input" style="font-size:0.82rem;" placeholder="Tipe (PDF, Figma, Code)" />
-                  <input type="url" name="portfolio_file_url[0][]" class="form-input" style="font-size:0.82rem;" placeholder="https://..." />
-                  <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer;" title="Hapus file ini">&times;</button>
+                <div class="file-item-row" style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                  <input type="url" name="portfolio_file_url[0][]" class="form-input" style="font-size:0.85rem; flex:1;" placeholder="https://... (Masukkan Tautan Link Deliverable)" />
+                  <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer; padding:0 4px;" title="Hapus link ini">&times;</button>
                 </div>
               </div>
 
               <button type="button" class="btn-add-item" style="font-size: 0.78rem; padding: 5px 12px; margin-top: 4px;" onclick="addFileToPortfolio(0)">
-                + Tambah Berkas / Link File Lainnya
+                + Tambah Link Tautan Lainnya
               </button>
             </div>
           </div>
@@ -843,19 +839,17 @@ $backHref = $isEditMode
         </div>
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 14px; margin-top: 10px;">
           <div style="font-size: 0.85rem; font-weight: 700; color: var(--kemnaker-navy); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-            <span>📂 Lampiran Berkas / Link File (Bisa Mengunggah Lebih Dari 1 File)</span>
-            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">PDF, Figma, Code Repo, ZIP, Video, dll.</span>
+            <span>🔗 Link / Tautan File Deliverable</span>
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Link Figma, GitHub, Google Drive, Dribbble, Video, dll.</span>
           </div>
           <div id="file-list-${pIdx}">
-            <div class="file-item-row" style="display: grid; grid-template-columns: 2fr 1.5fr 3fr 30px; gap: 8px; align-items: center; margin-bottom: 8px;">
-              <input type="text" name="portfolio_file_name[${pIdx}][]" class="form-input" style="font-size:0.82rem;" placeholder="Nama Berkas (e.g. Dokumen Specs PDF)" />
-              <input type="text" name="portfolio_file_type[${pIdx}][]" class="form-input" style="font-size:0.82rem;" placeholder="Tipe (PDF, Figma, Code)" />
-              <input type="url" name="portfolio_file_url[${pIdx}][]" class="form-input" style="font-size:0.82rem;" placeholder="https://..." />
-              <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer;" title="Hapus file ini">&times;</button>
+            <div class="file-item-row" style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+              <input type="url" name="portfolio_file_url[${pIdx}][]" class="form-input" style="font-size:0.85rem; flex:1;" placeholder="https://... (Masukkan Tautan Link Deliverable)" />
+              <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer; padding:0 4px;" title="Hapus link ini">&times;</button>
             </div>
           </div>
           <button type="button" class="btn-add-item" style="font-size: 0.78rem; padding: 5px 12px; margin-top: 4px; background: #eff6ff; color: var(--primary-blue); border: 1px dashed var(--primary-blue);" onclick="addFileToPortfolio(${pIdx})">
-            + Tambah Berkas / Link File Lainnya
+            + Tambah Link Tautan Lainnya
           </button>
         </div>
       `;
@@ -867,12 +861,10 @@ $backHref = $isEditMode
       if (!fileList) return;
       const row = document.createElement('div');
       row.className = 'file-item-row';
-      row.style.cssText = 'display: grid; grid-template-columns: 2fr 1.5fr 3fr 30px; gap: 8px; align-items: center; margin-bottom: 8px;';
+      row.style.cssText = 'display: flex; gap: 8px; align-items: center; margin-bottom: 8px;';
       row.innerHTML = `
-        <input type="text" name="portfolio_file_name[${pIdx}][]" class="form-input" style="font-size:0.82rem;" placeholder="Nama Berkas (e.g. Dokumen Specs PDF)" />
-        <input type="text" name="portfolio_file_type[${pIdx}][]" class="form-input" style="font-size:0.82rem;" placeholder="Tipe (PDF, Figma, Code)" />
-        <input type="url" name="portfolio_file_url[${pIdx}][]" class="form-input" style="font-size:0.82rem;" placeholder="https://..." />
-        <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer;" title="Hapus file ini">&times;</button>
+        <input type="url" name="portfolio_file_url[${pIdx}][]" class="form-input" style="font-size:0.85rem; flex:1;" placeholder="https://... (Masukkan Tautan Link Deliverable)" />
+        <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer; padding:0 4px;" title="Hapus link ini">&times;</button>
       `;
       fileList.appendChild(row);
     }
