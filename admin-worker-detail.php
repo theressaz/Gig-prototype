@@ -27,7 +27,38 @@ foreach ($workers as $row) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $worker !== null) {
     $action = (string)($_POST['action'] ?? '');
     $note = trim((string)($_POST['admin_note'] ?? ''));
-    if ($action === 'worker_approve') {
+    if ($action === 'worker_take_decision') {
+        $decision = (string)($_POST['decision'] ?? '');
+        if ($decision === 'approve') {
+            $ok = gig_admin_set_worker_status((string)$worker['username'], 'approved', $note);
+            $flash = $ok ? 'Keputusan verifikasi: Gig Worker disetujui.' : 'Gagal memproses persetujuan.';
+            $flashType = $ok ? 'success' : 'error';
+        } elseif ($decision === 'reject') {
+            if ($note === '') {
+                $ok = false;
+                $flash = 'Catatan wajib diisi untuk keputusan tolak.';
+                $flashType = 'error';
+            } else {
+                $ok = gig_admin_set_worker_status((string)$worker['username'], 'rejected', $note);
+                $flash = $ok ? 'Keputusan verifikasi: Gig Worker ditolak.' : 'Gagal memproses penolakan.';
+                $flashType = $ok ? 'success' : 'error';
+            }
+        } elseif ($decision === 'revision') {
+            if ($note === '') {
+                $ok = false;
+                $flash = 'Catatan wajib diisi untuk keputusan revisi.';
+                $flashType = 'error';
+            } else {
+                $ok = gig_admin_set_worker_status((string)$worker['username'], 'pending', $note);
+                $flash = $ok ? 'Catatan revisi dikirim. Status kembali ke menunggu verifikasi.' : 'Gagal mengirim catatan revisi.';
+                $flashType = $ok ? 'success' : 'error';
+            }
+        } else {
+            $ok = false;
+            $flash = 'Pilihan keputusan tidak valid.';
+            $flashType = 'error';
+        }
+    } elseif ($action === 'worker_approve') {
         $ok = gig_admin_set_worker_status((string)$worker['username'], 'approved', $note);
         $flash = $ok ? 'Verifikasi Gig Worker disetujui.' : 'Gagal menyetujui verifikasi.';
         $flashType = $ok ? 'success' : 'error';
@@ -129,6 +160,51 @@ if ($selectedEdit === null && $relatedEdits !== []) {
     $selectedEdit = $relatedEdits[0];
 }
 
+$auditLogs = [];
+$submittedAt = trim((string)($worker['created_at'] ?? ''));
+if ($submittedAt !== '') {
+    $auditLogs[] = [
+        'time' => $submittedAt,
+        'title' => 'Gig Worker mendaftar di platform',
+        'detail' => 'Data registrasi awal dikirim untuk verifikasi admin.',
+    ];
+}
+
+foreach ($relatedEdits as $editLog) {
+    $createdEdit = trim((string)($editLog['created_at'] ?? ''));
+    if ($createdEdit !== '') {
+        $auditLogs[] = [
+            'time' => $createdEdit,
+            'title' => 'Permintaan edit profil diajukan',
+            'detail' => 'Bidang: ' . (string)($editLog['edited_field'] ?? '-') . ' · Alasan: ' . (string)($editLog['reason_code'] ?? '-'),
+        ];
+    }
+    $reviewedEdit = trim((string)($editLog['reviewed_at'] ?? ''));
+    if ($reviewedEdit !== '') {
+        $editStatus = (string)($editLog['status'] ?? '');
+        $statusText = $editStatus === 'approved' ? 'disetujui' : ($editStatus === 'rejected' ? 'ditolak' : $editStatus);
+        $auditLogs[] = [
+            'time' => $reviewedEdit,
+            'title' => 'Permintaan edit profil ' . $statusText,
+            'detail' => trim((string)($editLog['admin_note'] ?? '')) !== '' ? (string)$editLog['admin_note'] : 'Diproses oleh admin.',
+        ];
+    }
+}
+
+$reviewedAt = trim((string)($worker['reviewed_at'] ?? ''));
+if ($reviewedAt !== '') {
+    $statusText = $status === 'approved' ? 'disetujui' : ($status === 'rejected' ? 'ditolak' : 'dikembalikan untuk revisi');
+    $auditLogs[] = [
+        'time' => $reviewedAt,
+        'title' => 'Status verifikasi akun ' . $statusText,
+        'detail' => trim((string)($worker['admin_note'] ?? '')) !== '' ? (string)$worker['admin_note'] : 'Keputusan admin tercatat.',
+    ];
+}
+
+usort($auditLogs, static function (array $a, array $b): int {
+    return strtotime((string)$b['time']) <=> strtotime((string)$a['time']);
+});
+
 $editStatusBadge = static function (string $st): string {
     $map = [
         'pending' => ['Menunggu Review', '#dbeafe', '#1d4ed8'],
@@ -168,6 +244,11 @@ if ($status === 'approved') {
   .detail-grid { padding:18px;display:grid;grid-template-columns:2fr 1fr;gap:14px; }
   .detail-card { background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px; }
   .detail-card h3 { margin:0 0 10px;font-size:1rem;font-weight:800;color:#0f172a; }
+  .audit-log-list { display:grid; gap:10px; }
+  .audit-log-item { border-left:2px solid #bfdbfe; padding-left:10px; }
+  .audit-log-time { font-size:0.72rem; color:#64748b; font-weight:700; margin-bottom:2px; }
+  .audit-log-title { font-size:0.82rem; color:#0f172a; font-weight:700; margin-bottom:2px; }
+  .audit-log-detail { font-size:0.78rem; color:#475569; line-height:1.45; }
   .detail-item { border:1px solid #eef2f7;background:#f8fafc;border-radius:10px;padding:10px;margin-bottom:8px; }
   .detail-item:last-child { margin-bottom:0; }
   .detail-item-title { font-size:0.86rem;font-weight:700;color:#0f172a; }
@@ -306,6 +387,92 @@ if ($status === 'approved') {
   .verify-panel textarea { width:100%;min-height:70px;border:1px solid #cbd5e1;border-radius:10px;padding:9px;font:inherit;margin:8px 0; }
   .edit-verify-actions { display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;margin-top:8px; }
   .edit-verify-actions textarea { width:100%;min-height:70px;border:1px solid #cbd5e1;border-radius:10px;padding:9px;font:inherit; }
+  .decision-modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    z-index: 1400;
+    padding: 14px;
+  }
+  .decision-modal {
+    max-width: 760px;
+    margin: 2vh auto 0;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.3);
+    overflow: hidden;
+  }
+  .decision-modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .decision-modal-title { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
+  .decision-modal-sub { font-size: 0.95rem; color: #64748b; line-height: 1.45; }
+  .decision-close {
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    border-radius: 999px;
+    width: 40px;
+    height: 40px;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: #64748b;
+    cursor: pointer;
+  }
+  .decision-modal-body { max-height: 70vh; overflow: auto; padding: 14px 18px 10px; }
+  .decision-group-title { font-size: 1.2rem; font-weight: 800; color: #0f172a; margin-bottom: 2px; }
+  .decision-group-sub { font-size: 0.9rem; color: #64748b; margin-bottom: 10px; }
+  .decision-options { display: grid; gap: 10px; margin-bottom: 10px; }
+  .decision-option {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  .decision-option input { accent-color: #0ea5e9; width: 18px; height: 18px; }
+  .decision-option.is-selected { border-color: #7dd3fc; background: #f0f9ff; }
+  .decision-note-wrap { margin-top: 10px; display: none; }
+  .decision-note-wrap.show { display: block; }
+  .decision-note-label { font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 6px; display:block; }
+  .decision-note-label .req { color: #ef4444; }
+  .decision-note { width: 100%; min-height: 130px; border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px 12px; font: inherit; font-size: 0.95rem; }
+  .decision-hint {
+    margin-top: 10px;
+    border: 1px solid #d1fae5;
+    background: #ecfdf5;
+    color: #065f46;
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+  .decision-hint.warn { border-color:#fecaca; background:#fef2f2; color:#991b1b; }
+  .decision-hint.rev { border-color:#fde68a; background:#fffbeb; color:#92400e; }
+  .decision-modal-foot {
+    border-top: 1px solid #e2e8f0;
+    padding: 12px 18px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  .btn-cancel { border:1px solid #e2e8f0;background:#fff;color:#0f172a;border-radius:10px;padding:9px 16px;font-size:0.95rem;font-weight:700;cursor:pointer; }
+  .btn-confirm { border:none;border-radius:10px;padding:9px 16px;font-size:0.95rem;font-weight:800;color:#fff;cursor:pointer;background:#0ea5e9; }
+  .btn-confirm.approve { background:#059669; }
+  .btn-confirm.reject { background:#f43f5e; }
+  .btn-confirm.revision { background:#f59e0b; color:#1f2937; }
   .flash { padding:11px 13px;border-radius:10px;margin-bottom:14px;font-size:0.84rem;font-weight:700; }
   .flash.success { background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0; }
   .flash.error { background:#fef2f2;color:#991b1b;border:1px solid #fecaca; }
@@ -333,6 +500,7 @@ if ($status === 'approved') {
     </div>
     <div class="detail-actions">
       <span class="detail-btn primary"><?php echo htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+      <button type="button" class="detail-btn" onclick="openDecisionModal()">Ambil Keputusan</button>
       <button type="button" class="detail-btn" onclick="window.print()">Cetak Kartu</button>
     </div>
   </div>
@@ -481,6 +649,23 @@ if ($status === 'approved') {
     </div>
 
     <aside>
+      <article class="detail-card" style="margin-bottom:12px;">
+        <h3>Aktivitas &amp; Audit Log</h3>
+        <?php if ($auditLogs === []): ?>
+          <div class="detail-item"><div class="detail-item-sub">Belum ada aktivitas tercatat.</div></div>
+        <?php else: ?>
+          <div class="audit-log-list">
+            <?php foreach ($auditLogs as $log): ?>
+              <div class="audit-log-item">
+                <div class="audit-log-time"><?php echo htmlspecialchars((string)$log['time'], ENT_QUOTES, 'UTF-8'); ?></div>
+                <div class="audit-log-title"><?php echo htmlspecialchars((string)$log['title'], ENT_QUOTES, 'UTF-8'); ?></div>
+                <div class="audit-log-detail"><?php echo htmlspecialchars((string)$log['detail'], ENT_QUOTES, 'UTF-8'); ?></div>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
+      </article>
+
       <article class="detail-card">
         <h3>Profil</h3>
         <div class="profile-row"><div class="k">Nama</div><div class="v"><?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?></div></div>
@@ -513,5 +698,122 @@ if ($status === 'approved') {
     </aside>
   </div>
 </section>
+
+<div id="decision-modal-backdrop" class="decision-modal-backdrop" onclick="if(event.target===this){closeDecisionModal();}">
+  <div class="decision-modal">
+    <div class="decision-modal-head">
+      <div>
+        <div class="decision-modal-title">Ambil Keputusan Verifikasi</div>
+        <div class="decision-modal-sub">Pilih keputusan untuk profil Gig Worker ini. Pastikan Anda telah memeriksa data secara seksama.</div>
+      </div>
+      <button type="button" class="decision-close" onclick="closeDecisionModal()">&times;</button>
+    </div>
+    <form method="post" id="decision-form">
+      <input type="hidden" name="action" value="worker_take_decision">
+      <div class="decision-modal-body">
+        <div class="decision-group-title">Keputusan</div>
+        <div class="decision-group-sub">Tentukan hasil akhir verifikasi akun worker.</div>
+        <div class="decision-options">
+          <label class="decision-option" data-opt="approve">
+            <input type="radio" name="decision" value="approve">
+            <span>Setujui</span>
+          </label>
+          <label class="decision-option" data-opt="reject">
+            <input type="radio" name="decision" value="reject">
+            <span>Tolak</span>
+          </label>
+          <label class="decision-option" data-opt="revision">
+            <input type="radio" name="decision" value="revision">
+            <span>Revisi</span>
+          </label>
+        </div>
+
+        <div id="decision-note-wrap" class="decision-note-wrap">
+          <label class="decision-note-label">Catatan <span class="req">*</span></label>
+          <textarea class="decision-note" name="admin_note" id="decision-note-input" placeholder="Masukkan catatan untuk keputusan ini..."></textarea>
+        </div>
+
+        <div id="decision-hint" class="decision-hint">
+          Dengan menyetujui, akun worker akan aktif dan dapat menerima proyek gig.
+        </div>
+      </div>
+      <div class="decision-modal-foot">
+        <button type="button" class="btn-cancel" onclick="closeDecisionModal()">Batalkan</button>
+        <button type="submit" id="decision-submit-btn" class="btn-confirm approve">Setujui Worker</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openDecisionModal() {
+  const modal = document.getElementById('decision-modal-backdrop');
+  if (!modal) return;
+  modal.style.display = 'block';
+}
+
+function closeDecisionModal() {
+  const modal = document.getElementById('decision-modal-backdrop');
+  if (!modal) return;
+  modal.style.display = 'none';
+}
+
+(function initDecisionModal() {
+  const opts = Array.from(document.querySelectorAll('.decision-option'));
+  const radios = Array.from(document.querySelectorAll('.decision-option input[type="radio"]'));
+  const submitBtn = document.getElementById('decision-submit-btn');
+  const hint = document.getElementById('decision-hint');
+  const noteWrap = document.getElementById('decision-note-wrap');
+  const noteInput = document.getElementById('decision-note-input');
+  const form = document.getElementById('decision-form');
+  if (!submitBtn || !hint || !noteWrap || !noteInput || !form) return;
+
+  function syncUi() {
+    const selected = radios.find(r => r.checked)?.value || 'approve';
+    opts.forEach(function(label) {
+      label.classList.toggle('is-selected', label.getAttribute('data-opt') === selected);
+    });
+    hint.className = 'decision-hint';
+    noteInput.required = false;
+    if (selected === 'approve') {
+      submitBtn.textContent = 'Setujui Worker';
+      submitBtn.className = 'btn-confirm approve';
+      hint.textContent = 'Dengan menyetujui, akun worker akan aktif dan dapat menerima proyek gig.';
+      noteWrap.classList.remove('show');
+      noteInput.value = '';
+    } else if (selected === 'reject') {
+      submitBtn.textContent = 'Tolak Worker';
+      submitBtn.className = 'btn-confirm reject';
+      hint.classList.add('warn');
+      hint.textContent = 'Tindakan ini akan menolak verifikasi akun worker. Worker harus memperbarui data dan mengajukan ulang.';
+      noteWrap.classList.add('show');
+      noteInput.required = true;
+      noteInput.placeholder = 'Masukkan alasan penolakan profil...';
+    } else {
+      submitBtn.textContent = 'Kirim Revisi';
+      submitBtn.className = 'btn-confirm revision';
+      hint.classList.add('rev');
+      hint.textContent = 'Catatan revisi akan dikirim ke worker dan status tetap menunggu verifikasi hingga worker memperbaiki data.';
+      noteWrap.classList.add('show');
+      noteInput.required = true;
+      noteInput.placeholder = 'Masukkan catatan revisi untuk worker...';
+    }
+  }
+
+  if (!radios.some(r => r.checked) && radios[0]) {
+    radios[0].checked = true;
+  }
+  radios.forEach(r => r.addEventListener('change', syncUi));
+  syncUi();
+
+  form.addEventListener('submit', function(e) {
+    const selected = radios.find(r => r.checked)?.value || '';
+    if ((selected === 'reject' || selected === 'revision') && noteInput.value.trim() === '') {
+      e.preventDefault();
+      noteInput.focus();
+    }
+  });
+})();
+</script>
 
 <?php require __DIR__ . '/includes/admin-layout-end.php'; ?>
