@@ -3,106 +3,316 @@ declare(strict_types=1);
 ?>
       </main>
 
+      <style>
+        .gig-post-modal {
+          max-width: 860px !important;
+          border-radius: 18px;
+          overflow: hidden;
+        }
+        .gig-post-modal .modal-header {
+          border-bottom: 1px solid #e2e8f0;
+          padding: 16px 20px 12px;
+        }
+        .gig-post-head-title {
+          font-size: 1.35rem;
+          font-weight: 800;
+          color: #0f172a;
+          margin-bottom: 2px;
+        }
+        .gig-post-head-sub {
+          font-size: 0.86rem;
+          color: #64748b;
+        }
+        .gig-stepper {
+          margin-top: 12px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        .gig-step-item {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 0.76rem;
+          color: #64748b;
+          font-weight: 700;
+        }
+        .gig-step-dot {
+          width: 18px;
+          height: 18px;
+          border-radius: 999px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.68rem;
+          font-weight: 800;
+          background: #e2e8f0;
+          color: #334155;
+        }
+        .gig-step-item.active .gig-step-dot {
+          background: #0ea5e9;
+          color: #ffffff;
+        }
+        .gig-step-sep {
+          width: 28px;
+          height: 1px;
+          background: #cbd5e1;
+        }
+        .gig-section-card {
+          border: 1px solid #e2e8f0;
+          border-radius: 14px;
+          background: #ffffff;
+          padding: 14px 14px 12px;
+          margin-bottom: 12px;
+        }
+        .gig-section-head {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          margin-bottom: 10px;
+        }
+        .gig-section-icon {
+          width: 28px;
+          height: 28px;
+          border-radius: 8px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: #ecfeff;
+          color: #0891b2;
+          font-size: 0.85rem;
+          font-weight: 800;
+          flex-shrink: 0;
+        }
+        .gig-section-title {
+          font-size: 0.98rem;
+          font-weight: 800;
+          color: #0f172a;
+          margin-bottom: 2px;
+        }
+        .gig-section-sub {
+          font-size: 0.75rem;
+          color: #64748b;
+        }
+        .gig-grid-2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+        }
+        .gig-inline-radio {
+          display: flex;
+          gap: 14px;
+          flex-wrap: wrap;
+          margin-top: 4px;
+        }
+        .gig-inline-radio label {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 0.84rem;
+          color: #334155;
+          font-weight: 500;
+          cursor: pointer;
+        }
+        .gig-inline-radio input {
+          accent-color: #0ea5e9;
+        }
+        .gig-note {
+          font-size: 0.74rem;
+          color: #64748b;
+          margin-top: 4px;
+          line-height: 1.45;
+        }
+        @media (max-width: 760px) {
+          .gig-grid-2 {
+            grid-template-columns: 1fr;
+          }
+        }
+      </style>
+
       <div class="modal-backdrop" id="postProjectModal" onclick="handleBackdropClick(event)">
-        <div class="modal-window" style="max-width:680px;">
+        <div class="modal-window gig-post-modal">
           <div class="modal-header">
-            <h3>Pasang Lowongan Proyek Gig Baru</h3>
+            <div>
+              <div class="gig-post-head-title">Tambah Lowongan Proyek</div>
+              <div class="gig-post-head-sub">Lengkapi form untuk mempublikasikan proyek dan merekrut 1 Gig Worker.</div>
+              <div class="gig-stepper">
+                <span class="gig-step-item active"><span class="gig-step-dot">1</span>Informasi Proyek</span>
+                <span class="gig-step-sep"></span>
+                <span class="gig-step-item"><span class="gig-step-dot">2</span>Kriteria Gig Worker</span>
+                <span class="gig-step-sep"></span>
+                <span class="gig-step-item"><span class="gig-step-dot">3</span>Tambahan</span>
+              </div>
+            </div>
             <button class="modal-close-btn" type="button" onclick="closePostProjectModal()">&times;</button>
           </div>
           <form id="newProjectForm" onsubmit="handleCreateProject(event)">
-            <div class="modal-body" style="max-height:72vh;overflow-y:auto;padding:20px;">
+            <div class="modal-body" style="max-height:72vh;overflow-y:auto;padding:18px;">
 
-              <div style="font-size:0.8rem;color:#1e40af;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 12px;margin-bottom:16px;">
-                &#9432; Lowongan baru akan diajukan ke Admin KarirHub untuk diverifikasi sebelum tayang.
+              <div style="font-size:0.8rem;color:#1e40af;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:10px 12px;margin-bottom:14px;">
+                &#9432; Lowongan akan diverifikasi Admin terlebih dahulu sebelum tayang ke Gig Worker.
               </div>
 
-              <div class="form-grid-2">
-                <div class="form-row">
-                  <label for="proj_title">Judul Proyek *</label>
-                  <input type="text" id="proj_title" required placeholder="Contoh: Pembuatan Landing Page Interaktif" />
+              <section class="gig-section-card">
+                <div class="gig-section-head">
+                  <span class="gig-section-icon">1</span>
+                  <div>
+                    <div class="gig-section-title">Informasi Proyek</div>
+                    <div class="gig-section-sub">Judul, deskripsi, bidang, dan konteks proyek.</div>
+                  </div>
                 </div>
+
                 <div class="form-row">
-                  <label for="proj_category">Kategori / Bidang Proyek *</label>
-                  <select id="proj_category" required>
-                    <option value="">&#8212; Pilih Kategori &#8212;</option>
-                    <option value="IT &amp; Pemrograman">IT &amp; Pemrograman Web</option>
-                    <option value="Desain &amp; Kreatif">Desain Grafis &amp; UI/UX</option>
-                    <option value="Pemasaran &amp; Konten">Pemasaran Digital &amp; Konten</option>
-                    <option value="Penulisan &amp; Terjemahan">Penulisan &amp; Terjemahan</option>
-                    <option value="Akuntansi &amp; Keuangan">Akuntansi &amp; Keuangan</option>
-                    <option value="Manajemen Proyek">Manajemen Proyek</option>
-                    <option value="Lainnya">Lainnya</option>
-                  </select>
+                  <label for="proj_title">Judul Lowongan Proyek *</label>
+                  <input type="text" id="proj_title" required placeholder="Contoh: Redesign Dashboard Monitoring Penjualan" />
                 </div>
-              </div>
 
-              <div class="form-grid-2">
                 <div class="form-row">
-                  <label for="proj_kbji">Posisi (Kode KBJI) *</label>
-                  <input type="text" id="proj_kbji" required placeholder="Contoh: 2512 &#8212; Pengembang Perangkat Lunak" />
-                  <div style="font-size:0.72rem;color:var(--text-muted);margin-top:3px;">KBJI = Klasifikasi Baku Jabatan Indonesia. <a href="#" onclick="event.preventDefault();showToast('Kode KBJI mengacu pada Klasifikasi Baku Jabatan Indonesia. Contoh: 2512 untuk Software Developer.');" style="color:var(--primary-blue);">Pelajari</a></div>
+                  <label for="proj_desc">Deskripsi Proyek *</label>
+                  <textarea id="proj_desc" rows="4" required placeholder="Jelaskan masalah, ruang lingkup, dan hasil yang diharapkan dari Gig Worker..."></textarea>
                 </div>
+
+                <div class="gig-grid-2">
+                  <div class="form-row">
+                    <label for="proj_kbji">Jabatan Sesuai KBJI *</label>
+                    <input type="text" id="proj_kbji" required placeholder="Contoh: 2512 - Pengembang Perangkat Lunak" />
+                  </div>
+                  <div class="form-row">
+                    <label for="proj_category">Bidang Pekerjaan *</label>
+                    <select id="proj_category" required>
+                      <option value="">-- Pilih bidang pekerjaan --</option>
+                      <option value="IT &amp; Pemrograman">IT &amp; Pemrograman</option>
+                      <option value="Desain &amp; Kreatif">Desain &amp; Kreatif</option>
+                      <option value="Pemasaran &amp; Konten">Pemasaran &amp; Konten</option>
+                      <option value="Penulisan &amp; Terjemahan">Penulisan &amp; Terjemahan</option>
+                      <option value="Akuntansi &amp; Keuangan">Akuntansi &amp; Keuangan</option>
+                      <option value="Manajemen Proyek">Manajemen Proyek</option>
+                      <option value="Lainnya">Lainnya</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="gig-grid-2">
+                  <div class="form-row">
+                    <label for="proj_work_type">Jenis Pekerjaan *</label>
+                    <select id="proj_work_type" required>
+                      <option value="">-- Pilih jenis pekerjaan --</option>
+                      <option value="Project-based" selected>Project-based</option>
+                      <option value="Part-time">Part-time</option>
+                      <option value="Freelance Kontrak">Freelance Kontrak</option>
+                    </select>
+                  </div>
+                  <div class="form-row">
+                    <label for="proj_industry">Industri / Sektor *</label>
+                    <input type="text" id="proj_industry" required placeholder="Contoh: Teknologi Finansial / Retail / Edukasi" />
+                  </div>
+                </div>
+              </section>
+
+              <section class="gig-section-card">
+                <div class="gig-section-head">
+                  <span class="gig-section-icon">2</span>
+                  <div>
+                    <div class="gig-section-title">Kriteria Gig Worker</div>
+                    <div class="gig-section-sub">Atur skill, pengalaman, dan ekspektasi hasil kerja.</div>
+                  </div>
+                </div>
+
+                <div class="gig-grid-2">
+                  <div class="form-row">
+                    <label for="proj_exp_level">Tingkat Pengalaman *</label>
+                    <select id="proj_exp_level" required>
+                      <option value="">-- Pilih tingkat pengalaman --</option>
+                      <option value="Junior (0-2 Tahun)">Junior (0-2 Tahun)</option>
+                      <option value="Menengah (2-4 Tahun)" selected>Menengah (2-4 Tahun)</option>
+                      <option value="Senior (4+ Tahun)">Senior (4+ Tahun)</option>
+                    </select>
+                  </div>
+                  <div class="form-row">
+                    <label for="proj_duration">Estimasi Durasi Proyek *</label>
+                    <select id="proj_duration" required>
+                      <option value="1 Minggu">1 Minggu</option>
+                      <option value="2 Minggu" selected>2 Minggu</option>
+                      <option value="1 Bulan">1 Bulan</option>
+                      <option value="2 Bulan">2 Bulan</option>
+                      <option value="3 Bulan">3 Bulan</option>
+                      <option value="6 Bulan">6 Bulan</option>
+                    </select>
+                  </div>
+                </div>
+
                 <div class="form-row">
-                  <label for="proj_duration">Estimasi Durasi Proyek *</label>
-                  <select id="proj_duration" required>
-                    <option value="1 Minggu">1 Minggu</option>
-                    <option value="2 Minggu" selected>2 Minggu</option>
-                    <option value="1 Bulan">1 Bulan</option>
-                    <option value="2 Bulan">2 Bulan</option>
-                    <option value="3 Bulan">3 Bulan</option>
-                    <option value="6 Bulan">6 Bulan</option>
-                  </select>
+                  <label for="proj_skills">Skill Wajib *</label>
+                  <input type="text" id="proj_skills" required placeholder="Contoh: Figma, UI Audit, Design System (pisahkan dengan koma)" />
                 </div>
-              </div>
 
-              <div class="form-row">
-                <label for="proj_desc">Deskripsi Proyek *</label>
-                <textarea id="proj_desc" rows="3" required placeholder="Jelaskan konteks, latar belakang, dan ruang lingkup umum proyek..."></textarea>
-              </div>
+                <div class="form-row">
+                  <label for="proj_target">Target / Deliverable Proyek *</label>
+                  <textarea id="proj_target" rows="3" required placeholder="Contoh: 12 layar high-fidelity + prototype interaktif + style guide komponen"></textarea>
+                </div>
 
-              <div class="form-row">
-                <label for="proj_target">Target / Deliverable Proyek *</label>
-                <textarea id="proj_target" rows="3" required placeholder="Contoh: Prototype Figma 10 layar, Laporan Usability Test, Panduan Style Guide..."></textarea>
-              </div>
+                <div class="form-row">
+                  <label for="proj_kualifikasi">Kualifikasi Tambahan</label>
+                  <textarea id="proj_kualifikasi" rows="3" placeholder="Contoh: Pernah mengerjakan dashboard analytics, paham handoff ke developer, terbiasa kerja sprint."></textarea>
+                </div>
+              </section>
 
-              <div class="form-row">
-                <label for="proj_kualifikasi">Kualifikasi yang Dibutuhkan</label>
-                <textarea id="proj_kualifikasi" rows="3" placeholder="Contoh: Min. 2 tahun pengalaman UI/UX, familiar dengan design system..."></textarea>
-              </div>
+              <section class="gig-section-card">
+                <div class="gig-section-head">
+                  <span class="gig-section-icon">3</span>
+                  <div>
+                    <div class="gig-section-title">Tambahan &amp; Publikasi</div>
+                    <div class="gig-section-sub">Lokasi kerja, rentang gaji, dan periode tayang lowongan.</div>
+                  </div>
+                </div>
 
-              <div class="form-row">
-                <label for="proj_deadline">Batas Waktu Lamaran *</label>
-                <input type="date" id="proj_deadline" required value="2026-09-30" />
-                <div style="font-size:0.72rem;color:var(--text-muted);margin-top:3px;">Setiap lowongan secara otomatis hanya dapat merekrut <strong>1 Gig Worker</strong>.</div>
-              </div>
+                <div class="form-row">
+                  <label>Lokasi Pekerjaan *</label>
+                  <div class="gig-inline-radio">
+                    <label><input type="radio" name="proj_lokasi_type" value="remote" checked onchange="toggleLokasiInput(this)"> Remote</label>
+                    <label><input type="radio" name="proj_lokasi_type" value="hybrid" onchange="toggleLokasiInput(this)"> Hybrid</label>
+                    <label><input type="radio" name="proj_lokasi_type" value="luring" onchange="toggleLokasiInput(this)"> Luring / On-site</label>
+                  </div>
+                  <div id="lokasi-detail-wrap" style="display:none;margin-top:8px;">
+                    <input type="text" id="proj_lokasi_detail" placeholder="Contoh: Jakarta Selatan, Jl. Sudirman No. 12" />
+                  </div>
+                </div>
 
-              <div class="form-row">
-                <label>Lokasi Penempatan *</label>
-                <div style="display:flex;gap:16px;margin-top:4px;flex-wrap:wrap;">
-                  <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:0.87rem;cursor:pointer;">
-                    <input type="radio" name="proj_lokasi_type" value="remote" checked onchange="toggleLokasiInput(this)"> Remote (Seluruh Indonesia)
+                <div class="gig-grid-2">
+                  <div class="form-row">
+                    <label for="proj_salary_min">Gaji Minimal (Rp) *</label>
+                    <input type="text" id="proj_salary_min" required placeholder="Contoh: 5000000" />
+                  </div>
+                  <div class="form-row">
+                    <label for="proj_salary_max">Gaji Maksimal (Rp) *</label>
+                    <input type="text" id="proj_salary_max" required placeholder="Contoh: 8500000" />
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <label style="display:flex;align-items:center;gap:8px;font-weight:500;font-size:0.84rem;cursor:pointer;">
+                    <input type="checkbox" id="proj_show_salary" checked />
+                    <span>Tampilkan rentang gaji di postingan lowongan</span>
                   </label>
-                  <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:0.87rem;cursor:pointer;">
-                    <input type="radio" name="proj_lokasi_type" value="hybrid" onchange="toggleLokasiInput(this)"> Hybrid
-                  </label>
-                  <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:0.87rem;cursor:pointer;">
-                    <input type="radio" name="proj_lokasi_type" value="luring" onchange="toggleLokasiInput(this)"> Luring / On-site
-                  </label>
                 </div>
-                <div id="lokasi-detail-wrap" style="display:none;margin-top:8px;">
-                  <input type="text" id="proj_lokasi_detail" placeholder="Contoh: Jakarta Selatan, Jl. Sudirman No. 12" />
-                </div>
-              </div>
 
-              <div class="form-row">
-                <label for="proj_budget">Gaji Proyek (Rp) *</label>
-                <input type="text" id="proj_budget" required placeholder="Contoh: 7.500.000" />
-                <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-weight:400;font-size:0.85rem;cursor:pointer;">
-                  <input type="checkbox" id="proj_show_salary" checked />
-                  <span>Tampilkan nominal gaji di postingan lowongan</span>
-                </label>
-                <div style="font-size:0.76rem;color:var(--text-muted);margin-top:3px;">Jika tidak ditampilkan, akan tertulis <em>"Gaji dapat dinegosiasikan"</em>.</div>
-              </div>
+                <div class="gig-grid-2">
+                  <div class="form-row">
+                    <label for="proj_deadline">Batas Waktu Lamaran *</label>
+                    <input type="date" id="proj_deadline" required value="2026-09-30" />
+                  </div>
+                  <div class="form-row">
+                    <label for="proj_visibility">Visibilitas Lowongan</label>
+                    <select id="proj_visibility">
+                      <option value="public" selected>Publik (terlihat di Bursa Gig Worker)</option>
+                      <option value="limited">Terbatas (hanya kandidat tertentu)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="gig-note">Setiap lowongan secara otomatis hanya dapat merekrut <strong>1 Gig Worker</strong>.</div>
+              </section>
 
             </div>
             <div class="modal-footer">
@@ -139,6 +349,15 @@ declare(strict_types=1);
     e.preventDefault();
     const title = document.getElementById('proj_title').value;
     const locRadio = document.querySelector('input[name="proj_lokasi_type"]:checked');
+    const salaryMinRaw = document.getElementById('proj_salary_min').value || '';
+    const salaryMaxRaw = document.getElementById('proj_salary_max').value || '';
+    const salaryMin = Number((salaryMinRaw + '').replace(/[^\d]/g, ''));
+    const salaryMax = Number((salaryMaxRaw + '').replace(/[^\d]/g, ''));
+    if (!salaryMin || !salaryMax || salaryMax < salaryMin) {
+      showToast('Rentang gaji belum valid. Pastikan gaji maksimal lebih besar atau sama dengan gaji minimal.');
+      return;
+    }
+
     const payload = {
       title: title,
       category: document.getElementById('proj_category').value,
@@ -147,8 +366,15 @@ declare(strict_types=1);
       desc: document.getElementById('proj_desc').value,
       target: document.getElementById('proj_target').value,
       qualifications: document.getElementById('proj_kualifikasi').value,
+      work_type: document.getElementById('proj_work_type').value,
+      industry: document.getElementById('proj_industry').value,
+      experience_level: document.getElementById('proj_exp_level').value,
+      visibility: document.getElementById('proj_visibility').value,
+      skills: document.getElementById('proj_skills').value,
+      budget_min: salaryMin,
+      budget_max: salaryMax,
       deadline: document.getElementById('proj_deadline').value,
-      budget: document.getElementById('proj_budget').value,
+      budget: salaryMin + ' - ' + salaryMax,
       show_salary: document.getElementById('proj_show_salary').checked,
       location_type: locRadio ? locRadio.value : 'remote',
       location_detail: document.getElementById('proj_lokasi_detail').value

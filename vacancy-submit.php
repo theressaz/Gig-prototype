@@ -27,9 +27,19 @@ if ($title === '') {
 $employer = (string)($_SESSION['username'] ?? 'Employer');
 $budgetRaw = trim((string)($payload['budget'] ?? ''));
 $showSalary = !empty($payload['show_salary']);
-$budget = $showSalary && $budgetRaw !== ''
-    ? 'Rp ' . number_format((float)str_replace(['.', ','], '', preg_replace('/[^\d]/', '', $budgetRaw)), 0, ',', '.')
-    : 'Gaji dapat dinegosiasikan';
+$budgetMin = (int)($payload['budget_min'] ?? 0);
+$budgetMax = (int)($payload['budget_max'] ?? 0);
+$budget = 'Gaji dapat dinegosiasikan';
+if ($showSalary) {
+    if ($budgetMin > 0 && $budgetMax >= $budgetMin) {
+        $budget = 'Rp ' . number_format($budgetMin, 0, ',', '.') . ' - Rp ' . number_format($budgetMax, 0, ',', '.');
+    } elseif ($budgetRaw !== '') {
+        $budgetSingle = (float)str_replace(['.', ','], '', preg_replace('/[^\d]/', '', $budgetRaw));
+        if ($budgetSingle > 0) {
+            $budget = 'Rp ' . number_format($budgetSingle, 0, ',', '.');
+        }
+    }
+}
 
 $locType = (string)($payload['location_type'] ?? 'remote');
 $locDetail = trim((string)($payload['location_detail'] ?? ''));
@@ -43,6 +53,10 @@ $vacancy = [
     'desc' => (string)($payload['desc'] ?? ''),
     'deliverables' => (string)($payload['target'] ?? ''),
     'qualifications' => (string)($payload['qualifications'] ?? ''),
+    'work_type' => (string)($payload['work_type'] ?? ''),
+    'industry' => (string)($payload['industry'] ?? ''),
+    'experience_level' => (string)($payload['experience_level'] ?? ''),
+    'visibility' => (string)($payload['visibility'] ?? 'public'),
     'quota' => 1,
     'deadline' => (string)($payload['deadline'] ?? ''),
     'location' => $location,
