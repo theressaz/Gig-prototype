@@ -528,6 +528,10 @@ function gig_worker_ongoing_active_projects(string $username, string $email = ''
         if ($cId !== '' && isset($completed[$cId])) {
             continue;
         }
+        // Expired unfinished projects are history-only ("Tidak Selesai"), not active.
+        if (!empty($proj['is_expired'])) {
+            continue;
+        }
         $out[] = $proj;
     }
     return $out;

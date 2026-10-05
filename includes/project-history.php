@@ -581,10 +581,107 @@ function gig_get_reviews_for_worker(string $username): array
 
 function gig_get_history_for_worker(string $username): array
 {
-    return gig_fetch_history_rows('worker_id', gig_history_worker_key($username));
+    $rows = gig_fetch_history_rows('worker_id', gig_history_worker_key($username));
+    $canonical = gig_history_worker_key($username);
+    $existing = [];
+    foreach ($rows as $row) {
+        $existing[(string)($row['id'] ?? '')] = true;
+    }
+
+    if (!function_exists('gig_demo_active_projects')) {
+        require_once __DIR__ . '/project-schedule.php';
+    }
+    if (function_exists('gig_demo_active_projects') && function_exists('gig_worker_project_completions_map')) {
+        $completedMap = gig_worker_project_completions_map();
+        foreach (gig_demo_active_projects() as $proj) {
+            $contractId = (string)($proj['contract_id'] ?? '');
+            if ($contractId === '' || isset($existing[$contractId]) || isset($completedMap[$contractId])) {
+                continue;
+            }
+            if (empty($proj['is_expired'])) {
+                continue;
+            }
+            if (gig_history_worker_key((string)($proj['worker_id'] ?? '')) !== $canonical) {
+                continue;
+            }
+            $rows[] = [
+                'id' => $contractId,
+                'title' => (string)($proj['title'] ?? ''),
+                'status' => 'Tidak Selesai',
+                'statusCode' => 'cancelled',
+                'worker' => (string)($proj['worker_name'] ?? ''),
+                'workerRole' => (string)($proj['worker_role'] ?? ''),
+                'workerId' => (string)($proj['worker_id'] ?? ''),
+                'workerAvatar' => '',
+                'employer' => (string)($proj['employer'] ?? ''),
+                'duration' => (string)($proj['duration'] ?? ''),
+                'startDate' => (string)($proj['hired_label'] ?? ''),
+                'endDate' => (string)($proj['deadline'] ?? ''),
+                'budget' => (string)($proj['budget'] ?? ''),
+                'ratingGiven' => null,
+                'reviewGiven' => null,
+                'summary' => 'Deadline terlewati dan proyek belum diselesaikan.',
+                'createdAt' => (string)($proj['deadline_iso'] ?? ''),
+            ];
+            $existing[$contractId] = true;
+        }
+    }
+
+    usort($rows, static function (array $a, array $b): int {
+        return strtotime((string)($b['createdAt'] ?? '')) <=> strtotime((string)($a['createdAt'] ?? ''));
+    });
+    return $rows;
 }
 
 function gig_get_history_for_employer(string $username): array
 {
-    return gig_fetch_history_rows('employer_username', $username);
+    $rows = gig_fetch_history_rows('employer_username', $username);
+    $existing = [];
+    foreach ($rows as $row) {
+        $existing[(string)($row['id'] ?? '')] = true;
+    }
+
+    if (!function_exists('gig_demo_active_projects')) {
+        require_once __DIR__ . '/project-schedule.php';
+    }
+    if (function_exists('gig_demo_active_projects') && function_exists('gig_worker_project_completions_map')) {
+        $completedMap = gig_worker_project_completions_map();
+        foreach (gig_demo_active_projects() as $proj) {
+            $contractId = (string)($proj['contract_id'] ?? '');
+            if ($contractId === '' || isset($existing[$contractId]) || isset($completedMap[$contractId])) {
+                continue;
+            }
+            if (empty($proj['is_expired'])) {
+                continue;
+            }
+            if (strcasecmp((string)($proj['employer'] ?? ''), $username) !== 0) {
+                continue;
+            }
+            $rows[] = [
+                'id' => $contractId,
+                'title' => (string)($proj['title'] ?? ''),
+                'status' => 'Tidak Selesai',
+                'statusCode' => 'cancelled',
+                'worker' => (string)($proj['worker_name'] ?? ''),
+                'workerRole' => (string)($proj['worker_role'] ?? ''),
+                'workerId' => (string)($proj['worker_id'] ?? ''),
+                'workerAvatar' => '',
+                'employer' => (string)($proj['employer'] ?? ''),
+                'duration' => (string)($proj['duration'] ?? ''),
+                'startDate' => (string)($proj['hired_label'] ?? ''),
+                'endDate' => (string)($proj['deadline'] ?? ''),
+                'budget' => (string)($proj['budget'] ?? ''),
+                'ratingGiven' => null,
+                'reviewGiven' => null,
+                'summary' => 'Deadline terlewati dan proyek belum diselesaikan.',
+                'createdAt' => (string)($proj['deadline_iso'] ?? ''),
+            ];
+            $existing[$contractId] = true;
+        }
+    }
+
+    usort($rows, static function (array $a, array $b): int {
+        return strtotime((string)($b['createdAt'] ?? '')) <=> strtotime((string)($a['createdAt'] ?? ''));
+    });
+    return $rows;
 }

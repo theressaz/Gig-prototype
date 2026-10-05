@@ -80,7 +80,9 @@ require __DIR__ . '/includes/employer-layout-start.php';
         $isExpiredP2 = !empty($p2['is_expired']);
         $pendingExtP1 = is_array($p1['pending_extension'] ?? null) ? $p1['pending_extension'] : null;
         $pendingExtP2 = is_array($p2['pending_extension'] ?? null) ? $p2['pending_extension'] : null;
-        $hasActive = !$completedP1 || !$completedP2;
+        $showP1 = !$completedP1 && !$isExpiredP1;
+        $showP2 = !$completedP2 && !$isExpiredP2;
+        $hasActive = $showP1 || $showP2;
       ?>
 
       <?php if (!$hasActive): ?>
@@ -91,7 +93,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
         </div>
       <?php endif; ?>
 
-      <?php if (!$completedP1): ?>
+      <?php if ($showP1): ?>
       <!-- Project 1 -->
       <div class="active-project-card" id="project-GIG-2026-09-001" style="<?php echo $completedP1 ? 'border-left-color:#10b981;background:#f0fdf4;' : ''; ?>">
         <div class="active-proj-header">
@@ -266,7 +268,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
       </div>
       <?php endif; ?>
 
-      <?php if (!$completedP2): ?>
+      <?php if ($showP2): ?>
       <!-- Project 2 -->
       <div class="active-project-card" id="project-GIG-2026-09-002" style="<?php echo $completedP2 ? 'border-left-color:#10b981;background:#f0fdf4;' : ''; ?>">
         <div class="active-proj-header">
