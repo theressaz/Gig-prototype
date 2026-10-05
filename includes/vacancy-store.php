@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/project-vacancies.php';
 
 function gig_vacancy_budget_range(string $rawBudget): string
 {
@@ -23,13 +24,8 @@ function gig_vacancy_budget_range(string $rawBudget): string
         return $rawBudget;
     }
 
-    if (count($nums) === 1) {
-        $nums[1] = $nums[0];
-    }
-
-    $min = min($nums[0], $nums[1]);
-    $max = max($nums[0], $nums[1]);
-    return 'Rp ' . number_format($min, 0, ',', '.') . ' - Rp ' . number_format($max, 0, ',', '.');
+    $val = max($nums);
+    return 'Rp ' . number_format($val, 0, ',', '.');
 }
 
 function gig_vacancy_status_labels(): array
@@ -175,17 +171,18 @@ function gig_vacancy_normalize(array $vacancy): array
     $vacancy['quota'] = 1;
     $vacancy['budget'] = gig_vacancy_budget_range((string)($vacancy['budget'] ?? ''));
 
-    // Keep "Lokasi" as a concrete city/province value, never plain "Remote".
+    // Keep "Lokasi" as a concrete city/province value, never plain "Remote" or "Lokasi belum diisi".
     $rawLocation = trim((string)($vacancy['location'] ?? ''));
+    $idSeed = (string)($vacancy['id'] ?? ($vacancy['title'] ?? ''));
     if (preg_match('/^remote\s*\((.+)\)$/i', $rawLocation, $m) === 1) {
         $vacancy['location'] = trim((string)$m[1]);
     } elseif (strcasecmp($rawLocation, 'remote') === 0) {
         $city = trim((string)($vacancy['location_city'] ?? ''));
         $province = trim((string)($vacancy['location_province'] ?? ''));
         $resolved = trim($city . ', ' . $province, ', ');
-        $vacancy['location'] = $resolved !== '' ? $resolved : 'Lokasi belum diisi';
-    } elseif ($rawLocation === '') {
-        $vacancy['location'] = 'Lokasi belum diisi';
+        $vacancy['location'] = ($resolved !== '' && strcasecmp($resolved, 'Lokasi belum diisi') !== 0) ? $resolved : gig_random_location($idSeed);
+    } elseif ($rawLocation === '' || strcasecmp($rawLocation, 'Lokasi belum diisi') === 0) {
+        $vacancy['location'] = gig_random_location($idSeed);
     }
 
     return $vacancy;

@@ -63,8 +63,8 @@ if ($job) {
 }
 
 $displayLocation = trim((string)(($job ?? [])['location'] ?? ''));
-if ($displayLocation === '') {
-    $displayLocation = 'Lokasi belum diisi';
+if ($displayLocation === '' || strcasecmp($displayLocation, 'Lokasi belum diisi') === 0) {
+    $displayLocation = gig_random_location((string)(($job ?? [])['id'] ?? ''));
 }
 $employerName = (string)(($job ?? [])['employer'] ?? ($job ?? [])['client'] ?? 'Pemberi kerja');
 

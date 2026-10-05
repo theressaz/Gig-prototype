@@ -105,8 +105,11 @@ function gig_offer_enrich(array $offer): array
     $offer['project_title'] = $vacancy['title'] ?? (string)$offer['vacancy_id'];
     $offer['budget'] = $vacancy['budget'] ?? '—';
     $offer['duration'] = $vacancy['duration'] ?? '—';
-    $offer['category'] = $vacancy['category'] ?? 'Proyek';
-    $offer['location'] = $vacancy['location'] ?? 'Lokasi belum diisi';
+    $offerLoc = trim((string)($vacancy['location'] ?? ''));
+    if ($offerLoc === '' || strcasecmp($offerLoc, 'Lokasi belum diisi') === 0) {
+        $offerLoc = gig_random_location((string)($offer['vacancy_id'] ?? ''));
+    }
+    $offer['location'] = $offerLoc;
     $offer['skills'] = $vacancy['skills'] ?? [];
     $offer['deadline'] = $vacancy['deadline'] ?? '';
     $offer['employer_display'] = $vacancy['employer']

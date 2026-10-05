@@ -116,8 +116,8 @@ $employerName = (string)($vacancy['employer'] ?? 'Perusahaan');
 $skills = is_array($vacancy['skills'] ?? null) ? $vacancy['skills'] : [];
 $workType = trim((string)($vacancy['work_type'] ?? ''));
 $projectLocation = trim((string)($vacancy['location'] ?? ''));
-if ($projectLocation === '') {
-    $projectLocation = 'Lokasi belum diisi';
+if ($projectLocation === '' || strcasecmp($projectLocation, 'Lokasi belum diisi') === 0) {
+    $projectLocation = gig_random_location((string)($vacancy['id'] ?? ''));
 }
 $phone = trim((string)($vacancy['employer_phone'] ?? '-'));
 $email = trim((string)($vacancy['employer_email'] ?? '-'));

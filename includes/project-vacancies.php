@@ -266,6 +266,32 @@ function gig_project_vacancies_base(): array
     ];
 }
 
+if (!function_exists('gig_random_location')) {
+    function gig_random_location(string $seed = ''): string
+    {
+        $locations = [
+            'Jakarta Selatan',
+            'Bandung',
+            'Surabaya',
+            'Yogyakarta',
+            'Semarang',
+            'Tangerang Selatan',
+            'Medan',
+            'Denpasar',
+            'Depok',
+            'Bekasi',
+            'Malang',
+            'Bogor',
+        ];
+        if ($seed !== '') {
+            $index = abs(crc32($seed)) % count($locations);
+        } else {
+            $index = array_rand($locations);
+        }
+        return $locations[$index];
+    }
+}
+
 function gig_project_vacancies(): array
 {
     require_once __DIR__ . '/vacancy-store.php';

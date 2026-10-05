@@ -180,42 +180,59 @@ declare(strict_types=1);
         .gig-inline-radio {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 10px;
+          gap: 12px;
           margin-top: 6px;
         }
         .gig-inline-radio label {
           display: flex;
           align-items: flex-start;
-          gap: 8px;
-          font-size: 0.84rem;
-          color: #1e293b;
+          justify-content: flex-start;
+          gap: 12px;
+          font-size: 0.85rem;
+          color: #0f172a;
           font-weight: 700;
           cursor: pointer;
-          border: 1px solid #e2e8f0;
-          background: #f8fafc;
-          padding: 10px 12px;
-          border-radius: 10px;
+          border: 1px solid #cbd5e1;
+          background: #ffffff;
+          padding: 12px 14px;
+          border-radius: 12px;
           line-height: 1.35;
-          min-height: 64px;
-          transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+          min-height: 60px;
+          text-align: left;
+          transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
         }
         .gig-inline-radio label:hover {
-          border-color: #bae6fd;
+          border-color: #0ea5e9;
           background: #f0f9ff;
+        }
+        .gig-inline-radio label:has(input[type="radio"]:checked) {
+          border-color: #0ea5e9;
+          background: #f0f9ff;
+          box-shadow: 0 0 0 1px #0ea5e9;
         }
         .gig-inline-radio input[type="radio"] {
           margin-top: 2px;
+          width: 16px;
+          height: 16px;
+          flex-shrink: 0;
           accent-color: #0ea5e9;
+          cursor: pointer;
+        }
+        .gig-inline-radio span {
+          display: block;
+          text-align: left;
+          flex: 1;
         }
         .gig-inline-radio input[type="radio"]:checked + span {
-          color: #0c4a6e;
+          color: #0369a1;
         }
         .gig-inline-radio small {
           display: block;
           margin-top: 2px;
           color: #64748b;
-          font-size: 0.75rem;
-          font-weight: 600;
+          font-size: 0.76rem;
+          font-weight: 500;
+          line-height: 1.35;
         }
         .gig-toggle-row {
           margin: 4px 0 2px;
@@ -393,7 +410,7 @@ declare(strict_types=1);
                   <span class="gig-section-icon">3</span>
                   <div>
                     <div class="gig-section-title">Tambahan &amp; Publikasi</div>
-                    <div class="gig-section-sub">Opsi remote, rentang gaji, dan periode tayang lowongan.</div>
+                    <div class="gig-section-sub">Opsi remote, nominal gaji, dan periode tayang lowongan.</div>
                   </div>
                 </div>
 
@@ -412,21 +429,15 @@ declare(strict_types=1);
                   <div class="gig-note">Lokasi provinsi dan kota tetap wajib diisi pada bagian Informasi Proyek.</div>
                 </div>
 
-                <div class="gig-grid-2">
-                  <div class="form-row">
-                    <label for="proj_salary_min">Gaji Minimal (Rp) *</label>
-                    <input type="text" id="proj_salary_min" required placeholder="Contoh: 5000000" />
-                  </div>
-                  <div class="form-row">
-                    <label for="proj_salary_max">Gaji Maksimal (Rp) *</label>
-                    <input type="text" id="proj_salary_max" required placeholder="Contoh: 8500000" />
-                  </div>
+                <div class="form-row">
+                  <label for="proj_salary">Gaji Proyek (Rp) *</label>
+                  <input type="text" id="proj_salary" required placeholder="Contoh: 7500000" />
                 </div>
 
                 <div class="gig-toggle-row">
                   <label for="proj_show_salary" class="gig-checkbox-label">
                     <input type="checkbox" id="proj_show_salary" checked />
-                    <span>Tampilkan rentang gaji di postingan lowongan</span>
+                    <span>Tampilkan nominal gaji di postingan lowongan</span>
                   </label>
                 </div>
 
@@ -495,12 +506,10 @@ declare(strict_types=1);
       showToast('Lokasi proyek wajib diisi: provinsi dan kota/kabupaten.');
       return;
     }
-    const salaryMinRaw = document.getElementById('proj_salary_min').value || '';
-    const salaryMaxRaw = document.getElementById('proj_salary_max').value || '';
-    const salaryMin = Number((salaryMinRaw + '').replace(/[^\d]/g, ''));
-    const salaryMax = Number((salaryMaxRaw + '').replace(/[^\d]/g, ''));
-    if (!salaryMin || !salaryMax || salaryMax < salaryMin) {
-      showToast('Rentang gaji belum valid. Pastikan gaji maksimal lebih besar atau sama dengan gaji minimal.');
+    const salaryRaw = document.getElementById('proj_salary').value || '';
+    const salaryVal = Number((salaryRaw + '').replace(/[^\d]/g, ''));
+    if (!salaryVal || salaryVal < 10000) {
+      showToast('Gaji proyek belum valid. Masukkan nominal gaji yang sesuai.');
       return;
     }
 
@@ -514,10 +523,10 @@ declare(strict_types=1);
       qualifications: document.getElementById('proj_kualifikasi').value,
       visibility: document.getElementById('proj_visibility').value,
       skills: document.getElementById('proj_skills').value,
-      budget_min: salaryMin,
-      budget_max: salaryMax,
+      budget_min: salaryVal,
+      budget_max: salaryVal,
       deadline: document.getElementById('proj_deadline').value,
-      budget: salaryMin + ' - ' + salaryMax,
+      budget: 'Rp ' + salaryVal.toLocaleString('id-ID'),
       show_salary: document.getElementById('proj_show_salary').checked,
       location_type: locRadio ? locRadio.value : 'luring',
       location_detail: city + ', ' + province,

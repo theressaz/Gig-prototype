@@ -505,16 +505,7 @@ a.proyek-card-item:hover {
     </aside>
 
     <section class="results-pane">
-      <div class="results-topbar">
-        <div>
-          <h2 class="results-title">Lowongan Dalam Negeri</h2>
-          <p class="results-sub">Menampilkan <strong><?php echo count($vacancies); ?></strong> proyek siap dilamar.</p>
-        </div>
-        <div class="results-chips">
-          <span class="results-chip">Kategori: <?php echo htmlspecialchars($catMap[$selectedCat] ?? 'Semua Bidang', ENT_QUOTES, 'UTF-8'); ?></span>
-          <span class="results-chip">Gaji: <?php echo htmlspecialchars($budgetMap[$selectedBudget] ?? 'Semua Rentang Gaji', ENT_QUOTES, 'UTF-8'); ?></span>
-        </div>
-      </div>
+
 
       <?php if (empty($vacancies)): ?>
         <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 48px 20px; text-align: center; color: #64748b;">
@@ -539,7 +530,13 @@ a.proyek-card-item:hover {
                     <div class="employer-avatar-circle-sm">🏢</div>
                     <div>
                       <div class="card-employer-name"><?php echo htmlspecialchars($employerDisplayName, ENT_QUOTES, 'UTF-8'); ?></div>
-                      <div class="card-employer-sub">📍 <?php echo htmlspecialchars((string)($job['location'] ?? 'Lokasi belum diisi'), ENT_QUOTES, 'UTF-8'); ?></div>
+                      <?php
+                        $locDisplay = trim((string)($job['location'] ?? ''));
+                        if ($locDisplay === '' || strcasecmp($locDisplay, 'Lokasi belum diisi') === 0) {
+                            $locDisplay = gig_random_location((string)($job['id'] ?? ''));
+                        }
+                      ?>
+                      <div class="card-employer-sub">📍 <?php echo htmlspecialchars($locDisplay, ENT_QUOTES, 'UTF-8'); ?></div>
                     </div>
                   </div>
                   <span class="card-cat-badge"><?php echo htmlspecialchars($badgeLabel, ENT_QUOTES, 'UTF-8'); ?></span>

@@ -27,12 +27,11 @@ if ($title === '') {
 $employer = (string)($_SESSION['username'] ?? 'Employer');
 $budgetRaw = trim((string)($payload['budget'] ?? ''));
 $showSalary = !empty($payload['show_salary']);
-$budgetMin = (int)($payload['budget_min'] ?? 0);
-$budgetMax = (int)($payload['budget_max'] ?? 0);
+$budgetMin = (int)($payload['budget_min'] ?? ($payload['salary'] ?? 0));
 $budget = 'Gaji dapat dinegosiasikan';
 if ($showSalary) {
-    if ($budgetMin > 0 && $budgetMax >= $budgetMin) {
-        $budget = 'Rp ' . number_format($budgetMin, 0, ',', '.') . ' - Rp ' . number_format($budgetMax, 0, ',', '.');
+    if ($budgetMin > 0) {
+        $budget = 'Rp ' . number_format($budgetMin, 0, ',', '.');
     } elseif ($budgetRaw !== '') {
         $budgetSingle = (float)str_replace(['.', ','], '', preg_replace('/[^\d]/', '', $budgetRaw));
         if ($budgetSingle > 0) {
@@ -46,8 +45,8 @@ $locDetail = trim((string)($payload['location_detail'] ?? ''));
 $locCity = trim((string)($payload['location_city'] ?? ''));
 $locProvince = trim((string)($payload['location_province'] ?? ''));
 $location = $locDetail !== '' ? $locDetail : trim($locCity . ', ' . $locProvince, ', ');
-if ($location === '') {
-    $location = 'Lokasi belum diisi';
+if ($location === '' || strcasecmp($location, 'Lokasi belum diisi') === 0) {
+    $location = gig_random_location();
 }
 
 $vacancy = [

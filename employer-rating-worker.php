@@ -415,7 +415,7 @@ $displayComment = $submitted
             <span style="font-size:0.8rem;font-weight:700;color:var(--text-dark);"><?php echo htmlspecialchars($projectData['id'],ENT_QUOTES,'UTF-8'); ?></span>
           </div>
           <div>
-            <span style="font-size:0.72rem;color:var(--text-muted);display:block;">Nilai Kontrak:</span>
+            <span style="font-size:0.72rem;color:var(--text-muted);display:block;">Gaji:</span>
             <span style="font-size:0.85rem;font-weight:800;color:var(--primary-blue);"><?php echo htmlspecialchars($projectData['budget'],ENT_QUOTES,'UTF-8'); ?></span>
           </div>
         </div>
