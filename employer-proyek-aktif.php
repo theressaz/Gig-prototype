@@ -486,6 +486,10 @@ require __DIR__ . '/includes/employer-layout-start.php';
       function openExtensionModal(modalId) {
         const modal = document.getElementById(modalId);
         if (!modal) return;
+        // Move modal to <body> so fixed positioning isn't trapped by transformed card containers.
+        if (modal.parentElement !== document.body) {
+          document.body.appendChild(modal);
+        }
         modal.style.display = 'block';
       }
 
