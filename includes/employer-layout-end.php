@@ -70,15 +70,10 @@ declare(strict_types=1);
                 <textarea id="proj_kualifikasi" rows="3" placeholder="Contoh: Min. 2 tahun pengalaman UI/UX, familiar dengan design system..."></textarea>
               </div>
 
-              <div class="form-grid-2">
-                <div class="form-row">
-                  <label for="proj_quota">Jumlah Kuota Gig Worker *</label>
-                  <input type="number" id="proj_quota" required min="1" max="20" value="1" />
-                </div>
-                <div class="form-row">
-                  <label for="proj_deadline">Batas Waktu Lamaran *</label>
-                  <input type="date" id="proj_deadline" required value="2026-09-30" />
-                </div>
+              <div class="form-row">
+                <label for="proj_deadline">Batas Waktu Lamaran *</label>
+                <input type="date" id="proj_deadline" required value="2026-09-30" />
+                <div style="font-size:0.72rem;color:var(--text-muted);margin-top:3px;">Setiap lowongan secara otomatis hanya dapat merekrut <strong>1 Gig Worker</strong>.</div>
               </div>
 
               <div class="form-row">
@@ -152,7 +147,6 @@ declare(strict_types=1);
       desc: document.getElementById('proj_desc').value,
       target: document.getElementById('proj_target').value,
       qualifications: document.getElementById('proj_kualifikasi').value,
-      quota: document.getElementById('proj_quota').value,
       deadline: document.getElementById('proj_deadline').value,
       budget: document.getElementById('proj_budget').value,
       show_salary: document.getElementById('proj_show_salary').checked,

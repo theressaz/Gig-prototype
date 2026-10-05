@@ -111,7 +111,7 @@ function gig_vacancy_migrate_legacy_tables(PDO $pdo): void
                 'duration' => (string)($payload['duration'] ?? ''),
                 'applicantsCount' => 0,
                 'acceptedCount' => 0,
-                'quota' => (int)($payload['quota'] ?? 1),
+                'quota' => 1,
                 'location' => (string)($payload['location'] ?? 'Remote'),
                 'posted' => date('d M Y', strtotime((string)$sub['created_at'])),
                 'skills' => $payload['skills'] ?? [],
@@ -138,6 +138,8 @@ function gig_vacancy_normalize(array $vacancy): array
         $vacancy['applicantsCount'] = 0;
         $vacancy['acceptedCount'] = 0;
     }
+    // Platform policy: each posting can only recruit one Gig Worker.
+    $vacancy['quota'] = 1;
     return $vacancy;
 }
 
@@ -245,7 +247,7 @@ function gig_vacancy_save_submission(string $employerUsername, array $vacancy): 
         'duration' => (string)($vacancy['duration'] ?? ''),
         'applicantsCount' => 0,
         'acceptedCount' => 0,
-        'quota' => (int)($vacancy['quota'] ?? 1),
+        'quota' => 1,
         'location' => (string)($vacancy['location'] ?? 'Remote'),
         'posted' => date('d M Y'),
         'skills' => $vacancy['skills'] ?? [],

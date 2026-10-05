@@ -19,6 +19,29 @@ function gig_is_hired_status(string $status): bool
     return in_array($status, ['confirmed_by_worker', 'accepted_by_employer'], true);
 }
 
+function gig_vacancy_hired_application(string $vacancyId, string $excludeAppId = ''): ?array
+{
+    $vacancyKey = strtolower(trim($vacancyId));
+    if ($vacancyKey === '') {
+        return null;
+    }
+    $excludeKey = strtolower(trim($excludeAppId));
+    foreach (gig_get_all_applications() as $app) {
+        $appId = strtolower(trim((string)($app['id'] ?? '')));
+        if ($excludeKey !== '' && $appId === $excludeKey) {
+            continue;
+        }
+        $appVacancy = strtolower(trim((string)($app['vacancy_id'] ?? '')));
+        if ($appVacancy !== $vacancyKey) {
+            continue;
+        }
+        if (gig_is_hired_status((string)($app['status'] ?? ''))) {
+            return $app;
+        }
+    }
+    return null;
+}
+
 function gig_apps_session_start(): void
 {
     if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -522,6 +545,9 @@ function gig_apply_for_project(string $workerId, string $workerName, string $vac
     if (!$vacancy) {
         return ['ok' => false, 'error' => 'Lowongan proyek tidak ditemukan.'];
     }
+    if (gig_vacancy_hired_application((string)$vacancy['id']) !== null) {
+        return ['ok' => false, 'error' => 'Lowongan ini sudah terisi oleh 1 Gig Worker.'];
+    }
 
     // Check if worker already applied
     foreach (gig_get_applications_for_worker($workerId) as $existing) {
@@ -594,6 +620,10 @@ function gig_employer_respond_application(string $appId, string $decision, strin
     $vacancy = gig_find_vacancy($app['vacancy_id']);
     $projectTitle = $vacancy['title'] ?? 'Proyek';
 
+    if ($decision === 'accept' && $vacancy && gig_vacancy_hired_application((string)$vacancy['id'], $appId) !== null) {
+        return ['ok' => false, 'error' => 'Lowongan ini sudah memiliki Gig Worker terpilih.'];
+    }
+
     $newStatus = ($decision === 'accept') ? 'confirmed_by_worker' : 'rejected_by_employer';
     $app['status'] = $newStatus;
     $app['updated_at'] = date('Y-m-d H:i:s');
@@ -652,6 +682,10 @@ function gig_worker_confirm_application(string $appId, string $action, string $w
 
     $vacancy = gig_find_vacancy($app['vacancy_id']);
     $projectTitle = $vacancy['title'] ?? 'Proyek';
+
+    if ($action === 'confirm' && $vacancy && gig_vacancy_hired_application((string)$vacancy['id'], $appId) !== null) {
+        return ['ok' => false, 'error' => 'Proyek ini sudah terisi oleh Gig Worker lain.'];
+    }
 
     if ($action === 'confirm') {
         $newStatus = 'confirmed_by_worker';

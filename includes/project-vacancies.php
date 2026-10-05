@@ -153,7 +153,7 @@ function gig_project_vacancies_base(): array
             'duration' => '2 Minggu',
             'applicantsCount' => 4,
             'acceptedCount' => 1,
-            'quota' => 2,
+            'quota' => 1,
             'location' => 'Yogyakarta',
             'posted' => '12 Sep 2026',
             'skills' => ['Figma', 'Illustrator', 'Branding', 'Logo Design'],

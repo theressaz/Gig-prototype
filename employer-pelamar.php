@@ -5,6 +5,7 @@ require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/project-applications.php';
 
 $flashMsg = '';
+$flashErr = false;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['app_action'])) {
     $appId = trim((string)($_POST['app_id'] ?? ''));
     $act   = trim((string)($_POST['app_action'] ?? ''));
@@ -14,6 +15,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['app_action'])) {
             $flashMsg = ($act === 'accept')
                 ? 'Lamaran diterima. Gig Worker resmi direkrut dan proyek kini aktif.'
                 : 'Lamaran kandidat telah ditolak.';
+            $flashErr = false;
+        } else {
+            $flashMsg = (string)($res['error'] ?? 'Gagal memproses aksi kandidat.');
+            $flashErr = true;
         }
     }
 }
@@ -66,8 +71,8 @@ require __DIR__ . '/includes/employer-layout-start.php';
     </div>
 
     <?php if ($flashMsg !== ''): ?>
-      <div style="background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;padding:12px 16px;border-radius:10px;font-size:0.86rem;margin-bottom:18px;font-weight:700;display:flex;align-items:center;gap:8px;">
-        <span>✓</span> <?php echo htmlspecialchars($flashMsg, ENT_QUOTES, 'UTF-8'); ?>
+      <div style="background:<?php echo $flashErr ? '#fef2f2' : '#f0fdf4'; ?>;border:1px solid <?php echo $flashErr ? '#fecaca' : '#bbf7d0'; ?>;color:<?php echo $flashErr ? '#991b1b' : '#166534'; ?>;padding:12px 16px;border-radius:10px;font-size:0.86rem;margin-bottom:18px;font-weight:700;display:flex;align-items:center;gap:8px;">
+        <span><?php echo $flashErr ? '!' : '✓'; ?></span> <?php echo htmlspecialchars($flashMsg, ENT_QUOTES, 'UTF-8'); ?>
       </div>
     <?php endif; ?>
 

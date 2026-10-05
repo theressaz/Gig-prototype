@@ -291,7 +291,7 @@ a.proyek-card-item:hover {
   height: 2.8em;
 }
 
-/* Metadata box with Salary, Duration, and Kuota */
+/* Metadata box with Salary and Duration */
 .card-meta-detail {
   display: flex;
   justify-content: space-between;
@@ -422,7 +422,6 @@ a.proyek-card-item:hover {
       <?php foreach ($vacancies as $idx => $job): ?>
         <?php 
           $badgeLabel = getCategoryShortLabel($job['category']);
-          $quotaNum = (int)($job['quota'] ?? 1);
           $employerDisplayName = (string)($job['employer'] ?? ($job['client'] ?? 'PT SIAPKerja Partner'));
           $skillsToShow = array_slice($job['skills'], 0, 3);
           $remainingCount = count($job['skills']) - count($skillsToShow);
@@ -444,12 +443,11 @@ a.proyek-card-item:hover {
             <!-- Project Title -->
             <h3 class="card-project-title"><?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
 
-            <!-- Salary, Duration, & Kuota -->
+            <!-- Salary & Duration -->
             <div class="card-meta-detail">
               <div class="card-salary"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></div>
               <div class="card-meta-pills">
                 <span class="meta-pill-info">⏱️ <?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?></span>
-                <span class="meta-pill-info">👥 Kuota: <?php echo $quotaNum; ?></span>
               </div>
             </div>
 

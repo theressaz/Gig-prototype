@@ -441,13 +441,12 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <?php foreach ($activeVacancies as $v): ?>
               <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;"
                    data-vacancy-id="<?php echo htmlspecialchars($v['id'], ENT_QUOTES, 'UTF-8'); ?>"
-                   data-offer-count="<?php echo (int)($vacancyOfferCounts[$v['id']] ?? 0); ?>"
-                   data-quota="<?php echo (int)$v['quota']; ?>">
+                   data-offer-count="<?php echo (int)($vacancyOfferCounts[$v['id']] ?? 0); ?>">
                 <div>
                   <div style="font-size:0.88rem;font-weight:700;color:#1e293b;"><?php echo htmlspecialchars($v['title'], ENT_QUOTES, 'UTF-8'); ?></div>
                   <div style="font-size:0.74rem;color:var(--text-muted);margin-top:2px;">
                     <?php echo htmlspecialchars($v['budget'], ENT_QUOTES, 'UTF-8'); ?> · <?php echo htmlspecialchars($v['duration'], ENT_QUOTES, 'UTF-8'); ?>
-                    · <span style="color:#059669;font-weight:700;">Kuota: <?php echo (int)$v['quota']; ?></span>
+                    · <span style="color:#059669;font-weight:700;">Penempatan 1 Gig Worker</span>
                   </div>
                 </div>
                 <button type="button" class="btn-hire offer-send-btn"

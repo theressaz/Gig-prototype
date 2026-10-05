@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/project-vacancies.php';
+require_once __DIR__ . '/project-applications.php';
 
 function gig_offer_worker_key(string $value): string
 {
@@ -210,6 +211,9 @@ function gig_save_offer(string $employer, string $workerId, string $vacancyId, s
     $vacancy = gig_find_vacancy($vacancyId);
     if (!$vacancy || ($vacancy['status'] ?? '') !== 'active') {
         return ['ok' => false, 'error' => 'Hanya proyek yang sudah tayang yang dapat ditawarkan.'];
+    }
+    if (gig_vacancy_hired_application((string)$vacancy['id']) !== null) {
+        return ['ok' => false, 'error' => 'Proyek ini sudah terisi oleh 1 Gig Worker.'];
     }
 
     $workerKey = gig_offer_worker_key($workerId);

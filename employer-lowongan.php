@@ -102,7 +102,7 @@ $colors = ['#2563eb', '#0891b2', '#7c3aed', '#059669', '#ea580c', '#db2777'];
           <tr>
             <th>Lowongan</th>
             <th>Penempatan</th>
-            <th>Kuota Tersedia</th>
+            <th>Status Penempatan</th>
             <th>Kandidat</th>
             <th>Status Verifikasi</th>
             <th>Aksi</th>
@@ -125,7 +125,7 @@ $colors = ['#2563eb', '#0891b2', '#7c3aed', '#059669', '#ea580c', '#db2777'];
               </div>
             </td>
             <td><?php echo htmlspecialchars($job['location'], ENT_QUOTES, 'UTF-8'); ?></td>
-            <td><?php echo (int)$job['acceptedCount']; ?>/<?php echo (int)$job['quota']; ?> terisi</td>
+            <td><?php echo (int)$job['acceptedCount'] > 0 ? 'Sudah terisi' : 'Belum terisi'; ?></td>
             <td>
               <?php if ($job['status'] === 'active' && (int)$job['applicantsCount'] > 0): ?>
                 <a href="employer-pelamar.php" style="color:var(--primary-blue);font-weight:700;text-decoration:none;">

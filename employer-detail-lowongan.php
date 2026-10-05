@@ -151,8 +151,8 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <strong><?php echo htmlspecialchars($job['location'], ENT_QUOTES, 'UTF-8'); ?></strong>
             </div>
             <div>
-              <span style="color:var(--text-muted);display:block;">Kuota Pekerja</span>
-              <strong><?php echo (int)$job['acceptedCount']; ?> / <?php echo (int)$job['quota']; ?> Terisi</strong>
+              <span style="color:var(--text-muted);display:block;">Penempatan Gig Worker</span>
+              <strong><?php echo (int)$job['acceptedCount'] > 0 ? 'Sudah Terisi' : 'Belum Terisi'; ?></strong>
             </div>
             <div>
               <span style="color:var(--text-muted);display:block;">Tanggal Dipasang</span>

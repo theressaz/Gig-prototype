@@ -202,7 +202,7 @@ if ($role === 'employer') {
               </a>
             </h4>
             <div style="font-size: 0.82rem; color: #64748b;">
-              Gaji: <strong style="color: #1d4ed8;"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Durasi: <?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?> &bull; Kuota: <?php echo (int)($job['quota'] ?? 1); ?> Freelancer
+              Gaji: <strong style="color: #1d4ed8;"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull; Durasi: <?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?> &bull; Penempatan: 1 Gig Worker
             </div>
           </div>
 
