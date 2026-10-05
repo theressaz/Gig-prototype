@@ -273,7 +273,11 @@ function gig_project_vacancies(): array
     if ($fromDb !== []) {
         return $fromDb;
     }
-    return gig_project_vacancies_base();
+    $fallback = gig_project_vacancies_base();
+    return array_map(static function (array $vacancy): array {
+        $vacancy['budget'] = gig_vacancy_budget_range((string)($vacancy['budget'] ?? ''));
+        return $vacancy;
+    }, $fallback);
 }
 
 function gig_find_vacancy(string $id): ?array

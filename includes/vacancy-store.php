@@ -3,6 +3,35 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
 
+function gig_vacancy_budget_range(string $rawBudget): string
+{
+    $rawBudget = trim($rawBudget);
+    if ($rawBudget === '') {
+        return 'Gaji dapat dinegosiasikan';
+    }
+
+    // Keep non-numeric labels such as "Gaji dapat dinegosiasikan".
+    if (preg_match_all('/\d[\d\.]*/', $rawBudget, $m) !== 1 || empty($m[0])) {
+        return $rawBudget;
+    }
+
+    $nums = array_values(array_filter(array_map(static function (string $n): int {
+        return (int)preg_replace('/[^\d]/', '', $n);
+    }, $m[0]), static fn(int $n): bool => $n > 0));
+
+    if ($nums === []) {
+        return $rawBudget;
+    }
+
+    if (count($nums) === 1) {
+        $nums[1] = $nums[0];
+    }
+
+    $min = min($nums[0], $nums[1]);
+    $max = max($nums[0], $nums[1]);
+    return 'Rp ' . number_format($min, 0, ',', '.') . ' - Rp ' . number_format($max, 0, ',', '.');
+}
+
 function gig_vacancy_status_labels(): array
 {
     return [
@@ -100,7 +129,7 @@ function gig_vacancy_migrate_legacy_tables(PDO $pdo): void
                 continue;
             }
             $payload = json_decode((string)($sub['payload_json'] ?? ''), true) ?: [];
-            $budget = (string)($payload['budget'] ?? 'Gaji dapat dinegosiasikan');
+            $budget = gig_vacancy_budget_range((string)($payload['budget'] ?? 'Gaji dapat dinegosiasikan'));
             $vacancy = [
                 'id' => $id,
                 'title' => (string)$sub['title'],
@@ -144,6 +173,7 @@ function gig_vacancy_normalize(array $vacancy): array
     }
     // Platform policy: each posting can only recruit one Gig Worker.
     $vacancy['quota'] = 1;
+    $vacancy['budget'] = gig_vacancy_budget_range((string)($vacancy['budget'] ?? ''));
 
     // Keep "Lokasi" as a concrete city/province value, never plain "Remote".
     $rawLocation = trim((string)($vacancy['location'] ?? ''));
@@ -261,7 +291,7 @@ function gig_vacancy_save_submission(string $employerUsername, array $vacancy): 
         'category' => (string)($vacancy['category'] ?? ''),
         'status' => 'review',
         'statusLabel' => 'Menunggu Verifikasi',
-        'budget' => $budgetRaw !== '' ? $budgetRaw : 'Gaji dapat dinegosiasikan',
+        'budget' => gig_vacancy_budget_range($budgetRaw !== '' ? $budgetRaw : 'Gaji dapat dinegosiasikan'),
         'duration' => (string)($vacancy['duration'] ?? ''),
         'applicantsCount' => 0,
         'acceptedCount' => 0,

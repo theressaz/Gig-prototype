@@ -48,7 +48,11 @@ if ($selectedCat !== '' && $selectedCat !== 'all') {
 // Filter by Budget Range
 if ($selectedBudget !== '' && $selectedBudget !== 'all') {
     $vacancies = array_values(array_filter($vacancies, static function ($job) use ($selectedBudget) {
-        $bVal = (int) preg_replace('/[^0-9]/', '', $job['budget']);
+        $nums = [];
+        if (preg_match_all('/\d[\d\.]*/', (string)($job['budget'] ?? ''), $m) === 1) {
+            $nums = array_values(array_filter(array_map(static fn($n) => (int)preg_replace('/[^\d]/', '', (string)$n), $m[0]), static fn($n) => $n > 0));
+        }
+        $bVal = (int)($nums[1] ?? $nums[0] ?? 0);
         if ($selectedBudget === 'under_5m') return $bVal < 5000000;
         if ($selectedBudget === '5m_10m') return $bVal >= 5000000 && $bVal <= 10000000;
         if ($selectedBudget === 'over_10m') return $bVal > 10000000;
