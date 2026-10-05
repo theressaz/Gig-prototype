@@ -75,6 +75,45 @@ require __DIR__ . '/includes/worker-layout-start.php';
   margin: 0 auto;
 }
 
+.bursa-page-hero {
+  background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 65%);
+  border: 1px solid #dbeafe;
+  border-radius: 18px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.bursa-page-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.bursa-page-subtitle {
+  margin: 4px 0 0 0;
+  font-size: 0.84rem;
+  color: #475569;
+}
+
+.bursa-page-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
 .bursa-layout {
   display: grid;
   grid-template-columns: 290px 1fr;
@@ -243,6 +282,11 @@ require __DIR__ . '/includes/worker-layout-start.php';
   font-weight: 700;
 }
 
+.result-count-highlight {
+  color: #1d4ed8;
+  font-weight: 800;
+}
+
 /* Grid layout: 3 columns per row for clean spacious layout */
 .proyek-cards-grid {
   display: grid;
@@ -251,6 +295,9 @@ require __DIR__ . '/includes/worker-layout-start.php';
 }
 
 @media (max-width: 992px) {
+  .bursa-page-hero {
+    padding: 14px 14px;
+  }
   .bursa-layout {
     grid-template-columns: 1fr;
   }
@@ -459,6 +506,17 @@ a.proyek-card-item:hover {
     ];
   ?>
 
+  <section class="bursa-page-hero">
+    <div>
+      <h1 class="bursa-page-title">Cari Proyek Gig Worker</h1>
+      <p class="bursa-page-subtitle">Temukan lowongan proyek yang sesuai dengan keahlian, lokasi, dan rentang gaji Anda.</p>
+    </div>
+    <div class="bursa-page-counter">
+      <span>Lowongan Tersedia:</span>
+      <span><?php echo count($allActiveVacancies); ?></span>
+    </div>
+  </section>
+
   <div class="bursa-layout">
     <aside class="filter-panel">
       <h2>Filter</h2>
@@ -505,6 +563,16 @@ a.proyek-card-item:hover {
     </aside>
 
     <section class="results-pane">
+      <div class="results-topbar">
+        <div>
+          <h2 class="results-title">Lowongan Dalam Negeri</h2>
+          <p class="results-sub">Menampilkan <span class="result-count-highlight"><?php echo count($vacancies); ?></span> proyek siap dilamar.</p>
+        </div>
+        <div class="results-chips">
+          <span class="results-chip">Kategori: <?php echo htmlspecialchars($catMap[$selectedCat] ?? 'Semua Bidang', ENT_QUOTES, 'UTF-8'); ?></span>
+          <span class="results-chip">Gaji: <?php echo htmlspecialchars($budgetMap[$selectedBudget] ?? 'Semua Rentang Gaji', ENT_QUOTES, 'UTF-8'); ?></span>
+        </div>
+      </div>
 
 
       <?php if (empty($vacancies)): ?>
