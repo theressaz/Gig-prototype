@@ -27,6 +27,14 @@ foreach ($workers as $row) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $worker !== null) {
     $action = (string)($_POST['action'] ?? '');
     $note = trim((string)($_POST['admin_note'] ?? ''));
+    if (!empty($_POST['compliance_reasons']) && is_array($_POST['compliance_reasons'])) {
+        $reasonsList = array_map(static fn($r) => trim((string)$r), $_POST['compliance_reasons']);
+        $reasonsList = array_filter($reasonsList, static fn($r) => $r !== '');
+        if ($reasonsList !== []) {
+            $reasonsStr = 'Ketidakpatuhan: ' . implode(', ', $reasonsList);
+            $note = $note !== '' ? $reasonsStr . '. ' . $note : $reasonsStr;
+        }
+    }
     if ($action === 'worker_take_decision') {
         $decision = (string)($_POST['decision'] ?? '');
         if ($decision === 'approve') {
@@ -35,24 +43,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $worker !== null) {
             $flashType = $ok ? 'success' : 'error';
         } elseif ($decision === 'reject') {
             if ($note === '') {
-                $ok = false;
-                $flash = 'Catatan wajib diisi untuk keputusan tolak.';
-                $flashType = 'error';
-            } else {
-                $ok = gig_admin_set_worker_status((string)$worker['username'], 'rejected', $note);
-                $flash = $ok ? 'Keputusan verifikasi: Gig Worker ditolak.' : 'Gagal memproses penolakan.';
-                $flashType = $ok ? 'success' : 'error';
+                $note = 'Data/berkas profil Gig Worker tidak memenuhi syarat.';
             }
+            $ok = gig_admin_set_worker_status((string)$worker['username'], 'rejected', $note);
+            $flash = $ok ? 'Keputusan verifikasi: Gig Worker ditolak.' : 'Gagal memproses penolakan.';
+            $flashType = $ok ? 'success' : 'error';
         } elseif ($decision === 'revision') {
             if ($note === '') {
-                $ok = false;
-                $flash = 'Catatan wajib diisi untuk keputusan revisi.';
-                $flashType = 'error';
-            } else {
-                $ok = gig_admin_set_worker_status((string)$worker['username'], 'pending', $note);
-                $flash = $ok ? 'Catatan revisi dikirim. Status kembali ke menunggu verifikasi.' : 'Gagal mengirim catatan revisi.';
-                $flashType = $ok ? 'success' : 'error';
+                $note = 'Harap perbaiki data/berkas profil Gig Worker sesuai catatan.';
             }
+            $ok = gig_admin_set_worker_status((string)$worker['username'], 'pending', $note);
+            $flash = $ok ? 'Catatan revisi dikirim. Status kembali ke menunggu verifikasi.' : 'Gagal mengirim catatan revisi.';
+            $flashType = $ok ? 'success' : 'error';
         } else {
             $ok = false;
             $flash = 'Pilihan keputusan tidak valid.';
@@ -500,7 +502,7 @@ if ($status === 'approved') {
     </div>
     <div class="detail-actions">
       <span class="detail-btn primary"><?php echo htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8'); ?></span>
-      <button type="button" class="detail-btn" onclick="openDecisionModal()">Ambil Keputusan</button>
+      <button type="button" class="detail-btn" onclick="openAdminDecisionModal({entityType:'worker', entityName:'profil Gig Worker', username:'<?php echo htmlspecialchars((string)$worker['username'], ENT_QUOTES, 'UTF-8'); ?>', action:'worker_take_decision'})">Ambil Keputusan</button>
       <button type="button" class="detail-btn" onclick="window.print()">Cetak Kartu</button>
     </div>
   </div>
@@ -699,121 +701,15 @@ if ($status === 'approved') {
   </div>
 </section>
 
-<div id="decision-modal-backdrop" class="decision-modal-backdrop" onclick="if(event.target===this){closeDecisionModal();}">
-  <div class="decision-modal">
-    <div class="decision-modal-head">
-      <div>
-        <div class="decision-modal-title">Ambil Keputusan Verifikasi</div>
-        <div class="decision-modal-sub">Pilih keputusan untuk profil Gig Worker ini. Pastikan Anda telah memeriksa data secara seksama.</div>
-      </div>
-      <button type="button" class="decision-close" onclick="closeDecisionModal()">&times;</button>
-    </div>
-    <form method="post" id="decision-form">
-      <input type="hidden" name="action" value="worker_take_decision">
-      <div class="decision-modal-body">
-        <div class="decision-group-title">Keputusan</div>
-        <div class="decision-group-sub">Tentukan hasil akhir verifikasi akun worker.</div>
-        <div class="decision-options">
-          <label class="decision-option" data-opt="approve">
-            <input type="radio" name="decision" value="approve">
-            <span>Setujui</span>
-          </label>
-          <label class="decision-option" data-opt="reject">
-            <input type="radio" name="decision" value="reject">
-            <span>Tolak</span>
-          </label>
-          <label class="decision-option" data-opt="revision">
-            <input type="radio" name="decision" value="revision">
-            <span>Revisi</span>
-          </label>
-        </div>
-
-        <div id="decision-note-wrap" class="decision-note-wrap">
-          <label class="decision-note-label">Catatan <span class="req">*</span></label>
-          <textarea class="decision-note" name="admin_note" id="decision-note-input" placeholder="Masukkan catatan untuk keputusan ini..."></textarea>
-        </div>
-
-        <div id="decision-hint" class="decision-hint">
-          Dengan menyetujui, akun worker akan aktif dan dapat menerima proyek gig.
-        </div>
-      </div>
-      <div class="decision-modal-foot">
-        <button type="button" class="btn-cancel" onclick="closeDecisionModal()">Batalkan</button>
-        <button type="submit" id="decision-submit-btn" class="btn-confirm approve">Setujui Worker</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <script>
 function openDecisionModal() {
-  const modal = document.getElementById('decision-modal-backdrop');
-  if (!modal) return;
-  modal.style.display = 'block';
-}
-
-function closeDecisionModal() {
-  const modal = document.getElementById('decision-modal-backdrop');
-  if (!modal) return;
-  modal.style.display = 'none';
-}
-
-(function initDecisionModal() {
-  const opts = Array.from(document.querySelectorAll('.decision-option'));
-  const radios = Array.from(document.querySelectorAll('.decision-option input[type="radio"]'));
-  const submitBtn = document.getElementById('decision-submit-btn');
-  const hint = document.getElementById('decision-hint');
-  const noteWrap = document.getElementById('decision-note-wrap');
-  const noteInput = document.getElementById('decision-note-input');
-  const form = document.getElementById('decision-form');
-  if (!submitBtn || !hint || !noteWrap || !noteInput || !form) return;
-
-  function syncUi() {
-    const selected = radios.find(r => r.checked)?.value || 'approve';
-    opts.forEach(function(label) {
-      label.classList.toggle('is-selected', label.getAttribute('data-opt') === selected);
-    });
-    hint.className = 'decision-hint';
-    noteInput.required = false;
-    if (selected === 'approve') {
-      submitBtn.textContent = 'Setujui Worker';
-      submitBtn.className = 'btn-confirm approve';
-      hint.textContent = 'Dengan menyetujui, akun worker akan aktif dan dapat menerima proyek gig.';
-      noteWrap.classList.remove('show');
-      noteInput.value = '';
-    } else if (selected === 'reject') {
-      submitBtn.textContent = 'Tolak Worker';
-      submitBtn.className = 'btn-confirm reject';
-      hint.classList.add('warn');
-      hint.textContent = 'Tindakan ini akan menolak verifikasi akun worker. Worker harus memperbarui data dan mengajukan ulang.';
-      noteWrap.classList.add('show');
-      noteInput.required = true;
-      noteInput.placeholder = 'Masukkan alasan penolakan profil...';
-    } else {
-      submitBtn.textContent = 'Kirim Revisi';
-      submitBtn.className = 'btn-confirm revision';
-      hint.classList.add('rev');
-      hint.textContent = 'Catatan revisi akan dikirim ke worker dan status tetap menunggu verifikasi hingga worker memperbaiki data.';
-      noteWrap.classList.add('show');
-      noteInput.required = true;
-      noteInput.placeholder = 'Masukkan catatan revisi untuk worker...';
-    }
-  }
-
-  if (!radios.some(r => r.checked) && radios[0]) {
-    radios[0].checked = true;
-  }
-  radios.forEach(r => r.addEventListener('change', syncUi));
-  syncUi();
-
-  form.addEventListener('submit', function(e) {
-    const selected = radios.find(r => r.checked)?.value || '';
-    if ((selected === 'reject' || selected === 'revision') && noteInput.value.trim() === '') {
-      e.preventDefault();
-      noteInput.focus();
-    }
+  openAdminDecisionModal({
+    entityType: 'worker',
+    entityName: 'profil Gig Worker',
+    username: <?php echo json_encode((string)($worker['username'] ?? ''), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>,
+    action: 'worker_take_decision'
   });
-})();
+}
 </script>
 
 <?php require __DIR__ . '/includes/admin-layout-end.php'; ?>

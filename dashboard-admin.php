@@ -19,6 +19,15 @@ if (!in_array($tab, $allowedTabs, true)) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = (string)($_POST['action'] ?? '');
     $note = trim((string)($_POST['admin_note'] ?? ''));
+    if (!empty($_POST['compliance_reasons']) && is_array($_POST['compliance_reasons'])) {
+        $reasonsList = array_map(static fn($r) => trim((string)$r), $_POST['compliance_reasons']);
+        $reasonsList = array_filter($reasonsList, static fn($r) => $r !== '');
+        if ($reasonsList !== []) {
+            $reasonsStr = 'Ketidakpatuhan: ' . implode(', ', $reasonsList);
+            $note = $note !== '' ? $reasonsStr . '. ' . $note : $reasonsStr;
+        }
+    }
+    $decisionChoice = (string)($_POST['decision'] ?? '');
     $redirectTab = (string)($_POST['tab'] ?? 'verification');
     if ($redirectTab === 'overview') {
         $redirectTab = 'verification';
@@ -34,6 +43,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $flash = $ok ? 'Pendaftaran Gig Worker ditolak.' : 'Gagal menolak pendaftaran worker.';
         $flashType = $ok ? 'success' : 'error';
         $redirectTab = 'workers';
+    } elseif ($action === 'worker_decision' || $action === 'worker_take_decision') {
+        $username = (string)($_POST['username'] ?? '');
+        if ($decisionChoice === 'approve') {
+            $ok = gig_admin_set_worker_status($username, 'approved', $note);
+            $flash = $ok ? 'Pendaftaran Gig Worker disetujui.' : 'Gagal memproses pendaftaran worker.';
+        } elseif ($decisionChoice === 'reject') {
+            if ($note === '') { $note = 'Data/berkas profil Gig Worker tidak memenuhi syarat.'; }
+            $ok = gig_admin_set_worker_status($username, 'rejected', $note);
+            $flash = $ok ? 'Pendaftaran Gig Worker ditolak.' : 'Gagal menolak pendaftaran worker.';
+        } else {
+            if ($note === '') { $note = 'Harap perbaiki data/berkas pendaftaran worker.'; }
+            $ok = gig_admin_set_worker_status($username, 'pending', $note);
+            $flash = $ok ? 'Permintaan revisi dikirim. Status dikembalikan ke antrean.' : 'Gagal mengirim catatan revisi.';
+        }
+        $flashType = $ok ? 'success' : 'error';
+        $redirectTab = 'workers';
     } elseif ($action === 'worker_edit_approve') {
         $ok = gig_admin_set_worker_profile_edit_status((int)($_POST['edit_id'] ?? 0), 'approved', $note);
         $flash = $ok ? 'Pengajuan edit profil worker disetujui.' : 'Gagal menyetujui pengajuan edit profil.';
@@ -42,6 +67,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'worker_edit_reject') {
         $ok = gig_admin_set_worker_profile_edit_status((int)($_POST['edit_id'] ?? 0), 'rejected', $note);
         $flash = $ok ? 'Pengajuan edit profil worker ditolak.' : 'Gagal menolak pengajuan edit profil.';
+        $flashType = $ok ? 'success' : 'error';
+        $redirectTab = 'workers';
+    } elseif ($action === 'worker_edit_decision') {
+        $editId = (int)($_POST['edit_id'] ?? 0);
+        if ($decisionChoice === 'approve') {
+            $ok = gig_admin_set_worker_profile_edit_status($editId, 'approved', $note);
+            $flash = $ok ? 'Pengajuan edit profil worker disetujui.' : 'Gagal menyetujui pengajuan edit profil.';
+        } else {
+            $ok = gig_admin_set_worker_profile_edit_status($editId, 'rejected', $note);
+            $flash = $ok ? 'Pengajuan edit profil worker ditolak.' : 'Gagal menolak pengajuan edit profil.';
+        }
         $flashType = $ok ? 'success' : 'error';
         $redirectTab = 'workers';
     } elseif ($action === 'employer_approve') {
@@ -54,14 +90,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $flash = $ok ? 'Pendaftaran pemberi kerja ditolak.' : 'Gagal menolak pendaftaran employer.';
         $flashType = $ok ? 'success' : 'error';
         $redirectTab = 'employers';
+    } elseif ($action === 'employer_decision') {
+        $empId = (int)($_POST['id'] ?? 0);
+        if ($decisionChoice === 'approve') {
+            $ok = gig_admin_set_employer_status($empId, 'approved', $note);
+            $flash = $ok ? 'Pendaftaran pemberi kerja disetujui.' : 'Gagal memproses pendaftaran employer.';
+        } elseif ($decisionChoice === 'reject') {
+            if ($note === '') { $note = 'Data/legalitas pemberi kerja tidak memenuhi syarat.'; }
+            $ok = gig_admin_set_employer_status($empId, 'rejected', $note);
+            $flash = $ok ? 'Pendaftaran pemberi kerja ditolak.' : 'Gagal menolak pendaftaran employer.';
+        } else {
+            if ($note === '') { $note = 'Harap perbaiki data/legalitas pemberi kerja.'; }
+            $ok = gig_admin_set_employer_status($empId, 'revision', $note);
+            $flash = $ok ? 'Permintaan revisi pemberi kerja telah dikirim.' : 'Gagal meminta revisi employer.';
+        }
+        $flashType = $ok ? 'success' : 'error';
+        $redirectTab = 'employers';
     } elseif ($action === 'vacancy_approve') {
-        $id = (string)($_POST['vacancy_id'] ?? '');
+        $id = (string)($_POST['vacancy_id'] ?? $_POST['id'] ?? '');
         $ok = gig_vacancy_set_status($id, 'active', $note !== '' ? $note : 'Disetujui Admin KarirHub.');
         $flash = $ok ? 'Lowongan proyek disetujui dan dapat ditayangkan.' : 'Gagal menyetujui lowongan.';
         $flashType = $ok ? 'success' : 'error';
         $redirectTab = 'projects';
     } elseif ($action === 'vacancy_revision') {
-        $id = (string)($_POST['vacancy_id'] ?? '');
+        $id = (string)($_POST['vacancy_id'] ?? $_POST['id'] ?? '');
         if ($note === '') {
             $note = 'Harap perbaiki detail lowongan sesuai catatan Admin.';
         }
@@ -70,12 +122,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $flashType = $ok ? 'success' : 'error';
         $redirectTab = 'projects';
     } elseif ($action === 'vacancy_reject') {
-        $id = (string)($_POST['vacancy_id'] ?? '');
+        $id = (string)($_POST['vacancy_id'] ?? $_POST['id'] ?? '');
         if ($note === '') {
             $note = 'Lowongan tidak memenuhi Syarat & Ketentuan KarirHub.';
         }
         $ok = gig_vacancy_set_status($id, 'rejected', $note);
         $flash = $ok ? 'Lowongan proyek ditolak.' : 'Gagal menolak lowongan.';
+        $flashType = $ok ? 'success' : 'error';
+        $redirectTab = 'projects';
+    } elseif ($action === 'vacancy_decision') {
+        $id = (string)($_POST['vacancy_id'] ?? $_POST['id'] ?? '');
+        if ($decisionChoice === 'approve') {
+            $ok = gig_vacancy_set_status($id, 'active', $note !== '' ? $note : 'Disetujui Admin KarirHub.');
+            $flash = $ok ? 'Lowongan proyek disetujui dan dapat ditayangkan.' : 'Gagal menyetujui lowongan.';
+        } elseif ($decisionChoice === 'reject') {
+            if ($note === '') { $note = 'Lowongan tidak memenuhi Syarat & Ketentuan KarirHub.'; }
+            $ok = gig_vacancy_set_status($id, 'rejected', $note);
+            $flash = $ok ? 'Lowongan proyek ditolak.' : 'Gagal menolak lowongan.';
+        } else {
+            if ($note === '') { $note = 'Harap perbaiki detail lowongan sesuai catatan Admin.'; }
+            $ok = gig_vacancy_set_status($id, 'revision', $note);
+            $flash = $ok ? 'Lowongan dikembalikan untuk revisi.' : 'Gagal mengirim permintaan revisi.';
+        }
         $flashType = $ok ? 'success' : 'error';
         $redirectTab = 'projects';
     }
@@ -418,13 +486,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
                     <td><?php echo admin_status_badge((string)($edit['status'] ?? 'pending')); ?></td>
                     <td>
                       <a class="verify-open-link" href="admin-worker-detail.php?u=<?php echo urlencode((string)$edit['worker_username']); ?>&email=<?php echo urlencode((string)$edit['worker_email']); ?>">Lihat Detail</a>
-                      <form method="post" class="review-actions" style="margin-top:8px;">
-                        <input type="hidden" name="tab" value="workers" />
-                        <input type="hidden" name="edit_id" value="<?php echo (int)$edit['id']; ?>" />
-                        <textarea name="admin_note" placeholder="Catatan verifikasi edit profil (opsional)"></textarea>
-                        <button class="btn-approve" name="action" value="worker_edit_approve" type="submit">Setujui Edit Profil</button>
-                        <button class="btn-reject" name="action" value="worker_edit_reject" type="submit">Tolak Edit Profil</button>
-                      </form>
+                      <button type="button" class="verify-open-link" style="margin-left:4px;background:#0ea5e9;color:#fff;border:none;cursor:pointer;" onclick="openAdminDecisionModal({entityType:'worker', entityName:'edit profil <?php echo htmlspecialchars((string)$edit['worker_username'], ENT_QUOTES, 'UTF-8'); ?>', editId:<?php echo (int)$edit['id']; ?>, action:'worker_edit_decision', tab:'workers'})">Ambil Keputusan</button>
                     </td>
                   </tr>
                 <?php endforeach; ?>
@@ -471,6 +533,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
                     <td class="verify-col-date"><?php echo htmlspecialchars($createdLabel, ENT_QUOTES, 'UTF-8'); ?></td>
                     <td class="verify-col-action verify-sticky-action">
                       <a class="verify-open-link" href="admin-worker-detail.php?u=<?php echo urlencode((string)$row['username']); ?>&email=<?php echo urlencode((string)$row['contact_email']); ?><?php echo $firstPendingEdit ? '&edit_id=' . (int)$firstPendingEdit['id'] : ''; ?>">Lihat Detail</a>
+                      <button type="button" class="verify-open-link" style="margin-left:4px;background:#0ea5e9;color:#fff;border:none;cursor:pointer;" onclick="openAdminDecisionModal({entityType:'worker', entityName:'profil Gig Worker', username:<?php echo json_encode((string)$row['username']); ?>, action:'worker_decision', tab:'workers'})">Proses</button>
                     </td>
                   </tr>
                 <?php endforeach; ?>
@@ -537,13 +600,9 @@ require __DIR__ . '/includes/admin-layout-start.php';
                         <p><strong>Perusahaan:</strong> <?php echo htmlspecialchars((string)$row['company_name'], ENT_QUOTES, 'UTF-8'); ?></p>
                         <p><strong>Email PIC:</strong> <?php echo htmlspecialchars((string)$row['email_pic'], ENT_QUOTES, 'UTF-8'); ?></p>
                         <?php if (($row['status'] ?? '') === 'pending'): ?>
-                          <form method="post" class="review-actions">
-                            <input type="hidden" name="tab" value="employers" />
-                            <input type="hidden" name="id" value="<?php echo (int)$row['id']; ?>" />
-                            <textarea name="admin_note" placeholder="Catatan verifikasi (opsional)"></textarea>
-                            <button class="btn-approve" name="action" value="employer_approve" type="submit">Setujui</button>
-                            <button class="btn-reject" name="action" value="employer_reject" type="submit">Tolak</button>
-                          </form>
+                          <div style="margin-top:10px;">
+                            <button type="button" class="btn-approve" style="background:#0ea5e9;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;" onclick="openAdminDecisionModal({entityType:'employer', entityName:'Pemberi Kerja', id:<?php echo (int)$row['id']; ?>, action:'employer_decision', tab:'employers'})">Ambil Keputusan Verifikasi</button>
+                          </div>
                         <?php elseif (!empty($row['admin_note'])): ?>
                           <p><strong>Catatan Admin:</strong> <?php echo htmlspecialchars((string)$row['admin_note'], ENT_QUOTES, 'UTF-8'); ?></p>
                         <?php endif; ?>
@@ -569,14 +628,9 @@ require __DIR__ . '/includes/admin-layout-start.php';
           <div class="review-meta">ID: <?php echo htmlspecialchars((string)$job['id'], ENT_QUOTES, 'UTF-8'); ?> · Pemberi Kerja: <?php echo htmlspecialchars((string)($job['employer'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?> · Kategori: <?php echo htmlspecialchars((string)$job['category'], ENT_QUOTES, 'UTF-8'); ?></div>
           <div class="review-detail"><?php echo htmlspecialchars((string)$job['desc'], ENT_QUOTES, 'UTF-8'); ?></div>
           <div class="review-detail">Budget: <?php echo htmlspecialchars((string)$job['budget'], ENT_QUOTES, 'UTF-8'); ?> · Durasi: <?php echo htmlspecialchars((string)$job['duration'], ENT_QUOTES, 'UTF-8'); ?> · Lokasi: <?php echo htmlspecialchars((string)$job['location'], ENT_QUOTES, 'UTF-8'); ?></div>
-          <form method="post" class="review-actions">
-            <input type="hidden" name="tab" value="projects" />
-            <input type="hidden" name="vacancy_id" value="<?php echo htmlspecialchars((string)$job['id'], ENT_QUOTES, 'UTF-8'); ?>" />
-            <textarea name="admin_note" placeholder="Catatan untuk employer (wajib untuk revisi/penolakan)"></textarea>
-            <button class="btn-approve" name="action" value="vacancy_approve" type="submit">Setujui & Tayang</button>
-            <button class="btn-revision" name="action" value="vacancy_revision" type="submit">Minta Revisi</button>
-            <button class="btn-reject" name="action" value="vacancy_reject" type="submit">Tolak</button>
-          </form>
+          <div style="margin-top:14px;">
+            <button type="button" class="btn-approve" style="background:#0ea5e9;color:#fff;border:none;padding:10px 20px;border-radius:10px;font-weight:800;font-size:0.92rem;cursor:pointer;" onclick="openAdminDecisionModal({entityType:'vacancy', entityName:'lowongan ini', vacancyId:<?php echo json_encode((string)$job['id']); ?>, action:'vacancy_decision', tab:'projects'})">Ambil Keputusan Verifikasi</button>
+          </div>
         </article>
       <?php endforeach; ?>
 

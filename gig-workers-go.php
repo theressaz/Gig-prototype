@@ -29,9 +29,10 @@ if ($username === '' && in_array($siapkerjaEmail, ['theressaz@pasker.id', 'tessa
     $username = 'Theressa Zaratrusha';
 }
 
+$isWorkerRegistered = $username !== '' && gig_is_worker_registered($username);
 $isWorkerAccount = ($_SESSION['role'] ?? '') === 'worker'
     || in_array($siapkerjaEmail, ['theressaz@pasker.id', 'tessa'], true)
-    || ($username !== '' && gig_is_worker_registered($username));
+    || $isWorkerRegistered;
 
 if ($isWorkerAccount) {
     $_SESSION['role'] = 'worker';
@@ -39,8 +40,12 @@ if ($isWorkerAccount) {
     if (empty($_SESSION['siapkerja_email'])) {
         $_SESSION['siapkerja_email'] = 'theressaz@pasker.id';
     }
-    $_SESSION['gig_worker_registered_' . $_SESSION['username']] = true;
-    header('Location: worker-bursa.php');
+    if ($isWorkerRegistered) {
+        $_SESSION['gig_worker_registered_' . $_SESSION['username']] = true;
+        header('Location: worker-bursa.php');
+        exit;
+    }
+    header('Location: welcome-screen.php');
     exit;
 }
 
