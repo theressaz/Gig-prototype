@@ -603,6 +603,15 @@ function gig_apply_for_project(string $workerId, string $workerName, string $vac
         (string)($appData['vacancy_id'] ?? '')
     );
 
+    // Notify worker that the employer has received the application.
+    gig_add_worker_notification(
+        $appData['worker_id'],
+        'application_received',
+        'Lamaran Berhasil Dikirim',
+        'Lamaran Anda untuk proyek "' . ($vacancy['title'] ?? 'Proyek') . '" telah diterima oleh pemberi kerja ' . $appData['employer_username'] . '.',
+        (string)($appData['vacancy_id'] ?? '')
+    );
+
     return ['ok' => true, 'application' => $appData];
 }
 
@@ -809,6 +818,7 @@ function gig_notification_href(array $n, string $audience = 'worker'): string
     $page = match ($type) {
         'direct_offer' => 'worker-penawaran.php',
         'app_rejected' => 'worker-bursa.php',
+        'application_received' => 'worker-bursa.php',
         'app_approved', 'recruited', 'deadline' => 'worker-tugas.php',
         'declined' => 'worker-penawaran.php',
         default => '',
@@ -826,6 +836,9 @@ function gig_notification_href(array $n, string $audience = 'worker'): string
     }
     if ($vacancyId !== '' && $type === 'direct_offer') {
         return 'worker-project-detail.php?id=' . urlencode($vacancyId) . '&from=penawaran';
+    }
+    if ($vacancyId !== '' && $type === 'application_received') {
+        return 'worker-project-detail.php?id=' . urlencode($vacancyId) . '&from=bursa';
     }
     if ($vacancyId !== '' && ($page === 'worker-tugas.php' || in_array($type, ['recruited', 'deadline', 'app_approved'], true))) {
         return 'worker-tugas.php#project-' . rawurlencode($vacancyId);
