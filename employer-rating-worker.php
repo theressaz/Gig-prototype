@@ -412,11 +412,7 @@ $displayComment = $submitted
           <span style="font-size:0.74rem;color:var(--text-muted);display:block;">Judul Proyek:</span>
           <strong style="font-size:0.88rem;color:var(--text-main);line-height:1.4;"><?php echo htmlspecialchars($projectData['title'],ENT_QUOTES,'UTF-8'); ?></strong>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:10px;border-top:1px solid #f1f5f9;margin-bottom:12px;">
-          <div>
-            <span style="font-size:0.72rem;color:var(--text-muted);display:block;">No. Kontrak:</span>
-            <span style="font-size:0.8rem;font-weight:700;color:var(--text-dark);"><?php echo htmlspecialchars($projectData['id'],ENT_QUOTES,'UTF-8'); ?></span>
-          </div>
+        <div style="padding-top:10px;border-top:1px solid #f1f5f9;margin-bottom:12px;">
           <div>
             <span style="font-size:0.72rem;color:var(--text-muted);display:block;">Gaji:</span>
             <span style="font-size:0.85rem;font-weight:800;color:var(--primary-blue);"><?php echo htmlspecialchars($projectData['budget'],ENT_QUOTES,'UTF-8'); ?></span>
