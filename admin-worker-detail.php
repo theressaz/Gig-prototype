@@ -217,9 +217,14 @@ $editStatusBadge = static function (string $st): string {
     return '<span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;background:' . $item[1] . ';color:' . $item[2] . ';">' . htmlspecialchars($item[0], ENT_QUOTES, 'UTF-8') . '</span>';
 };
 
-$statusLabel = 'Menunggu Verifikasi';
-$statusColor = '#1d4ed8';
-$statusBg = '#dbeafe';
+$statusLabel = 'Belum Terverifikasi';
+$statusColor = '#334155';
+$statusBg = '#e2e8f0';
+if ($status === 'pending' && trim((string)($worker['reviewed_at'] ?? '')) !== '') {
+    $statusLabel = 'Menunggu Verifikasi';
+    $statusColor = '#92400e';
+    $statusBg = '#fef3c7';
+}
 if ($status === 'approved') {
     $statusLabel = 'Terverifikasi';
     $statusColor = '#065f46';

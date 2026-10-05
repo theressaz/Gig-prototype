@@ -222,7 +222,7 @@ if ($nextPendingTab === 'verification' && (int)$metrics['worker_profile_edits_pe
 function admin_status_badge(string $status): string
 {
     $map = [
-        'pending' => ['Menunggu Revisi', '#fef3c7', '#92400e'],
+        'pending' => ['Menunggu Verifikasi', '#dbeafe', '#1e40af'],
         'approved' => ['Disetujui', '#d1fae5', '#065f46'],
         'active' => ['Tayang', '#d1fae5', '#065f46'],
         'rejected' => ['Ditolak', '#fee2e2', '#991b1b'],
@@ -231,6 +231,21 @@ function admin_status_badge(string $status): string
     ];
     $item = $map[$status] ?? [$status, '#f1f5f9', '#334155'];
     return '<span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;background:' . $item[1] . ';color:' . $item[2] . ';">' . htmlspecialchars($item[0], ENT_QUOTES, 'UTF-8') . '</span>';
+}
+
+function admin_worker_status_badge(array $row): string
+{
+    $status = (string)($row['status'] ?? 'pending');
+    if ($status !== 'pending') {
+        return admin_status_badge($status);
+    }
+
+    $isRevisionRequested = trim((string)($row['reviewed_at'] ?? '')) !== '';
+    if ($isRevisionRequested) {
+        return '<span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;background:#fef3c7;color:#92400e;">Menunggu Verifikasi</span>';
+    }
+
+    return '<span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;background:#e2e8f0;color:#334155;">Belum Terverifikasi</span>';
 }
 
 function admin_bar_height(int $value, int $max, int $cap = 130): int
@@ -451,7 +466,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
           <h2>Verifikasi Gig Worker</h2>
           <div class="verify-status-tabs">
             <a class="<?php echo $state === 'all' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('workers', 'all', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Semua <span><?php echo (int)$workerStateCounts['all']; ?></span></a>
-            <a class="<?php echo $state === 'pending' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('workers', 'pending', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Menunggu Verifikasi <span><?php echo (int)$workerStateCounts['pending']; ?></span></a>
+            <a class="<?php echo $state === 'pending' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('workers', 'pending', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Belum Terverifikasi <span><?php echo (int)$workerStateCounts['pending']; ?></span></a>
             <a class="<?php echo $state === 'revision' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('workers', 'revision', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Revisi <span><?php echo (int)$workerStateCounts['revision']; ?></span></a>
             <a class="<?php echo $state === 'approved' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('workers', 'approved', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Terverifikasi <span><?php echo (int)$workerStateCounts['approved']; ?></span></a>
             <a class="<?php echo $state === 'rejected' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('workers', 'rejected', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Ditolak <span><?php echo (int)$workerStateCounts['rejected']; ?></span></a>
@@ -529,7 +544,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
                     <td class="verify-col-email"><span class="verify-cell-ellipsis" title="<?php echo htmlspecialchars((string)$row['contact_email'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars((string)$row['contact_email'], ENT_QUOTES, 'UTF-8'); ?></span></td>
                     <td class="verify-col-phone"><?php echo htmlspecialchars((string)$row['contact_wa'], ENT_QUOTES, 'UTF-8'); ?></td>
                     <td class="verify-col-field"><span class="verify-cell-ellipsis" title="<?php echo htmlspecialchars((string)$row['bidang_keahlian'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars((string)$row['bidang_keahlian'], ENT_QUOTES, 'UTF-8'); ?></span></td>
-                    <td class="verify-col-status"><?php echo admin_status_badge((string)($row['status'] ?? 'pending')); ?></td>
+                    <td class="verify-col-status"><?php echo admin_worker_status_badge($row); ?></td>
                     <td class="verify-col-date"><?php echo htmlspecialchars($createdLabel, ENT_QUOTES, 'UTF-8'); ?></td>
                     <td class="verify-col-action verify-sticky-action">
                       <a class="verify-open-link" href="admin-worker-detail.php?u=<?php echo urlencode((string)$row['username']); ?>&email=<?php echo urlencode((string)$row['contact_email']); ?><?php echo $firstPendingEdit ? '&edit_id=' . (int)$firstPendingEdit['id'] : ''; ?>">Lihat Detail</a>
