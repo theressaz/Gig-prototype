@@ -190,7 +190,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
             </div>
           </div>
           <div class="activity-right">
-            <span class="activity-code">CTR-GIG-2026-0811</span>
+            <span class="activity-code">Update terbaru</span>
             <span class="status-badge blue">Berjalan</span>
           </div>
         </div>
@@ -203,7 +203,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
             </div>
           </div>
           <div class="activity-right">
-            <span class="activity-code">GIG-2026-06-00087</span>
+            <span class="activity-code">Riwayat proyek</span>
             <span class="status-badge green">Selesai</span>
           </div>
         </div>

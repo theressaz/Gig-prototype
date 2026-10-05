@@ -36,7 +36,7 @@ foreach ($historyProjects as $p) {
       <button class="filter-btn-pill" type="button" onclick="filterHistory('cancelled', this)">Tidak Selesai (<?php echo $cancelledCount; ?>)</button>
       <div class="search-input-box">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" placeholder="Cari nomor kontrak, judul, atau freelancer..." onkeyup="searchHistory(this.value)" />
+        <input type="text" placeholder="Cari judul proyek atau freelancer..." onkeyup="searchHistory(this.value)" />
       </div>
     </div>
 

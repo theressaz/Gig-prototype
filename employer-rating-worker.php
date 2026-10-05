@@ -302,7 +302,7 @@ if ($isWorker) {
   <div>
     <h1>Selesaikan Proyek &amp; Berikan Penilaian</h1>
     <p style="font-size:0.86rem;color:var(--text-muted);margin-top:4px;">
-      Konfirmasi penyelesaian pekerjaan untuk kontrak <strong><?php echo htmlspecialchars((string)($projectData['contract_id'] ?? $projectData['id']), ENT_QUOTES, 'UTF-8'); ?></strong> dan berikan ulasan objektif bagi mitra kerja.
+      Konfirmasi penyelesaian pekerjaan dan berikan ulasan objektif bagi mitra kerja.
     </p>
   </div>
   <div style="display:flex;gap:10px;align-items:center;">
@@ -483,7 +483,7 @@ $displayComment = $submitted
       </div>
 
       <div class="white-card" style="padding:20px;">
-        <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;">Detail Kontrak</div>
+        <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;">Detail Proyek</div>
         <div style="margin-bottom:12px;">
           <span style="font-size:0.74rem;color:var(--text-muted);display:block;">Judul Proyek:</span>
           <strong style="font-size:0.88rem;color:var(--text-main);line-height:1.4;"><?php echo htmlspecialchars($projectData['title'],ENT_QUOTES,'UTF-8'); ?></strong>
