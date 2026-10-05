@@ -460,14 +460,11 @@ require __DIR__ . '/includes/worker-layout-start.php';
   <div class="modal-backdrop" id="applyModal" onclick="if(event.target.id==='applyModal') closeApplyModal();">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 style="font-size: 1rem; font-weight: 800;">Ajukan Lamaran Proyek</h3>
+        <h3 style="font-size: 1rem; font-weight: 800;">Persetujuan Risiko Pembayaran</h3>
         <button type="button" onclick="closeApplyModal()" style="background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer;">&times;</button>
       </div>
       <form method="post" action="" class="modal-body">
         <input type="hidden" name="do_apply" value="1" />
-        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 12px; font-size: 0.78rem; color: #1e40af; margin-bottom: 20px;">
-          ℹ Profil Gig Worker dan portofolio Anda akan dikirimkan ke Pemberi Kerja. Kontak pribadi Anda tetap terlindungi hingga disetujui.
-        </div>
 
         <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-bottom:16px;">
           <div style="font-size:0.78rem;color:#334155;line-height:1.5;margin-bottom:10px;">
