@@ -75,9 +75,9 @@ if (isset($_GET['undo']) && $_GET['undo'] === '1') {
 // ── Handle SUBMIT ────────────────────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
     $overallRating       = min(5, max(1, (int)($_POST['overall_rating']      ?? 5)));
-    $ratingQuality       = min(5, max(1, (int)($_POST['rating_quality']      ?? 5)));
-    $ratingCommunication = min(5, max(1, (int)($_POST['rating_communication']?? 5)));
-    $ratingTimeliness    = min(5, max(1, (int)($_POST['rating_timeliness']   ?? 5)));
+    $ratingQuality       = $overallRating;
+    $ratingCommunication = $overallRating;
+    $ratingTimeliness    = $overallRating;
 
     $comment        = trim((string)($_POST['comment'] ?? ''));
     $selectedBadges = is_array($_POST['badges'] ?? null) ? $_POST['badges'] : [];
@@ -309,35 +309,7 @@ $displayComment = $submitted
         <div id="ratingLabel" style="font-size:0.92rem;font-weight:700;color:#059669;margin-top:10px;">★★★★★ 5.0 · Sangat Memuaskan (Luar Biasa)</div>
       </div>
 
-      <!-- 2. CRITERIA -->
-      <div style="margin-bottom:28px;">
-        <h3 style="font-size:0.92rem;font-weight:800;color:var(--text-main);margin-bottom:14px;text-transform:uppercase;letter-spacing:0.04em;">Penilaian Aspek Spesifik</h3>
-        <div style="display:flex;flex-direction:column;gap:14px;">
-          <?php
-          $criteria = [
-              ['name'=>'rating_quality',       'label'=>'Kualitas Hasil Pekerjaan (Deliverables)', 'sub'=>'Kerapian, ketelitian, dan kesesuaian dengan brief proyek'],
-              ['name'=>'rating_communication', 'label'=>'Komunikasi & Responsivitas',              'sub'=>'Kecepatan membalas pesan, koordinasi, dan kemudahan diajak diskusi'],
-              ['name'=>'rating_timeliness',    'label'=>'Ketepatan Waktu & Deadline',              'sub'=>'Penyelesaian pekerjaan sesuai durasi yang disepakati'],
-          ];
-          $opts = [5=>'★★★★★ 5',4=>'★★★★☆ 4',3=>'★★★☆☆ 3',2=>'★★☆☆☆ 2',1=>'★☆☆☆☆ 1'];
-          foreach ($criteria as $c):
-          ?>
-            <div style="display:flex;justify-content:space-between;align-items:center;background:#ffffff;border:1px solid #e2e8f0;padding:12px 16px;border-radius:10px;">
-              <div>
-                <strong style="font-size:0.86rem;color:var(--text-main);display:block;"><?php echo htmlspecialchars($c['label'], ENT_QUOTES,'UTF-8'); ?></strong>
-                <span style="font-size:0.75rem;color:var(--text-muted);"><?php echo htmlspecialchars($c['sub'], ENT_QUOTES,'UTF-8'); ?></span>
-              </div>
-              <select name="<?php echo $c['name']; ?>" style="padding:6px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:0.84rem;font-weight:700;color:#1e293b;background:#f8fafc;">
-                <?php foreach ($opts as $v=>$lbl): ?>
-                  <option value="<?php echo $v; ?>"><?php echo htmlspecialchars($lbl,ENT_QUOTES,'UTF-8'); ?></option>
-                <?php endforeach; ?>
-              </select>
-            </div>
-          <?php endforeach; ?>
-        </div>
-      </div>
-
-      <!-- 3. BADGES -->
+      <!-- 2. BADGES -->
       <div style="margin-bottom:28px;">
         <label style="display:block;font-size:0.92rem;font-weight:800;color:var(--text-main);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Lencana Apresiasi (Opsional)</label>
         <span style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:12px;">Pilih apresiasi yang mencerminkan kelebihan utama mitra:</span>
@@ -359,7 +331,7 @@ $displayComment = $submitted
         </div>
       </div>
 
-      <!-- 4. TESTIMONIAL -->
+      <!-- 3. TESTIMONIAL -->
       <div style="margin-bottom:28px;">
         <label for="comment" style="display:block;font-size:0.92rem;font-weight:800;color:var(--text-main);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">
           Ulasan &amp; Testimoni <span style="color:#ef4444;">*</span>
@@ -367,7 +339,7 @@ $displayComment = $submitted
         <textarea id="comment" name="comment" rows="4" required placeholder="Tuliskan pengalaman Anda bekerja bersama mitra ini..." style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:8px;font-size:0.88rem;line-height:1.5;outline:none;font-family:inherit;resize:vertical;"></textarea>
       </div>
 
-      <!-- 5. CONFIRMATIONS -->
+      <!-- 4. CONFIRMATIONS -->
       <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:28px;display:flex;flex-direction:column;gap:12px;">
         <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--text-dark);line-height:1.4;">
           <input type="checkbox" required id="confirm_deliverables" name="confirm_deliverables" value="1" style="accent-color:#2563eb;margin-top:2px;" />
