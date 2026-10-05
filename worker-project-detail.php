@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job && !$fromOffers && isset($_POS
     $workerName = ucfirst($username);
     $res = gig_apply_for_project($username, $workerName, (string)$job['id'], $note);
     if (!empty($res['ok'])) {
-        $flashMsg = 'Lamaran proyek berhasil dikirim ke pemberi kerja. Jika diterima, Anda langsung direkrut dan proyek masuk ke Proyek Aktif.';
+        $flashMsg = 'Lamaran proyek berhasil dikirim. Status Anda saat ini: kandidat/pelamar. Anda akan resmi direkrut setelah pemberi kerja menerima lamaran.';
     } else {
         $flashMsg = $res['error'] ?? 'Gagal mengirimkan lamaran.';
         $flashError = true;

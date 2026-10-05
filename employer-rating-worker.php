@@ -436,10 +436,6 @@ $displayComment = $submitted
 
       <!-- 4. CONFIRMATIONS -->
       <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:28px;display:flex;flex-direction:column;gap:12px;">
-        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--text-dark);line-height:1.4;">
-          <input type="checkbox" required id="confirm_deliverables" name="confirm_deliverables" value="1" style="accent-color:#2563eb;margin-top:2px;" />
-          <span><strong>Konfirmasi Deliverable Selesai:</strong> Saya menyatakan seluruh deliverable telah diserahkan, diuji, dan diterima dengan baik.</span>
-        </label>
         <?php if (!$isWorker): ?>
           <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--text-dark);line-height:1.4;">
             <input type="checkbox" name="recommend_worker" value="1" checked style="accent-color:#2563eb;margin-top:2px;" />
@@ -451,6 +447,10 @@ $displayComment = $submitted
             <span><strong>Rekomendasi Publik:</strong> Tandai pemberi kerja ini sebagai mitra proyek yang direkomendasikan.</span>
           </label>
         <?php endif; ?>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--text-dark);line-height:1.4;">
+          <input type="checkbox" required id="confirm_deliverables" name="confirm_deliverables" value="1" style="accent-color:#2563eb;margin-top:2px;" />
+          <span><strong>Konfirmasi Deliverable Selesai:</strong> Saya menyatakan seluruh deliverable telah diserahkan, diuji, dan diterima dengan baik.</span>
+        </label>
       </div>
 
       <div style="display:flex;gap:12px;justify-content:flex-end;align-items:center;">

@@ -153,10 +153,10 @@ function gig_seed_all_demo_data_to_db(): void
             'worker_name'       => 'Theressa Zaratrusha',
             'employer_username' => 'PT Talenta Digital Indonesia',
             'bid_amount'        => 'Rp 8.500.000',
-            'status'            => 'confirmed_by_worker',
+            'status'            => 'applied',
             'note'              => 'Saya memiliki pengalaman 4+ tahun dalam merancang UI/UX dashboard SaaS.',
             'created_at'        => '2026-09-18 09:20:00',
-            'updated_at'        => '2026-09-20 11:13:00',
+            'updated_at'        => '2026-09-18 09:20:00',
         ],
         [
             'id'                => 'APP-2026-002',
@@ -165,10 +165,10 @@ function gig_seed_all_demo_data_to_db(): void
             'worker_name'       => 'Rian Ardiansyah',
             'employer_username' => 'PT Solusi Awan Indonesia',
             'bid_amount'        => 'Rp 6.000.000',
-            'status'            => 'confirmed_by_worker',
+            'status'            => 'applied',
             'note'              => 'Siap mengintegrasikan REST API SMS & WA dengan sertifikasi AWS Backend.',
             'created_at'        => '2026-09-16 10:00:00',
-            'updated_at'        => '2026-09-19 09:00:00',
+            'updated_at'        => '2026-09-16 10:00:00',
         ],
         [
             'id'                => 'APP-2026-003',
@@ -200,6 +200,10 @@ function gig_seed_all_demo_data_to_db(): void
             ]);
         } catch (Throwable) {}
     }
+    // Keep demo applications in pending-candidate state until employer decision.
+    try {
+        $pdo->exec("UPDATE `project_applications` SET `status`='applied' WHERE `id` IN ('APP-2026-001','APP-2026-002')");
+    } catch (Throwable) {}
 
     // ── employer_notifications ───────────────────────────────────────────────
     $enStmt = $pdo->prepare("
@@ -345,10 +349,10 @@ function gig_seed_demo_applications_if_needed(): void
             'worker_name'        => 'Theressa Zaratrusha',
             'employer_username'  => 'PT Talenta Digital Indonesia',
             'bid_amount'         => 'Rp 8.500.000',
-            'status'             => 'confirmed_by_worker', // Hired when employer accepted the application
+            'status'             => 'applied', // Candidate submitted application, awaiting employer decision
             'note'               => 'Saya memiliki pengalaman 4+ tahun dalam merancang UI/UX dashboard SaaS.',
             'created_at'         => '2026-09-18 09:20:00',
-            'updated_at'         => '2026-09-20 11:13:00',
+            'updated_at'         => '2026-09-18 09:20:00',
         ],
         [
             'id'                 => 'APP-2026-002',
@@ -357,10 +361,10 @@ function gig_seed_demo_applications_if_needed(): void
             'worker_name'        => 'Rian Ardiansyah',
             'employer_username'  => 'PT Solusi Awan Indonesia',
             'bid_amount'         => 'Rp 6.000.000',
-            'status'             => 'confirmed_by_worker', // Officially recruited
+            'status'             => 'applied', // Candidate submitted application, awaiting employer decision
             'note'               => 'Siap mengintegrasikan REST API SMS & WA dengan sertifikasi AWS Backend.',
             'created_at'         => '2026-09-16 10:00:00',
-            'updated_at'         => '2026-09-19 09:00:00',
+            'updated_at'         => '2026-09-16 10:00:00',
         ],
         [
             'id'                 => 'APP-2026-003',
