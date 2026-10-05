@@ -531,12 +531,12 @@ $backHref = $isEditMode
       <div class="form-grid-2col">
         <div class="form-group">
           <label class="form-label" for="siap_nama">Nama Gig Worker <span style="color:#ef4444;">*</span></label>
-          <input type="text" id="siap_nama" class="form-input" value="<?php echo htmlspecialchars((string)$siapkerja['nama'], ENT_QUOTES, 'UTF-8'); ?>" readonly />
+          <input type="text" id="siap_nama" class="form-input" value="<?php echo htmlspecialchars((string)$siapkerja['nama'], ENT_QUOTES, 'UTF-8'); ?>" readonly disabled />
           <span class="form-hint">Data nama terisi otomatis (prefill) dari akun SIAPKerja.</span>
         </div>
         <div class="form-group">
           <label class="form-label" for="siap_nik">NIK <span style="color:#ef4444;">*</span></label>
-          <input type="text" id="siap_nik" class="form-input" value="<?php echo htmlspecialchars((string)$siapkerja['nik'], ENT_QUOTES, 'UTF-8'); ?>" readonly />
+          <input type="text" id="siap_nik" class="form-input" value="<?php echo htmlspecialchars((string)$siapkerja['nik'], ENT_QUOTES, 'UTF-8'); ?>" readonly disabled />
           <span class="form-hint">Data NIK terisi otomatis (prefill) dari akun SIAPKerja.</span>
         </div>
       </div>
@@ -544,12 +544,12 @@ $backHref = $isEditMode
       <div class="form-grid-2col" style="margin-top:14px;">
         <div class="form-group">
           <label class="form-label" for="siap_alamat">Alamat</label>
-          <input type="text" id="siap_alamat" class="form-input" value="<?php echo htmlspecialchars((string)$siapkerja['lokasi'], ENT_QUOTES, 'UTF-8'); ?>" readonly />
+          <input type="text" id="siap_alamat" class="form-input" value="<?php echo htmlspecialchars((string)$siapkerja['lokasi'], ENT_QUOTES, 'UTF-8'); ?>" readonly disabled />
           <span class="form-hint">Alamat terhubung dari akun SIAPKerja.</span>
         </div>
         <div class="form-group">
           <label class="form-label" for="siap_email">Email <span style="color:#ef4444;">*</span></label>
-          <input type="text" id="siap_email" class="form-input" value="<?php echo htmlspecialchars((string)$siapkerja['email'], ENT_QUOTES, 'UTF-8'); ?>" readonly />
+          <input type="text" id="siap_email" class="form-input" value="<?php echo htmlspecialchars((string)$siapkerja['email'], ENT_QUOTES, 'UTF-8'); ?>" readonly disabled />
           <span class="form-hint">Email SIAPKerja bersifat read-only.</span>
         </div>
       </div>
@@ -557,7 +557,7 @@ $backHref = $isEditMode
       <div class="form-grid-2col" style="margin-top:14px;">
         <div class="form-group">
           <label class="form-label" for="siap_phone">Nomor Telepon Aktif <span style="color:#ef4444;">*</span></label>
-          <input type="text" id="siap_phone" class="form-input" value="<?php echo htmlspecialchars((string)$siapkerja['wa'], ENT_QUOTES, 'UTF-8'); ?>" readonly />
+          <input type="text" id="siap_phone" class="form-input" value="<?php echo htmlspecialchars((string)$siapkerja['wa'], ENT_QUOTES, 'UTF-8'); ?>" readonly disabled />
           <span class="form-hint">Nomor telepon SIAPKerja bersifat read-only.</span>
         </div>
       </div>
