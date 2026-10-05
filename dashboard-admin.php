@@ -632,33 +632,129 @@ require __DIR__ . '/includes/admin-layout-start.php';
     <?php endif; ?>
 
     <?php if ($tab === 'projects'): ?>
-      <?php if ($pendingProjects === []): ?>
-        <div class="empty-state">Tidak ada lowongan yang menunggu verifikasi saat ini.</div>
-      <?php endif; ?>
-      <?php foreach ($vacancies as $job): ?>
-        <?php if (($job['status'] ?? '') !== 'review') { continue; } ?>
-        <article class="review-card">
-          <h3><?php echo htmlspecialchars((string)$job['title'], ENT_QUOTES, 'UTF-8'); ?> <?php echo admin_status_badge('review'); ?></h3>
-          <div class="review-meta">ID: <?php echo htmlspecialchars((string)$job['id'], ENT_QUOTES, 'UTF-8'); ?> · Pemberi Kerja: <?php echo htmlspecialchars((string)($job['employer'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?> · Kategori: <?php echo htmlspecialchars((string)$job['category'], ENT_QUOTES, 'UTF-8'); ?></div>
-          <div class="review-detail"><?php echo htmlspecialchars((string)$job['desc'], ENT_QUOTES, 'UTF-8'); ?></div>
-          <div class="review-detail">Budget: <?php echo htmlspecialchars((string)$job['budget'], ENT_QUOTES, 'UTF-8'); ?> · Durasi: <?php echo htmlspecialchars((string)$job['duration'], ENT_QUOTES, 'UTF-8'); ?> · Lokasi: <?php echo htmlspecialchars((string)$job['location'], ENT_QUOTES, 'UTF-8'); ?></div>
-          <div style="margin-top:14px;">
-            <button type="button" class="btn-approve" style="background:#0ea5e9;color:#fff;border:none;padding:10px 20px;border-radius:10px;font-weight:800;font-size:0.92rem;cursor:pointer;" onclick="openAdminDecisionModal({entityType:'vacancy', entityName:'lowongan ini', vacancyId:<?php echo json_encode((string)$job['id']); ?>, action:'vacancy_decision', tab:'projects'})">Ambil Keputusan Verifikasi</button>
+      <?php
+        $projectStateCounts = [
+            'all' => count($vacancies),
+            'pending' => count(array_filter($vacancies, static fn($v) => (string)($v['status'] ?? '') === 'review')),
+            'revision' => count(array_filter($vacancies, static fn($v) => (string)($v['status'] ?? '') === 'revision')),
+            'approved' => count(array_filter($vacancies, static fn($v) => (string)($v['status'] ?? '') === 'active')),
+            'rejected' => count(array_filter($vacancies, static fn($v) => (string)($v['status'] ?? '') === 'rejected')),
+        ];
+        $projectRows = array_values(array_filter($vacancies, static function (array $v) use ($state): bool {
+            $st = (string)($v['status'] ?? '');
+            if ($state === 'all') {
+                return true;
+            }
+            if ($state === 'pending') {
+                return $st === 'review';
+            }
+            if ($state === 'approved') {
+                return $st === 'active';
+            }
+            return $st === $state;
+        }));
+      ?>
+      <section class="verify-board project-verify-board">
+        <div class="verify-board-head">
+          <h2>Verifikasi Lowongan</h2>
+          <div class="verify-status-tabs project-status-tabs">
+            <a class="<?php echo $state === 'all' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'all', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Semua</a>
+            <a class="<?php echo $state === 'pending' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'pending', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Menunggu Verifikasi <span><?php echo (int)$projectStateCounts['pending']; ?></span></a>
+            <a class="<?php echo $state === 'revision' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'revision', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Revisi</a>
+            <a class="<?php echo $state === 'approved' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'approved', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Disetujui</a>
+            <a class="<?php echo $state === 'rejected' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'rejected', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Ditolak</a>
           </div>
-        </article>
-      <?php endforeach; ?>
+        </div>
 
-      <h2 style="margin: 24px 0 12px; font-size: 1rem;">Riwayat / Status Lain</h2>
-      <?php foreach ($vacancies as $job): ?>
-        <?php if (($job['status'] ?? '') === 'review' || ($job['status'] ?? '') === 'draft') { continue; } ?>
-        <article class="review-card" style="opacity:0.92;">
-          <h3><?php echo htmlspecialchars((string)$job['title'], ENT_QUOTES, 'UTF-8'); ?> <?php echo admin_status_badge((string)($job['status'] ?? '')); ?></h3>
-          <div class="review-meta"><?php echo htmlspecialchars((string)$job['id'], ENT_QUOTES, 'UTF-8'); ?> · <?php echo htmlspecialchars((string)($job['employer'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
-          <?php if (!empty($job['adminNote'])): ?>
-            <div class="review-detail"><?php echo htmlspecialchars((string)$job['adminNote'], ENT_QUOTES, 'UTF-8'); ?></div>
-          <?php endif; ?>
-        </article>
-      <?php endforeach; ?>
+        <div class="project-toolbar">
+          <form method="get" class="project-search-form">
+            <input type="hidden" name="tab" value="projects">
+            <input type="hidden" name="state" value="<?php echo htmlspecialchars($state, ENT_QUOTES, 'UTF-8'); ?>">
+            <input type="text" name="q" value="<?php echo htmlspecialchars($searchQ, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Cari lowongan..." />
+          </form>
+          <a class="project-filter-btn" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, ''), ENT_QUOTES, 'UTF-8'); ?>">Filter</a>
+        </div>
+
+        <div class="verify-table-wrap">
+          <table class="verify-table is-scrollable project-verify-table">
+            <thead>
+              <tr>
+                <th class="project-col-title">Judul Lowongan</th>
+                <th class="project-col-entity">Jenis Entitas</th>
+                <th class="project-col-status">Status</th>
+                <th class="project-col-deadline">Deadline Verifikasi</th>
+                <th class="project-col-blacklist">Blacklist</th>
+                <th class="project-col-date">Tanggal Pengajuan</th>
+                <th class="project-col-action verify-sticky-action">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php if ($projectRows === []): ?>
+                <tr><td colspan="7"><div class="empty-state">Tidak ada lowongan pada status ini.</div></td></tr>
+              <?php endif; ?>
+              <?php foreach ($projectRows as $job): ?>
+                <?php
+                  $submittedTs = strtotime((string)($job['posted'] ?? ''));
+                  if (!$submittedTs) {
+                      $submittedTs = time();
+                  }
+                  $verifyDeadlineTs = strtotime('+3 days', $submittedTs);
+                  $remainingDays = (int)ceil(($verifyDeadlineTs - time()) / 86400);
+                  $deadlineLabel = $remainingDays > 0 ? $remainingDays . ' hari lagi' : 'Hari ini';
+                  if ($remainingDays < 0) {
+                      $deadlineLabel = 'Lewat tenggat';
+                  }
+                  $statusKey = (string)($job['status'] ?? 'review');
+                  $statusText = (string)($job['statusLabel'] ?? 'Menunggu Verifikasi');
+                  $statusClass = 'is-blue';
+                  if ($statusKey === 'revision') {
+                      $statusClass = 'is-amber';
+                  } elseif ($statusKey === 'active') {
+                      $statusClass = 'is-green';
+                      $statusText = 'Disetujui';
+                  } elseif ($statusKey === 'rejected') {
+                      $statusClass = 'is-red';
+                  }
+                ?>
+                <tr>
+                  <td class="project-col-title">
+                    <div class="project-title-wrap">
+                      <div class="project-title-avatar"><?php echo htmlspecialchars(strtoupper(substr((string)$job['title'], 0, 1)), ENT_QUOTES, 'UTF-8'); ?></div>
+                      <div>
+                        <div class="verify-main-text"><?php echo htmlspecialchars((string)$job['title'], ENT_QUOTES, 'UTF-8'); ?></div>
+                        <div class="verify-sub-text"><?php echo htmlspecialchars((string)($job['employer'] ?? 'Perusahaan'), ENT_QUOTES, 'UTF-8'); ?></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="project-col-entity">Perusahaan</td>
+                  <td class="project-col-status"><span class="project-status-chip <?php echo htmlspecialchars($statusClass, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($statusText, ENT_QUOTES, 'UTF-8'); ?></span></td>
+                  <td class="project-col-deadline"><span class="project-deadline-chip"><?php echo htmlspecialchars($deadlineLabel, ENT_QUOTES, 'UTF-8'); ?></span></td>
+                  <td class="project-col-blacklist"><span class="project-safe-chip">Aman</span></td>
+                  <td class="project-col-date"><?php echo htmlspecialchars(date('d M Y, H:i', $submittedTs), ENT_QUOTES, 'UTF-8'); ?></td>
+                  <td class="project-col-action verify-sticky-action">
+                    <details class="verify-detail-drawer">
+                      <summary>Lihat Detail</summary>
+                      <div class="verify-drawer-body">
+                        <p><strong>ID:</strong> <?php echo htmlspecialchars((string)$job['id'], ENT_QUOTES, 'UTF-8'); ?></p>
+                        <p><strong>Kategori:</strong> <?php echo htmlspecialchars((string)($job['category'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></p>
+                        <p><strong>Lokasi:</strong> <?php echo htmlspecialchars((string)($job['location'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></p>
+                        <p><strong>Budget:</strong> <?php echo htmlspecialchars((string)($job['budget'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></p>
+                        <p><strong>Durasi:</strong> <?php echo htmlspecialchars((string)($job['duration'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></p>
+                        <?php if (!empty($job['adminNote'])): ?>
+                          <p><strong>Catatan Admin:</strong> <?php echo htmlspecialchars((string)$job['adminNote'], ENT_QUOTES, 'UTF-8'); ?></p>
+                        <?php endif; ?>
+                        <div style="margin-top:10px;">
+                          <button type="button" class="verify-open-link" style="background:#0ea5e9;color:#fff;border:none;cursor:pointer;" onclick="openAdminDecisionModal({entityType:'vacancy', entityName:'lowongan ini', vacancyId:<?php echo json_encode((string)$job['id']); ?>, action:'vacancy_decision', tab:'projects'})">Ambil Keputusan</button>
+                        </div>
+                      </div>
+                    </details>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+      </section>
     <?php endif; ?>
 
 <?php require __DIR__ . '/includes/admin-layout-end.php'; ?>
