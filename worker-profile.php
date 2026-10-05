@@ -76,8 +76,6 @@ if ($role === 'worker') {
       <div class="privacy-banner unlocked">Ini adalah tampilan profil publik Gig Worker Anda yang dapat dilihat oleh calon Pemberi Kerja.</div>
     <?php elseif ($contactUnlocked): ?>
       <div class="privacy-banner unlocked">Kerja sama aktif. Informasi kontak dapat dilihat di bawah.</div>
-    <?php else: ?>
-      <div class="privacy-banner">Kontak disembunyikan sampai Pemberi Kerja menerima lamaran Gig Worker, atau sampai Gig Worker menerima penawaran langsung.</div>
     <?php endif; ?>
 
     <section class="profile-hero">
