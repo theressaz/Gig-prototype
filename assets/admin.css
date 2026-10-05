@@ -517,50 +517,54 @@ a, a:hover, a:focus, a:active, a:visited {
 }
 
 /* ==========================================================================
-   ADMIN VERIFICATION DECISION MODAL (DRAWER STYLE MATCHING IMAGE 2)
+   ADMIN VERIFICATION DECISION MODAL (MATCHING IMAGES 2, 3, 4 DESIGN)
    ========================================================================== */
 .decision-modal-backdrop {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(2px);
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
   z-index: 2000;
   opacity: 0;
   transition: opacity 0.25s ease;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 .decision-modal-backdrop.show {
   display: flex;
-  justify-content: flex-end;
   opacity: 1;
 }
 
 .decision-modal {
   width: 100%;
-  max-width: 560px;
-  height: 100vh;
+  max-width: 620px;
+  max-height: 90vh;
   background: #ffffff;
-  box-shadow: -12px 0 45px rgba(15, 23, 42, 0.22);
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.35);
   display: flex;
   flex-direction: column;
-  transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: scale(0.96) translateY(10px);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
-  border-top-left-radius: 20px;
-  border-bottom-left-radius: 20px;
+  border-radius: 20px;
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  border: 1px solid #e2e8f0;
 }
 .decision-modal-backdrop.show .decision-modal {
-  transform: translateX(0);
+  transform: scale(1) translateY(0);
 }
 
 .decision-modal-head {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 24px 28px 20px;
+  padding: 24px 28px 18px;
   border-bottom: 1px solid #f1f5f9;
   background: #ffffff;
+  position: relative;
+  z-index: 10;
 }
 
 .decision-modal-title {
@@ -578,23 +582,24 @@ a, a:hover, a:focus, a:active, a:visited {
 }
 
 .decision-close {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 1px solid #e2e8f0;
   background: #ffffff;
   color: #64748b;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  outline: none;
 }
 .decision-close:hover {
-  background: #f8fafc;
+  background: #f1f5f9;
   color: #0f172a;
   border-color: #cbd5e1;
 }
@@ -605,7 +610,7 @@ a, a:hover, a:focus, a:active, a:visited {
   padding: 24px 28px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
 .decision-sec-header {
@@ -628,14 +633,14 @@ a, a:hover, a:focus, a:active, a:visited {
 }
 
 .decision-sec-title {
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   font-weight: 800;
   color: #0f172a;
   margin-bottom: 2px;
 }
 
 .decision-sec-sub {
-  font-size: 0.83rem;
+  font-size: 0.82rem;
   color: #64748b;
   line-height: 1.4;
 }
@@ -709,7 +714,7 @@ a, a:hover, a:focus, a:active, a:visited {
 .decision-radio-card {
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 14px 16px;
+  padding: 14px 18px;
   background: #ffffff;
   display: flex;
   align-items: center;
@@ -722,8 +727,9 @@ a, a:hover, a:focus, a:active, a:visited {
   border-color: #cbd5e1;
 }
 .decision-radio-card.is-selected {
-  border-color: #93c5fd;
+  border-color: #7dd3fc;
   background: #f0f9ff;
+  box-shadow: 0 0 0 1px #7dd3fc;
 }
 
 .custom-radio {
@@ -736,10 +742,11 @@ a, a:hover, a:focus, a:active, a:visited {
   justify-content: center;
   transition: all 0.2s;
   flex-shrink: 0;
+  background: #fff;
 }
 .decision-radio-card.is-selected .custom-radio {
-  border-color: #2563eb;
-  background: #2563eb;
+  border-color: #0284c7;
+  background: #0284c7;
 }
 .custom-radio::after {
   content: "";
@@ -777,7 +784,7 @@ a, a:hover, a:focus, a:active, a:visited {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 .decision-note-label {
   font-size: 0.88rem;
@@ -786,7 +793,7 @@ a, a:hover, a:focus, a:active, a:visited {
 }
 .decision-note-textarea {
   width: 100%;
-  min-height: 90px;
+  min-height: 100px;
   border: 1px solid #cbd5e1;
   border-radius: 12px;
   padding: 12px 14px;
@@ -797,7 +804,45 @@ a, a:hover, a:focus, a:active, a:visited {
 }
 .decision-note-textarea:focus {
   outline: none;
-  border-color: #2563eb;
+  border-color: #0284c7;
+}
+
+/* Callout Banners (Image 2 & 3) */
+.decision-callout {
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 4px;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+.decision-callout.approve {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+}
+.decision-callout.reject {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.callout-pill {
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.callout-pill.approve {
+  background: #d1fae5;
+  color: #065f46;
+}
+.callout-pill.reject {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 .decision-modal-foot {
@@ -849,9 +894,82 @@ a, a:hover, a:focus, a:active, a:visited {
   background: #047857;
 }
 .btn-decision-submit.reject {
-  background: #dc2626;
+  background: #ef4444;
 }
 .btn-decision-submit.reject:hover {
-  background: #b91c1c;
+  background: #dc2626;
 }
+
+/* Exit Confirmation Dialog Styling */
+.exit-modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 3000;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.exit-modal-card {
+  background: #ffffff;
+  border-radius: 16px;
+  max-width: 440px;
+  width: 100%;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 25px 50px rgba(15, 23, 42, 0.35);
+  border: 1px solid #e2e8f0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  animation: exitModalPop 0.2s ease-out;
+}
+@keyframes exitModalPop {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.exit-modal-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #fef3c7;
+  color: #d97706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+  font-size: 1.5rem;
+}
+.exit-modal-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+.exit-modal-desc {
+  font-size: 0.88rem;
+  color: #64748b;
+  line-height: 1.45;
+  margin-bottom: 22px;
+}
+.exit-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.btn-exit-confirm {
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-exit-confirm:hover {
+  background: #dc2626;
+}
+
 

@@ -1,25 +1,25 @@
 <?php
 declare(strict_types=1);
 ?>
-<!-- ADMIN VERIFICATION DECISION MODAL (IMAGE 2 MATCHING DESIGN) -->
-<div id="decision-modal-backdrop" class="decision-modal-backdrop" onclick="if(event.target===this){closeDecisionModal();}">
+<!-- ADMIN VERIFICATION DECISION MODAL (MATCHING IMAGES 2, 3, 4 DESIGN) -->
+<div id="decision-modal-backdrop" class="decision-modal-backdrop" onclick="handleModalCloseAttempt(event)">
   <div class="decision-modal" onclick="event.stopPropagation();">
     <div class="decision-modal-head">
       <div>
         <div class="decision-modal-title" id="modal-title-text">Ambil Keputusan Verifikasi</div>
-        <div class="decision-modal-sub" id="modal-sub-text">Pilih keputusan untuk lowongan ini. Pastikan Anda telah memeriksa seluruh data lowongan dengan seksama.</div>
+        <div class="decision-modal-sub" id="modal-sub-text">Pilih keputusan untuk profil Gig Worker ini. Pastikan Anda telah memeriksa seluruh data profil Gig Worker dengan seksama.</div>
       </div>
-      <button type="button" class="decision-close" onclick="closeDecisionModal()" aria-label="Tutup">&times;</button>
+      <button type="button" class="decision-close" onclick="handleModalCloseAttempt(event)" aria-label="Tutup">&times;</button>
     </div>
 
     <form method="post" id="decision-form" action="" style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
-      <input type="hidden" name="action" id="modal-form-action" value="vacancy_decision" />
+      <input type="hidden" name="action" id="modal-form-action" value="worker_take_decision" />
       <input type="hidden" name="tab" id="modal-form-tab" value="" />
       <input type="hidden" name="id" id="modal-form-id" value="" />
       <input type="hidden" name="vacancy_id" id="modal-form-vacancy-id" value="" />
       <input type="hidden" name="username" id="modal-form-username" value="" />
       <input type="hidden" name="edit_id" id="modal-form-edit-id" value="" />
-      <input type="hidden" name="decision" id="modal-form-decision" value="revision" />
+      <input type="hidden" name="decision" id="modal-form-decision" value="approve" />
 
       <div class="decision-modal-body">
         <!-- SECTION 1: KETIDAKPATUHAN -->
@@ -37,7 +37,7 @@ declare(strict_types=1);
             </div>
             <div>
               <div class="decision-sec-title">Ketidakpatuhan</div>
-              <div class="decision-sec-sub" id="compliance-sec-sub">Aktifkan salah satu item di bawah ini apabila terdapat ketidakpatuhan pada lowongan ini</div>
+              <div class="decision-sec-sub" id="compliance-sec-sub">Aktifkan salah satu item di bawah ini apabila terdapat ketidakpatuhan pada profil Gig Worker ini</div>
             </div>
           </div>
 
@@ -86,20 +86,22 @@ declare(strict_types=1);
             </div>
             <div>
               <div class="decision-sec-title">Keputusan</div>
-              <div class="decision-sec-sub" id="decision-sec-sub">Tentukan keputusan sebelum memverifikasi lowongan ini</div>
+              <div class="decision-sec-sub" id="decision-sec-sub">Tentukan keputusan sebelum memverifikasi profil Gig Worker ini</div>
             </div>
           </div>
 
           <div class="decision-radio-list">
-            <div class="decision-radio-card" data-opt="approve" onclick="selectDecisionRadio('approve')">
+            <!-- OPTION 1: SETUJUI -->
+            <div class="decision-radio-card is-selected" data-opt="approve" onclick="selectDecisionRadio('approve')">
               <div class="custom-radio"></div>
               <div class="decision-opt-icon approve">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
               </div>
               <span class="decision-opt-label">Setujui</span>
-              <input type="radio" name="decision_option" value="approve" style="display:none;" />
+              <input type="radio" name="decision_option" value="approve" checked style="display:none;" />
             </div>
 
+            <!-- OPTION 2: TOLAK -->
             <div class="decision-radio-card" data-opt="reject" onclick="selectDecisionRadio('reject')">
               <div class="custom-radio"></div>
               <div class="decision-opt-icon reject">
@@ -108,77 +110,76 @@ declare(strict_types=1);
               <span class="decision-opt-label">Tolak</span>
               <input type="radio" name="decision_option" value="reject" style="display:none;" />
             </div>
+
+            <!-- OPTION 3: REVISI -->
+            <div class="decision-radio-card" data-opt="revision" onclick="selectDecisionRadio('revision')">
+              <div class="custom-radio"></div>
+              <div class="decision-opt-icon revision">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+              </div>
+              <span class="decision-opt-label">Revisi</span>
+              <input type="radio" name="decision_option" value="revision" style="display:none;" />
+            </div>
           </div>
         </div>
 
-        <!-- NOTES AREA -->
-        <div class="decision-note-wrap">
-          <label class="decision-note-label">Catatan Tambahan (Opsional)</label>
-          <textarea class="decision-note-textarea" name="admin_note" id="modal-note-input" placeholder="Masukkan catatan tambahan untuk pemohon..."></textarea>
+        <!-- DYNAMIC NOTES FIELD (FOR REVISION AND REJECTION) -->
+        <div id="decision-note-box" class="decision-note-wrap" style="display:none;">
+          <label class="decision-note-label">Catatan <span style="color:#ef4444;">*</span></label>
+          <textarea class="decision-note-textarea" name="admin_note" id="modal-note-input" placeholder="Masukkan catatan..."></textarea>
+        </div>
+
+        <!-- DYNAMIC CALLOUT BANNERS -->
+        <div id="callout-banner-approve" class="decision-callout approve" style="display:flex;">
+          <span class="callout-pill approve">Persetujuan</span>
+          <span class="callout-msg" id="approve-msg-text">Dengan menyetujui, akun Gig Worker akan aktif dan dapat langsung melamar serta menerima proyek gig.</span>
+        </div>
+
+        <div id="callout-banner-reject" class="decision-callout reject" style="display:none;">
+          <span class="callout-pill reject">Peringatan</span>
+          <span class="callout-msg" id="reject-msg-text">Tindakan ini akan menolak profil Gig Worker secara permanen. Gig Worker harus memperbarui data dan mengajukan ulang.</span>
         </div>
       </div>
 
       <div class="decision-modal-foot">
-        <button type="button" class="btn-decision-cancel" onclick="closeDecisionModal()">Batalkan</button>
-        <button type="submit" id="decision-submit-btn" class="btn-decision-submit revision">Kirim Revisi</button>
+        <button type="button" class="btn-decision-cancel" onclick="handleModalCloseAttempt(event)">Batalkan</button>
+        <button type="submit" id="decision-submit-btn" class="btn-decision-submit approve">Setujui Gig Worker</button>
       </div>
     </form>
   </div>
 </div>
 
+<!-- EXIT CONFIRMATION DIALOG -->
+<div id="decision-exit-confirm-modal" class="exit-modal-backdrop" onclick="if(event.target===this){closeExitConfirmModal();}">
+  <div class="exit-modal-card" onclick="event.stopPropagation();">
+    <div class="exit-modal-icon">⚠️</div>
+    <div class="exit-modal-title">Batalkan Keputusan Verifikasi?</div>
+    <div class="exit-modal-desc">Apakah Anda yakin ingin keluar? Seluruh pilihan atau catatan yang telah Anda masukkan tidak akan disimpan.</div>
+    <div class="exit-modal-actions">
+      <button type="button" class="btn-decision-cancel" onclick="closeExitConfirmModal()">Batal</button>
+      <button type="button" class="btn-exit-confirm" onclick="confirmCloseDecisionModal()">Ya, Keluar</button>
+    </div>
+  </div>
+</div>
+
 <script>
-let currentEntityName = 'lowongan';
-let currentEntityType = 'vacancy';
-
-function getComplianceReasonSet(entityType) {
-  if (entityType === 'worker') {
-    return [
-      'Data profil Gig Worker tidak lengkap',
-      'Portofolio/berkas pendukung tidak valid',
-      'Pengalaman atau keahlian tidak sesuai klaim',
-      'Informasi kontak/identitas tidak valid'
-    ];
-  }
-  if (entityType === 'employer') {
-    return [
-      'Data perusahaan tidak lengkap',
-      'Dokumen/legalitas perusahaan tidak valid',
-      'Informasi PIC tidak sesuai',
-      'Kontak perusahaan tidak dapat diverifikasi'
-    ];
-  }
-  return [
-    'Data tidak lengkap',
-    'Tidak sesuai substansi',
-    'Tidak sesuai dengan aturan',
-    'Tidak sesuai dengan aturan anti diskriminasi'
-  ];
-}
-
-function applyComplianceReasons(entityType) {
-  const reasons = getComplianceReasonSet(entityType);
-  const cards = document.querySelectorAll('.compliance-card');
-  cards.forEach((card, idx) => {
-    const reason = reasons[idx] || reasons[0] || 'Data tidak lengkap';
-    const label = card.querySelector('.compliance-label');
-    const input = card.querySelector('input[type="checkbox"]');
-    if (label) label.innerText = reason;
-    if (input) input.value = reason;
-  });
-}
+let currentEntityName = 'profil Gig Worker';
+let currentEntityType = 'worker';
+let isFormDirty = false;
 
 function openAdminDecisionModal(config = {}) {
   const modalBackdrop = document.getElementById('decision-modal-backdrop');
   if (!modalBackdrop) return;
 
-  const entityType = config.entityType || 'vacancy';
-  const entityName = config.entityName || (entityType === 'worker' ? 'profil Gig Worker' : (entityType === 'employer' ? 'Pemberi Kerja' : 'lowongan'));
+  const entityType = config.entityType || 'worker';
+  const entityName = config.entityName || (entityType === 'worker' ? 'profil Gig Worker' : (entityType === 'employer' ? 'pemberi kerja' : 'lowongan'));
   const id = config.id || '';
   const action = config.action || (entityType === 'worker' ? 'worker_take_decision' : (entityType === 'employer' ? 'employer_decision' : 'vacancy_decision'));
   const tab = config.tab || '';
 
   currentEntityType = entityType;
   currentEntityName = entityName;
+  isFormDirty = false;
 
   document.getElementById('modal-form-action').value = action;
   document.getElementById('modal-form-tab').value = tab;
@@ -191,18 +192,21 @@ function openAdminDecisionModal(config = {}) {
   document.getElementById('modal-sub-text').innerText = `Pilih keputusan untuk ${entityName} ini. Pastikan Anda telah memeriksa seluruh data ${entityName} dengan seksama.`;
   document.getElementById('compliance-sec-sub').innerText = `Aktifkan salah satu item di bawah ini apabila terdapat ketidakpatuhan pada ${entityName} ini`;
   document.getElementById('decision-sec-sub').innerText = `Tentukan keputusan sebelum memverifikasi ${entityName} ini`;
-  applyComplianceReasons(entityType);
 
+  // Reset checkboxes
   const checkBoxes = document.querySelectorAll('.compliance-card input[type="checkbox"]');
   checkBoxes.forEach(cb => {
     cb.checked = false;
     cb.closest('.compliance-card').classList.remove('is-active');
   });
 
-  document.getElementById('modal-note-input').value = '';
+  // Clear notes
+  const noteInput = document.getElementById('modal-note-input');
+  noteInput.value = '';
+  noteInput.required = false;
 
-  deselectAllDecisionRadios();
-  updateDecisionState();
+  // Default to approve
+  selectDecisionRadio('approve');
 
   modalBackdrop.style.display = 'flex';
   requestAnimationFrame(() => {
@@ -210,16 +214,38 @@ function openAdminDecisionModal(config = {}) {
   });
 }
 
-function closeDecisionModal() {
+function handleModalCloseAttempt(e) {
+  if (e) e.stopPropagation();
+  openExitConfirmModal();
+}
+
+function openExitConfirmModal() {
+  const exitModal = document.getElementById('decision-exit-confirm-modal');
+  if (exitModal) {
+    exitModal.style.display = 'flex';
+  }
+}
+
+function closeExitConfirmModal() {
+  const exitModal = document.getElementById('decision-exit-confirm-modal');
+  if (exitModal) {
+    exitModal.style.display = 'none';
+  }
+}
+
+function confirmCloseDecisionModal() {
+  closeExitConfirmModal();
   const modalBackdrop = document.getElementById('decision-modal-backdrop');
   if (!modalBackdrop) return;
   modalBackdrop.classList.remove('show');
   setTimeout(() => {
     modalBackdrop.style.display = 'none';
+    isFormDirty = false;
   }, 250);
 }
 
 function toggleComplianceSwitch(cardEl) {
+  isFormDirty = true;
   const cb = cardEl.querySelector('input[type="checkbox"]');
   if (!cb) return;
   cb.checked = !cb.checked;
@@ -232,17 +258,23 @@ function toggleComplianceSwitch(cardEl) {
 }
 
 function onComplianceToggleChange() {
-  const activeCount = document.querySelectorAll('.compliance-card input[type="checkbox"]:checked').length;
-  if (activeCount > 0) {
-    deselectAllDecisionRadios();
-    updateDecisionState('revision');
-  } else {
-    updateDecisionState();
+  const activeToggles = Array.from(document.querySelectorAll('.compliance-card input[type="checkbox"]:checked'));
+  if (activeToggles.length > 0) {
+    // Auto select revision radio option
+    selectDecisionRadio('revision');
+
+    // Auto-populate active reasons into notes field if empty or update
+    const noteInput = document.getElementById('modal-note-input');
+    const reasons = activeToggles.map(cb => cb.value).join(', ');
+    if (noteInput && (noteInput.value.trim() === '' || noteInput.value.startsWith('Ketidakpatuhan:'))) {
+      noteInput.value = 'Ketidakpatuhan: ' + reasons + '.';
+    }
   }
 }
 
 function selectDecisionRadio(optValue) {
-  if (optValue === 'approve' || optValue === 'reject') {
+  isFormDirty = true;
+  if (optValue === 'approve') {
     const checkBoxes = document.querySelectorAll('.compliance-card input[type="checkbox"]');
     checkBoxes.forEach(cb => {
       cb.checked = false;
@@ -266,49 +298,67 @@ function selectDecisionRadio(optValue) {
   updateDecisionState(optValue);
 }
 
-function deselectAllDecisionRadios() {
-  const radioCards = document.querySelectorAll('.decision-radio-card');
-  radioCards.forEach(card => {
-    card.classList.remove('is-selected');
-    const rad = card.querySelector('input[type="radio"]');
-    if (rad) rad.checked = false;
-  });
-}
-
-function updateDecisionState(forcedOpt = null) {
-  const activeToggles = document.querySelectorAll('.compliance-card input[type="checkbox"]:checked');
-  const selectedRadio = document.querySelector('.decision-radio-card.is-selected');
+function updateDecisionState(optValue) {
   const submitBtn = document.getElementById('decision-submit-btn');
   const decisionHidden = document.getElementById('modal-form-decision');
+  const noteBox = document.getElementById('decision-note-box');
+  const noteInput = document.getElementById('modal-note-input');
+  const bannerApprove = document.getElementById('callout-banner-approve');
+  const bannerReject = document.getElementById('callout-banner-reject');
+  const approveMsg = document.getElementById('approve-msg-text');
+  const rejectMsg = document.getElementById('reject-msg-text');
 
-  let state = forcedOpt;
-  if (!state) {
-    if (activeToggles.length > 0) {
-      state = 'revision';
-    } else if (selectedRadio) {
-      state = selectedRadio.getAttribute('data-opt');
-    } else {
-      state = 'revision';
-    }
+  decisionHidden.value = optValue;
+
+  let entityLabel = 'Gig Worker';
+  if (currentEntityType === 'employer') {
+    entityLabel = 'Pemberi Kerja';
+  } else if (currentEntityType === 'vacancy') {
+    entityLabel = 'Lowongan';
   }
 
-  submitBtn.className = 'btn-decision-submit ' + state;
-  decisionHidden.value = state;
+  if (optValue === 'approve') {
+    submitBtn.innerText = `Setujui ${entityLabel}`;
+    submitBtn.className = 'btn-decision-submit approve';
+    noteBox.style.display = 'none';
+    noteInput.required = false;
 
-  const entityTitle = currentEntityType === 'worker' ? 'Worker' : (currentEntityType === 'employer' ? 'Pemberi Kerja' : (currentEntityType === 'vacancy' ? 'Lowongan' : ''));
+    bannerApprove.style.display = 'flex';
+    bannerReject.style.display = 'none';
 
-  if (state === 'revision' || activeToggles.length > 0) {
+    if (currentEntityType === 'worker') {
+      approveMsg.innerText = 'Dengan menyetujui, akun Gig Worker akan aktif dan dapat langsung melamar serta menerima proyek gig.';
+    } else if (currentEntityType === 'employer') {
+      approveMsg.innerText = 'Dengan menyetujui, akun pemberi kerja akan terverifikasi dan dapat memasang lowongan proyek gig.';
+    } else {
+      approveMsg.innerText = 'Dengan menyetujui, lowongan proyek akan langsung dipublikasi dan dapat dilamar oleh pencari kerja.';
+    }
+  } else if (optValue === 'reject') {
+    submitBtn.innerText = `Tolak ${entityLabel}`;
+    submitBtn.className = 'btn-decision-submit reject';
+    noteBox.style.display = 'flex';
+    noteInput.required = true;
+    noteInput.placeholder = `Masukkan alasan penolakan ${entityLabel.toLowerCase()}...`;
+
+    bannerApprove.style.display = 'none';
+    bannerReject.style.display = 'flex';
+
+    if (currentEntityType === 'worker') {
+      rejectMsg.innerText = 'Tindakan ini akan menolak profil Gig Worker secara permanen. Gig Worker harus memperbarui data dan mengajukan ulang.';
+    } else if (currentEntityType === 'employer') {
+      rejectMsg.innerText = 'Tindakan ini akan menolak pendaftaran pemberi kerja secara permanen. Perusahaan harus mengajukan ulang pendaftaran.';
+    } else {
+      rejectMsg.innerText = 'Tindakan ini akan menolak lowongan secara permanen. Pemberi kerja harus mengajukan ulang lowongan baru.';
+    }
+  } else if (optValue === 'revision') {
     submitBtn.innerText = 'Kirim Revisi';
     submitBtn.className = 'btn-decision-submit revision';
-    decisionHidden.value = 'revision';
-  } else if (state === 'approve') {
-    submitBtn.innerText = entityTitle ? `Setujui ${entityTitle}` : 'Setujui';
-    submitBtn.className = 'btn-decision-submit approve';
-    decisionHidden.value = 'approve';
-  } else if (state === 'reject') {
-    submitBtn.innerText = entityTitle ? `Tolak ${entityTitle}` : 'Tolak';
-    submitBtn.className = 'btn-decision-submit reject';
-    decisionHidden.value = 'reject';
+    noteBox.style.display = 'flex';
+    noteInput.required = true;
+    noteInput.placeholder = `Masukkan catatan revisi untuk ${entityLabel.toLowerCase()}...`;
+
+    bannerApprove.style.display = 'none';
+    bannerReject.style.display = 'none';
   }
 }
 </script>
