@@ -13,6 +13,7 @@ $allActiveVacancies = array_values(array_filter(gig_project_vacancies(), static 
 $q = trim((string)($_GET['q'] ?? ''));
 $selectedCat = trim((string)($_GET['category'] ?? 'all'));
 $selectedBudget = trim((string)($_GET['budget'] ?? 'all'));
+$selectedLocation = trim((string)($_GET['location'] ?? 'all'));
 
 $vacancies = $allActiveVacancies;
 
@@ -60,6 +61,31 @@ if ($selectedBudget !== '' && $selectedBudget !== 'all') {
     }));
 }
 
+if ($selectedLocation !== '' && $selectedLocation !== 'all') {
+    $selectedLocationNeedle = strtolower($selectedLocation);
+    $vacancies = array_values(array_filter($vacancies, static function ($job) use ($selectedLocationNeedle) {
+        $locationRaw = trim(strtolower((string)($job['location'] ?? '')));
+        if ($locationRaw === '' || $locationRaw === 'lokasi belum diisi') {
+            return false;
+        }
+        return str_contains($locationRaw, $selectedLocationNeedle);
+    }));
+}
+
+function gig_bursa_relative_posted(string $posted): string
+{
+    $ts = strtotime($posted);
+    if (!$ts) {
+        return 'Baru diposting';
+    }
+    $days = max(0, (int)floor((time() - $ts) / 86400));
+    if ($days < 7) {
+        return $days <= 1 ? '1 hari yang lalu' : $days . ' hari yang lalu';
+    }
+    $months = max(1, (int)floor($days / 30));
+    return $months . ' bulan yang lalu';
+}
+
 // Banner & category label helpers are loaded from includes/project-vacancies.php
 
 
@@ -71,74 +97,51 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
 <style>
 .cari-proyek-container {
-  max-width: 1460px;
+  max-width: 1500px;
   margin: 0 auto;
 }
 
-.bursa-page-hero {
-  background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 65%);
-  border: 1px solid #dbeafe;
-  border-radius: 18px;
-  padding: 18px 20px;
-  margin-bottom: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+.page-title-block {
+  margin-bottom: 14px;
 }
 
-.bursa-page-title {
+.page-title {
   margin: 0;
-  font-size: 1.35rem;
-  font-weight: 800;
+  font-size: 2.2rem;
+  line-height: 1.1;
   color: #0f172a;
+  font-weight: 800;
 }
 
-.bursa-page-subtitle {
-  margin: 4px 0 0 0;
-  font-size: 0.84rem;
-  color: #475569;
-}
-
-.bursa-page-counter {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: #ffffff;
-  border: 1px solid #bfdbfe;
-  color: #1e40af;
-  font-size: 0.82rem;
-  font-weight: 700;
+.page-title-sub {
+  margin: 7px 0 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
 }
 
 .bursa-layout {
   display: grid;
-  grid-template-columns: 290px 1fr;
-  gap: 20px;
+  grid-template-columns: 300px 1fr;
+  gap: 18px;
   align-items: start;
 }
 
 .filter-panel {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
-  padding: 16px 14px;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  padding: 18px 14px;
   position: sticky;
   top: 86px;
 }
 
 .filter-panel h2 {
-  margin: 0 0 12px 0;
-  font-size: 1rem;
+  margin: 0 0 14px 0;
+  font-size: 2rem;
   font-weight: 800;
   color: #0f172a;
 }
-
-.filter-search-form { margin-bottom: 12px; }
 
 .filter-search-box {
   display: flex;
@@ -166,18 +169,16 @@ require __DIR__ . '/includes/worker-layout-start.php';
 }
 
 .filter-group {
-  border-top: 1px solid #f1f5f9;
-  padding-top: 11px;
-  margin-top: 11px;
+  border-top: 1px solid #eef2f7;
+  padding-top: 12px;
+  margin-top: 12px;
 }
 
 .filter-group-title {
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   font-weight: 800;
-  color: #334155;
+  color: #1e293b;
   margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
 }
 
 .filter-link-list {
@@ -192,13 +193,14 @@ require __DIR__ . '/includes/worker-layout-start.php';
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 7px 9px;
+  padding: 7px 8px;
   border-radius: 8px;
   border: 1px solid transparent;
   color: #475569;
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   font-weight: 600;
   text-decoration: none;
+  gap: 8px;
 }
 
 .filter-link:hover {
@@ -207,23 +209,44 @@ require __DIR__ . '/includes/worker-layout-start.php';
 }
 
 .filter-link.active {
-  background: #eff6ff;
-  border-color: #bfdbfe;
+  background: #f8fbff;
+  border-color: #cfe3ff;
   color: #1d4ed8;
   font-weight: 700;
 }
 
-.filter-pill-count {
-  font-size: 0.72rem;
-  background: #e2e8f0;
-  color: #334155;
+.filter-radio-dot {
+  width: 14px;
+  height: 14px;
   border-radius: 999px;
-  padding: 1px 7px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  flex-shrink: 0;
+  position: relative;
 }
 
-.filter-link.active .filter-pill-count {
-  background: #dbeafe;
-  color: #1e40af;
+.filter-link.active .filter-radio-dot {
+  border-color: #60a5fa;
+}
+
+.filter-link.active .filter-radio-dot::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #3b82f6;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.filter-pill-count {
+  font-size: 0.7rem;
+  background: #eef2f7;
+  color: #475569;
+  border-radius: 999px;
+  padding: 1px 7px;
 }
 
 .filter-reset {
@@ -238,65 +261,15 @@ require __DIR__ . '/includes/worker-layout-start.php';
   min-width: 0;
 }
 
-.results-topbar {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 13px 16px;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.results-title {
-  margin: 0;
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #0f172a;
-}
-
-.results-sub {
-  margin: 3px 0 0 0;
-  color: #64748b;
-  font-size: 0.82rem;
-}
-
-.results-chips {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.results-chip {
-  display: inline-flex;
-  padding: 5px 10px;
-  border: 1px solid #e2e8f0;
-  border-radius: 999px;
-  font-size: 0.74rem;
-  color: #334155;
-  background: #f8fafc;
-  font-weight: 700;
-}
-
-.result-count-highlight {
-  color: #1d4ed8;
-  font-weight: 800;
-}
-
-/* Grid layout: 3 columns per row for clean spacious layout */
 .proyek-cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: 14px;
 }
 
 @media (max-width: 992px) {
-  .bursa-page-hero {
-    padding: 14px 14px;
+  .page-title {
+    font-size: 1.7rem;
   }
   .bursa-layout {
     grid-template-columns: 1fr;
@@ -309,22 +282,24 @@ require __DIR__ . '/includes/worker-layout-start.php';
   }
 }
 @media (max-width: 640px) {
+  .filter-panel h2 {
+    font-size: 1.6rem;
+  }
   .proyek-cards-grid {
     grid-template-columns: 1fr;
   }
 }
 
-/* Clean Professional Card Design for Cari Proyek */
 .proyek-card-item {
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
   border: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 22px;
+  padding: 14px 14px 12px;
   transition: all 0.2s ease;
   text-decoration: none;
   color: inherit;
@@ -332,17 +307,17 @@ require __DIR__ . '/includes/worker-layout-start.php';
 }
 
 a.proyek-card-item:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   border-color: #93c5fd;
-  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.09);
   color: inherit;
 }
 
 .card-employer-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
+  align-items: flex-start;
+  margin-bottom: 10px;
   gap: 12px;
 }
 
@@ -354,28 +329,28 @@ a.proyek-card-item:hover {
 
 /* Same profile picture avatar as Penawaran Proyek */
 .employer-avatar-circle-sm {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: #2563eb;
-  color: #ffffff;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: #0f172a;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: 0.95rem;
   flex-shrink: 0;
-  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.22);
+  border: 1px solid #e2e8f0;
 }
 
 .card-employer-name {
-  font-size: 0.88rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #0f172a;
   line-height: 1.25;
 }
 
 .card-employer-sub {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: #64748b;
   margin-top: 2px;
   display: flex;
@@ -384,21 +359,21 @@ a.proyek-card-item:hover {
 }
 
 .card-cat-badge {
-  background: #f1f5f9;
-  color: #475569;
-  font-size: 0.75rem;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.7rem;
   font-weight: 700;
-  padding: 4px 12px;
+  padding: 3px 9px;
   border-radius: 9999px;
   white-space: nowrap;
   border: 1px solid #e2e8f0;
 }
 
 .card-project-title {
-  font-size: 1.08rem;
+  font-size: 1.02rem;
   font-weight: 800;
   color: #0f172a;
-  margin: 0 0 14px 0;
+  margin: 0 0 6px 0;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -407,54 +382,64 @@ a.proyek-card-item:hover {
   height: 2.8em;
 }
 
-/* Metadata box with Salary and Duration */
+.card-company-line {
+  margin: 0 0 8px 0;
+  font-size: 0.82rem;
+  color: #334155;
+  font-weight: 600;
+}
+
 .card-meta-detail {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #f8fafc;
-  padding: 12px 16px;
-  border-radius: 12px;
-  margin-bottom: 16px;
-  border: 1px solid #f1f5f9;
+  display: block;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  margin-bottom: 10px;
+  border: none;
 }
 
 .card-salary {
-  font-size: 1.02rem;
-  font-weight: 800;
-  color: #2563eb;
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-bottom: 1px;
 }
 
-.card-meta-pills {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 0.8rem;
-  color: #475569;
-  font-weight: 600;
+.card-salary-value {
+  font-size: 1.08rem;
+  font-weight: 800;
+  color: #0f172a;
 }
 
 .meta-pill-info {
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  color: #64748b;
+  font-size: 0.76rem;
+  margin-top: 4px;
+}
+
+.card-apply-deadline {
+  font-size: 0.76rem;
+  color: #64748b;
+  margin-top: 4px;
 }
 
 .card-skills-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  min-height: 32px;
+  gap: 6px;
+  min-height: 26px;
   align-content: flex-start;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .skill-pill-sm {
-  background: #ffffff;
+  background: #f8fafc;
   color: #475569;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  padding: 5px 12px;
+  padding: 4px 10px;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
 }
@@ -462,28 +447,44 @@ a.proyek-card-item:hover {
 .skill-pill-more {
   background: #f1f5f9;
   color: #334155;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 5px 10px;
+  padding: 4px 9px;
   border-radius: 8px;
   border: 1px solid #cbd5e1;
 }
 
 .card-action-footer {
-  padding-top: 14px;
+  padding-top: 10px;
   border-top: 1px solid #f1f5f9;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  font-size: 0.84rem;
+  font-size: 0.76rem;
   font-weight: 700;
   color: #2563eb;
+  gap: 6px;
 }
 
 </style>
 
 <div class="cari-proyek-container">
   <?php
+    $locations = [];
+    foreach ($allActiveVacancies as $rowVacancy) {
+        $loc = trim((string)($rowVacancy['location'] ?? ''));
+        if ($loc === '' || strcasecmp($loc, 'Lokasi belum diisi') === 0) {
+            $loc = gig_random_location((string)($rowVacancy['id'] ?? ''));
+        }
+        $locKey = strtolower($loc);
+        if (!isset($locations[$locKey])) {
+            $locations[$locKey] = ['label' => $loc, 'count' => 0];
+        }
+        $locations[$locKey]['count']++;
+    }
+    uasort($locations, static fn($a, $b) => strcmp((string)$a['label'], (string)$b['label']));
+    $locations = array_slice($locations, 0, 6, true);
+
     $catCounts = [
       'all' => count($allActiveVacancies),
       'UI/UX & Desain' => count(array_filter($allActiveVacancies, static fn($j) => str_contains(strtolower((string)$j['category']), 'desain') || str_contains(strtolower((string)$j['category']), 'ui/ux'))),
@@ -506,14 +507,10 @@ a.proyek-card-item:hover {
     ];
   ?>
 
-  <section class="bursa-page-hero">
+  <section class="page-title-block">
     <div>
-      <h1 class="bursa-page-title">Cari Proyek Gig Worker</h1>
-      <p class="bursa-page-subtitle">Temukan lowongan proyek yang sesuai dengan keahlian, lokasi, dan rentang gaji Anda.</p>
-    </div>
-    <div class="bursa-page-counter">
-      <span>Lowongan Tersedia:</span>
-      <span><?php echo count($allActiveVacancies); ?></span>
+      <h1 class="page-title">Lowongan Dalam Negeri</h1>
+      <p class="page-title-sub">Temukan lowongan proyek yang sesuai dengan keahlian Anda.</p>
     </div>
   </section>
 
@@ -531,12 +528,39 @@ a.proyek-card-item:hover {
       </form>
 
       <div class="filter-group">
+        <div class="filter-group-title">Lokasi</div>
+        <ul class="filter-link-list">
+          <li>
+            <a class="filter-link <?php echo ($selectedLocation === 'all' || $selectedLocation === '') ? 'active' : ''; ?>" href="?<?php echo htmlspecialchars(http_build_query(['category' => $selectedCat, 'budget' => $selectedBudget, 'q' => $q, 'location' => 'all']), ENT_QUOTES, 'UTF-8'); ?>">
+              <span class="filter-radio-dot"></span>
+              <span style="flex:1;">Semua Lokasi</span>
+              <span class="filter-pill-count"><?php echo count($allActiveVacancies); ?></span>
+            </a>
+          </li>
+          <?php foreach ($locations as $loc): ?>
+            <?php
+              $locLabel = (string)$loc['label'];
+              $isLocActive = strtolower($selectedLocation) === strtolower($locLabel);
+            ?>
+            <li>
+              <a class="filter-link <?php echo $isLocActive ? 'active' : ''; ?>" href="?<?php echo htmlspecialchars(http_build_query(['category' => $selectedCat, 'budget' => $selectedBudget, 'q' => $q, 'location' => $locLabel]), ENT_QUOTES, 'UTF-8'); ?>">
+                <span class="filter-radio-dot"></span>
+                <span style="flex:1;"><?php echo htmlspecialchars($locLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                <span class="filter-pill-count"><?php echo (int)$loc['count']; ?></span>
+              </a>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+      </div>
+
+      <div class="filter-group">
         <div class="filter-group-title">Kategori</div>
         <ul class="filter-link-list">
           <?php foreach ($catMap as $catKey => $catLabel): ?>
             <?php $isActive = (strtolower($selectedCat) === strtolower($catKey) || ($catKey === 'all' && $selectedCat === 'all')); ?>
             <li>
-              <a class="filter-link <?php echo $isActive ? 'active' : ''; ?>" href="?<?php echo htmlspecialchars(http_build_query(['category' => $catKey, 'budget' => $selectedBudget, 'q' => $q]), ENT_QUOTES, 'UTF-8'); ?>">
+              <a class="filter-link <?php echo $isActive ? 'active' : ''; ?>" href="?<?php echo htmlspecialchars(http_build_query(['category' => $catKey, 'budget' => $selectedBudget, 'q' => $q, 'location' => $selectedLocation]), ENT_QUOTES, 'UTF-8'); ?>">
+                <span class="filter-radio-dot"></span>
                 <span><?php echo htmlspecialchars($catLabel, ENT_QUOTES, 'UTF-8'); ?></span>
                 <span class="filter-pill-count"><?php echo (int)($catCounts[$catKey] ?? 0); ?></span>
               </a>
@@ -551,7 +575,8 @@ a.proyek-card-item:hover {
           <?php foreach ($budgetMap as $budgetKey => $budgetLabel): ?>
             <?php $isBudgetActive = $selectedBudget === $budgetKey || ($selectedBudget === '' && $budgetKey === 'all'); ?>
             <li>
-              <a class="filter-link <?php echo $isBudgetActive ? 'active' : ''; ?>" href="?<?php echo htmlspecialchars(http_build_query(['category' => $selectedCat, 'budget' => $budgetKey, 'q' => $q]), ENT_QUOTES, 'UTF-8'); ?>">
+              <a class="filter-link <?php echo $isBudgetActive ? 'active' : ''; ?>" href="?<?php echo htmlspecialchars(http_build_query(['category' => $selectedCat, 'budget' => $budgetKey, 'q' => $q, 'location' => $selectedLocation]), ENT_QUOTES, 'UTF-8'); ?>">
+                <span class="filter-radio-dot"></span>
                 <span><?php echo htmlspecialchars($budgetLabel, ENT_QUOTES, 'UTF-8'); ?></span>
               </a>
             </li>
@@ -563,24 +588,12 @@ a.proyek-card-item:hover {
     </aside>
 
     <section class="results-pane">
-      <div class="results-topbar">
-        <div>
-          <h2 class="results-title">Lowongan Dalam Negeri</h2>
-          <p class="results-sub">Menampilkan <span class="result-count-highlight"><?php echo count($vacancies); ?></span> proyek siap dilamar.</p>
-        </div>
-        <div class="results-chips">
-          <span class="results-chip">Kategori: <?php echo htmlspecialchars($catMap[$selectedCat] ?? 'Semua Bidang', ENT_QUOTES, 'UTF-8'); ?></span>
-          <span class="results-chip">Gaji: <?php echo htmlspecialchars($budgetMap[$selectedBudget] ?? 'Semua Rentang Gaji', ENT_QUOTES, 'UTF-8'); ?></span>
-        </div>
-      </div>
-
-
       <?php if (empty($vacancies)): ?>
         <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 48px 20px; text-align: center; color: #64748b;">
           <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; color: #94a3b8;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <h3 style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 6px;">Tidak ada proyek yang cocok</h3>
           <p style="font-size: 0.9rem;">Coba sesuaikan kata kunci pencarian atau pilih kategori lain.</p>
-          <a href="worker-bursa.php" class="results-chip" style="display: inline-flex; margin-top: 16px; text-decoration: none;">Tampilkan Semua Proyek</a>
+          <a href="worker-bursa.php" class="filter-reset" style="display: inline-flex; margin-top: 16px;">Tampilkan Semua Proyek</a>
         </div>
       <?php else: ?>
         <div class="proyek-cards-grid">
@@ -607,16 +620,17 @@ a.proyek-card-item:hover {
                       <div class="card-employer-sub">📍 <?php echo htmlspecialchars($locDisplay, ENT_QUOTES, 'UTF-8'); ?></div>
                     </div>
                   </div>
-                  <span class="card-cat-badge"><?php echo htmlspecialchars($badgeLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                  <span class="card-cat-badge"><?php echo htmlspecialchars(gig_bursa_relative_posted((string)($job['posted'] ?? '')), ENT_QUOTES, 'UTF-8'); ?></span>
                 </div>
 
                 <h3 class="card-project-title"><?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
+                <div class="card-company-line"><?php echo htmlspecialchars($employerDisplayName, ENT_QUOTES, 'UTF-8'); ?></div>
 
                 <div class="card-meta-detail">
-                  <div class="card-salary"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></div>
-                  <div class="card-meta-pills">
-                    <span class="meta-pill-info">⏱️ <?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?></span>
-                  </div>
+                  <div class="card-salary">Kisaran Gaji</div>
+                  <div class="card-salary-value"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></div>
+                  <div class="meta-pill-info">Durasi: <?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?></div>
+                  <div class="card-apply-deadline">Lamar sebelum <?php echo htmlspecialchars((string)($job['deadline'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
                 </div>
 
                 <div class="card-skills-row">
