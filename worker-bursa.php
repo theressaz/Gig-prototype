@@ -299,11 +299,13 @@ require __DIR__ . '/includes/worker-layout-start.php';
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 14px 14px 12px;
+  padding: 16px 16px 14px;
   transition: all 0.2s ease;
   text-decoration: none;
   color: inherit;
   cursor: pointer;
+  height: 100%;
+  min-height: 330px;
 }
 
 a.proyek-card-item:hover {
@@ -317,14 +319,22 @@ a.proyek-card-item:hover {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 10px;
-  gap: 12px;
+  margin-bottom: 12px;
+  gap: 8px;
+  height: 38px;
 }
 
 .card-employer-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.card-employer-info {
+  min-width: 0;
+  flex: 1;
 }
 
 /* Same profile picture avatar as Penawaran Proyek */
@@ -347,15 +357,21 @@ a.proyek-card-item:hover {
   font-weight: 700;
   color: #0f172a;
   line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .card-employer-sub {
-  font-size: 0.76rem;
+  font-size: 0.75rem;
   color: #64748b;
   margin-top: 2px;
   display: flex;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .card-cat-badge {
@@ -367,19 +383,20 @@ a.proyek-card-item:hover {
   border-radius: 9999px;
   white-space: nowrap;
   border: 1px solid #e2e8f0;
+  flex-shrink: 0;
 }
 
 .card-project-title {
-  font-size: 1.02rem;
+  font-size: 1rem;
   font-weight: 800;
   color: #0f172a;
-  margin: 0 0 6px 0;
-  line-height: 1.4;
+  margin: 0 0 10px 0;
+  line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  height: 2.8em;
+  height: 2.7em;
 }
 
 .card-company-line {
@@ -394,14 +411,14 @@ a.proyek-card-item:hover {
   background: transparent;
   padding: 0;
   border-radius: 0;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   border: none;
 }
 
 .card-salary {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: #64748b;
-  margin-bottom: 1px;
+  margin-bottom: 2px;
 }
 
 .card-salary-value {
@@ -420,20 +437,22 @@ a.proyek-card-item:hover {
 }
 
 .card-apply-deadline {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: #64748b;
-  margin-top: 6px;
-  margin-bottom: 8px;
   font-weight: 500;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
 }
 
 .card-skills-row {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  min-height: 26px;
+  height: 58px;
   align-content: flex-start;
   margin-bottom: 8px;
+  overflow: hidden;
 }
 
 .skill-pill-sm {
@@ -611,7 +630,7 @@ a.proyek-card-item:hover {
                 <div class="card-employer-header">
                   <div class="card-employer-left">
                     <div class="employer-avatar-circle-sm">🏢</div>
-                    <div>
+                    <div class="card-employer-info">
                       <div class="card-employer-name"><?php echo htmlspecialchars($employerDisplayName, ENT_QUOTES, 'UTF-8'); ?></div>
                       <?php
                         $locDisplay = trim((string)($job['location'] ?? ''));
@@ -627,9 +646,8 @@ a.proyek-card-item:hover {
 
                 <h3 class="card-project-title"><?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
 
-
                 <div class="card-meta-detail">
-                  <div class="card-salary">Kisaran Gaji</div>
+                  <div class="card-salary">Gaji</div>
                   <div class="card-salary-value"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></div>
                   <div class="meta-pill-info">Durasi: <?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?></div>
                 </div>
@@ -642,11 +660,9 @@ a.proyek-card-item:hover {
                     <span class="skill-pill-more">+<?php echo $remainingCount; ?></span>
                   <?php endif; ?>
                 </div>
-
-                <div class="card-apply-deadline">Lamar sebelum <?php echo htmlspecialchars((string)($job['deadline'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
               </div>
 
-
+              <div class="card-apply-deadline">Lamar sebelum <?php echo htmlspecialchars((string)($job['deadline'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
             </a>
           <?php endforeach; ?>
         </div>

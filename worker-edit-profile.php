@@ -145,6 +145,191 @@ $breadcrumbCurrent = 'Edit Profil Saya';
 require __DIR__ . '/includes/worker-layout-start.php';
 ?>
 
+<style>
+.gig-verify-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.gig-verify-modal-card {
+  background: #ffffff;
+  border-radius: 18px;
+  max-width: 680px;
+  width: 100%;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+  overflow: hidden;
+  animation: gigModalSlideIn .22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes gigModalSlideIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.gig-verify-modal-header {
+  padding: 16px 22px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+.gig-verify-modal-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 2px 0;
+}
+.gig-verify-modal-sub {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin: 0;
+}
+.gig-verify-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .16s ease;
+  flex-shrink: 0;
+}
+.gig-verify-modal-close:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+.gig-verify-modal-body {
+  padding: 18px 22px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #f8fafc;
+}
+.gig-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.gig-modal-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+.gig-modal-label .req {
+  color: #ef4444;
+}
+.gig-modal-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.86rem;
+  background: #ffffff;
+  color: #0f172a;
+  resize: vertical;
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+.gig-modal-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+.gig-modal-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 640px) {
+  .gig-modal-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+.gig-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.gig-radio-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: #334155;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .16s ease;
+}
+.gig-radio-option:hover {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+.gig-radio-option input[type="radio"] {
+  accent-color: #2563eb;
+  flex-shrink: 0;
+}
+.gig-verify-modal-footer {
+  padding: 14px 22px;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.gig-verify-modal-footer .btn-cancel {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: all .16s ease;
+}
+.gig-verify-modal-footer .btn-cancel:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+.gig-verify-modal-footer .btn-submit {
+  border: none;
+  background: #2563eb;
+  color: #ffffff;
+  padding: 9px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.86rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+  transition: all .16s ease;
+}
+.gig-verify-modal-footer .btn-submit:hover {
+  background: #1d4ed8;
+}
+</style>
+
 <div class="page-toolbar">
   <div>
     <h1 style="font-size:1.4rem;font-weight:800;color:#0f172a;margin-bottom:4px;">Edit Profil Gig Worker</h1>
@@ -261,45 +446,55 @@ require __DIR__ . '/includes/worker-layout-start.php';
       <a href="worker-profile.php" style="color:#475569;font-weight:600;font-size:0.9rem;text-decoration:none;">Batal</a>
     </div>
 
-    <div id="verifyModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:1200;align-items:center;justify-content:center;padding:18px;">
-      <div style="background:#fff;border-radius:14px;max-width:620px;width:100%;padding:20px 20px 16px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <h3 style="font-size:1rem;font-weight:800;color:#0f172a;">Konfirmasi Pengajuan Edit Profil</h3>
-          <button type="button" onclick="closeVerifyModal()" style="border:none;background:transparent;font-size:1.2rem;cursor:pointer;">&times;</button>
-        </div>
-        <p style="font-size:0.84rem;color:#64748b;margin-bottom:12px;">Pilih bidang utama yang Anda ubah, alasan perubahan, lalu jelaskan alasannya. Admin akan memverifikasi sebelum perubahan ditayangkan.</p>
-
-        <div style="margin-bottom:12px;">
-          <label style="display:block;font-size:0.82rem;font-weight:700;color:#1e293b;margin-bottom:6px;">Ringkasan perubahan yang Anda lakukan <span style="color:#ef4444;">*</span></label>
-          <textarea name="change_summary" id="change_summary" rows="3" placeholder="Contoh: Menambahkan 2 pengalaman kerja terbaru dan memperbarui 1 portofolio proyek." style="width:100%;padding:9px 10px;border:1px solid #cbd5e1;border-radius:8px;font-family:inherit;"></textarea>
+    <div id="verifyModal" class="gig-verify-modal-backdrop" style="display:none;" onclick="if(event.target===this) closeVerifyModal();">
+      <div class="gig-verify-modal-card">
+        <div class="gig-verify-modal-header">
+          <div>
+            <h3 class="gig-verify-modal-title">Konfirmasi Pengajuan Edit Profil</h3>
+            <p class="gig-verify-modal-sub">Admin akan memverifikasi perincian perubahan Anda sebelum ditayangkan.</p>
+          </div>
+          <button type="button" class="gig-verify-modal-close" onclick="closeVerifyModal()">&times;</button>
         </div>
 
-        <div style="margin-bottom:12px;">
-          <div style="font-size:0.82rem;font-weight:700;color:#1e293b;margin-bottom:6px;">Bidang utama yang diubah <span style="color:#ef4444;">*</span></div>
-          <label style="display:block;margin-bottom:4px;"><input type="radio" name="edited_field" value="identity_contact"> Informasi utama & kontak</label>
-          <label style="display:block;margin-bottom:4px;"><input type="radio" name="edited_field" value="skills_bio"> Keahlian & bio</label>
-          <label style="display:block;margin-bottom:4px;"><input type="radio" name="edited_field" value="experience"> Pengalaman kerja</label>
-          <label style="display:block;margin-bottom:4px;"><input type="radio" name="edited_field" value="portfolio"> Portofolio</label>
-          <label style="display:block;margin-bottom:4px;"><input type="radio" name="edited_field" value="multiple_fields"> Lebih dari satu bidang</label>
+        <div class="gig-verify-modal-body">
+          <div class="gig-modal-field">
+            <label class="gig-modal-label">Ringkasan perubahan yang Anda lakukan <span class="req">*</span></label>
+            <textarea name="change_summary" id="change_summary" rows="2" placeholder="Contoh: Menambahkan 2 pengalaman kerja terbaru dan memperbarui 1 portofolio proyek." class="gig-modal-input"></textarea>
+          </div>
+
+          <div class="gig-modal-grid-2">
+            <div class="gig-modal-field">
+              <label class="gig-modal-label">Bidang utama yang diubah <span class="req">*</span></label>
+              <div class="gig-radio-group">
+                <label class="gig-radio-option"><input type="radio" name="edited_field" value="identity_contact"> <span>Informasi utama & kontak</span></label>
+                <label class="gig-radio-option"><input type="radio" name="edited_field" value="skills_bio"> <span>Keahlian & bio</span></label>
+                <label class="gig-radio-option"><input type="radio" name="edited_field" value="experience"> <span>Pengalaman kerja</span></label>
+                <label class="gig-radio-option"><input type="radio" name="edited_field" value="portfolio"> <span>Portofolio</span></label>
+                <label class="gig-radio-option"><input type="radio" name="edited_field" value="multiple_fields"> <span>Lebih dari satu bidang</span></label>
+              </div>
+            </div>
+
+            <div class="gig-modal-field">
+              <label class="gig-modal-label">Alasan edit profil <span class="req">*</span></label>
+              <div class="gig-radio-group">
+                <label class="gig-radio-option"><input type="radio" name="reason_code" value="latest_work_update"> <span>Menambahkan hasil kerja terbaru</span></label>
+                <label class="gig-radio-option"><input type="radio" name="reason_code" value="data_correction"> <span>Koreksi data kurang tepat</span></label>
+                <label class="gig-radio-option"><input type="radio" name="reason_code" value="rebranding"> <span>Rebranding / reposisi profil</span></label>
+                <label class="gig-radio-option"><input type="radio" name="reason_code" value="admin_request"> <span>Catatan admin/mitra</span></label>
+                <label class="gig-radio-option"><input type="radio" name="reason_code" value="other"> <span>Alasan lainnya</span></label>
+              </div>
+            </div>
+          </div>
+
+          <div class="gig-modal-field">
+            <label class="gig-modal-label">Penjelasan alasan edit <span class="req">*</span></label>
+            <textarea name="reason_detail" rows="2" placeholder="Jelaskan secara singkat alasan kenapa profil perlu diubah." class="gig-modal-input"></textarea>
+          </div>
         </div>
 
-        <div style="margin-bottom:12px;">
-          <div style="font-size:0.82rem;font-weight:700;color:#1e293b;margin-bottom:6px;">Alasan edit profil <span style="color:#ef4444;">*</span></div>
-          <label style="display:block;margin-bottom:4px;"><input type="radio" name="reason_code" value="latest_work_update"> Menambahkan hasil kerja terbaru</label>
-          <label style="display:block;margin-bottom:4px;"><input type="radio" name="reason_code" value="data_correction"> Koreksi data yang kurang tepat</label>
-          <label style="display:block;margin-bottom:4px;"><input type="radio" name="reason_code" value="rebranding"> Rebranding / reposisi profil</label>
-          <label style="display:block;margin-bottom:4px;"><input type="radio" name="reason_code" value="admin_request"> Menindaklanjuti catatan admin/mitra</label>
-          <label style="display:block;margin-bottom:4px;"><input type="radio" name="reason_code" value="other"> Alasan lainnya</label>
-        </div>
-
-        <div style="margin-bottom:14px;">
-          <label style="display:block;font-size:0.82rem;font-weight:700;color:#1e293b;margin-bottom:6px;">Penjelasan alasan edit <span style="color:#ef4444;">*</span></label>
-          <textarea name="reason_detail" rows="3" placeholder="Jelaskan kenapa profil perlu diubah." style="width:100%;padding:9px 10px;border:1px solid #cbd5e1;border-radius:8px;font-family:inherit;"></textarea>
-        </div>
-
-        <div style="display:flex;justify-content:flex-end;gap:10px;">
-          <button type="button" onclick="closeVerifyModal()" style="border:1px solid #cbd5e1;background:#fff;color:#334155;padding:9px 14px;border-radius:8px;font-weight:700;cursor:pointer;">Batal</button>
-          <button type="submit" style="border:none;background:#2563eb;color:#fff;padding:9px 16px;border-radius:8px;font-weight:700;cursor:pointer;">Kirim Pengajuan</button>
+        <div class="gig-verify-modal-footer">
+          <button type="button" class="btn-cancel" onclick="closeVerifyModal()">Batal</button>
+          <button type="submit" class="btn-submit">Kirim Pengajuan</button>
         </div>
       </div>
     </div>
