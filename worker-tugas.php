@@ -260,7 +260,7 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
               Ulasan Anda Terkirim
             </button>
           <?php else: ?>
-            <a class="btn-create-post" href="employer-rating-worker.php?contract=<?php echo urlencode((string)$proj['contract_id']); ?>&from=worker" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 10px rgba(217,119,6,0.35);">
+            <a class="btn-create-post" href="worker-rating-employer.php?contract=<?php echo urlencode((string)$proj['contract_id']); ?>" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 10px rgba(217,119,6,0.35);">
               ★ Selesaikan &amp; Beri Rating
             </a>
           <?php endif; ?>

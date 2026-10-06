@@ -11,6 +11,12 @@ $username = $_SESSION["username"];
 $userRole = $_SESSION["role"] ?? 'employer';
 $isWorker = ($userRole === 'worker') || (isset($_GET['from']) && $_GET['from'] === 'worker');
 
+if ($isWorker) {
+    $cId = urlencode((string)($_GET['contract'] ?? ''));
+    header("Location: worker-rating-employer.php?contract=" . $cId);
+    exit;
+}
+
 require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/project-history.php';
