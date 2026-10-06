@@ -299,7 +299,6 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <span>Status: <strong><?php echo htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8'); ?></strong></span>
         </div>
       </div>
-      <button type="button" class="btn-primary-add" onclick="showToast('Fitur re-open lowongan siap digunakan.');">Buka Kembali Lowongan</button>
     </div>
     <div class="jobd-kpi">
       <div><span class="lbl">Tayang</span><span class="val"><?php echo htmlspecialchars((string)$job['posted'], ENT_QUOTES, 'UTF-8'); ?></span></div>
@@ -371,7 +370,6 @@ require __DIR__ . '/includes/employer-layout-start.php';
                 <div class="jobd-card-meta">
                   <span>★ <?php echo number_format((float)$c['rating'], 1); ?></span>
                 </div>
-                <div style="font-size:0.76rem;font-weight:800;color:#2563eb;"><?php echo htmlspecialchars($c['bid'], ENT_QUOTES, 'UTF-8'); ?></div>
               </div>
             <?php endforeach; ?>
           </div>
