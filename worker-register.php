@@ -816,6 +816,44 @@ $backHref = $isEditMode
         </div>
       </div>
 
+      <!-- BAGIAN 3: BIDANG KEAHLIAN & SKILL -->
+      <div class="form-section-header">
+        <h2 class="form-section-title">3. BIDANG KEAHLIAN &amp; SKILL SPESIFIK</h2>
+        <p class="form-section-subtitle">Tentukan spesialisasi utama dan daftar keahlian teknis Anda.</p>
+      </div>
+
+      <div class="form-grid-2col">
+        <div class="form-group">
+          <label class="form-label" for="bidang_keahlian">Bidang Keahlian Utama <span style="color:#ef4444;">*</span></label>
+          <?php 
+            $bidangOpts = [
+              "UI/UX Design & Product Interface",
+              "Web Development (Frontend / Backend / Fullstack)",
+              "Mobile Application Development",
+              "Digital Marketing & Social Media Strategy",
+              "Data Analytics & Data Entry",
+              "Copywriting, Content Writing & Translation",
+              "Graphic Design, Video Editing & Multimedia",
+              "Administrative & Virtual Assistant"
+            ];
+          ?>
+          <select id="bidang_keahlian" name="bidang_keahlian" class="form-select" required>
+            <option value="">-- Pilih Bidang Keahlian --</option>
+            <?php foreach ($bidangOpts as $bOpt): ?>
+              <option value="<?php echo htmlspecialchars($bOpt, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $currentBidang === $bOpt ? 'selected' : ''; ?>>
+                <?php echo htmlspecialchars($bOpt, ENT_QUOTES, 'UTF-8'); ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="skills">Skill / Keahlian Spesifik <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="skills" name="skills" class="form-input" value="<?php echo htmlspecialchars($currentSkills, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Contoh: Figma, React, Node.js" required />
+          <span class="form-hint">Pisahkan skill dengan tanda koma ( , )</span>
+        </div>
+      </div>
+
       <div class="form-divider"></div>
 
       <?php
@@ -825,9 +863,9 @@ $backHref = $isEditMode
         ];
       ?>
 
-      <!-- BAGIAN 3: PENGALAMAN & PORTOFOLIO -->
+      <!-- BAGIAN 4: PENGALAMAN & PORTOFOLIO -->
       <div class="form-section-header">
-        <h2 class="form-section-title">3. PENGALAMAN &amp; PORTOFOLIO</h2>
+        <h2 class="form-section-title">4. PENGALAMAN &amp; PORTOFOLIO</h2>
         <p class="form-section-subtitle">Data pengalaman dan portofolio ditarik dari SIAPKerja. Anda dapat menambah, memperbarui, serta melampirkan hasil karya/portofolio pada tiap pengalaman.</p>
       </div>
 
@@ -1045,46 +1083,6 @@ $backHref = $isEditMode
       <button type="button" class="btn-add-item" onclick="addProjectItem()" style="margin-top:8px;align-self:flex-start;">
         + Tambah Pengalaman Gig Workers
       </button>
-
-      <div class="form-divider"></div>
-
-      <!-- BAGIAN 4: BIDANG KEAHLIAN & SKILL -->
-      <div class="form-section-header">
-        <h2 class="form-section-title">4. BIDANG KEAHLIAN &amp; SKILL SPESIFIK</h2>
-        <p class="form-section-subtitle">Tentukan spesialisasi utama dan daftar keahlian teknis Anda.</p>
-      </div>
-
-      <div class="form-grid-2col">
-        <div class="form-group">
-          <label class="form-label" for="bidang_keahlian">Bidang Keahlian Utama <span style="color:#ef4444;">*</span></label>
-          <?php 
-            $bidangOpts = [
-              "UI/UX Design & Product Interface",
-              "Web Development (Frontend / Backend / Fullstack)",
-              "Mobile Application Development",
-              "Digital Marketing & Social Media Strategy",
-              "Data Analytics & Data Entry",
-              "Copywriting, Content Writing & Translation",
-              "Graphic Design, Video Editing & Multimedia",
-              "Administrative & Virtual Assistant"
-            ];
-          ?>
-          <select id="bidang_keahlian" name="bidang_keahlian" class="form-select" required>
-            <option value="">-- Pilih Bidang Keahlian --</option>
-            <?php foreach ($bidangOpts as $bOpt): ?>
-              <option value="<?php echo htmlspecialchars($bOpt, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $currentBidang === $bOpt ? 'selected' : ''; ?>>
-                <?php echo htmlspecialchars($bOpt, ENT_QUOTES, 'UTF-8'); ?>
-              </option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="skills">Skill / Keahlian Spesifik <span style="color:#ef4444;">*</span></label>
-          <input type="text" id="skills" name="skills" class="form-input" value="<?php echo htmlspecialchars($currentSkills, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Contoh: Figma, React, Node.js" required />
-          <span class="form-hint">Pisahkan skill dengan tanda koma ( , )</span>
-        </div>
-      </div>
 
       <div class="form-divider"></div>
 

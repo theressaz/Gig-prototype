@@ -743,10 +743,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <input type="text" name="skills" required value="<?php echo htmlspecialchars((string)$currentSkillsRaw, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Contoh: Figma, React, Node.js" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;">
         </div>
       </div>
-      <div style="margin-top:10px;">
-        <label style="display:block;font-size:0.82rem;font-weight:700;color:#1e293b;margin-bottom:6px;">Ringkasan Profil</label>
-        <textarea name="profile_summary" rows="3" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-family:inherit;"><?php echo htmlspecialchars((string)$currentSummary, ENT_QUOTES, 'UTF-8'); ?></textarea>
-      </div>
     </div>
 
     <div style="margin-bottom:28px;">
