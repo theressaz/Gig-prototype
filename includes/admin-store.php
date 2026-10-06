@@ -212,7 +212,7 @@ function gig_save_employer_gig_registration(array $data): bool
         $stmt = $db->prepare(
             "INSERT INTO `employer_gig_registrations`
              (`siapkerja_email`, `company_name`, `industry`, `nama_pic`, `nik_pic`, `email_pic`, `phone_pic`, `status`, `admin_note`)
-             VALUES (:email, :company, :industry, :nama, :nik, :epic, :phone, 'pending', '')"
+             VALUES (:email, :company, :industry, :nama, :nik, :epic, :phone, 'approved', '')"
         );
         $stmt->execute([
             ':email'   => $data['siapkerja_email'] ?? '',
@@ -282,8 +282,8 @@ function gig_admin_dashboard_metrics(array $workers, array $employers, array $va
         'workers_approved' => (int)($wc['approved'] ?? 0),
         'workers_rejected' => (int)($wc['rejected'] ?? 0),
         'employers_total' => count($employers),
-        'employers_pending' => (int)($ec['pending'] ?? 0),
-        'employers_approved' => (int)($ec['approved'] ?? 0),
+        'employers_pending' => 0,
+        'employers_approved' => count($employers),
         'employers_rejected' => (int)($ec['rejected'] ?? 0),
         'vacancies_total' => count($vacancies),
         'vacancies_review' => (int)($vc['review'] ?? 0),
@@ -292,7 +292,7 @@ function gig_admin_dashboard_metrics(array $workers, array $employers, array $va
         'vacancies_rejected' => (int)($vc['rejected'] ?? 0),
         'vacancies_draft' => (int)($vc['draft'] ?? 0),
         'worker_profile_edits_pending' => count($profileEdits),
-        'pending_all' => (int)($wc['pending'] ?? 0) + (int)($ec['pending'] ?? 0) + (int)($vc['review'] ?? 0) + count($profileEdits),
+        'pending_all' => (int)($wc['pending'] ?? 0) + (int)($vc['review'] ?? 0) + count($profileEdits),
     ];
 }
 

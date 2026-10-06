@@ -11,7 +11,7 @@ $tab = (string)($_GET['tab'] ?? 'verification');
 if ($tab === 'overview') {
     $tab = 'verification';
 }
-$allowedTabs = ['verification', 'workers', 'employers', 'projects'];
+$allowedTabs = ['verification', 'workers', 'projects'];
 if (!in_array($tab, $allowedTabs, true)) {
     $tab = 'verification';
 }
@@ -80,32 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $flashType = $ok ? 'success' : 'error';
         $redirectTab = 'workers';
-    } elseif ($action === 'employer_approve') {
-        $ok = gig_admin_set_employer_status((int)($_POST['id'] ?? 0), 'approved', $note);
-        $flash = $ok ? 'Pendaftaran pemberi kerja disetujui.' : 'Gagal memproses pendaftaran employer.';
-        $flashType = $ok ? 'success' : 'error';
-        $redirectTab = 'employers';
-    } elseif ($action === 'employer_reject') {
-        $ok = gig_admin_set_employer_status((int)($_POST['id'] ?? 0), 'rejected', $note);
-        $flash = $ok ? 'Pendaftaran pemberi kerja ditolak.' : 'Gagal menolak pendaftaran employer.';
-        $flashType = $ok ? 'success' : 'error';
-        $redirectTab = 'employers';
-    } elseif ($action === 'employer_decision') {
-        $empId = (int)($_POST['id'] ?? 0);
-        if ($decisionChoice === 'approve') {
-            $ok = gig_admin_set_employer_status($empId, 'approved', $note);
-            $flash = $ok ? 'Pendaftaran pemberi kerja disetujui.' : 'Gagal memproses pendaftaran employer.';
-        } elseif ($decisionChoice === 'reject') {
-            if ($note === '') { $note = 'Data/legalitas pemberi kerja tidak memenuhi syarat.'; }
-            $ok = gig_admin_set_employer_status($empId, 'rejected', $note);
-            $flash = $ok ? 'Pendaftaran pemberi kerja ditolak.' : 'Gagal menolak pendaftaran employer.';
-        } else {
-            if ($note === '') { $note = 'Harap perbaiki data/legalitas pemberi kerja.'; }
-            $ok = gig_admin_set_employer_status($empId, 'revision', $note);
-            $flash = $ok ? 'Permintaan revisi pemberi kerja telah dikirim.' : 'Gagal meminta revisi employer.';
-        }
-        $flashType = $ok ? 'success' : 'error';
-        $redirectTab = 'employers';
     } elseif ($action === 'vacancy_approve') {
         $id = (string)($_POST['vacancy_id'] ?? $_POST['id'] ?? '');
         $ok = gig_vacancy_set_status($id, 'active', $note !== '' ? $note : 'Disetujui Admin KarirHub.');
@@ -214,7 +188,7 @@ foreach ($pendingProfileEdits as $edit) {
 }
 $nextPendingTab = $metrics['workers_pending'] > 0
     ? 'workers'
-    : ($metrics['employers_pending'] > 0 ? 'employers' : ($metrics['vacancies_review'] > 0 ? 'projects' : 'verification'));
+    : ($metrics['vacancies_review'] > 0 ? 'projects' : 'verification');
 if ($nextPendingTab === 'verification' && (int)$metrics['worker_profile_edits_pending'] > 0) {
     $nextPendingTab = 'workers';
 }
@@ -292,8 +266,6 @@ $pageTitle = 'Dashboard Admin';
 $breadcrumbCurrent = 'Dashboard';
 if ($tab === 'workers') {
     $breadcrumbCurrent = 'Verifikasi Gig Worker';
-} elseif ($tab === 'employers') {
-    $breadcrumbCurrent = 'Verifikasi Pemberi Kerja';
 } elseif ($tab === 'projects') {
     $breadcrumbCurrent = 'Verifikasi Lowongan Proyek';
 }
@@ -304,8 +276,6 @@ require __DIR__ . '/includes/admin-layout-start.php';
       $mainHeading = 'Dashboard';
       if ($tab === 'workers') {
           $mainHeading = 'Verifikasi Gig Worker';
-      } elseif ($tab === 'employers') {
-          $mainHeading = 'Verifikasi Pemberi Kerja';
       } elseif ($tab === 'projects') {
           $mainHeading = 'Verifikasi Lowongan Proyek';
       }
@@ -321,7 +291,6 @@ require __DIR__ . '/includes/admin-layout-start.php';
     <nav class="admin-subtabs" aria-label="Tab dashboard admin">
       <a href="?tab=verification" class="<?php echo $tab === 'verification' ? 'active' : ''; ?>">Verifikasi</a>
       <a href="?tab=workers" class="<?php echo $tab === 'workers' ? 'active' : ''; ?>">Gig Worker<?php $wQueue = (int)$metrics['workers_pending'] + (int)$metrics['worker_profile_edits_pending']; echo $wQueue > 0 ? ' (' . $wQueue . ')' : ''; ?></a>
-      <a href="?tab=employers" class="<?php echo $tab === 'employers' ? 'active' : ''; ?>">Pemberi Kerja<?php echo $metrics['employers_pending'] > 0 ? ' (' . (int)$metrics['employers_pending'] . ')' : ''; ?></a>
       <a href="?tab=projects" class="<?php echo $tab === 'projects' ? 'active' : ''; ?>">Lowongan Proyek<?php echo $metrics['vacancies_review'] > 0 ? ' (' . (int)$metrics['vacancies_review'] . ')' : ''; ?></a>
     </nav>
 
@@ -336,13 +305,6 @@ require __DIR__ . '/includes/admin-layout-start.php';
             <div class="kpi-label">Pengajuan Gig Worker</div>
             <div class="kpi-value"><?php echo number_format($metrics['workers_total'], 0, ',', '.'); ?></div>
             <div class="kpi-sub"><?php echo (int)$metrics['workers_pending']; ?> pendaftaran · <?php echo (int)$metrics['worker_profile_edits_pending']; ?> edit profil</div>
-          </article>
-        </a>
-        <a href="?tab=employers" class="admin-kpi-link">
-          <article class="admin-kpi-card accent-navy">
-            <div class="kpi-label">Pengajuan Pemberi Kerja</div>
-            <div class="kpi-value"><?php echo number_format($metrics['employers_total'], 0, ',', '.'); ?></div>
-            <div class="kpi-sub"><?php echo (int)$metrics['employers_pending']; ?> menunggu verifikasi</div>
           </article>
         </a>
         <a href="?tab=projects" class="admin-kpi-link">
@@ -368,15 +330,6 @@ require __DIR__ . '/includes/admin-layout-start.php';
             ['label' => 'Disetujui', 'value' => $metrics['workers_approved'], 'color' => '#1e3a8a'],
             ['label' => 'Ditolak', 'value' => $metrics['workers_rejected'], 'color' => '#ef4444'],
         ]);
-        admin_render_chart('Status Verifikasi Pemberi Kerja', [
-            ['label' => 'Menunggu Revisi', 'value' => $metrics['employers_pending'], 'color' => '#f59e0b'],
-            ['label' => 'Terverifikasi', 'value' => $metrics['employers_approved'], 'color' => '#1e3a8a'],
-            ['label' => 'Ditolak', 'value' => $metrics['employers_rejected'], 'color' => '#ef4444'],
-        ]);
-        ?>
-      </div>
-      <div class="admin-chart-grid">
-        <?php
         admin_render_chart('Status Verifikasi Lowongan', [
             ['label' => 'Menunggu Revisi', 'value' => $metrics['vacancies_review'], 'color' => '#f59e0b'],
             ['label' => 'Revisi', 'value' => $metrics['vacancies_revision'], 'color' => '#14b8a6'],
@@ -384,6 +337,8 @@ require __DIR__ . '/includes/admin-layout-start.php';
             ['label' => 'Ditolak', 'value' => $metrics['vacancies_rejected'], 'color' => '#ef4444'],
         ]);
         ?>
+      </div>
+      <div class="admin-chart-grid">
         <article class="admin-chart-card">
           <h3>Antrian Verifikasi Terbaru</h3>
           <?php if ($metrics['pending_all'] === 0): ?>
@@ -399,12 +354,6 @@ require __DIR__ . '/includes/admin-layout-start.php';
               <div class="admin-queue-item">
                 <span><strong>Edit Profil</strong> · <?php echo htmlspecialchars((string)$edit['worker_username'], ENT_QUOTES, 'UTF-8'); ?></span>
                 <a href="?tab=workers">Proses →</a>
-              </div>
-            <?php endforeach; ?>
-            <?php foreach (array_slice($pendingEmployers, 0, 2) as $row): ?>
-              <div class="admin-queue-item">
-                <span><strong>Pemberi Kerja</strong> · <?php echo htmlspecialchars((string)($row['company_name'] ?: $row['nama_pic']), ENT_QUOTES, 'UTF-8'); ?></span>
-                <a href="?tab=employers">Proses →</a>
               </div>
             <?php endforeach; ?>
             <?php foreach (array_slice($pendingProjects, 0, 2) as $job): ?>
@@ -558,80 +507,6 @@ require __DIR__ . '/includes/admin-layout-start.php';
             <?php endif; ?>
           </table>
         </div>
-      </section>
-    <?php endif; ?>
-
-    <?php if ($tab === 'employers'): ?>
-      <?php
-        $employerStateCounts = [
-            'all' => count($employers),
-            'pending' => count(array_filter($employers, static fn($r) => ($r['status'] ?? 'pending') === 'pending')),
-            'revision' => count(array_filter($employers, static fn($r) => ($r['status'] ?? '') === 'revision')),
-            'approved' => count(array_filter($employers, static fn($r) => ($r['status'] ?? '') === 'approved')),
-            'rejected' => count(array_filter($employers, static fn($r) => ($r['status'] ?? '') === 'rejected')),
-        ];
-        $employerRows = $filterByState($employers, $state);
-      ?>
-      <section class="verify-board">
-        <div class="verify-board-head">
-          <h2>Verifikasi Pemberi Kerja</h2>
-          <div class="verify-status-tabs">
-            <a class="<?php echo $state === 'all' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('employers', 'all', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Semua <span><?php echo (int)$employerStateCounts['all']; ?></span></a>
-            <a class="<?php echo $state === 'pending' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('employers', 'pending', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Menunggu Verifikasi <span><?php echo (int)$employerStateCounts['pending']; ?></span></a>
-            <a class="<?php echo $state === 'revision' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('employers', 'revision', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Revisi <span><?php echo (int)$employerStateCounts['revision']; ?></span></a>
-            <a class="<?php echo $state === 'approved' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('employers', 'approved', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Terverifikasi <span><?php echo (int)$employerStateCounts['approved']; ?></span></a>
-            <a class="<?php echo $state === 'rejected' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('employers', 'rejected', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Ditolak <span><?php echo (int)$employerStateCounts['rejected']; ?></span></a>
-          </div>
-        </div>
-        <div class="verify-table-wrap">
-          <table class="verify-table">
-            <thead>
-              <tr>
-                <th>Nama Pemberi Kerja</th>
-                <th>Jenis Entitas</th>
-                <th>Kontak PIC</th>
-                <th>Status</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php if ($employerRows === []): ?>
-                <tr><td colspan="5"><div class="empty-state">Belum ada pendaftaran pemberi kerja Gig Worker.</div></td></tr>
-              <?php endif; ?>
-              <?php foreach ($employerRows as $row): ?>
-                <tr>
-                  <td>
-                    <div class="verify-main-text"><?php echo htmlspecialchars((string)($row['company_name'] ?: $row['nama_pic']), ENT_QUOTES, 'UTF-8'); ?></div>
-                    <div class="verify-sub-text"><?php echo htmlspecialchars((string)$row['siapkerja_email'], ENT_QUOTES, 'UTF-8'); ?></div>
-                  </td>
-                  <td><?php echo htmlspecialchars((string)$row['industry'], ENT_QUOTES, 'UTF-8'); ?></td>
-                  <td>
-                    <div class="verify-sub-text"><?php echo htmlspecialchars((string)$row['nama_pic'], ENT_QUOTES, 'UTF-8'); ?></div>
-                    <div class="verify-sub-text"><?php echo htmlspecialchars((string)$row['phone_pic'], ENT_QUOTES, 'UTF-8'); ?></div>
-                  </td>
-                  <td><?php echo admin_status_badge((string)($row['status'] ?? 'pending')); ?></td>
-                  <td>
-                    <details class="verify-detail-drawer">
-                      <summary>Lihat Detail</summary>
-                      <div class="verify-drawer-body">
-                        <p><strong>Perusahaan:</strong> <?php echo htmlspecialchars((string)$row['company_name'], ENT_QUOTES, 'UTF-8'); ?></p>
-                        <p><strong>Email PIC:</strong> <?php echo htmlspecialchars((string)$row['email_pic'], ENT_QUOTES, 'UTF-8'); ?></p>
-                        <?php if (($row['status'] ?? '') === 'pending'): ?>
-                          <div style="margin-top:10px;">
-                            <button type="button" class="btn-approve" style="background:#0ea5e9;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;" onclick="openAdminDecisionModal({entityType:'employer', entityName:'Pemberi Kerja', id:<?php echo (int)$row['id']; ?>, action:'employer_decision', tab:'employers'})">Ambil Keputusan Verifikasi</button>
-                          </div>
-                        <?php elseif (!empty($row['admin_note'])): ?>
-                          <p><strong>Catatan Admin:</strong> <?php echo htmlspecialchars((string)$row['admin_note'], ENT_QUOTES, 'UTF-8'); ?></p>
-                        <?php endif; ?>
-                      </div>
-                    </details>
-                  </td>
-                </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-        </div>
-      </section>
     <?php endif; ?>
 
     <?php if ($tab === 'projects'): ?>
