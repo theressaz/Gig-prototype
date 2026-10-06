@@ -679,7 +679,7 @@ a.proyek-card-item:hover .apply-cta {
               </div>
 
               <div class="card-action-footer">
-                <span class="deadline-text">Tenggat: <?php echo htmlspecialchars((string)($job['deadline'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></span>
+                <span class="deadline-text">Lamar Sebelum: <?php echo htmlspecialchars((string)($job['deadline'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></span>
               </div>
             </a>
           <?php endforeach; ?>
