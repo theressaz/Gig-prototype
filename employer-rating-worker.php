@@ -140,8 +140,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
 
     if (!$canSubmitReview) {
         $errorMessage = 'Ulasan belum bisa dikirim. Kedua pihak harus mengonfirmasi bahwa proyek selesai terlebih dahulu.';
-    } elseif (!$confirmDone || !$confirmGiven) {
-        $errorMessage = 'Centang seluruh konfirmasi deliverable yang wajib untuk mengirim ulasan.';
     } elseif ($comment === '') {
         $errorMessage = 'Mohon tuliskan ulasan atau testimoni singkat untuk mitra proyek.';
     } else {
@@ -502,29 +500,11 @@ $displayComment = $submitted
         <textarea id="comment" name="comment" rows="4" required placeholder="Tuliskan pengalaman Anda bekerja bersama mitra ini..." style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:8px;font-size:0.88rem;line-height:1.5;outline:none;font-family:inherit;resize:vertical;"></textarea>
       </div>
 
-      <!-- 4. CONFIRMATIONS -->
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:28px;display:flex;flex-direction:column;gap:12px;">
-        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--text-dark);line-height:1.4;">
-          <input type="checkbox" required id="confirm_given_deliverables" name="confirm_given_deliverables" value="1" style="accent-color:#2563eb;margin-top:2px;" />
-          <?php if ($isWorker): ?>
-            <span><strong>Konfirmasi Gig Worker Sudah Menyerahkan Deliverable <span style="color:#ef4444;">*</span>:</strong> Saya menyatakan seluruh deliverable telah saya serahkan kepada pemberi kerja.</span>
-          <?php else: ?>
-            <span><strong>Konfirmasi Gig Worker Sudah Menyerahkan Deliverable <span style="color:#ef4444;">*</span>:</strong> Saya menyatakan Gig Worker telah menyerahkan seluruh deliverable proyek.</span>
-          <?php endif; ?>
-        </label>
-        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--text-dark);line-height:1.4;">
-          <input type="checkbox" required id="confirm_deliverables" name="confirm_deliverables" value="1" style="accent-color:#2563eb;margin-top:2px;" />
-          <?php if ($isWorker): ?>
-            <span><strong>Konfirmasi Pemberi Kerja Sudah Menerima Deliverable <span style="color:#ef4444;">*</span>:</strong> Saya menyatakan pemberi kerja telah menerima deliverable dengan baik.</span>
-          <?php else: ?>
-            <span><strong>Konfirmasi Pemberi Kerja Sudah Menerima Deliverable <span style="color:#ef4444;">*</span>:</strong> Saya menyatakan seluruh deliverable telah diterima dengan baik oleh pemberi kerja.</span>
-          <?php endif; ?>
-        </label>
       </div>
 
-      <div style="display:flex;gap:12px;justify-content:flex-end;align-items:center;">
-        <a href="<?php echo $isWorker ? 'worker-tugas.php' : 'employer-proyek-aktif.php'; ?>" class="filter-btn-pill" style="text-decoration:none;padding:10px 18px;font-size:0.88rem;">Batal</a>
-        <button type="submit" id="submit_review_btn" name="submit_review" value="1" class="btn-create-post" disabled aria-disabled="true" style="padding:10px 24px;font-size:0.9rem;background:#9ca3af;border-color:#9ca3af;cursor:not-allowed;opacity:0.9;">
+      <div style="display:flex;gap:12px;justify-content:flex-end;align-items:center;margin-top:20px;">
+        <a href="<?php echo $isWorker ? 'worker-tugas.php' : 'employer-proyek-aktif.php'; ?>" class="filter-btn-pill" style="text-decoration:none;padding:10px 18px;font-size:0.88rem;border:1px solid #cbd5e1;border-radius:8px;color:#475569;">Batal</a>
+        <button type="submit" id="submit_review_btn" name="submit_review" value="1" class="btn-create-post" <?php echo !$canSubmitReview ? 'disabled style="padding:10px 24px;font-size:0.9rem;background:#cbd5e1;color:#64748b;border:none;cursor:not-allowed;opacity:0.65;border-radius:8px;font-weight:700;"' : 'style="padding:10px 24px;font-size:0.9rem;background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%);color:#fff;border:none;cursor:pointer;border-radius:8px;font-weight:700;"'; ?>>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
           Kirim Ulasan &amp; Selesaikan Proyek
         </button>
@@ -613,36 +593,6 @@ $displayComment = $submitted
         });
 
         updateStars(hiddenInput.value);
-      }
-
-      if (confirmDeliverables && confirmGivenDeliverables && submitBtn) {
-        const enabledStyles = {
-          background: '',
-          borderColor: '',
-          cursor: '',
-          opacity: '',
-        };
-
-        function syncSubmitState() {
-          const isChecked = !!confirmDeliverables.checked && !!confirmGivenDeliverables.checked;
-          submitBtn.disabled = !isChecked;
-          submitBtn.setAttribute('aria-disabled', isChecked ? 'false' : 'true');
-          if (isChecked) {
-            submitBtn.style.background = enabledStyles.background;
-            submitBtn.style.borderColor = enabledStyles.borderColor;
-            submitBtn.style.cursor = enabledStyles.cursor;
-            submitBtn.style.opacity = enabledStyles.opacity;
-            return;
-          }
-          submitBtn.style.background = '#9ca3af';
-          submitBtn.style.borderColor = '#9ca3af';
-          submitBtn.style.cursor = 'not-allowed';
-          submitBtn.style.opacity = '0.9';
-        }
-
-        confirmDeliverables.addEventListener('change', syncSubmitState);
-        confirmGivenDeliverables.addEventListener('change', syncSubmitState);
-        syncSubmitState();
       }
     })();
   </script>

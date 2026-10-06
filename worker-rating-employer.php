@@ -323,13 +323,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
           Tuliskan ulasan jujur mengenai profesionalitas, kejelasan brief, dan proses kerja sama.
         </p>
         <textarea name="comment" rows="4" required placeholder="Contoh: Pemberi kerja sangat kooperatif, memberikan brief yang jelas, dan pembayaran diproses tepat waktu setelah deliverables disetujui." style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:0.88rem;line-height:1.5;outline:none;font-family:inherit;resize:vertical;"></textarea>
-
-        <div style="margin-top:14px;">
-          <label style="display:inline-flex;align-items:center;gap:8px;font-size:0.85rem;font-weight:700;color:#0f172a;cursor:pointer;">
-            <input type="checkbox" name="recommend_employer" value="1" checked style="accent-color:#059669;width:16px;height:16px;" />
-            <span>Rekomendasikan Pemberi Kerja ini kepada Gig Worker lain</span>
-          </label>
-        </div>
       </section>
 
       <!-- Card 5: Mandatory Confirmations & Submit -->
