@@ -391,6 +391,33 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
         updateStars(hiddenInput.value);
       }
+
+      const commentInput = document.getElementById('comment');
+      const submitBtn    = document.getElementById('submit_review_btn');
+
+      function validateForm() {
+        if (!commentInput || !submitBtn) return;
+        const isValid = commentInput.value.trim().length > 0;
+        submitBtn.disabled = !isValid;
+        submitBtn.setAttribute('aria-disabled', isValid ? 'false' : 'true');
+        if (isValid) {
+          submitBtn.style.background = 'linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%)';
+          submitBtn.style.color = '#ffffff';
+          submitBtn.style.cursor = 'pointer';
+          submitBtn.style.opacity = '1';
+        } else {
+          submitBtn.style.background = '#cbd5e1';
+          submitBtn.style.color = '#64748b';
+          submitBtn.style.cursor = 'not-allowed';
+          submitBtn.style.opacity = '0.7';
+        }
+      }
+
+      if (commentInput) {
+        commentInput.addEventListener('input', validateForm);
+        commentInput.addEventListener('change', validateForm);
+        validateForm();
+      }
     })();
   </script>
 
