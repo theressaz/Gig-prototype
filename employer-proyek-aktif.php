@@ -3,10 +3,58 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/employer-auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/project-schedule.php';
+require_once __DIR__ . '/includes/project-applications.php';
 
 $flashMsg = '';
 $flashErr = false;
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+    $action = (string)($_POST['completion_action'] ?? '');
+    if ($action === 'confirm_project_finished') {
+        $contractId = trim((string)($_POST['contract_id'] ?? ''));
+        $workerId = trim((string)($_POST['worker_id'] ?? ''));
+        $workerName = trim((string)($_POST['worker_name'] ?? 'Gig Worker'));
+        $vacancyId = trim((string)($_POST['vacancy_id'] ?? ''));
+        $projectTitle = trim((string)($_POST['project_title'] ?? 'proyek'));
+        $res = gig_confirm_project_finished($contractId, 'employer', $username);
+        if (empty($res['ok'])) {
+            $flashMsg = (string)($res['error'] ?? 'Gagal menyimpan konfirmasi penyelesaian proyek.');
+            $flashErr = true;
+        } else {
+            $state = $res['state'] ?? gig_project_completion_status($contractId);
+            if (!empty($state['both_confirmed'])) {
+                $flashMsg = 'Konfirmasi penyelesaian lengkap dari kedua pihak. Anda dan Gig Worker sekarang dapat saling memberi ulasan.';
+                gig_add_employer_notification(
+                    $username,
+                    'project_finish_ready_review',
+                    'Proyek Siap Dinilai',
+                    'Kedua pihak sudah konfirmasi selesai untuk proyek "' . $projectTitle . '". Silakan beri ulasan.',
+                    $vacancyId
+                );
+                if ($workerId !== '') {
+                    gig_add_worker_notification(
+                        $workerId,
+                        'project_finish_ready_review',
+                        'Proyek Siap Dinilai',
+                        'Anda dan pemberi kerja sudah sama-sama konfirmasi selesai untuk proyek "' . $projectTitle . '". Silakan beri ulasan.',
+                        $vacancyId
+                    );
+                }
+            } elseif (empty($res['already_confirmed'])) {
+                $flashMsg = 'Konfirmasi Anda tersimpan. Menunggu konfirmasi dari Gig Worker agar fitur ulasan terbuka.';
+                gig_add_employer_notification(
+                    $username,
+                    'project_finish_waiting',
+                    'Menunggu Konfirmasi Gig Worker',
+                    'Anda sudah konfirmasi proyek "' . $projectTitle . '" selesai. Menunggu ' . $workerName . ' konfirmasi.',
+                    $vacancyId
+                );
+            } else {
+                $flashMsg = 'Anda sudah pernah mengonfirmasi penyelesaian proyek ini. Menunggu konfirmasi dari Gig Worker.';
+            }
+            $flashErr = false;
+        }
+    }
+
     $action = (string)($_POST['ext_action'] ?? '');
     if ($action === 'request_extension') {
         $contractId = trim((string)($_POST['contract_id'] ?? ''));
@@ -51,35 +99,20 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
     <div class="active-projects-list">
       <?php
-        // Load completion status from DB first, fall back to session
-        $pdo = gig_db();
-        $dbCompletions = [];
-        if ($pdo !== null) {
-            try {
-                $stmt = $pdo->prepare(
-                    "SELECT `contract_id`, `rating_given`, `review_given`
-                     FROM `project_completions`
-                     WHERE `employer_username` = :emp"
-                );
-                $stmt->execute([':emp' => $username]);
-                foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-                    $dbCompletions[$row['contract_id']] = $row;
-                }
-            } catch (Throwable $ignored) {}
-        }
-
         $c1Id = 'CTR-GIG-2026-0811';
         $c2Id = 'CTR-GIG-2026-0819';
-        $completedP1 = isset($dbCompletions[$c1Id]) || isset($_SESSION['completed_projects'][$c1Id]);
-        $completedP2 = isset($dbCompletions[$c2Id]) || isset($_SESSION['completed_projects'][$c2Id]);
-        $ratingP1 = $dbCompletions[$c1Id]['rating_given']
-                    ?? ($_SESSION['completed_projects'][$c1Id]['ratingGiven'] ?? 5);
-        $ratingP2 = $dbCompletions[$c2Id]['rating_given']
-                    ?? ($_SESSION['completed_projects'][$c2Id]['ratingGiven'] ?? 5);
+        $reviewP1 = is_array($p1['review_status'] ?? null) ? $p1['review_status'] : gig_project_review_status($c1Id);
+        $reviewP2 = is_array($p2['review_status'] ?? null) ? $p2['review_status'] : gig_project_review_status($c2Id);
+        $completedP1 = !empty($reviewP1['both_reviewed']);
+        $completedP2 = !empty($reviewP2['both_reviewed']);
+        $ratingP1 = $_SESSION['completed_projects'][$c1Id]['ratingGiven'] ?? 5;
+        $ratingP2 = $_SESSION['completed_projects'][$c2Id]['ratingGiven'] ?? 5;
         $isExpiredP1 = !empty($p1['is_expired']);
         $isExpiredP2 = !empty($p2['is_expired']);
         $pendingExtP1 = is_array($p1['pending_extension'] ?? null) ? $p1['pending_extension'] : null;
         $pendingExtP2 = is_array($p2['pending_extension'] ?? null) ? $p2['pending_extension'] : null;
+        $confirmP1 = is_array($p1['completion_confirmation'] ?? null) ? $p1['completion_confirmation'] : gig_project_completion_status($c1Id);
+        $confirmP2 = is_array($p2['completion_confirmation'] ?? null) ? $p2['completion_confirmation'] : gig_project_completion_status($c2Id);
         $showP1 = !$completedP1 && !$isExpiredP1;
         $showP2 = !$completedP2 && !$isExpiredP2;
         $hasActive = $showP1 || $showP2;
@@ -249,7 +282,15 @@ require __DIR__ . '/includes/employer-layout-start.php';
                <span>⭐</span> Rating Diberikan: <?php echo (int)$ratingP1; ?>/5
               </span>
             <?php else: ?>
-              <span style="font-size:0.8rem;color:#64748b;">✓ Koordinasi aktif &bull; Selesaikan proyek saat deliverable diterima.</span>
+              <?php if (!empty($confirmP1['employer_confirmed']) && empty($confirmP1['worker_confirmed'])): ?>
+                <span style="font-size:0.8rem;color:#1d4ed8;font-weight:700;">✓ Anda sudah konfirmasi selesai. Menunggu konfirmasi Gig Worker.</span>
+              <?php elseif (!empty($confirmP1['both_confirmed']) && !empty($reviewP1['employer_reviewed'])): ?>
+                <span style="font-size:0.8rem;color:#64748b;">✓ Anda sudah kirim ulasan. Menunggu ulasan dari Gig Worker.</span>
+              <?php elseif (!empty($confirmP1['both_confirmed'])): ?>
+                <span style="font-size:0.8rem;color:#065f46;font-weight:700;">✓ Kedua pihak sudah konfirmasi selesai. Anda bisa memberi ulasan sekarang.</span>
+              <?php else: ?>
+                <span style="font-size:0.8rem;color:#64748b;">✓ Koordinasi aktif &bull; Konfirmasi selesai setelah deliverable benar-benar selesai.</span>
+              <?php endif; ?>
             <?php endif; ?>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -271,6 +312,26 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <a class="btn-create-post" href="employer-riwayat-proyek.php" style="text-decoration:none;padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:#059669;border-color:#047857;">
                 Buka di Riwayat →
               </a>
+            <?php elseif (empty($confirmP1['employer_confirmed'])): ?>
+              <form method="POST" action="" style="margin:0;">
+                <input type="hidden" name="completion_action" value="confirm_project_finished">
+                <input type="hidden" name="contract_id" value="<?php echo htmlspecialchars((string)($p1['contract_id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                <input type="hidden" name="worker_id" value="<?php echo htmlspecialchars((string)($p1['worker_id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                <input type="hidden" name="worker_name" value="<?php echo htmlspecialchars((string)($p1['worker_name'] ?? 'Gig Worker'), ENT_QUOTES, 'UTF-8'); ?>">
+                <input type="hidden" name="vacancy_id" value="<?php echo htmlspecialchars((string)($p1['id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                <input type="hidden" name="project_title" value="<?php echo htmlspecialchars((string)($p1['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                <button type="submit" class="btn-create-post" style="text-decoration:none;padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:#059669;border-color:#047857;">
+                  ✓ Konfirmasi Proyek Selesai
+                </button>
+              </form>
+            <?php elseif (empty($confirmP1['both_confirmed'])): ?>
+              <button type="button" class="btn-outline-blue" disabled style="padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;opacity:0.65;cursor:not-allowed;">
+                Menunggu Konfirmasi Gig Worker
+              </button>
+            <?php elseif (!empty($reviewP1['employer_reviewed'])): ?>
+              <button type="button" class="btn-outline-blue" disabled style="padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;opacity:0.65;cursor:not-allowed;">
+                Ulasan Anda Terkirim
+              </button>
             <?php else: ?>
               <a class="btn-create-post" href="employer-rating-worker.php?contract=CTR-GIG-2026-0811&worker=tessa" style="text-decoration:none;padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 12px rgba(217,119,6,0.3);border:none;">
                 ★ Selesaikan &amp; Beri Rating
@@ -437,7 +498,15 @@ require __DIR__ . '/includes/employer-layout-start.php';
                <span>⭐</span> Rating Diberikan: <?php echo (int)$ratingP2; ?>/5
               </span>
             <?php else: ?>
-              <span style="font-size:0.8rem;color:#64748b;">✓ Koordinasi aktif &bull; Selesaikan proyek saat deliverable diterima.</span>
+              <?php if (!empty($confirmP2['employer_confirmed']) && empty($confirmP2['worker_confirmed'])): ?>
+                <span style="font-size:0.8rem;color:#1d4ed8;font-weight:700;">✓ Anda sudah konfirmasi selesai. Menunggu konfirmasi Gig Worker.</span>
+              <?php elseif (!empty($confirmP2['both_confirmed']) && !empty($reviewP2['employer_reviewed'])): ?>
+                <span style="font-size:0.8rem;color:#64748b;">✓ Anda sudah kirim ulasan. Menunggu ulasan dari Gig Worker.</span>
+              <?php elseif (!empty($confirmP2['both_confirmed'])): ?>
+                <span style="font-size:0.8rem;color:#065f46;font-weight:700;">✓ Kedua pihak sudah konfirmasi selesai. Anda bisa memberi ulasan sekarang.</span>
+              <?php else: ?>
+                <span style="font-size:0.8rem;color:#64748b;">✓ Koordinasi aktif &bull; Konfirmasi selesai setelah deliverable benar-benar selesai.</span>
+              <?php endif; ?>
             <?php endif; ?>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -459,6 +528,26 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <a class="btn-create-post" href="employer-riwayat-proyek.php" style="text-decoration:none;padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:#059669;border-color:#047857;">
                 Buka di Riwayat →
               </a>
+            <?php elseif (empty($confirmP2['employer_confirmed'])): ?>
+              <form method="POST" action="" style="margin:0;">
+                <input type="hidden" name="completion_action" value="confirm_project_finished">
+                <input type="hidden" name="contract_id" value="<?php echo htmlspecialchars((string)($p2['contract_id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                <input type="hidden" name="worker_id" value="<?php echo htmlspecialchars((string)($p2['worker_id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                <input type="hidden" name="worker_name" value="<?php echo htmlspecialchars((string)($p2['worker_name'] ?? 'Gig Worker'), ENT_QUOTES, 'UTF-8'); ?>">
+                <input type="hidden" name="vacancy_id" value="<?php echo htmlspecialchars((string)($p2['id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                <input type="hidden" name="project_title" value="<?php echo htmlspecialchars((string)($p2['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                <button type="submit" class="btn-create-post" style="text-decoration:none;padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:#059669;border-color:#047857;">
+                  ✓ Konfirmasi Proyek Selesai
+                </button>
+              </form>
+            <?php elseif (empty($confirmP2['both_confirmed'])): ?>
+              <button type="button" class="btn-outline-blue" disabled style="padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;opacity:0.65;cursor:not-allowed;">
+                Menunggu Konfirmasi Gig Worker
+              </button>
+            <?php elseif (!empty($reviewP2['employer_reviewed'])): ?>
+              <button type="button" class="btn-outline-blue" disabled style="padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;opacity:0.65;cursor:not-allowed;">
+                Ulasan Anda Terkirim
+              </button>
             <?php else: ?>
               <a class="btn-create-post" href="employer-rating-worker.php?contract=CTR-GIG-2026-0819&worker=rian" style="text-decoration:none;padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 12px rgba(217,119,6,0.3);border:none;">
                 ★ Selesaikan &amp; Beri Rating

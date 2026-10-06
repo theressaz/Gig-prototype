@@ -67,6 +67,9 @@ $activeContracts = [
 
 $contractId  = trim((string)($_GET['contract'] ?? 'CTR-GIG-2026-0811'));
 $projectData = gig_demo_active_project_by_id($contractId) ?? ($activeContracts[$contractId] ?? reset($activeContracts));
+$contractKey = (string)($projectData['contract_id'] ?? $projectData['id']);
+$completionState = gig_project_completion_status($contractKey);
+$canSubmitReview = !empty($completionState['both_confirmed']);
 
 $workerId = trim((string)($_GET['worker'] ?? $projectData['workerId']));
 $worker   = gig_find_worker($workerId) ?? gig_find_worker($projectData['workerId']);
@@ -92,6 +95,17 @@ if (isset($_GET['undo']) && $_GET['undo'] === '1') {
     }
     // Also clear from session cache
     unset($_SESSION['completed_projects'][$undoContract]);
+    if (isset($_SESSION['project_review_status'][$undoContract]) && is_array($_SESSION['project_review_status'][$undoContract])) {
+        if ($isWorker) {
+            $_SESSION['project_review_status'][$undoContract]['worker_reviewed'] = false;
+        } else {
+            $_SESSION['project_review_status'][$undoContract]['employer_reviewed'] = false;
+        }
+        if (empty($_SESSION['project_review_status'][$undoContract]['worker_reviewed'])
+            && empty($_SESSION['project_review_status'][$undoContract]['employer_reviewed'])) {
+            unset($_SESSION['project_review_status'][$undoContract]);
+        }
+    }
     if (isset($_SESSION['custom_reviews'])) {
         foreach ($_SESSION['custom_reviews'] as $wId => &$revs) {
             $revs = array_values(array_filter($revs, fn($r) => ($r['contractId'] ?? '') !== $undoContract));
@@ -118,7 +132,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
     $confirmDone    = !empty($_POST['confirm_deliverables']);
     $confirmGiven   = !empty($_POST['confirm_given_deliverables']);
 
-    if (!$confirmDone || !$confirmGiven) {
+    if (!$canSubmitReview) {
+        $errorMessage = 'Ulasan belum bisa dikirim. Kedua pihak harus mengonfirmasi bahwa proyek selesai terlebih dahulu.';
+    } elseif (!$confirmDone || !$confirmGiven) {
         $errorMessage = 'Centang seluruh konfirmasi deliverable yang wajib untuk mengirim ulasan.';
     } elseif ($comment === '') {
         $errorMessage = 'Mohon tuliskan ulasan atau testimoni singkat untuk mitra proyek.';
@@ -199,7 +215,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
                     `completed_date`= VALUES(`completed_date`)
             ");
             $stmt2->execute([
-                ':cid'    => (string)($projectData['contract_id'] ?? $projectData['id']),
+                ':cid'    => $contractKey,
                 ':wid'    => (string)($worker['id'] ?? $username),
                 ':emp'    => (string)($projectData['employer'] ?? $username),
                 ':rating' => $overallRating,
@@ -226,18 +242,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
 
         // Also cache in session for immediate page rendering
         if (!isset($_SESSION['completed_projects'])) $_SESSION['completed_projects'] = [];
-        $_SESSION['completed_projects'][(string)($projectData['contract_id'] ?? $projectData['id'])] = [
+        $_SESSION['completed_projects'][$contractKey] = [
             'status'        => 'Selesai',
             'statusCode'    => 'completed',
             'ratingGiven'   => $overallRating,
             'reviewGiven'   => $comment,
             'completedDate' => date('d M Y'),
         ];
+        if (!isset($_SESSION['project_review_status']) || !is_array($_SESSION['project_review_status'])) {
+            $_SESSION['project_review_status'] = [];
+        }
+        if (!isset($_SESSION['project_review_status'][$contractKey]) || !is_array($_SESSION['project_review_status'][$contractKey])) {
+            $_SESSION['project_review_status'][$contractKey] = [
+                'employer_reviewed' => false,
+                'worker_reviewed' => false,
+            ];
+        }
+        if ($isWorker) {
+            $_SESSION['project_review_status'][$contractKey]['worker_reviewed'] = true;
+        } else {
+            $_SESSION['project_review_status'][$contractKey]['employer_reviewed'] = true;
+        }
+        $reviewStatus = gig_project_review_status($contractKey);
+        if (!empty($reviewStatus['both_reviewed'])) {
+            $_SESSION['completed_projects'][$contractKey]['bothReviewed'] = true;
+        }
         if ($isWorker) {
             if (!isset($_SESSION['worker_employer_reviews'])) {
                 $_SESSION['worker_employer_reviews'] = [];
             }
-            $_SESSION['worker_employer_reviews'][(string)($projectData['contract_id'] ?? $projectData['id'])] = [
+            $_SESSION['worker_employer_reviews'][$contractKey] = [
                 'overall_rating' => $overallRating,
                 'comment' => $comment,
             ];
@@ -266,8 +300,8 @@ if ($pdo !== null) {
     }
     $alreadyRated   = ($existingRating !== null);
 } elseif (
-    isset($_SESSION['completed_projects'][(string)($projectData['contract_id'] ?? $projectData['id'])])
-    || ($isWorker && isset($_SESSION['worker_employer_reviews'][(string)($projectData['contract_id'] ?? $projectData['id'])]))
+    isset($_SESSION['completed_projects'][$contractKey])
+    || ($isWorker && isset($_SESSION['worker_employer_reviews'][$contractKey]))
 ) {
     $alreadyRated = true;
 }
@@ -292,7 +326,7 @@ if ($deliverablesReceivedText === '') {
 if ($deliverablesReceivedText === '') {
     $deliverablesReceivedText = 'Deliverable proyek telah diserahkan sesuai ruang lingkup pekerjaan.';
 }
-$undoLink = 'employer-rating-worker.php?contract=' . urlencode((string)($projectData['contract_id'] ?? $projectData['id']))
+$undoLink = 'employer-rating-worker.php?contract=' . urlencode($contractKey)
     . '&worker=' . urlencode((string)($worker['id'] ?? ''))
     . ($isWorker ? '&from=worker' : '')
     . '&undo=1';
@@ -335,10 +369,10 @@ if ($isWorker) {
 // Determine which rating to display
 $displayRating  = $submitted
     ? (int)($_POST['overall_rating'] ?? 5)
-    : ($existingRating ? (int)$existingRating['overall_rating'] : ($alreadyRated ? (int)($_SESSION['completed_projects'][(string)($projectData['contract_id'] ?? $projectData['id'])]['ratingGiven'] ?? 5) : 5));
+    : ($existingRating ? (int)$existingRating['overall_rating'] : ($alreadyRated ? (int)($_SESSION['completed_projects'][$contractKey]['ratingGiven'] ?? 5) : 5));
 $displayComment = $submitted
     ? (string)($_POST['comment'] ?? '')
-    : ($existingRating ? $existingRating['comment'] : ($alreadyRated ? ($_SESSION['completed_projects'][(string)($projectData['contract_id'] ?? $projectData['id'])]['reviewGiven'] ?? '') : ''));
+    : ($existingRating ? $existingRating['comment'] : ($alreadyRated ? ($_SESSION['completed_projects'][$contractKey]['reviewGiven'] ?? '') : ''));
 ?>
   <!-- SUCCESS / ALREADY RATED STATE -->
   <div class="white-card" style="text-align:center;padding:48px 24px;border:2px solid #10b981;background:linear-gradient(to bottom,#ffffff,#f0fdf4);max-width:760px;margin:0 auto;">
@@ -371,6 +405,24 @@ $displayComment = $submitted
     </div>
   </div>
 <?php else: ?>
+  <?php if (!$canSubmitReview): ?>
+    <div class="white-card" style="max-width:760px;margin:0 auto;padding:34px 24px;border:1px solid #bfdbfe;background:#eff6ff;">
+      <h2 style="margin:0 0 8px 0;font-size:1.2rem;font-weight:800;color:#1e3a8a;">Menunggu Konfirmasi Selesai dari Kedua Pihak</h2>
+      <p style="font-size:0.9rem;color:#1e40af;line-height:1.55;margin-bottom:14px;">
+        Ulasan baru dapat diberikan setelah <strong>Pemberi Kerja</strong> dan <strong>Gig Worker</strong> sama-sama menekan tombol konfirmasi proyek selesai di halaman Proyek Aktif masing-masing.
+      </p>
+      <div style="font-size:0.84rem;color:#334155;background:#ffffff;border:1px solid #dbeafe;border-radius:10px;padding:12px 14px;margin-bottom:16px;">
+        Status saat ini:
+        <ul style="margin:8px 0 0 18px;padding:0;line-height:1.6;">
+          <li>Pemberi Kerja: <?php echo !empty($completionState['employer_confirmed']) ? 'Sudah konfirmasi' : 'Belum konfirmasi'; ?></li>
+          <li>Gig Worker: <?php echo !empty($completionState['worker_confirmed']) ? 'Sudah konfirmasi' : 'Belum konfirmasi'; ?></li>
+        </ul>
+      </div>
+      <a href="<?php echo $isWorker ? 'worker-tugas.php' : 'employer-proyek-aktif.php'; ?>" class="btn-action-sm" style="text-decoration:none;display:inline-flex;">
+        Kembali ke Proyek Aktif
+      </a>
+    </div>
+  <?php else: ?>
 
   <?php if ($errorMessage !== ''): ?>
     <div style="background:#fef2f2;border:1px solid #fecdd3;color:#991b1b;padding:12px 18px;border-radius:8px;margin-bottom:20px;font-size:0.88rem;display:flex;align-items:center;gap:10px;">
@@ -465,7 +517,7 @@ $displayComment = $submitted
       </div>
 
       <div style="display:flex;gap:12px;justify-content:flex-end;align-items:center;">
-        <a href="employer-proyek-aktif.php" class="filter-btn-pill" style="text-decoration:none;padding:10px 18px;font-size:0.88rem;">Batal</a>
+        <a href="<?php echo $isWorker ? 'worker-tugas.php' : 'employer-proyek-aktif.php'; ?>" class="filter-btn-pill" style="text-decoration:none;padding:10px 18px;font-size:0.88rem;">Batal</a>
         <button type="submit" id="submit_review_btn" name="submit_review" value="1" class="btn-create-post" disabled aria-disabled="true" style="padding:10px 24px;font-size:0.9rem;background:#9ca3af;border-color:#9ca3af;cursor:not-allowed;opacity:0.9;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
           Kirim Ulasan &amp; Selesaikan Proyek
@@ -588,6 +640,7 @@ $displayComment = $submitted
       }
     })();
   </script>
+  <?php endif; ?>
 
 <?php endif; ?>
 

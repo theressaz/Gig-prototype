@@ -71,6 +71,18 @@ function gig_db(): ?PDO
                 `created_at`        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS `project_completion_confirmations` (
+                `contract_id`            VARCHAR(50)  NOT NULL PRIMARY KEY,
+                `employer_confirmed_at`  DATETIME NULL,
+                `employer_confirmed_by`  VARCHAR(100) NOT NULL DEFAULT '',
+                `worker_confirmed_at`    DATETIME NULL,
+                `worker_confirmed_by`    VARCHAR(100) NOT NULL DEFAULT '',
+                `both_confirmed_at`      DATETIME NULL,
+                `created_at`             DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `updated_at`             DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ");
 
         // --- gig_worker_registrations table ---
         $pdo->exec("

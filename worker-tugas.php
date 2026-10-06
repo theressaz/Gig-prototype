@@ -5,10 +5,57 @@ require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/worker-profiles.php';
 require_once __DIR__ . '/includes/project-vacancies.php';
 require_once __DIR__ . '/includes/project-schedule.php';
+require_once __DIR__ . '/includes/project-applications.php';
 
 $flashMsg = '';
 $flashErr = false;
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+    $completionAction = (string)($_POST['completion_action'] ?? '');
+    if ($completionAction === 'confirm_project_finished') {
+        $contractId = trim((string)($_POST['contract_id'] ?? ''));
+        $vacancyId = trim((string)($_POST['vacancy_id'] ?? ''));
+        $projectTitle = trim((string)($_POST['project_title'] ?? 'proyek'));
+        $employerUsername = trim((string)($_POST['employer_username'] ?? ''));
+        $res = gig_confirm_project_finished($contractId, 'worker', $username);
+        if (empty($res['ok'])) {
+            $flashMsg = (string)($res['error'] ?? 'Gagal menyimpan konfirmasi penyelesaian proyek.');
+            $flashErr = true;
+        } else {
+            $state = $res['state'] ?? gig_project_completion_status($contractId);
+            if (!empty($state['both_confirmed'])) {
+                $flashMsg = 'Konfirmasi penyelesaian lengkap dari kedua pihak. Anda dan pemberi kerja sekarang dapat saling memberi ulasan.';
+                gig_add_worker_notification(
+                    $username,
+                    'project_finish_ready_review',
+                    'Proyek Siap Dinilai',
+                    'Kedua pihak sudah konfirmasi selesai untuk proyek "' . $projectTitle . '". Silakan beri ulasan.',
+                    $vacancyId
+                );
+                if ($employerUsername !== '') {
+                    gig_add_employer_notification(
+                        $employerUsername,
+                        'project_finish_ready_review',
+                        'Proyek Siap Dinilai',
+                        'Anda dan Gig Worker sudah sama-sama konfirmasi selesai untuk proyek "' . $projectTitle . '". Silakan beri ulasan.',
+                        $vacancyId
+                    );
+                }
+            } elseif (empty($res['already_confirmed'])) {
+                $flashMsg = 'Konfirmasi Anda tersimpan. Menunggu konfirmasi dari pemberi kerja agar fitur ulasan terbuka.';
+                gig_add_worker_notification(
+                    $username,
+                    'project_finish_waiting',
+                    'Menunggu Konfirmasi Pemberi Kerja',
+                    'Anda sudah konfirmasi proyek "' . $projectTitle . '" selesai. Menunggu pemberi kerja konfirmasi.',
+                    $vacancyId
+                );
+            } else {
+                $flashMsg = 'Anda sudah pernah mengonfirmasi penyelesaian proyek ini. Menunggu konfirmasi dari pemberi kerja.';
+            }
+            $flashErr = false;
+        }
+    }
+
     $action = (string)($_POST['ext_action'] ?? '');
     if ($action === 'request_extension') {
         $contractId = trim((string)($_POST['contract_id'] ?? ''));
@@ -80,6 +127,8 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
       $pendingExt = is_array($proj['pending_extension'] ?? null) ? $proj['pending_extension'] : null;
       $pendingBy = (string)($pendingExt['requester_role'] ?? '');
       $isExpired = !empty($proj['is_expired']);
+      $confirmState = is_array($proj['completion_confirmation'] ?? null) ? $proj['completion_confirmation'] : gig_project_completion_status((string)($proj['contract_id'] ?? ''));
+      $reviewState = is_array($proj['review_status'] ?? null) ? $proj['review_status'] : gig_project_review_status((string)($proj['contract_id'] ?? ''));
       $canRequestExt = !$isExpired && !$pendingExt;
       $extModalId = 'ext-modal-worker-' . (int)$idx;
     ?>
@@ -164,7 +213,15 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
       </div>
 
       <div class="active-proj-actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
-        <span style="font-size:0.8rem;color:var(--text-muted);">Proyek aktif dan sedang berjalan.</span>
+        <?php if (!empty($confirmState['worker_confirmed']) && empty($confirmState['employer_confirmed'])): ?>
+          <span style="font-size:0.8rem;color:#1d4ed8;font-weight:700;">✓ Anda sudah konfirmasi selesai. Menunggu konfirmasi pemberi kerja.</span>
+        <?php elseif (!empty($confirmState['both_confirmed']) && !empty($reviewState['worker_reviewed'])): ?>
+          <span style="font-size:0.8rem;color:var(--text-muted);">✓ Ulasan Anda sudah dikirim. Menunggu ulasan pemberi kerja.</span>
+        <?php elseif (!empty($confirmState['both_confirmed'])): ?>
+          <span style="font-size:0.8rem;color:#065f46;font-weight:700;">✓ Kedua pihak sudah konfirmasi selesai. Anda bisa memberi ulasan sekarang.</span>
+        <?php else: ?>
+          <span style="font-size:0.8rem;color:var(--text-muted);">Proyek aktif dan sedang berjalan.</span>
+        <?php endif; ?>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <button class="btn-action-sm" type="button"
             data-contact-role="Pemberi Kerja"
@@ -183,9 +240,30 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
           >
             Ajukan Perpanjangan
           </button>
-          <a class="btn-create-post" href="employer-rating-worker.php?contract=<?php echo urlencode((string)$proj['contract_id']); ?>&from=worker" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 10px rgba(217,119,6,0.35);">
-            ★ Selesaikan &amp; Beri Rating
-          </a>
+          <?php if (empty($confirmState['worker_confirmed'])): ?>
+            <form method="post" action="" style="margin:0;">
+              <input type="hidden" name="completion_action" value="confirm_project_finished">
+              <input type="hidden" name="contract_id" value="<?php echo htmlspecialchars((string)($proj['contract_id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+              <input type="hidden" name="vacancy_id" value="<?php echo htmlspecialchars((string)($proj['id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+              <input type="hidden" name="project_title" value="<?php echo htmlspecialchars((string)($proj['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+              <input type="hidden" name="employer_username" value="<?php echo htmlspecialchars((string)($proj['employer'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+              <button class="btn-create-post" type="submit" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:#059669;border-color:#047857;">
+                ✓ Konfirmasi Proyek Selesai
+              </button>
+            </form>
+          <?php elseif (empty($confirmState['both_confirmed'])): ?>
+            <button class="btn-outline-blue" type="button" disabled style="padding:6px 14px;font-size:0.82rem;opacity:0.65;cursor:not-allowed;">
+              Menunggu Konfirmasi Pemberi Kerja
+            </button>
+          <?php elseif (!empty($reviewState['worker_reviewed'])): ?>
+            <button class="btn-outline-blue" type="button" disabled style="padding:6px 14px;font-size:0.82rem;opacity:0.65;cursor:not-allowed;">
+              Ulasan Anda Terkirim
+            </button>
+          <?php else: ?>
+            <a class="btn-create-post" href="employer-rating-worker.php?contract=<?php echo urlencode((string)$proj['contract_id']); ?>&from=worker" style="text-decoration:none;padding:6px 14px;font-size:0.82rem;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 10px rgba(217,119,6,0.35);">
+              ★ Selesaikan &amp; Beri Rating
+            </a>
+          <?php endif; ?>
         </div>
       </div>
 
