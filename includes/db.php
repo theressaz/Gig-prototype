@@ -84,6 +84,7 @@ function gig_db(): ?PDO
                 `previous_projects` LONGTEXT NOT NULL,
                 `portfolio`         LONGTEXT NOT NULL,
                 `video_url`         VARCHAR(500) NOT NULL,
+                `social_media`      LONGTEXT NOT NULL,
                 `status`            VARCHAR(20)  NOT NULL DEFAULT 'pending',
                 `admin_note`        TEXT NOT NULL,
                 `reviewed_at`       DATETIME NULL,

@@ -991,6 +991,7 @@ function gig_get_worker_registration(string $username): ?array
             if ($row) {
                 $row['previous_projects'] = json_decode((string)$row['previous_projects'], true) ?: [];
                 $row['portfolio'] = json_decode((string)$row['portfolio'], true) ?: [];
+                $row['social_media'] = json_decode((string)($row['social_media'] ?? ''), true) ?: [];
                 $row['skills'] = array_filter(array_map('trim', explode(',', (string)$row['skills'])));
                 if (session_status() === PHP_SESSION_ACTIVE) {
                     $_SESSION['gig_worker_registration_data_' . $username] = $row;
@@ -1006,7 +1007,14 @@ function gig_get_worker_registration(string $username): ?array
     }
 
     if (session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['gig_worker_registration_data_' . $username])) {
-        return $_SESSION['gig_worker_registration_data_' . $username];
+        $row = $_SESSION['gig_worker_registration_data_' . $username];
+        if (!is_array($row)) {
+            return null;
+        }
+        if (!is_array($row['social_media'] ?? null)) {
+            $row['social_media'] = json_decode((string)($row['social_media'] ?? ''), true) ?: [];
+        }
+        return $row;
     }
 
     return null;
@@ -1036,8 +1044,8 @@ function gig_save_worker_registration(string $username, array $data): bool
         $stmt = $db->prepare("
             INSERT INTO `gig_worker_registrations`
             (`username`, `bidang_keahlian`, `skills`, `contact_choice`, `contact_email`, `contact_wa`,
-             `previous_projects`, `portfolio`, `video_url`, `display_name`, `domicile`, `profile_summary`, `status`, `admin_note`)
-            VALUES (:u, :bidang, :skills, :choice, :email, :wa, :projects, :portfolio, :video, :display_name, :domicile, :profile_summary, :status, :note)
+             `previous_projects`, `portfolio`, `video_url`, `social_media`, `display_name`, `domicile`, `profile_summary`, `status`, `admin_note`)
+            VALUES (:u, :bidang, :skills, :choice, :email, :wa, :projects, :portfolio, :video, :social_media, :display_name, :domicile, :profile_summary, :status, :note)
             ON DUPLICATE KEY UPDATE
               `bidang_keahlian` = VALUES(`bidang_keahlian`),
               `skills` = VALUES(`skills`),
@@ -1047,6 +1055,7 @@ function gig_save_worker_registration(string $username, array $data): bool
               `previous_projects` = VALUES(`previous_projects`),
               `portfolio` = VALUES(`portfolio`),
               `video_url` = VALUES(`video_url`),
+              `social_media` = VALUES(`social_media`),
               `display_name` = VALUES(`display_name`),
               `domicile` = VALUES(`domicile`),
               `profile_summary` = VALUES(`profile_summary`),
@@ -1063,6 +1072,7 @@ function gig_save_worker_registration(string $username, array $data): bool
             ':projects' => json_encode($data['previous_projects'] ?? []),
             ':portfolio'=> json_encode($data['portfolio'] ?? []),
             ':video'    => $data['video_url'] ?? '',
+            ':social_media' => json_encode($data['social_media'] ?? []),
             ':display_name' => $data['display_name'] ?? '',
             ':domicile' => $data['domicile'] ?? '',
             ':profile_summary' => $data['profile_summary'] ?? '',

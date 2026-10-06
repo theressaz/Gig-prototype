@@ -103,11 +103,33 @@ if ($role === 'worker') {
       </div>
     </section>
 
-    <?php 
-      $regData = gig_get_worker_registration($worker['id']);
+    <?php
+      $regData = gig_get_worker_registration((string)($worker['id'] ?? '')) ?? [];
       $rawVideoStr = !empty($regData['video_url']) ? $regData['video_url'] : ($worker['video_url'] ?? '');
       $videoUrlsList = array_values(array_filter(array_map('trim', preg_split('/[\r\n]+/', (string)$rawVideoStr)), static fn($u) => $u !== ''));
+      $socialMediaList = [];
+      if (!empty($regData['social_media']) && is_array($regData['social_media'])) {
+          $socialMediaList = $regData['social_media'];
+      } elseif (!empty($worker['social_media']) && is_array($worker['social_media'])) {
+          $socialMediaList = $worker['social_media'];
+      }
+      $profileSummary = trim((string)($regData['profile_summary'] ?? ($worker['proposal'] ?? '')));
+      $bidangValue = trim((string)($regData['bidang_keahlian'] ?? ($worker['title'] ?? '')));
     ?>
+
+    <?php if ($bidangValue !== '' || $profileSummary !== ''): ?>
+      <section class="section-card">
+        <h2>Bidang Keahlian</h2>
+        <?php if ($bidangValue !== ''): ?>
+          <div style="margin-bottom:10px;">
+            <span class="chip gold"><?php echo htmlspecialchars($bidangValue, ENT_QUOTES, 'UTF-8'); ?></span>
+          </div>
+        <?php endif; ?>
+        <?php if ($profileSummary !== ''): ?>
+          <p style="font-size:0.88rem;line-height:1.55;color:#334155;"><?php echo htmlspecialchars($profileSummary, ENT_QUOTES, 'UTF-8'); ?></p>
+        <?php endif; ?>
+      </section>
+    <?php endif; ?>
     <?php if ($videoUrlsList !== []): ?>
       <section class="section-card">
         <h2>Video Profil Gig Worker</h2>
@@ -146,6 +168,27 @@ if ($role === 'worker') {
             <strong><?php echo htmlspecialchars($item['role'], ENT_QUOTES, 'UTF-8'); ?></strong>
             <span class="muted"><?php echo htmlspecialchars($item['project'], ENT_QUOTES, 'UTF-8'); ?> · <?php echo htmlspecialchars($item['period'], ENT_QUOTES, 'UTF-8'); ?></span>
             <p><?php echo htmlspecialchars($item['summary'], ENT_QUOTES, 'UTF-8'); ?></p>
+            <?php if (!empty($item['output_title']) || !empty($item['files'])): ?>
+              <div style="margin-top:10px;padding:10px 12px;border:1px solid #dbeafe;background:#f8fbff;border-radius:10px;">
+                <?php if (!empty($item['output_title'])): ?>
+                  <div style="font-size:0.79rem;font-weight:700;color:#1e40af;margin-bottom:6px;">
+                    Output Proyek: <?php echo htmlspecialchars((string)$item['output_title'], ENT_QUOTES, 'UTF-8'); ?>
+                  </div>
+                <?php endif; ?>
+                <?php if (!empty($item['files']) && is_array($item['files'])): ?>
+                  <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                    <?php foreach ($item['files'] as $f): ?>
+                      <?php $fUrl = trim((string)($f['url'] ?? '')); ?>
+                      <?php if ($fUrl !== ''): ?>
+                        <a href="<?php echo htmlspecialchars($fUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;background:#ffffff;color:#1d4ed8;border:1px solid #bfdbfe;padding:6px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;text-decoration:none;">
+                          🔗 <?php echo htmlspecialchars((string)($f['name'] ?? 'Link Output Proyek'), ENT_QUOTES, 'UTF-8'); ?>
+                        </a>
+                      <?php endif; ?>
+                    <?php endforeach; ?>
+                  </div>
+                <?php endif; ?>
+              </div>
+            <?php endif; ?>
           </article>
         <?php endforeach; ?>
       </div>
@@ -173,6 +216,32 @@ if ($role === 'worker') {
         <?php endforeach; ?>
       </div>
     </section>
+
+    <?php if ($socialMediaList !== []): ?>
+      <section class="section-card">
+        <h2>Media Sosial &amp; Jejak Profesional</h2>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;">
+          <?php foreach ($socialMediaList as $sm): ?>
+            <?php
+              $smPlatform = trim((string)($sm['platform'] ?? 'Media Sosial'));
+              $smUrl = trim((string)($sm['url'] ?? ''));
+              if ($smPlatform === '' && $smUrl === '') {
+                  continue;
+              }
+            ?>
+            <?php if ($smUrl !== ''): ?>
+              <a href="<?php echo htmlspecialchars($smUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:999px;padding:8px 14px;text-decoration:none;color:#0f172a;font-size:0.82rem;font-weight:700;">
+                <?php echo htmlspecialchars($smPlatform, ENT_QUOTES, 'UTF-8'); ?> ↗
+              </a>
+            <?php else: ?>
+              <span style="display:inline-flex;align-items:center;background:#f8fafc;border:1px solid #cbd5e1;border-radius:999px;padding:8px 14px;color:#0f172a;font-size:0.82rem;font-weight:700;">
+                <?php echo htmlspecialchars($smPlatform, ENT_QUOTES, 'UTF-8'); ?>
+              </span>
+            <?php endif; ?>
+          <?php endforeach; ?>
+        </div>
+      </section>
+    <?php endif; ?>
 
     <section class="section-card">
       <h2>Rating &amp; Ulasan Pemberi Kerja</h2>

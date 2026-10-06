@@ -52,6 +52,11 @@ function gig_admin_ensure_schema(?PDO $pdo = null): void
         }
         try {
             $pdo->exec("ALTER TABLE `gig_worker_registrations`
+                ADD COLUMN `social_media` LONGTEXT NOT NULL AFTER `video_url`");
+        } catch (Throwable $e) {
+        }
+        try {
+            $pdo->exec("ALTER TABLE `gig_worker_registrations`
                 ADD COLUMN `domicile` VARCHAR(180) NOT NULL DEFAULT '' AFTER `display_name`");
         } catch (Throwable $e) {
         }
@@ -452,18 +457,19 @@ function gig_admin_set_worker_profile_edit_status(int $id, string $status, strin
             $workerKey = (string)$row['worker_username'];
             $existing = gig_get_worker_registration($workerKey) ?? [];
             $data = [
-                'bidang_keahlian' => $payload['title'] ?? ($existing['bidang_keahlian'] ?? ''),
+                'bidang_keahlian' => $payload['bidang_keahlian'] ?? ($payload['title'] ?? ($existing['bidang_keahlian'] ?? '')),
                 'skills' => $payload['skills'] ?? ($existing['skills'] ?? []),
-                'contact_choice' => 'new',
-                'contact_email' => $payload['email'] ?? ($existing['contact_email'] ?? ''),
-                'contact_wa' => $payload['wa'] ?? ($existing['contact_wa'] ?? ''),
-                'previous_projects' => $payload['experience'] ?? ($existing['previous_projects'] ?? []),
+                'contact_choice' => $payload['contact_choice'] ?? ($existing['contact_choice'] ?? 'new'),
+                'contact_email' => $payload['contact_email'] ?? ($payload['email'] ?? ($existing['contact_email'] ?? '')),
+                'contact_wa' => $payload['contact_wa'] ?? ($payload['wa'] ?? ($existing['contact_wa'] ?? '')),
+                'previous_projects' => $payload['previous_projects'] ?? ($payload['experience'] ?? ($existing['previous_projects'] ?? [])),
                 'portfolio' => $payload['portfolio'] ?? ($existing['portfolio'] ?? []),
                 'video_url' => $payload['video_url'] ?? ($existing['video_url'] ?? ''),
+                'social_media' => $payload['social_media'] ?? ($existing['social_media'] ?? []),
                 'status' => 'approved',
-                'display_name' => $payload['name'] ?? ($existing['display_name'] ?? ''),
-                'domicile' => $payload['location'] ?? ($existing['domicile'] ?? ''),
-                'profile_summary' => $payload['proposal'] ?? ($existing['profile_summary'] ?? ''),
+                'display_name' => $payload['display_name'] ?? ($payload['name'] ?? ($existing['display_name'] ?? '')),
+                'domicile' => $payload['domicile'] ?? ($payload['location'] ?? ($existing['domicile'] ?? '')),
+                'profile_summary' => $payload['profile_summary'] ?? ($payload['proposal'] ?? ($existing['profile_summary'] ?? '')),
             ];
             if (!gig_save_worker_registration($workerKey, $data)) {
                 return false;
