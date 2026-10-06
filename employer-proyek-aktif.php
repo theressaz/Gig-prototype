@@ -25,13 +25,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             ? (($action === 'approve_extension') ? 'Perpanjangan disetujui. Deadline proyek diperbarui.' : 'Perpanjangan ditolak. Deadline tetap sesuai kesepakatan.')
             : (string)($res['error'] ?? 'Gagal memproses konfirmasi perpanjangan.');
         $flashErr = empty($res['ok']);
-    } elseif ($action === 'confirm_finished') {
-        $contractId = trim((string)($_POST['contract_id'] ?? ''));
-        $res = gig_confirm_project_finished($contractId, 'employer', $username);
-        $flashMsg = !empty($res['ok'])
-            ? (string)($res['message'] ?? 'Konfirmasi selesai berhasil disimpan.')
-            : (string)($res['error'] ?? 'Gagal menyimpan konfirmasi selesai proyek.');
-        $flashErr = empty($res['ok']);
     }
 }
 
@@ -77,8 +70,8 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
         $c1Id = 'CTR-GIG-2026-0811';
         $c2Id = 'CTR-GIG-2026-0819';
-        $completedP1 = false;
-        $completedP2 = false;
+        $completedP1 = isset($dbCompletions[$c1Id]) || isset($_SESSION['completed_projects'][$c1Id]);
+        $completedP2 = isset($dbCompletions[$c2Id]) || isset($_SESSION['completed_projects'][$c2Id]);
         $ratingP1 = $dbCompletions[$c1Id]['rating_given']
                     ?? ($_SESSION['completed_projects'][$c1Id]['ratingGiven'] ?? 5);
         $ratingP2 = $dbCompletions[$c2Id]['rating_given']
@@ -87,12 +80,6 @@ require __DIR__ . '/includes/employer-layout-start.php';
         $isExpiredP2 = !empty($p2['is_expired']);
         $pendingExtP1 = is_array($p1['pending_extension'] ?? null) ? $p1['pending_extension'] : null;
         $pendingExtP2 = is_array($p2['pending_extension'] ?? null) ? $p2['pending_extension'] : null;
-        $finishP1 = gig_get_project_finish_state((string)($p1['contract_id'] ?? ''));
-        $finishP2 = gig_get_project_finish_state((string)($p2['contract_id'] ?? ''));
-        $reviewP1 = gig_get_project_review_state((string)($p1['contract_id'] ?? ''), (string)($p1['worker_id'] ?? ''));
-        $reviewP2 = gig_get_project_review_state((string)($p2['contract_id'] ?? ''), (string)($p2['worker_id'] ?? ''));
-        $completedP1 = !empty($reviewP1['both_reviewed']);
-        $completedP2 = !empty($reviewP2['both_reviewed']);
         $showP1 = !$completedP1 && !$isExpiredP1;
         $showP2 = !$completedP2 && !$isExpiredP2;
         $hasActive = $showP1 || $showP2;
@@ -200,18 +187,6 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <div style="margin:12px 0 0 0;font-size:0.78rem;color:#991b1b;background:#fef2f2;border:1px solid #fecaca;padding:8px 12px;border-radius:8px;">
             Deadline terlewati dan proyek belum selesai. Status otomatis menjadi <strong>Tidak Selesai</strong>.
           </div>
-        <?php elseif (!empty($finishP1['both_confirmed'])): ?>
-          <div style="margin:12px 0 0 0;font-size:0.78rem;color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;padding:8px 12px;border-radius:8px;">
-            Kedua pihak sudah mengonfirmasi proyek selesai. Review kini terbuka untuk Employer dan Gig Worker.
-          </div>
-        <?php elseif (!empty($finishP1['employer_confirmed'])): ?>
-          <div style="margin:12px 0 0 0;font-size:0.78rem;color:#92400e;background:#fffbeb;border:1px solid #fde68a;padding:8px 12px;border-radius:8px;">
-            Anda sudah mengonfirmasi proyek selesai. Menunggu konfirmasi dari Gig Worker.
-          </div>
-        <?php elseif (!empty($finishP1['worker_confirmed'])): ?>
-          <div style="margin:12px 0 0 0;font-size:0.78rem;color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;padding:8px 12px;border-radius:8px;">
-            Gig Worker sudah mengonfirmasi proyek selesai. Silakan konfirmasi dari sisi Pemberi Kerja untuk membuka review.
-          </div>
         <?php elseif ($pendingExtP1): ?>
           <div style="margin:12px 0 0 0;font-size:0.78rem;color:#1e293b;background:#eff6ff;border:1px solid #bfdbfe;padding:10px 12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
             <div>
@@ -297,29 +272,9 @@ require __DIR__ . '/includes/employer-layout-start.php';
                 Buka di Riwayat →
               </a>
             <?php else: ?>
-              <?php if (!empty($finishP1['both_confirmed'])): ?>
-                <?php if (!empty($reviewP1['employer_reviewed'])): ?>
-                  <button type="button" class="btn-create-post" disabled style="padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:#86efac;border:none;color:#14532d;cursor:not-allowed;">
-                    ✓ Ulasan Employer Terkirim
-                  </button>
-                <?php else: ?>
-                  <a class="btn-create-post" href="employer-rating-worker.php?contract=CTR-GIG-2026-0811&worker=tessa" style="text-decoration:none;padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 12px rgba(217,119,6,0.3);border:none;">
-                    ★ Beri Rating Gig Worker
-                  </a>
-                <?php endif; ?>
-              <?php elseif (!empty($finishP1['employer_confirmed'])): ?>
-                <button type="button" class="btn-outline-blue" disabled style="padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;opacity:0.7;cursor:not-allowed;">
-                  Menunggu Konfirmasi Gig Worker
-                </button>
-              <?php else: ?>
-                <form method="POST" action="" style="margin:0;">
-                  <input type="hidden" name="ext_action" value="confirm_finished">
-                  <input type="hidden" name="contract_id" value="<?php echo htmlspecialchars((string)($p1['contract_id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
-                  <button type="submit" class="btn-create-post" style="padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:#2563eb;border-color:#1d4ed8;">
-                    Konfirmasi Proyek Selesai
-                  </button>
-                </form>
-              <?php endif; ?>
+              <a class="btn-create-post" href="employer-rating-worker.php?contract=CTR-GIG-2026-0811&worker=tessa" style="text-decoration:none;padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 12px rgba(217,119,6,0.3);border:none;">
+                ★ Selesaikan &amp; Beri Rating
+              </a>
             <?php endif; ?>
           </div>
         </div>
@@ -420,18 +375,6 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <div style="margin:12px 0 0 0;font-size:0.78rem;color:#991b1b;background:#fef2f2;border:1px solid #fecaca;padding:8px 12px;border-radius:8px;">
             Deadline terlewati dan proyek belum selesai. Status otomatis menjadi <strong>Tidak Selesai</strong>.
           </div>
-        <?php elseif (!empty($finishP2['both_confirmed'])): ?>
-          <div style="margin:12px 0 0 0;font-size:0.78rem;color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;padding:8px 12px;border-radius:8px;">
-            Kedua pihak sudah mengonfirmasi proyek selesai. Review kini terbuka untuk Employer dan Gig Worker.
-          </div>
-        <?php elseif (!empty($finishP2['employer_confirmed'])): ?>
-          <div style="margin:12px 0 0 0;font-size:0.78rem;color:#92400e;background:#fffbeb;border:1px solid #fde68a;padding:8px 12px;border-radius:8px;">
-            Anda sudah mengonfirmasi proyek selesai. Menunggu konfirmasi dari Gig Worker.
-          </div>
-        <?php elseif (!empty($finishP2['worker_confirmed'])): ?>
-          <div style="margin:12px 0 0 0;font-size:0.78rem;color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;padding:8px 12px;border-radius:8px;">
-            Gig Worker sudah mengonfirmasi proyek selesai. Silakan konfirmasi dari sisi Pemberi Kerja untuk membuka review.
-          </div>
         <?php elseif ($pendingExtP2): ?>
           <div style="margin:12px 0 0 0;font-size:0.78rem;color:#1e293b;background:#eff6ff;border:1px solid #bfdbfe;padding:10px 12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
             <div>
@@ -517,29 +460,9 @@ require __DIR__ . '/includes/employer-layout-start.php';
                 Buka di Riwayat →
               </a>
             <?php else: ?>
-              <?php if (!empty($finishP2['both_confirmed'])): ?>
-                <?php if (!empty($reviewP2['employer_reviewed'])): ?>
-                  <button type="button" class="btn-create-post" disabled style="padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:#86efac;border:none;color:#14532d;cursor:not-allowed;">
-                    ✓ Ulasan Employer Terkirim
-                  </button>
-                <?php else: ?>
-                  <a class="btn-create-post" href="employer-rating-worker.php?contract=CTR-GIG-2026-0819&worker=rian" style="text-decoration:none;padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 12px rgba(217,119,6,0.3);border:none;">
-                    ★ Beri Rating Gig Worker
-                  </a>
-                <?php endif; ?>
-              <?php elseif (!empty($finishP2['employer_confirmed'])): ?>
-                <button type="button" class="btn-outline-blue" disabled style="padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;opacity:0.7;cursor:not-allowed;">
-                  Menunggu Konfirmasi Gig Worker
-                </button>
-              <?php else: ?>
-                <form method="POST" action="" style="margin:0;">
-                  <input type="hidden" name="ext_action" value="confirm_finished">
-                  <input type="hidden" name="contract_id" value="<?php echo htmlspecialchars((string)($p2['contract_id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
-                  <button type="submit" class="btn-create-post" style="padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:#2563eb;border-color:#1d4ed8;">
-                    Konfirmasi Proyek Selesai
-                  </button>
-                </form>
-              <?php endif; ?>
+              <a class="btn-create-post" href="employer-rating-worker.php?contract=CTR-GIG-2026-0819&worker=rian" style="text-decoration:none;padding:7px 16px;font-size:0.82rem;font-weight:700;border-radius:8px;background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 12px rgba(217,119,6,0.3);border:none;">
+                ★ Selesaikan &amp; Beri Rating
+              </a>
             <?php endif; ?>
           </div>
         </div>
