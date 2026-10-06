@@ -332,7 +332,6 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
           </div>
         <?php endif; ?>
       </div>
-    </div>
   <?php endforeach; ?>
 </div>
 
