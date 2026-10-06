@@ -50,6 +50,206 @@ function gig_countdown_parts(DateTimeInterface $deadline, ?DateTimeInterface $no
     ];
 }
 
+function gig_project_finish_ensure_table(?PDO $pdo): void
+{
+    if (!$pdo) {
+        return;
+    }
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS `project_finish_confirmations` (
+            `contract_id`            VARCHAR(50) NOT NULL PRIMARY KEY,
+            `employer_confirmed_at`  DATETIME NULL,
+            `worker_confirmed_at`    DATETIME NULL,
+            `employer_confirmed_by`  VARCHAR(100) NOT NULL DEFAULT '',
+            `worker_confirmed_by`    VARCHAR(100) NOT NULL DEFAULT '',
+            `updated_at`             DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+}
+
+function gig_project_reviews_ensure_tables(?PDO $pdo): void
+{
+    if (!$pdo) {
+        return;
+    }
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS `employer_reviews` (
+            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `contract_id` VARCHAR(50) NOT NULL,
+            `worker_id` VARCHAR(50) NOT NULL,
+            `employer_username` VARCHAR(100) NOT NULL,
+            `project_title` VARCHAR(255) NOT NULL,
+            `overall_rating` TINYINT UNSIGNED NOT NULL DEFAULT 5,
+            `comment` TEXT NOT NULL,
+            `badges` TEXT NOT NULL DEFAULT '',
+            `recommend_employer` TINYINT(1) NOT NULL DEFAULT 1,
+            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY `uniq_contract_worker` (`contract_id`, `worker_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+}
+
+function gig_get_project_finish_state(string $contractId): array
+{
+    $state = [
+        'employer_confirmed' => false,
+        'worker_confirmed' => false,
+        'both_confirmed' => false,
+        'employer_confirmed_at' => null,
+        'worker_confirmed_at' => null,
+        'waiting_role' => '',
+    ];
+    $contractId = trim($contractId);
+    if ($contractId === '') {
+        return $state;
+    }
+
+    $pdo = function_exists('gig_db') ? gig_db() : null;
+    if ($pdo !== null) {
+        gig_project_finish_ensure_table($pdo);
+        try {
+            $stmt = $pdo->prepare("SELECT * FROM `project_finish_confirmations` WHERE `contract_id` = :cid LIMIT 1");
+            $stmt->execute([':cid' => $contractId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+            if ($row) {
+                $state['employer_confirmed'] = !empty($row['employer_confirmed_at']);
+                $state['worker_confirmed'] = !empty($row['worker_confirmed_at']);
+                $state['employer_confirmed_at'] = $row['employer_confirmed_at'] ?? null;
+                $state['worker_confirmed_at'] = $row['worker_confirmed_at'] ?? null;
+            }
+        } catch (Throwable $ignored) {
+        }
+    }
+
+    if (!$state['employer_confirmed'] && session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['project_finish_confirmed_employer'][$contractId])) {
+        $state['employer_confirmed'] = true;
+    }
+    if (!$state['worker_confirmed'] && session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['project_finish_confirmed_worker'][$contractId])) {
+        $state['worker_confirmed'] = true;
+    }
+
+    $state['both_confirmed'] = $state['employer_confirmed'] && $state['worker_confirmed'];
+    if (!$state['both_confirmed']) {
+        if ($state['employer_confirmed'] && !$state['worker_confirmed']) {
+            $state['waiting_role'] = 'worker';
+        } elseif ($state['worker_confirmed'] && !$state['employer_confirmed']) {
+            $state['waiting_role'] = 'employer';
+        }
+    }
+
+    return $state;
+}
+
+function gig_confirm_project_finished(string $contractId, string $role, string $actorId = ''): array
+{
+    $contractId = trim($contractId);
+    $role = strtolower(trim($role));
+    if ($contractId === '') {
+        return ['ok' => false, 'error' => 'Kontrak proyek tidak valid.'];
+    }
+    if (!in_array($role, ['employer', 'worker'], true)) {
+        return ['ok' => false, 'error' => 'Peran konfirmasi tidak valid.'];
+    }
+
+    $pdo = function_exists('gig_db') ? gig_db() : null;
+    if ($pdo !== null) {
+        gig_project_finish_ensure_table($pdo);
+        try {
+            if ($role === 'employer') {
+                $stmt = $pdo->prepare(
+                    "INSERT INTO `project_finish_confirmations`
+                        (`contract_id`, `employer_confirmed_at`, `employer_confirmed_by`)
+                     VALUES (:cid, NOW(), :actor)
+                     ON DUPLICATE KEY UPDATE
+                        `employer_confirmed_at` = IF(`employer_confirmed_at` IS NULL, NOW(), `employer_confirmed_at`),
+                        `employer_confirmed_by` = IF(`employer_confirmed_by` = '', VALUES(`employer_confirmed_by`), `employer_confirmed_by`)"
+                );
+            } else {
+                $stmt = $pdo->prepare(
+                    "INSERT INTO `project_finish_confirmations`
+                        (`contract_id`, `worker_confirmed_at`, `worker_confirmed_by`)
+                     VALUES (:cid, NOW(), :actor)
+                     ON DUPLICATE KEY UPDATE
+                        `worker_confirmed_at` = IF(`worker_confirmed_at` IS NULL, NOW(), `worker_confirmed_at`),
+                        `worker_confirmed_by` = IF(`worker_confirmed_by` = '', VALUES(`worker_confirmed_by`), `worker_confirmed_by`)"
+                );
+            }
+            $stmt->execute([
+                ':cid' => $contractId,
+                ':actor' => trim($actorId),
+            ]);
+        } catch (Throwable $e) {
+            return ['ok' => false, 'error' => 'Gagal menyimpan konfirmasi penyelesaian proyek.'];
+        }
+    } elseif (session_status() === PHP_SESSION_ACTIVE) {
+        if ($role === 'employer') {
+            $_SESSION['project_finish_confirmed_employer'][$contractId] = true;
+        } else {
+            $_SESSION['project_finish_confirmed_worker'][$contractId] = true;
+        }
+    }
+
+    $state = gig_get_project_finish_state($contractId);
+    if (!empty($state['both_confirmed'])) {
+        return ['ok' => true, 'state' => $state, 'message' => 'Kedua pihak sudah mengonfirmasi proyek selesai. Review kini terbuka untuk kedua pihak.'];
+    }
+    if ($role === 'employer') {
+        return ['ok' => true, 'state' => $state, 'message' => 'Konfirmasi selesai tersimpan. Menunggu konfirmasi dari Gig Worker.'];
+    }
+    return ['ok' => true, 'state' => $state, 'message' => 'Konfirmasi selesai tersimpan. Menunggu konfirmasi dari Pemberi Kerja.'];
+}
+
+function gig_get_project_review_state(string $contractId, string $workerId = ''): array
+{
+    $state = [
+        'employer_reviewed' => false,
+        'worker_reviewed' => false,
+        'both_reviewed' => false,
+    ];
+    $contractId = trim($contractId);
+    if ($contractId === '') {
+        return $state;
+    }
+
+    $pdo = function_exists('gig_db') ? gig_db() : null;
+    if ($pdo !== null) {
+        gig_project_reviews_ensure_tables($pdo);
+        try {
+            $stmtEmp = $pdo->prepare("SELECT `contract_id` FROM `project_reviews` WHERE `contract_id` = :cid LIMIT 1");
+            $stmtEmp->execute([':cid' => $contractId]);
+            $state['employer_reviewed'] = (bool)$stmtEmp->fetch(PDO::FETCH_ASSOC);
+        } catch (Throwable $ignored) {
+        }
+        try {
+            if ($workerId !== '') {
+                $stmtWrk = $pdo->prepare("SELECT `contract_id` FROM `employer_reviews` WHERE `contract_id` = :cid AND `worker_id` = :wid LIMIT 1");
+                $stmtWrk->execute([':cid' => $contractId, ':wid' => $workerId]);
+            } else {
+                $stmtWrk = $pdo->prepare("SELECT `contract_id` FROM `employer_reviews` WHERE `contract_id` = :cid LIMIT 1");
+                $stmtWrk->execute([':cid' => $contractId]);
+            }
+            $state['worker_reviewed'] = (bool)$stmtWrk->fetch(PDO::FETCH_ASSOC);
+        } catch (Throwable $ignored) {
+        }
+    }
+
+    if (!$state['employer_reviewed']
+        && session_status() === PHP_SESSION_ACTIVE
+        && isset($_SESSION['completed_projects'][$contractId])
+    ) {
+        $state['employer_reviewed'] = true;
+    }
+    if (!$state['worker_reviewed']
+        && session_status() === PHP_SESSION_ACTIVE
+        && isset($_SESSION['worker_employer_reviews'][$contractId])
+    ) {
+        $state['worker_reviewed'] = true;
+    }
+
+    $state['both_reviewed'] = $state['employer_reviewed'] && $state['worker_reviewed'];
+    return $state;
+}
+
 function gig_extension_ensure_table(?PDO $pdo): void
 {
     if (!$pdo) {
@@ -493,20 +693,35 @@ function gig_worker_project_completions_map(): array
     $completed = [];
     $pdo = function_exists('gig_db') ? gig_db() : null;
     if ($pdo !== null) {
+        gig_project_reviews_ensure_tables($pdo);
         try {
-            $stmt = $pdo->query('SELECT `contract_id` FROM `project_completions`');
-            foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $cid) {
-                $completed[(string)$cid] = true;
+            $stmtA = $pdo->query('SELECT `contract_id` FROM `project_reviews`');
+            $ratedByEmployer = [];
+            foreach ($stmtA->fetchAll(PDO::FETCH_COLUMN) as $cid) {
+                $ratedByEmployer[(string)$cid] = true;
+            }
+
+            $stmtB = $pdo->query('SELECT `contract_id` FROM `employer_reviews`');
+            foreach ($stmtB->fetchAll(PDO::FETCH_COLUMN) as $cid) {
+                $c = (string)$cid;
+                if (isset($ratedByEmployer[$c])) {
+                    $completed[$c] = true;
+                }
             }
         } catch (Throwable $ignored) {
         }
     }
-    if (session_status() === PHP_SESSION_ACTIVE
-        && isset($_SESSION['completed_projects'])
-        && is_array($_SESSION['completed_projects'])
-    ) {
-        foreach (array_keys($_SESSION['completed_projects']) as $cid) {
-            $completed[(string)$cid] = true;
+
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        $employerRated = $_SESSION['completed_projects'] ?? [];
+        $workerRated = $_SESSION['worker_employer_reviews'] ?? [];
+        if (is_array($employerRated) && is_array($workerRated)) {
+            foreach (array_keys($employerRated) as $cid) {
+                $c = (string)$cid;
+                if (array_key_exists($c, $workerRated)) {
+                    $completed[$c] = true;
+                }
+            }
         }
     }
     return $completed;
