@@ -297,7 +297,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
                 'Komunikasi Profesional & Respektif',
                 'Lingkungan Kerja Positif',
                 'Umpan Balik Membantu',
-                'Rekomendasi Utama',
             ];
             foreach ($badgesList as $bIdx => $bName):
           ?>
@@ -320,11 +319,11 @@ require __DIR__ . '/includes/worker-layout-start.php';
         <textarea name="comment" rows="4" required placeholder="Contoh: Pemberi kerja sangat kooperatif, memberikan brief yang jelas, dan pembayaran diproses tepat waktu setelah deliverables disetujui." style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:0.88rem;line-height:1.5;outline:none;font-family:inherit;resize:vertical;"></textarea>
       </section>
 
-        <div style="margin-top:16px;display:flex;gap:12px;align-items:center;">
+        <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:12px;align-items:center;">
+          <a href="worker-tugas.php" style="font-size:0.84rem;font-weight:600;color:#64748b;text-decoration:none;padding:8px 16px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;">Batal</a>
           <button type="submit" name="submit_review" value="1" class="btn-create-post" style="text-decoration:none;padding:8px 20px;font-size:0.86rem;font-weight:700;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;border:none;background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%);color:#fff;" <?php echo !$canSubmitReview ? 'disabled style="padding:8px 20px;font-size:0.86rem;font-weight:700;border-radius:8px;opacity:0.55;cursor:not-allowed;background:#cbd5e1;color:#64748b;border:none;"' : ''; ?>>
             Kirim Ulasan Pemberi Kerja
           </button>
-          <a href="worker-tugas.php" style="font-size:0.84rem;font-weight:600;color:#64748b;text-decoration:none;padding:8px 16px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;">Batal</a>
         </div>
       </section>
 
