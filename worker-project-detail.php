@@ -529,7 +529,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
       });
       
       if (typeof showToast === 'function') {
-        showToast('Lamaran proyek berhasil dikirim ke Pemberi Kerja! Anda dapat memantau statusnya di menu Tugas Aktif.');
+        showToast('Lamaran proyek berhasil dikirim ke Pemberi Kerja! Anda dapat memantau statusnya di menu Lamaran Saya.');
       } else {
         alert('Lamaran proyek berhasil dikirim ke Pemberi Kerja!');
       }

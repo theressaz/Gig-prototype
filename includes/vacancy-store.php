@@ -39,6 +39,110 @@ function gig_vacancy_status_labels(): array
     ];
 }
 
+function gig_vacancy_add_business_days(DateTimeImmutable $start, int $days): DateTimeImmutable
+{
+    $cursor = $start;
+    $added = 0;
+    while ($added < $days) {
+        $cursor = $cursor->modify('+1 day');
+        $day = (int)$cursor->format('N'); // 1=Mon ... 7=Sun
+        if ($day <= 5) {
+            $added++;
+        }
+    }
+    return $cursor;
+}
+
+function gig_vacancy_apply_auto_sla(?PDO $pdo = null): void
+{
+    $pdo = $pdo ?? gig_db();
+    if ($pdo === null) {
+        return;
+    }
+
+    try {
+        $rows = $pdo->query("SELECT `id`, `status`, `status_label`, `admin_note`, `vacancy_json`, `created_at` FROM `project_vacancies` WHERE `status` = 'review'")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    } catch (Throwable $e) {
+        return;
+    }
+
+    if ($rows === []) {
+        return;
+    }
+
+    $now = new DateTimeImmutable('now');
+    foreach ($rows as $row) {
+        $payload = json_decode((string)($row['vacancy_json'] ?? ''), true);
+        if (!is_array($payload)) {
+            $payload = [];
+        }
+
+        // SLA auto-accept applies only to project vacancy requests.
+        $vacancyType = strtolower(trim((string)($payload['vacancy_type'] ?? 'project')));
+        if ($vacancyType !== 'project') {
+            continue;
+        }
+
+        $createdAtRaw = trim((string)($row['created_at'] ?? ''));
+        if ($createdAtRaw === '') {
+            continue;
+        }
+
+        try {
+            $createdAt = new DateTimeImmutable($createdAtRaw);
+        } catch (Throwable $e) {
+            continue;
+        }
+
+        $slaDue = gig_vacancy_add_business_days($createdAt, 3);
+        if ($now < $slaDue) {
+            continue;
+        }
+
+        $payload['status'] = 'active';
+        $payload['statusLabel'] = 'Fiktif Positif';
+        $payload['adminNote'] = 'Disetujui otomatis (Fiktif Positif) karena SLA verifikasi 3x24 jam hari kerja telah terlewati.';
+        $payload = gig_vacancy_normalize($payload);
+        $payload['statusLabel'] = 'Fiktif Positif';
+        $payload['adminNote'] = 'Disetujui otomatis (Fiktif Positif) karena SLA verifikasi 3x24 jam hari kerja telah terlewati.';
+
+        try {
+            $upd = $pdo->prepare(
+                "UPDATE `project_vacancies`
+                 SET `status` = 'active',
+                     `status_label` = 'Fiktif Positif',
+                     `admin_note` = :note,
+                     `vacancy_json` = :json,
+                     `reviewed_at` = NOW()
+                 WHERE `id` = :id"
+            );
+            $upd->execute([
+                ':note' => (string)$payload['adminNote'],
+                ':json' => json_encode($payload, JSON_UNESCAPED_UNICODE),
+                ':id' => (string)$row['id'],
+            ]);
+        } catch (Throwable $e) {
+            continue;
+        }
+
+        try {
+            $sub = $pdo->prepare(
+                "UPDATE `project_vacancy_submissions`
+                 SET `status` = 'active',
+                     `status_label` = 'Fiktif Positif',
+                     `admin_note` = :note,
+                     `reviewed_at` = NOW()
+                 WHERE `id` = :id"
+            );
+            $sub->execute([
+                ':note' => (string)$payload['adminNote'],
+                ':id' => (string)$row['id'],
+            ]);
+        } catch (Throwable $e) {
+        }
+    }
+}
+
 function gig_vacancy_ensure_schema(?PDO $pdo = null): void
 {
     $pdo = $pdo ?? gig_db();
@@ -244,6 +348,8 @@ function gig_vacancy_load_all(?string $statusFilter = null): array
     if ($db === null) {
         return [];
     }
+    // Enforce SLA: project vacancies pending over 3 business days auto-approved.
+    gig_vacancy_apply_auto_sla($db);
     $sql = "SELECT * FROM `project_vacancies`";
     $params = [];
     if ($statusFilter !== null && $statusFilter !== '') {
