@@ -664,7 +664,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
     </div>
 
     <div style="margin-bottom:28px;">
-      <h2 style="font-size:1.1rem;font-weight:800;color:#0f172a;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #f1f5f9;">4. Pengalaman & Portofolio</h2>
+      <h2 style="font-size:1.1rem;font-weight:800;color:#0f172a;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #f1f5f9;">4. Pengalaman</h2>
       <div id="projectContainer" style="display:flex;flex-direction:column;gap:14px;">
         <?php foreach ($currentProjects as $idx => $proj): ?>
           <?php $isSk = !empty($proj['is_siapkerja']); ?>
@@ -742,7 +742,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
           </div>
         <?php endforeach; ?>
       </div>
-      <button type="button" onclick="addProjectItem()" style="margin-top:10px;border:1px dashed #2563eb;background:#eff6ff;color:#1d4ed8;padding:8px 12px;border-radius:8px;font-weight:700;">+ Tambah Pengalaman & Portofolio</button>
+      <button type="button" onclick="addProjectItem()" style="margin-top:10px;border:1px dashed #2563eb;background:#eff6ff;color:#1d4ed8;padding:8px 12px;border-radius:8px;font-weight:700;">+ Tambah Pengalaman</button>
     </div>
 
     <div style="margin-bottom:28px;">

@@ -863,10 +863,10 @@ $backHref = $isEditMode
         ];
       ?>
 
-      <!-- BAGIAN 4: PENGALAMAN & PORTOFOLIO -->
+      <!-- BAGIAN 4: PENGALAMAN -->
       <div class="form-section-header">
-        <h2 class="form-section-title">4. PENGALAMAN &amp; PORTOFOLIO</h2>
-        <p class="form-section-subtitle">Data pengalaman dan portofolio ditarik dari SIAPKerja. Anda dapat menambah, memperbarui, serta melampirkan hasil karya/portofolio pada tiap pengalaman.</p>
+        <h2 class="form-section-title">4. PENGALAMAN</h2>
+        <p class="form-section-subtitle">Data pengalaman ditarik dari SIAPKerja. Anda dapat menambah, memperbarui, serta melampirkan hasil karya/portofolio pada tiap pengalaman.</p>
       </div>
 
       <div id="projectContainer">
@@ -900,7 +900,7 @@ $backHref = $isEditMode
               <input type="hidden" name="is_siapkerja[]" value="<?php echo $isSk ? '1' : '0'; ?>" />
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed #cbd5e1;">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                  <strong style="font-size:0.95rem;color:#0f172a;">Pengalaman &amp; Portofolio #<?php echo $projIdx + 1; ?></strong>
+                  <strong style="font-size:0.95rem;color:#0f172a;">Pengalaman #<?php echo $projIdx + 1; ?></strong>
                   <?php if ($isSk): ?>
                     <span class="chip" style="background:#e0f2fe;color:#0369a1;font-size:0.72rem;font-weight:700;padding:2px 9px;border-radius:9999px;border:1px solid #bae6fd;">🔒 Data Terhubung SIAPKerja (Read-Only)</span>
                   <?php endif; ?>
@@ -1009,7 +1009,7 @@ $backHref = $isEditMode
         <?php else: ?>
           <div class="dynamic-item" id="proj-item-0">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed #cbd5e1;">
-              <strong style="font-size:0.95rem;color:#0f172a;">Pengalaman &amp; Portofolio #1</strong>
+              <strong style="font-size:0.95rem;color:#0f172a;">Pengalaman #1</strong>
             </div>
             
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
@@ -1179,7 +1179,7 @@ $backHref = $isEditMode
       div.id = 'proj-item-' + pIdx;
       div.innerHTML = `
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed #cbd5e1;">
-          <strong style="font-size:0.95rem;color:#0f172a;">Pengalaman & Portofolio #${pIdx + 1}</strong>
+          <strong style="font-size:0.95rem;color:#0f172a;">Pengalaman #${pIdx + 1}</strong>
           <button type="button" class="btn-remove-item" onclick="document.getElementById('proj-item-${pIdx}').remove()">Hapus Pengalaman</button>
         </div>
         
