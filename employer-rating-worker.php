@@ -512,9 +512,9 @@ $displayComment = $submitted
 
       <div style="display:flex;gap:12px;justify-content:flex-end;align-items:center;margin-top:20px;">
         <a href="<?php echo $isWorker ? 'worker-tugas.php' : 'employer-proyek-aktif.php'; ?>" class="filter-btn-pill" style="text-decoration:none;padding:10px 18px;font-size:0.88rem;border:1px solid #cbd5e1;border-radius:8px;color:#475569;">Batal</a>
-        <button type="submit" id="submit_review_btn" name="submit_review" value="1" class="btn-create-post" style="padding:10px 24px;font-size:0.9rem;background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%);border:none;color:#ffffff;cursor:pointer;border-radius:8px;font-weight:700;">
+        <button type="submit" id="submit_review_btn" name="submit_review" value="1" class="btn-create-post" disabled aria-disabled="true" style="padding:10px 24px;font-size:0.9rem;background:#cbd5e1;border:none;color:#64748b;cursor:not-allowed;opacity:0.7;border-radius:8px;font-weight:700;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Kirim Ulasan &amp; Selesaikan Proyek
+          Kirim Ulasan
         </button>
       </div>
     </form>
