@@ -92,6 +92,27 @@ if ($currentVideoUrls === []) {
 }
 $currentVideoUrl = implode("\n", $currentVideoUrls);
 
+$currentSocialMedia = [];
+if (!empty($_POST['social_media_platform']) && is_array($_POST['social_media_platform'])) {
+    foreach ($_POST['social_media_platform'] as $sIdx => $plat) {
+        $p = trim((string)$plat);
+        $u = trim((string)($_POST['social_media_url'][$sIdx] ?? ''));
+        if ($p !== '' || $u !== '') {
+            $currentSocialMedia[] = ['platform' => $p, 'url' => $u];
+        }
+    }
+} elseif (!empty($existingReg['social_media']) && is_array($existingReg['social_media'])) {
+    $currentSocialMedia = $existingReg['social_media'];
+} elseif (!empty($workerProfile['social_media']) && is_array($workerProfile['social_media'])) {
+    $currentSocialMedia = $workerProfile['social_media'];
+}
+
+if ($currentSocialMedia === []) {
+    $currentSocialMedia = [
+        ['platform' => 'LinkedIn', 'url' => ''],
+    ];
+}
+
 $currentPortfolio = !empty($existingReg['portfolio']) && is_array($existingReg['portfolio']) ? $existingReg['portfolio'] : ($workerProfile['portfolio'] ?? []);
 
 $siapkerjaExperienceDefaults = [];
@@ -169,6 +190,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
         $videoUrl = implode("\n", $videoUrlsArr);
     } else {
         $videoUrl = trim((string)($_POST["video_url"] ?? ""));
+    }
+
+    $socialMedia = [];
+    if (!empty($_POST['social_media_platform']) && is_array($_POST['social_media_platform'])) {
+        foreach ($_POST['social_media_platform'] as $sIdx => $plat) {
+            $p = trim((string)$plat);
+            $u = trim((string)($_POST['social_media_url'][$sIdx] ?? ''));
+            if ($p !== '' || $u !== '') {
+                $socialMedia[] = [
+                    'platform' => $p !== '' ? $p : 'LinkedIn',
+                    'url' => $u,
+                ];
+            }
+        }
     }
 
     // Process previous projects & integrated portfolios
@@ -278,6 +313,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
             'previous_projects' => $projects,
             'portfolio'         => $portfolios,
             'video_url'         => $videoUrl,
+            'social_media'      => $socialMedia,
             'registered_at'     => date('Y-m-d H:i:s'),
             'status'            => ($isEditMode && $existingStatus === 'approved') ? 'approved' : 'pending',
         ];
@@ -1036,6 +1072,53 @@ $backHref = $isEditMode
         </div>
       </div>
 
+      <div class="form-divider"></div>
+
+      <!-- BAGIAN 5: MEDIA SOSIAL GIG WORKER -->
+      <div class="form-section-header">
+        <h2 class="form-section-title">5. MEDIA SOSIAL GIG WORKER</h2>
+        <p class="form-section-subtitle">
+          Tautkan akun media sosial Anda (misal: LinkedIn, GitHub, Instagram, Twitter/X, YouTube, TikTok, Behance, Dribbble, atau Website Personal). Anda dapat menambahkan lebih dari satu akun media sosial.
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Tautan / Akun Media Sosial</label>
+        <div id="social-media-container" style="display: flex; flex-direction: column; gap: 12px;">
+          <?php foreach ($currentSocialMedia as $sIdx => $smItem): ?>
+            <?php
+              $pVal = (string)($smItem['platform'] ?? 'LinkedIn');
+              $uVal = (string)($smItem['url'] ?? '');
+            ?>
+            <div class="social-media-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <div style="width: 200px; flex-shrink: 0;">
+                <select name="social_media_platform[]" class="form-select">
+                  <?php
+                    $platforms = ['LinkedIn', 'GitHub', 'Instagram', 'Twitter / X', 'YouTube', 'TikTok', 'Behance', 'Dribbble', 'Website Personal', 'Lainnya'];
+                    foreach ($platforms as $pOpt):
+                  ?>
+                    <option value="<?php echo htmlspecialchars($pOpt, ENT_QUOTES, 'UTF-8'); ?>" <?php echo strcasecmp($pVal, $pOpt) === 0 ? 'selected' : ''; ?>>
+                      <?php echo htmlspecialchars($pOpt, ENT_QUOTES, 'UTF-8'); ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+              </div>
+              <div style="flex: 1; min-width: 220px;">
+                <input type="text" name="social_media_url[]" class="form-input" value="<?php echo htmlspecialchars($uVal, ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://... atau username" />
+              </div>
+              <button type="button" class="btn-remove-social" onclick="removeSocialRow(this)" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 11px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.84rem; flex-shrink: 0;" title="Hapus Media Sosial">
+                Hapus
+              </button>
+            </div>
+          <?php endforeach; ?>
+        </div>
+        <div style="margin-top: 12px;">
+          <button type="button" onclick="addSocialRow()" style="background: #f0f9ff; color: #0284c7; border: 1.5px dashed #0284c7; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 0.86rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            + Tambah Media Sosial
+          </button>
+        </div>
+      </div>
+
       <!-- SUBMIT -->
       <?php if (!$isEditMode): ?>
       <div style="margin-top:24px;padding:14px 16px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;">
@@ -1233,6 +1316,49 @@ $backHref = $isEditMode
       } else {
         const input = rows[0].querySelector('input');
         if (input) input.value = '';
+      }
+    }
+
+    function addSocialRow() {
+      const container = document.getElementById('social-media-container');
+      if (!container) return;
+      const div = document.createElement('div');
+      div.className = 'social-media-row';
+      div.style.cssText = 'display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 12px;';
+      div.innerHTML = `
+        <div style="width: 200px; flex-shrink: 0;">
+          <select name="social_media_platform[]" class="form-select">
+            <option value="LinkedIn" selected>LinkedIn</option>
+            <option value="GitHub">GitHub</option>
+            <option value="Instagram">Instagram</option>
+            <option value="Twitter / X">Twitter / X</option>
+            <option value="YouTube">YouTube</option>
+            <option value="TikTok">TikTok</option>
+            <option value="Behance">Behance</option>
+            <option value="Dribbble">Dribbble</option>
+            <option value="Website Personal">Website Personal</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+        <div style="flex: 1; min-width: 220px;">
+          <input type="text" name="social_media_url[]" class="form-input" placeholder="https://... atau username" />
+        </div>
+        <button type="button" class="btn-remove-social" onclick="removeSocialRow(this)" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 11px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.84rem; flex-shrink: 0;" title="Hapus Media Sosial">
+          Hapus
+        </button>
+      `;
+      container.appendChild(div);
+    }
+
+    function removeSocialRow(btn) {
+      const container = document.getElementById('social-media-container');
+      if (!container) return;
+      const rows = container.querySelectorAll('.social-media-row');
+      if (rows.length > 1) {
+        btn.closest('.social-media-row').remove();
+      } else {
+        const inputs = rows[0].querySelectorAll('input');
+        inputs.forEach(i => i.value = '');
       }
     }
 

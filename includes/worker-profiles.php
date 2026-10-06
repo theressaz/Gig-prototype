@@ -797,6 +797,9 @@ function gig_find_worker(string $id): ?array
             if (!empty($reg['video_url'])) {
                 $profiles[$cleanId]['video_url'] = $reg['video_url'];
             }
+            if (!empty($reg['social_media']) && is_array($reg['social_media'])) {
+                $profiles[$cleanId]['social_media'] = $reg['social_media'];
+            }
         }
         if (!empty($profiles[$cleanId]['experience']) && is_array($profiles[$cleanId]['experience'])) {
             gig_sort_experience_timeline($profiles[$cleanId]['experience']);
@@ -856,6 +859,7 @@ function gig_find_worker(string $id): ?array
             'portfolio' => $reg['portfolio'] ?? [],
             'reviews' => [],
             'video_url' => $reg['video_url'] ?? '',
+            'social_media' => $reg['social_media'] ?? [],
             'proposal' => $reg['profile_summary'] ?? '',
         ];
     }
