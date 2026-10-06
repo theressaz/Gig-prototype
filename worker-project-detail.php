@@ -367,7 +367,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
           </div>
           <div>
             <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Gaji Proyek</div>
-            <strong style="color: #2563eb; font-weight: 800;"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></strong>
+            <strong style="color: #2563eb; font-weight: 800;"><?php echo htmlspecialchars(gig_vacancy_budget_range((string)($job['budget'] ?? '')), ENT_QUOTES, 'UTF-8'); ?></strong>
           </div>
           <div>
             <div style="color: #64748b; font-size: 0.8rem; margin-bottom: 4px;">Estimasi Durasi</div>

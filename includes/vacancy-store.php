@@ -12,7 +12,7 @@ function gig_vacancy_budget_range(string $rawBudget): string
     }
 
     // Keep non-numeric labels such as "Gaji dapat dinegosiasikan".
-    if (preg_match_all('/\d[\d\.]*/', $rawBudget, $m) !== 1 || empty($m[0])) {
+    if (!preg_match_all('/\d[\d\.]*/', $rawBudget, $m) || empty($m[0])) {
         return $rawBudget;
     }
 
