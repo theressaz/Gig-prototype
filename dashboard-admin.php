@@ -733,8 +733,8 @@ require __DIR__ . '/includes/admin-layout-start.php';
           </div>
         </div>
 
-        <div class="project-toolbar" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;">
+        <div class="project-toolbar" style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex:1;">
             <form method="get" class="project-search-form" style="margin:0;">
               <input type="hidden" name="tab" value="projects">
               <input type="hidden" name="state" value="<?php echo htmlspecialchars($state, ENT_QUOTES, 'UTF-8'); ?>">
@@ -742,18 +742,18 @@ require __DIR__ . '/includes/admin-layout-start.php';
               <input type="text" name="q" value="<?php echo htmlspecialchars($searchQ, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Cari lowongan..." />
             </form>
 
-            <div class="entity-pills-group">
-              <a class="entity-pill <?php echo $entityFilter === 'all' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'all'), ENT_QUOTES, 'UTF-8'); ?>">
-                Semua <span class="pill-badge"><?php echo (int)$entityCounts['all']; ?></span>
+            <div class="entity-pills-group" style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <a class="entity-pill <?php echo $entityFilter === 'all' ? 'active' : ''; ?>" style="display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:9999px;font-size:0.86rem;font-weight:700;text-decoration:none;<?php echo $entityFilter === 'all' ? 'background:#ffffff;color:#0284c7;border:1.5px solid #0284c7;box-shadow:0 2px 8px rgba(2,132,199,0.16);' : 'background:#ffffff;color:#475569;border:1.5px solid #e2e8f0;'; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'all'), ENT_QUOTES, 'UTF-8'); ?>">
+                Semua <span class="pill-badge" style="display:inline-flex;align-items:center;justify-content:center;padding:2px 8px;border-radius:9999px;font-size:0.76rem;font-weight:800;<?php echo $entityFilter === 'all' ? 'background:#e0f2fe;color:#0284c7;' : 'background:#f1f5f9;color:#475569;'; ?>"><?php echo (int)$entityCounts['all']; ?></span>
               </a>
-              <a class="entity-pill <?php echo $entityFilter === 'perusahaan' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'perusahaan'), ENT_QUOTES, 'UTF-8'); ?>">
-                Perusahaan <span class="pill-badge"><?php echo (int)$entityCounts['perusahaan']; ?></span>
+              <a class="entity-pill <?php echo $entityFilter === 'perusahaan' ? 'active' : ''; ?>" style="display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:9999px;font-size:0.86rem;font-weight:700;text-decoration:none;<?php echo $entityFilter === 'perusahaan' ? 'background:#ffffff;color:#0284c7;border:1.5px solid #0284c7;box-shadow:0 2px 8px rgba(2,132,199,0.16);' : 'background:#ffffff;color:#475569;border:1.5px solid #e2e8f0;'; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'perusahaan'), ENT_QUOTES, 'UTF-8'); ?>">
+                Perusahaan <span class="pill-badge" style="display:inline-flex;align-items:center;justify-content:center;padding:2px 8px;border-radius:9999px;font-size:0.76rem;font-weight:800;<?php echo $entityFilter === 'perusahaan' ? 'background:#e0f2fe;color:#0284c7;' : 'background:#f1f5f9;color:#475569;'; ?>"><?php echo (int)$entityCounts['perusahaan']; ?></span>
               </a>
-              <a class="entity-pill <?php echo $entityFilter === 'individual' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'individual'), ENT_QUOTES, 'UTF-8'); ?>">
-                Individual <span class="pill-badge"><?php echo (int)$entityCounts['individual']; ?></span>
+              <a class="entity-pill <?php echo $entityFilter === 'individual' ? 'active' : ''; ?>" style="display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:9999px;font-size:0.86rem;font-weight:700;text-decoration:none;<?php echo $entityFilter === 'individual' ? 'background:#ffffff;color:#0284c7;border:1.5px solid #0284c7;box-shadow:0 2px 8px rgba(2,132,199,0.16);' : 'background:#ffffff;color:#475569;border:1.5px solid #e2e8f0;'; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'individual'), ENT_QUOTES, 'UTF-8'); ?>">
+                Individual <span class="pill-badge" style="display:inline-flex;align-items:center;justify-content:center;padding:2px 8px;border-radius:9999px;font-size:0.76rem;font-weight:800;<?php echo $entityFilter === 'individual' ? 'background:#e0f2fe;color:#0284c7;' : 'background:#f1f5f9;color:#475569;'; ?>"><?php echo (int)$entityCounts['individual']; ?></span>
               </a>
-              <a class="entity-pill <?php echo $entityFilter === 'gig_worker' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'gig_worker'), ENT_QUOTES, 'UTF-8'); ?>">
-                Gig Workers <span class="pill-badge"><?php echo (int)$entityCounts['gig_worker']; ?></span>
+              <a class="entity-pill <?php echo $entityFilter === 'gig_worker' ? 'active' : ''; ?>" style="display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:9999px;font-size:0.86rem;font-weight:700;text-decoration:none;<?php echo $entityFilter === 'gig_worker' ? 'background:#ffffff;color:#0284c7;border:1.5px solid #0284c7;box-shadow:0 2px 8px rgba(2,132,199,0.16);' : 'background:#ffffff;color:#475569;border:1.5px solid #e2e8f0;'; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'gig_worker'), ENT_QUOTES, 'UTF-8'); ?>">
+                Gig Workers <span class="pill-badge" style="display:inline-flex;align-items:center;justify-content:center;padding:2px 8px;border-radius:9999px;font-size:0.76rem;font-weight:800;<?php echo $entityFilter === 'gig_worker' ? 'background:#e0f2fe;color:#0284c7;' : 'background:#f1f5f9;color:#475569;'; ?>"><?php echo (int)$entityCounts['gig_worker']; ?></span>
               </a>
             </div>
           </div>
