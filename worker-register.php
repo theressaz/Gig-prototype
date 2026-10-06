@@ -23,6 +23,58 @@ $isEditMode = !empty($_GET['edit']) || $isRegistered;
 $existingReg = gig_get_worker_registration($username);
 $workerProfile = gig_find_worker($username);
 
+function gig_parse_period_to_dates(string $period): array {
+    $monthsMap = [
+        'jan' => 'Januari', 'januari' => 'Januari',
+        'feb' => 'Februari', 'februari' => 'Februari',
+        'mar' => 'Maret', 'maret' => 'Maret',
+        'apr' => 'April', 'april' => 'April',
+        'mei' => 'Mei',
+        'jun' => 'Juni', 'juni' => 'Juni',
+        'jul' => 'Juli', 'juli' => 'Juli',
+        'agu' => 'Agustus', 'agt' => 'Agustus', 'agustus' => 'Agustus',
+        'sep' => 'September', 'september' => 'September',
+        'okt' => 'Oktober', 'oktober' => 'Oktober',
+        'nov' => 'November', 'november' => 'November',
+        'des' => 'Desember', 'desember' => 'Desember'
+    ];
+
+    $startMonth = '';
+    $startYear = '';
+    $endMonth = '';
+    $endYear = '';
+
+    $parts = preg_split('/\s*(?:—|–|-)\s*/u', trim($period));
+    if (isset($parts[0])) {
+        if (preg_match('/([a-z]+)\s*(\d{4})/i', trim($parts[0]), $m)) {
+            $mKey = strtolower($m[1]);
+            $startMonth = $monthsMap[$mKey] ?? ucfirst($m[1]);
+            $startYear = $m[2];
+        } elseif (preg_match('/(\d{4})/', trim($parts[0]), $m)) {
+            $startYear = $m[1];
+        }
+    }
+    if (isset($parts[1])) {
+        if (str_contains(strtolower($parts[1]), 'masih') || str_contains(strtolower($parts[1]), 'sekarang')) {
+            $endMonth = 'Masih Berjalan';
+            $endYear = '';
+        } elseif (preg_match('/([a-z]+)\s*(\d{4})/i', trim($parts[1]), $m)) {
+            $mKey = strtolower($m[1]);
+            $endMonth = $monthsMap[$mKey] ?? ucfirst($m[1]);
+            $endYear = $m[2];
+        } elseif (preg_match('/(\d{4})/', trim($parts[1]), $m)) {
+            $endYear = $m[1];
+        }
+    }
+
+    return [
+        'start_month' => $startMonth,
+        'start_year'  => $startYear,
+        'end_month'   => $endMonth,
+        'end_year'    => $endYear,
+    ];
+}
+
 $currentBidang = $_POST['bidang_keahlian'] ?? ($existingReg['bidang_keahlian'] ?? ($workerProfile['title'] ?? ''));
 $currentSkills = $_POST['skills'] ?? (is_array($existingReg['skills'] ?? null) ? implode(', ', $existingReg['skills']) : ($existingReg['skills'] ?? (is_array($workerProfile['skills'] ?? null) ? implode(', ', $workerProfile['skills']) : '')));
 $currentContactChoice = $_POST['contact_choice'] ?? ($existingReg['contact_choice'] ?? 'siapkerja');
@@ -31,20 +83,64 @@ $currentContactWa = $_POST['contact_wa_new'] ?? ($existingReg['contact_wa'] ?? '
 $currentVideoUrl = $_POST['video_url'] ?? ($existingReg['video_url'] ?? ($workerProfile['video_url'] ?? ''));
 
 $currentPortfolio = !empty($existingReg['portfolio']) && is_array($existingReg['portfolio']) ? $existingReg['portfolio'] : ($workerProfile['portfolio'] ?? []);
+
 $siapkerjaExperienceDefaults = [];
+$skTitlesMap = [];
 if (!empty($siapkerja['pengalaman_siapkerja']) && is_array($siapkerja['pengalaman_siapkerja'])) {
     foreach ($siapkerja['pengalaman_siapkerja'] as $skExp) {
+        $parsedDates = gig_parse_period_to_dates((string)($skExp['period'] ?? ''));
+        $roleStr = (string)($skExp['role'] ?? '');
+        $instStr = (string)($skExp['institution'] ?? '');
+        if ($roleStr !== '') $skTitlesMap[strtolower(trim($roleStr))] = true;
+        if ($instStr !== '') $skTitlesMap[strtolower(trim($instStr))] = true;
+
         $siapkerjaExperienceDefaults[] = [
-            'role' => (string)($skExp['role'] ?? ''),
-            'project' => (string)($skExp['institution'] ?? ''),
-            'period' => (string)($skExp['period'] ?? ''),
-            'summary' => (string)($skExp['summary'] ?? ''),
+            'role'        => $roleStr,
+            'project'     => $instStr,
+            'company'     => $instStr,
+            'period'      => (string)($skExp['period'] ?? ''),
+            'start_month' => $parsedDates['start_month'],
+            'start_year'  => $parsedDates['start_year'],
+            'end_month'   => $parsedDates['end_month'],
+            'end_year'    => $parsedDates['end_year'],
+            'summary'     => (string)($skExp['summary'] ?? ''),
+            'is_siapkerja'=> true,
         ];
     }
 }
-$currentProjects = !empty($existingReg['previous_projects']) && is_array($existingReg['previous_projects'])
+
+$rawProjects = !empty($existingReg['previous_projects']) && is_array($existingReg['previous_projects'])
     ? $existingReg['previous_projects']
     : (!empty($workerProfile['experience']) && is_array($workerProfile['experience']) ? $workerProfile['experience'] : $siapkerjaExperienceDefaults);
+
+$currentProjects = [];
+if (is_array($rawProjects)) {
+    foreach ($rawProjects as $rp) {
+        $role = (string)($rp['role'] ?? '');
+        $comp = (string)($rp['company'] ?? ($rp['project'] ?? ''));
+        $period = (string)($rp['period'] ?? '');
+        $parsed = gig_parse_period_to_dates($period);
+
+        $isSk = !empty($rp['is_siapkerja'])
+            || isset($skTitlesMap[strtolower(trim($role))])
+            || isset($skTitlesMap[strtolower(trim($comp))]);
+
+        $currentProjects[] = [
+            'role'        => $role,
+            'project'     => $comp,
+            'company'     => $comp,
+            'period'      => $period,
+            'start_month' => !empty($rp['start_month']) ? $rp['start_month'] : $parsed['start_month'],
+            'start_year'  => !empty($rp['start_year']) ? $rp['start_year'] : $parsed['start_year'],
+            'end_month'   => !empty($rp['end_month']) ? $rp['end_month'] : $parsed['end_month'],
+            'end_year'    => !empty($rp['end_year']) ? $rp['end_year'] : $parsed['end_year'],
+            'summary'     => $rp['summary'] ?? '',
+            'output_title'=> $rp['output_title'] ?? '',
+            'files'       => $rp['files'] ?? [],
+            'is_siapkerja'=> $isSk,
+        ];
+    }
+}
 if (is_array($currentProjects)) {
     gig_sort_experience_timeline($currentProjects);
 }
@@ -67,6 +163,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
         foreach ($_POST["project_title"] as $idx => $title) {
             $t = trim((string)$title);
             $comp = trim((string)($_POST["project_company"][$idx] ?? ''));
+            $isSk = !empty($_POST["is_siapkerja"][$idx]);
             if ($t !== "" || $comp !== "") {
                 $sMonth = trim((string)($_POST["start_month"][$idx] ?? ''));
                 $sYear = trim((string)($_POST["start_year"][$idx] ?? ''));
@@ -127,6 +224,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
                     'summary'     => $summary,
                     'output_title'=> $portTitle,
                     'files'       => $itemFiles,
+                    'is_siapkerja'=> $isSk,
                 ];
 
                 if (!empty($itemFiles)) {
@@ -652,6 +750,7 @@ $backHref = $isEditMode
               $eYear = $proj['end_year'] ?? '';
               $summary = $proj['summary'] ?? '';
               $outTitle = $proj['output_title'] ?? ($proj['portfolio_title'] ?? '');
+              $isSk = !empty($proj['is_siapkerja']);
               $files = !empty($proj['files']) && is_array($proj['files']) ? $proj['files'] : [];
               if (empty($files) && !empty($proj['url'])) {
                 $files = [['url' => $proj['url']]];
@@ -663,10 +762,16 @@ $backHref = $isEditMode
                 $files = [['url' => '']];
               }
             ?>
-            <div class="dynamic-item" id="proj-item-<?php echo $projIdx; ?>">
+            <div class="dynamic-item" id="proj-item-<?php echo $projIdx; ?>" style="<?php echo $isSk ? 'background:#f8fafc;border:1px solid #cbd5e1;' : ''; ?>">
+              <input type="hidden" name="is_siapkerja[]" value="<?php echo $isSk ? '1' : '0'; ?>" />
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed #cbd5e1;">
-                <strong style="font-size:0.95rem;color:#0f172a;">Pengalaman &amp; Portofolio #<?php echo $projIdx + 1; ?></strong>
-                <?php if ($projIdx > 0): ?>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                  <strong style="font-size:0.95rem;color:#0f172a;">Pengalaman &amp; Portofolio #<?php echo $projIdx + 1; ?></strong>
+                  <?php if ($isSk): ?>
+                    <span class="chip" style="background:#e0f2fe;color:#0369a1;font-size:0.72rem;font-weight:700;padding:2px 9px;border-radius:9999px;border:1px solid #bae6fd;">🔒 Data Terhubung SIAPKerja (Read-Only)</span>
+                  <?php endif; ?>
+                </div>
+                <?php if ($projIdx > 0 && !$isSk): ?>
                   <button type="button" class="btn-remove-item" onclick="document.getElementById('proj-item-<?php echo $projIdx; ?>').remove()">Hapus Pengalaman</button>
                 <?php endif; ?>
               </div>
@@ -674,11 +779,21 @@ $backHref = $isEditMode
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
                 <div class="form-group">
                   <label class="form-label">Nama Pekerjaan / Proyek <span style="color:#ef4444;">*</span></label>
-                  <input type="text" name="project_title[]" class="form-input" value="<?php echo htmlspecialchars((string)$pTitle, ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: Redesign UI/UX Mobile App" required />
+                  <?php if ($isSk): ?>
+                    <input type="text" class="form-input prefill-disabled" value="<?php echo htmlspecialchars((string)$pTitle, ENT_QUOTES, 'UTF-8'); ?>" readonly disabled style="background:#e2e8f0;color:#475569;cursor:not-allowed;font-weight:600;" />
+                    <input type="hidden" name="project_title[]" value="<?php echo htmlspecialchars((string)$pTitle, ENT_QUOTES, 'UTF-8'); ?>" />
+                  <?php else: ?>
+                    <input type="text" name="project_title[]" class="form-input" value="<?php echo htmlspecialchars((string)$pTitle, ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: Redesign UI/UX Mobile App" required />
+                  <?php endif; ?>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Nama Perusahaan <span style="color:#ef4444;">*</span></label>
-                  <input type="text" name="project_company[]" class="form-input" value="<?php echo htmlspecialchars((string)$pCompany, ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: PT Solusi Digital Nusantara" required />
+                  <?php if ($isSk): ?>
+                    <input type="text" class="form-input prefill-disabled" value="<?php echo htmlspecialchars((string)$pCompany, ENT_QUOTES, 'UTF-8'); ?>" readonly disabled style="background:#e2e8f0;color:#475569;cursor:not-allowed;font-weight:600;" />
+                    <input type="hidden" name="project_company[]" value="<?php echo htmlspecialchars((string)$pCompany, ENT_QUOTES, 'UTF-8'); ?>" />
+                  <?php else: ?>
+                    <input type="text" name="project_company[]" class="form-input" value="<?php echo htmlspecialchars((string)$pCompany, ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: PT Solusi Digital Nusantara" required />
+                  <?php endif; ?>
                 </div>
               </div>
 
@@ -686,27 +801,45 @@ $backHref = $isEditMode
                 <div class="form-group">
                   <label class="form-label">Bulan Mulai <span style="color:#ef4444;">*</span></label>
                   <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:8px;">
-                    <select name="start_month[]" class="form-select" required>
-                      <option value="">-- Pilih Bulan --</option>
-                      <?php foreach ($monthsList as $mOpt): ?>
-                        <option value="<?php echo $mOpt; ?>" <?php echo $sMonth === $mOpt ? 'selected' : ''; ?>><?php echo $mOpt; ?></option>
-                      <?php endforeach; ?>
-                    </select>
-                    <input type="text" name="start_year[]" class="form-input" value="<?php echo htmlspecialchars((string)$sYear, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Tahun (2024)" maxlength="4" required />
+                    <?php if ($isSk): ?>
+                      <select class="form-select prefill-disabled" disabled style="background:#e2e8f0;color:#475569;cursor:not-allowed;font-weight:600;">
+                        <option value="<?php echo htmlspecialchars((string)$sMonth, ENT_QUOTES, 'UTF-8'); ?>" selected><?php echo htmlspecialchars((string)($sMonth ?: 'Pilih Bulan'), ENT_QUOTES, 'UTF-8'); ?></option>
+                      </select>
+                      <input type="hidden" name="start_month[]" value="<?php echo htmlspecialchars((string)$sMonth, ENT_QUOTES, 'UTF-8'); ?>" />
+                      <input type="text" class="form-input prefill-disabled" value="<?php echo htmlspecialchars((string)$sYear, ENT_QUOTES, 'UTF-8'); ?>" readonly disabled style="background:#e2e8f0;color:#475569;cursor:not-allowed;font-weight:600;" />
+                      <input type="hidden" name="start_year[]" value="<?php echo htmlspecialchars((string)$sYear, ENT_QUOTES, 'UTF-8'); ?>" />
+                    <?php else: ?>
+                      <select name="start_month[]" class="form-select" required>
+                        <option value="">-- Pilih Bulan --</option>
+                        <?php foreach ($monthsList as $mOpt): ?>
+                          <option value="<?php echo $mOpt; ?>" <?php echo $sMonth === $mOpt ? 'selected' : ''; ?>><?php echo $mOpt; ?></option>
+                        <?php endforeach; ?>
+                      </select>
+                      <input type="text" name="start_year[]" class="form-input" value="<?php echo htmlspecialchars((string)$sYear, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Tahun (2024)" maxlength="4" required />
+                    <?php endif; ?>
                   </div>
                 </div>
 
                 <div class="form-group">
                   <label class="form-label">Bulan Selesai <span style="color:#ef4444;">*</span></label>
                   <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:8px;">
-                    <select name="end_month[]" class="form-select" required>
-                      <option value="">-- Pilih Bulan --</option>
-                      <option value="Masih Berjalan" <?php echo $eMonth === 'Masih Berjalan' ? 'selected' : ''; ?>>Masih Berjalan</option>
-                      <?php foreach ($monthsList as $mOpt): ?>
-                        <option value="<?php echo $mOpt; ?>" <?php echo $eMonth === $mOpt ? 'selected' : ''; ?>><?php echo $mOpt; ?></option>
-                      <?php endforeach; ?>
-                    </select>
-                    <input type="text" name="end_year[]" class="form-input" value="<?php echo htmlspecialchars((string)$eYear, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Tahun (2025)" maxlength="4" required />
+                    <?php if ($isSk): ?>
+                      <select class="form-select prefill-disabled" disabled style="background:#e2e8f0;color:#475569;cursor:not-allowed;font-weight:600;">
+                        <option value="<?php echo htmlspecialchars((string)$eMonth, ENT_QUOTES, 'UTF-8'); ?>" selected><?php echo htmlspecialchars((string)($eMonth ?: 'Pilih Bulan'), ENT_QUOTES, 'UTF-8'); ?></option>
+                      </select>
+                      <input type="hidden" name="end_month[]" value="<?php echo htmlspecialchars((string)$eMonth, ENT_QUOTES, 'UTF-8'); ?>" />
+                      <input type="text" class="form-input prefill-disabled" value="<?php echo htmlspecialchars((string)$eYear, ENT_QUOTES, 'UTF-8'); ?>" readonly disabled style="background:#e2e8f0;color:#475569;cursor:not-allowed;font-weight:600;" />
+                      <input type="hidden" name="end_year[]" value="<?php echo htmlspecialchars((string)$eYear, ENT_QUOTES, 'UTF-8'); ?>" />
+                    <?php else: ?>
+                      <select name="end_month[]" class="form-select" required>
+                        <option value="">-- Pilih Bulan --</option>
+                        <option value="Masih Berjalan" <?php echo $eMonth === 'Masih Berjalan' ? 'selected' : ''; ?>>Masih Berjalan</option>
+                        <?php foreach ($monthsList as $mOpt): ?>
+                          <option value="<?php echo $mOpt; ?>" <?php echo $eMonth === $mOpt ? 'selected' : ''; ?>><?php echo $mOpt; ?></option>
+                        <?php endforeach; ?>
+                      </select>
+                      <input type="text" name="end_year[]" class="form-input" value="<?php echo htmlspecialchars((string)$eYear, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Tahun (2025)" maxlength="4" required />
+                    <?php endif; ?>
                   </div>
                 </div>
               </div>
