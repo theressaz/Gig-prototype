@@ -590,7 +590,7 @@ $backHref = $isEditMode
             gap: 6px;
             background: #eff6ff;
             color: #0284c7;
-            border: 1px dashed #bfdbfe;
+            border: 1px solid #bfdbfe;
             padding: 10px 18px;
             border-radius: 8px;
             font-size: 0.85rem;
@@ -1066,7 +1066,7 @@ $backHref = $isEditMode
           <?php endforeach; ?>
         </div>
         <div style="margin-top: 12px;">
-          <button type="button" onclick="addVideoRow()" style="background: #f0f9ff; color: #0284c7; border: 1.5px dashed #0284c7; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 0.86rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+          <button type="button" onclick="addVideoRow()" style="background: #f0f9ff; color: #0284c7; border: 1px solid #0284c7; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 0.86rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
             + Tambah Link Video Profil
           </button>
         </div>
@@ -1113,7 +1113,7 @@ $backHref = $isEditMode
           <?php endforeach; ?>
         </div>
         <div style="margin-top: 12px;">
-          <button type="button" onclick="addSocialRow()" style="background: #f0f9ff; color: #0284c7; border: 1.5px dashed #0284c7; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 0.86rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+          <button type="button" onclick="addSocialRow()" style="background: #f0f9ff; color: #0284c7; border: 1px solid #0284c7; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 0.86rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
             + Tambah Media Sosial
           </button>
         </div>
