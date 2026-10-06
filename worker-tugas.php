@@ -152,7 +152,10 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
               </div>
             </div>
             <div style="margin-top:8px;">
-              <div style="height:8px;border-radius:9999px;background:#dbeafe;overflow:hidden;">
+              <div style="display:flex;justify-content:flex-end;font-size:0.68rem;font-weight:700;color:#2563eb;margin-bottom:4px;">
+                <span class="c-progress-label">100%</span>
+              </div>
+              <div style="height:8px;border-radius:9999px;background:#ffffff;border:1px solid #bfdbfe;overflow:hidden;">
                 <div class="c-progress-fill" style="height:100%;width:100%;background:linear-gradient(90deg,#3b82f6,#2563eb);border-radius:9999px;transition:width .7s linear;"></div>
               </div>
             </div>
@@ -325,6 +328,7 @@ function closeContactModal() {
       const m = container.querySelector('.c-mins');
       const s = container.querySelector('.c-secs');
       const fill = container.querySelector('.c-progress-fill');
+      const label = container.querySelector('.c-progress-label');
       if (d) d.textContent = String(days);
       if (h) h.textContent = pad(hours);
       if (m) m.textContent = pad(mins);
@@ -340,6 +344,7 @@ function closeContactModal() {
         if (pct < 0) pct = 0;
         if (pct > 100) pct = 100;
         fill.style.width = pct.toFixed(2) + '%';
+        if (label) label.textContent = Math.round(pct) + '%';
       }
     });
   }
