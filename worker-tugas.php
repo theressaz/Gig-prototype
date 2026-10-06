@@ -129,22 +129,32 @@ $activeProjects = gig_worker_ongoing_active_projects($username, $workerEmail);
             <span style="font-size:0.78rem;font-weight:700;color:var(--text-dark);">Countdown Durasi Proyek</span>
             <span style="font-size:0.7rem;color:#475569;font-weight:600;">Tenggat: <?php echo htmlspecialchars((string)$proj['deadline'], ENT_QUOTES, 'UTF-8'); ?></span>
           </div>
-          <div style="display:flex;gap:6px;text-align:center;" class="js-project-countdown" data-deadline="<?php echo htmlspecialchars((string)$proj['deadline_iso'], ENT_QUOTES, 'UTF-8'); ?>" id="countdown-worker-<?php echo (int)$idx; ?>">
-            <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:4px 4px;border-radius:6px;flex:1;">
-              <span class="c-days" style="font-size:1.05rem;font-weight:800;color:#1e293b;display:block;line-height:1.2;"><?php echo (int)$proj['days_left']; ?></span>
-              <span style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Hari</span>
+          <div class="js-project-countdown"
+               data-start="<?php echo htmlspecialchars((new DateTimeImmutable((string)$proj['hired_at']))->format(DateTimeInterface::ATOM), ENT_QUOTES, 'UTF-8'); ?>"
+               data-deadline="<?php echo htmlspecialchars((string)$proj['deadline_iso'], ENT_QUOTES, 'UTF-8'); ?>"
+               id="countdown-worker-<?php echo (int)$idx; ?>">
+            <div style="display:flex;gap:6px;text-align:center;">
+              <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:4px 4px;border-radius:6px;flex:1;">
+                <span class="c-days" style="font-size:1.05rem;font-weight:800;color:#1e293b;display:block;line-height:1.2;"><?php echo (int)$proj['days_left']; ?></span>
+                <span style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Hari</span>
+              </div>
+              <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:4px 4px;border-radius:6px;flex:1;">
+                <span class="c-hours" style="font-size:1.05rem;font-weight:800;color:#1e293b;display:block;line-height:1.2;"><?php echo sprintf('%02d', (int)$proj['hours_left']); ?></span>
+                <span style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Jam</span>
+              </div>
+              <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:4px 4px;border-radius:6px;flex:1;">
+                <span class="c-mins" style="font-size:1.05rem;font-weight:800;color:#1e293b;display:block;line-height:1.2;"><?php echo sprintf('%02d', (int)$proj['mins_left']); ?></span>
+                <span style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Menit</span>
+              </div>
+              <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:4px 4px;border-radius:6px;flex:1;">
+                <span class="c-secs" style="font-size:1.05rem;font-weight:800;color:#2563eb;display:block;line-height:1.2;"><?php echo sprintf('%02d', (int)$proj['secs_left']); ?></span>
+                <span style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Detik</span>
+              </div>
             </div>
-            <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:4px 4px;border-radius:6px;flex:1;">
-              <span class="c-hours" style="font-size:1.05rem;font-weight:800;color:#1e293b;display:block;line-height:1.2;"><?php echo sprintf('%02d', (int)$proj['hours_left']); ?></span>
-              <span style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Jam</span>
-            </div>
-            <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:4px 4px;border-radius:6px;flex:1;">
-              <span class="c-mins" style="font-size:1.05rem;font-weight:800;color:#1e293b;display:block;line-height:1.2;"><?php echo sprintf('%02d', (int)$proj['mins_left']); ?></span>
-              <span style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Menit</span>
-            </div>
-            <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:4px 4px;border-radius:6px;flex:1;">
-              <span class="c-secs" style="font-size:1.05rem;font-weight:800;color:#2563eb;display:block;line-height:1.2;"><?php echo sprintf('%02d', (int)$proj['secs_left']); ?></span>
-              <span style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;">Detik</span>
+            <div style="margin-top:8px;">
+              <div style="height:8px;border-radius:9999px;background:#dbeafe;overflow:hidden;">
+                <div class="c-progress-fill" style="height:100%;width:100%;background:linear-gradient(90deg,#3b82f6,#2563eb);border-radius:9999px;transition:width .7s linear;"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -298,7 +308,9 @@ function closeContactModal() {
   function tick() {
     document.querySelectorAll('.js-project-countdown').forEach(function(container) {
       const iso = container.getAttribute('data-deadline');
+      const startIso = container.getAttribute('data-start');
       if (!iso) return;
+      const start = startIso ? new Date(startIso).getTime() : NaN;
       const end = new Date(iso).getTime();
       let ms = end - Date.now();
       if (ms < 0) ms = 0;
@@ -312,10 +324,23 @@ function closeContactModal() {
       const h = container.querySelector('.c-hours');
       const m = container.querySelector('.c-mins');
       const s = container.querySelector('.c-secs');
+      const fill = container.querySelector('.c-progress-fill');
       if (d) d.textContent = String(days);
       if (h) h.textContent = pad(hours);
       if (m) m.textContent = pad(mins);
       if (s) s.textContent = pad(secs);
+      if (fill) {
+        const total = Number.isFinite(start) && end > start ? (end - start) : 0;
+        let pct = 0;
+        if (total > 0) {
+          pct = (ms / total) * 100;
+        } else if (ms > 0) {
+          pct = 100;
+        }
+        if (pct < 0) pct = 0;
+        if (pct > 100) pct = 100;
+        fill.style.width = pct.toFixed(2) + '%';
+      }
     });
   }
   tick();

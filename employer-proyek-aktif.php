@@ -143,22 +143,32 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <span style="font-size:0.78rem;font-weight:700;color:#0f172a;">Countdown Durasi Proyek</span>
               <span style="font-size:0.7rem;color:#475569;font-weight:600;">Tenggat: <?php echo htmlspecialchars($p1['deadline'], ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
-            <div style="display:flex;gap:6px;text-align:center;" class="js-project-countdown" data-deadline="<?php echo htmlspecialchars($p1['deadline_iso'], ENT_QUOTES, 'UTF-8'); ?>" id="countdown-proj-1">
-              <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
-                <span class="c-days" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo (int)$p1['days_left']; ?></span>
-                <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Hari</span>
+            <div class="js-project-countdown"
+                 data-start="<?php echo htmlspecialchars((new DateTimeImmutable((string)$p1['hired_at']))->format(DateTimeInterface::ATOM), ENT_QUOTES, 'UTF-8'); ?>"
+                 data-deadline="<?php echo htmlspecialchars($p1['deadline_iso'], ENT_QUOTES, 'UTF-8'); ?>"
+                 id="countdown-proj-1">
+              <div style="display:flex;gap:6px;text-align:center;">
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
+                  <span class="c-days" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo (int)$p1['days_left']; ?></span>
+                  <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Hari</span>
+                </div>
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
+                  <span class="c-hours" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p1['hours_left']); ?></span>
+                  <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Jam</span>
+                </div>
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
+                  <span class="c-mins" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p1['mins_left']); ?></span>
+                  <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Menit</span>
+                </div>
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
+                  <span class="c-secs" style="font-size:1.1rem;font-weight:800;color:#2563eb;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p1['secs_left']); ?></span>
+                  <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Detik</span>
+                </div>
               </div>
-              <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
-                <span class="c-hours" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p1['hours_left']); ?></span>
-                <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Jam</span>
-              </div>
-              <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
-                <span class="c-mins" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p1['mins_left']); ?></span>
-                <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Menit</span>
-              </div>
-              <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
-                <span class="c-secs" style="font-size:1.1rem;font-weight:800;color:#2563eb;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p1['secs_left']); ?></span>
-                <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Detik</span>
+              <div style="margin-top:8px;">
+                <div style="height:8px;border-radius:9999px;background:#dbeafe;overflow:hidden;">
+                  <div class="c-progress-fill" style="height:100%;width:100%;background:linear-gradient(90deg,#3b82f6,#2563eb);border-radius:9999px;transition:width .7s linear;"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -318,22 +328,32 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <span style="font-size:0.78rem;font-weight:700;color:#0f172a;">Countdown Durasi Proyek</span>
               <span style="font-size:0.7rem;color:#475569;font-weight:600;">Tenggat: <?php echo htmlspecialchars($p2['deadline'], ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
-            <div style="display:flex;gap:6px;text-align:center;" class="js-project-countdown" data-deadline="<?php echo htmlspecialchars($p2['deadline_iso'], ENT_QUOTES, 'UTF-8'); ?>" id="countdown-proj-2">
-              <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
-                <span class="c-days" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo (int)$p2['days_left']; ?></span>
-                <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Hari</span>
+            <div class="js-project-countdown"
+                 data-start="<?php echo htmlspecialchars((new DateTimeImmutable((string)$p2['hired_at']))->format(DateTimeInterface::ATOM), ENT_QUOTES, 'UTF-8'); ?>"
+                 data-deadline="<?php echo htmlspecialchars($p2['deadline_iso'], ENT_QUOTES, 'UTF-8'); ?>"
+                 id="countdown-proj-2">
+              <div style="display:flex;gap:6px;text-align:center;">
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
+                  <span class="c-days" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo (int)$p2['days_left']; ?></span>
+                  <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Hari</span>
+                </div>
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
+                  <span class="c-hours" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p2['hours_left']); ?></span>
+                  <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Jam</span>
+                </div>
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
+                  <span class="c-mins" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p2['mins_left']); ?></span>
+                  <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Menit</span>
+                </div>
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
+                  <span class="c-secs" style="font-size:1.1rem;font-weight:800;color:#0891b2;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p2['secs_left']); ?></span>
+                  <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Detik</span>
+                </div>
               </div>
-              <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
-                <span class="c-hours" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p2['hours_left']); ?></span>
-                <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Jam</span>
-              </div>
-              <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
-                <span class="c-mins" style="font-size:1.1rem;font-weight:800;color:#0f172a;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p2['mins_left']); ?></span>
-                <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Menit</span>
-              </div>
-              <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:5px 4px;border-radius:8px;flex:1;">
-                <span class="c-secs" style="font-size:1.1rem;font-weight:800;color:#0891b2;display:block;line-height:1.1;"><?php echo sprintf('%02d', (int)$p2['secs_left']); ?></span>
-                <span style="font-size:0.6rem;color:#64748b;text-transform:uppercase;font-weight:700;">Detik</span>
+              <div style="margin-top:8px;">
+                <div style="height:8px;border-radius:9999px;background:#dbeafe;overflow:hidden;">
+                  <div class="c-progress-fill" style="height:100%;width:100%;background:linear-gradient(90deg,#3b82f6,#2563eb);border-radius:9999px;transition:width .7s linear;"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -512,7 +532,9 @@ require __DIR__ . '/includes/employer-layout-start.php';
         function tick() {
           document.querySelectorAll('.js-project-countdown').forEach(function(container) {
             const iso = container.getAttribute('data-deadline');
+            const startIso = container.getAttribute('data-start');
             if (!iso) return;
+            const start = startIso ? new Date(startIso).getTime() : NaN;
             const end = new Date(iso).getTime();
             let ms = end - Date.now();
             if (ms < 0) ms = 0;
@@ -526,10 +548,23 @@ require __DIR__ . '/includes/employer-layout-start.php';
             const h = container.querySelector('.c-hours');
             const m = container.querySelector('.c-mins');
             const s = container.querySelector('.c-secs');
+            const fill = container.querySelector('.c-progress-fill');
             if (d) d.textContent = String(days);
             if (h) h.textContent = pad(hours);
             if (m) m.textContent = pad(mins);
             if (s) s.textContent = pad(secs);
+            if (fill) {
+              const total = Number.isFinite(start) && end > start ? (end - start) : 0;
+              let pct = 0;
+              if (total > 0) {
+                pct = (ms / total) * 100;
+              } else if (ms > 0) {
+                pct = 100;
+              }
+              if (pct < 0) pct = 0;
+              if (pct > 100) pct = 100;
+              fill.style.width = pct.toFixed(2) + '%';
+            }
           });
         }
         tick();
