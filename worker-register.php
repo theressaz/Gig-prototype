@@ -560,7 +560,7 @@ $backHref = $isEditMode
 
       <div class="form-grid-2col" style="margin-top:14px;">
         <div class="form-group">
-          <label class="form-label" for="siap_alamat">Alamat</label>
+          <label class="form-label" for="siap_alamat">Alamat <span style="color:#ef4444;">*</span></label>
           <input type="text" id="siap_alamat" class="form-input prefill-disabled" value="<?php echo htmlspecialchars((string)$siapkerja['lokasi'], ENT_QUOTES, 'UTF-8'); ?>" readonly disabled />
           <span class="form-hint">Alamat terhubung dari akun SIAPKerja.</span>
         </div>

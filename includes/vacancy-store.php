@@ -174,14 +174,19 @@ function gig_vacancy_ensure_schema(?PDO $pdo = null): void
 
 function gig_vacancy_seed_catalog_if_empty(PDO $pdo): void
 {
-    $count = (int)$pdo->query("SELECT COUNT(*) FROM `project_vacancies`")->fetchColumn();
-    if ($count > 0) {
-        return;
+    require_once __DIR__ . '/project-vacancies.php';
+    $baseItems = gig_project_vacancies_base();
+
+    $jobCount = 0;
+    try {
+        $jobCount = (int)$pdo->query("SELECT COUNT(*) FROM `project_vacancies` WHERE `id` LIKE 'JOB-%'")->fetchColumn();
+    } catch (Throwable $e) {
     }
 
-    require_once __DIR__ . '/project-vacancies.php';
-    foreach (gig_project_vacancies_base() as $vacancy) {
-        gig_vacancy_upsert_row($pdo, $vacancy, 'seed', false);
+    if ($jobCount === 0) {
+        foreach ($baseItems as $vacancy) {
+            gig_vacancy_upsert_row($pdo, $vacancy, 'seed', false);
+        }
     }
 }
 
@@ -289,8 +294,27 @@ function gig_vacancy_normalize(array $vacancy): array
         $vacancy['location'] = gig_random_location($idSeed);
     }
 
-    $vacancy['vacancy_type'] = (string)($vacancy['vacancy_type'] ?? 'project');
-    $vacancy['entity_type'] = (string)($vacancy['entity_type'] ?? 'perusahaan');
+    $vacancyType = strtolower((string)($vacancy['vacancy_type'] ?? ''));
+    $entityType  = strtolower((string)($vacancy['entity_type'] ?? ''));
+
+    if ($vacancyType === '') {
+        $id = strtolower((string)($vacancy['id'] ?? ''));
+        $vacancyType = str_starts_with($id, 'job-') ? 'job' : 'project';
+    }
+
+    if ($entityType === '') {
+        $emp = strtolower((string)($vacancy['employer'] ?? ''));
+        if (preg_match('/(pt|cv|inc|corp|ltd|tbk|group|bumn|analytics|solusi|media|infrastruktur|talenta|mutualplus|indo hr|yayasan)/i', $emp)) {
+            $entityType = 'perusahaan';
+        } elseif ($emp !== '') {
+            $entityType = 'individual';
+        } else {
+            $entityType = 'perusahaan';
+        }
+    }
+
+    $vacancy['vacancy_type'] = $vacancyType;
+    $vacancy['entity_type']  = $entityType;
     return $vacancy;
 }
 

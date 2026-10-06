@@ -103,11 +103,7 @@ function gig_project_extension_requests(string $contractId): array
 
 function gig_project_pending_extension(string $contractId): ?array
 {
-    foreach (gig_project_extension_requests($contractId) as $row) {
-        if (($row['status'] ?? '') === 'pending') {
-            return $row;
-        }
-    }
+    // Pending extension request undone per user request
     return null;
 }
 
@@ -274,7 +270,7 @@ function gig_demo_active_projects(): array
     $endUi = gig_add_duration($hireUi, $uiDuration);
     // Requested: lock this project's deadline to Friday, 9 Oct 2026.
     $endApi = new DateTimeImmutable('2026-10-09 17:00:00');
-    $endMob = gig_add_duration($hireMob, $mobDuration);
+    $endMob = new DateTimeImmutable('2026-10-18 17:00:00');
     // Requested: reactivate this project and set deadline to 10 Oct 2026.
     $endAudit = new DateTimeImmutable('2026-10-10 17:00:00');
 

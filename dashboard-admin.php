@@ -725,11 +725,11 @@ require __DIR__ . '/includes/admin-layout-start.php';
         <div class="verify-board-head">
           <h2>Verifikasi Lowongan</h2>
           <div class="verify-status-tabs project-status-tabs">
-            <a class="<?php echo $state === 'all' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'all', $searchQ, $entityFilter), ENT_QUOTES, 'UTF-8'); ?>">Semua <span><?php echo (int)$projectStateCounts['all']; ?></span></a>
-            <a class="<?php echo $state === 'pending' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'pending', $searchQ, $entityFilter), ENT_QUOTES, 'UTF-8'); ?>">Menunggu Verifikasi <span><?php echo (int)$projectStateCounts['pending']; ?></span></a>
-            <a class="<?php echo $state === 'revision' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'revision', $searchQ, $entityFilter), ENT_QUOTES, 'UTF-8'); ?>">Revisi <span><?php echo (int)$projectStateCounts['revision']; ?></span></a>
-            <a class="<?php echo $state === 'approved' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'approved', $searchQ, $entityFilter), ENT_QUOTES, 'UTF-8'); ?>">Disetujui <span><?php echo (int)$projectStateCounts['approved']; ?></span></a>
-            <a class="<?php echo $state === 'rejected' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'rejected', $searchQ, $entityFilter), ENT_QUOTES, 'UTF-8'); ?>">Ditolak <span><?php echo (int)$projectStateCounts['rejected']; ?></span></a>
+            <a class="<?php echo $state === 'all' ? 'active' : ''; ?>" data-state-filter="all" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'all', $searchQ, $entityFilter), ENT_QUOTES, 'UTF-8'); ?>">Semua <span><?php echo (int)$projectStateCounts['all']; ?></span></a>
+            <a class="<?php echo $state === 'pending' ? 'active' : ''; ?>" data-state-filter="pending" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'pending', $searchQ, $entityFilter), ENT_QUOTES, 'UTF-8'); ?>">Menunggu Verifikasi <span><?php echo (int)$projectStateCounts['pending']; ?></span></a>
+            <a class="<?php echo $state === 'revision' ? 'active' : ''; ?>" data-state-filter="revision" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'revision', $searchQ, $entityFilter), ENT_QUOTES, 'UTF-8'); ?>">Revisi <span><?php echo (int)$projectStateCounts['revision']; ?></span></a>
+            <a class="<?php echo $state === 'approved' ? 'active' : ''; ?>" data-state-filter="approved" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'approved', $searchQ, $entityFilter), ENT_QUOTES, 'UTF-8'); ?>">Disetujui <span><?php echo (int)$projectStateCounts['approved']; ?></span></a>
+            <a class="<?php echo $state === 'rejected' ? 'active' : ''; ?>" data-state-filter="rejected" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'rejected', $searchQ, $entityFilter), ENT_QUOTES, 'UTF-8'); ?>">Ditolak <span><?php echo (int)$projectStateCounts['rejected']; ?></span></a>
           </div>
         </div>
 
@@ -743,16 +743,16 @@ require __DIR__ . '/includes/admin-layout-start.php';
             </form>
 
             <div class="entity-pills-group">
-              <a class="entity-pill <?php echo $entityFilter === 'all' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'all'), ENT_QUOTES, 'UTF-8'); ?>">
+              <a class="entity-pill <?php echo $entityFilter === 'all' ? 'active' : ''; ?>" data-entity-filter="all" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'all'), ENT_QUOTES, 'UTF-8'); ?>">
                 Semua <span class="pill-badge"><?php echo (int)$entityCounts['all']; ?></span>
               </a>
-              <a class="entity-pill <?php echo $entityFilter === 'perusahaan' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'perusahaan'), ENT_QUOTES, 'UTF-8'); ?>">
+              <a class="entity-pill <?php echo $entityFilter === 'perusahaan' ? 'active' : ''; ?>" data-entity-filter="perusahaan" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'perusahaan'), ENT_QUOTES, 'UTF-8'); ?>">
                 Perusahaan <span class="pill-badge"><?php echo (int)$entityCounts['perusahaan']; ?></span>
               </a>
-              <a class="entity-pill <?php echo $entityFilter === 'individual' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'individual'), ENT_QUOTES, 'UTF-8'); ?>">
+              <a class="entity-pill <?php echo $entityFilter === 'individual' ? 'active' : ''; ?>" data-entity-filter="individual" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'individual'), ENT_QUOTES, 'UTF-8'); ?>">
                 Individual <span class="pill-badge"><?php echo (int)$entityCounts['individual']; ?></span>
               </a>
-              <a class="entity-pill <?php echo $entityFilter === 'gig_worker' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'gig_worker'), ENT_QUOTES, 'UTF-8'); ?>">
+              <a class="entity-pill <?php echo $entityFilter === 'gig_worker' ? 'active' : ''; ?>" data-entity-filter="gig_worker" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'gig_worker'), ENT_QUOTES, 'UTF-8'); ?>">
                 Gig Workers <span class="pill-badge"><?php echo (int)$entityCounts['gig_worker']; ?></span>
               </a>
             </div>
@@ -919,9 +919,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
           });
 
           statusTabs.forEach(tab => {
-            const href = tab.getAttribute('href') || '';
-            const stateMatch = href.match(/state=([^&]+)/);
-            const tabState = stateMatch ? stateMatch[1] : 'all';
+            const tabState = tab.getAttribute('data-state-filter') || 'all';
             const badge = tab.querySelector('span');
             if (badge && stateCounts[tabState] !== undefined) {
               badge.textContent = stateCounts[tabState];
@@ -934,9 +932,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
           });
 
           entityPills.forEach(pill => {
-            const href = pill.getAttribute('href') || '';
-            const entityMatch = href.match(/entity=([^&]+)/);
-            const pillEntity = entityMatch ? entityMatch[1] : 'all';
+            const pillEntity = pill.getAttribute('data-entity-filter') || 'all';
             const badge = pill.querySelector('.pill-badge');
             if (badge && entityCounts[pillEntity] !== undefined) {
               badge.textContent = entityCounts[pillEntity];
@@ -968,24 +964,16 @@ require __DIR__ . '/includes/admin-layout-start.php';
         statusTabs.forEach(tab => {
           tab.addEventListener('click', function(e) {
             e.preventDefault();
-            const href = this.getAttribute('href') || '';
-            const stateMatch = href.match(/state=([^&]+)/);
-            if (stateMatch) {
-              currentState = stateMatch[1];
-              filterVacancies();
-            }
+            currentState = this.getAttribute('data-state-filter') || 'all';
+            filterVacancies();
           });
         });
 
         entityPills.forEach(pill => {
           pill.addEventListener('click', function(e) {
             e.preventDefault();
-            const href = this.getAttribute('href') || '';
-            const entityMatch = href.match(/entity=([^&]+)/);
-            if (entityMatch) {
-              currentEntity = entityMatch[1];
-              filterVacancies();
-            }
+            currentEntity = this.getAttribute('data-entity-filter') || 'all';
+            filterVacancies();
           });
         });
 
