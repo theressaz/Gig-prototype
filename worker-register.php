@@ -60,84 +60,87 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
     $contactWa = $contactChoice === 'new' ? trim((string)($_POST["contact_wa_new"] ?? "")) : $siapkerja['wa'];
     $videoUrl = trim((string)($_POST["video_url"] ?? ""));
 
-    // Process previous projects
+    // Process previous projects & integrated portfolios
     $projects = [];
+    $portfolios = [];
     if (!empty($_POST["project_title"]) && is_array($_POST["project_title"])) {
         foreach ($_POST["project_title"] as $idx => $title) {
             $t = trim((string)$title);
-            if ($t !== "") {
-                $projects[] = [
-                    'role'    => trim((string)($_POST["project_role"][$idx] ?? $t)),
-                    'project' => $t,
-                    'period'  => trim((string)($_POST["project_period"][$idx] ?? date('Y'))),
-                    'summary' => trim((string)($_POST["project_summary"][$idx] ?? "")),
-                ];
-            }
-        }
-    }
-    // Include SIAPKerja default experience if selected
-    if (!empty($_POST["include_siapkerja_exp"])) {
-        foreach ($siapkerja['pengalaman_siapkerja'] as $skExp) {
-            $projects[] = [
-                'role'    => $skExp['role'],
-                'project' => $skExp['institution'],
-                'period'  => $skExp['period'],
-                'summary' => $skExp['summary'],
-            ];
-        }
-    }
-    gig_sort_experience_timeline($projects);
+            $comp = trim((string)($_POST["project_company"][$idx] ?? ''));
+            if ($t !== "" || $comp !== "") {
+                $sMonth = trim((string)($_POST["start_month"][$idx] ?? ''));
+                $sYear = trim((string)($_POST["start_year"][$idx] ?? ''));
+                $eMonth = trim((string)($_POST["end_month"][$idx] ?? ''));
+                $eYear = trim((string)($_POST["end_year"][$idx] ?? ''));
 
-    // Process portfolios with multiple attached files/links
-    $portfolios = [];
-    if (!empty($_POST["portfolio_title"]) && is_array($_POST["portfolio_title"])) {
-        foreach ($_POST["portfolio_title"] as $idx => $pTitle) {
-            $pt = trim((string)$pTitle);
-            if ($pt !== "") {
+                $startStr = trim($sMonth . ' ' . $sYear);
+                if ($eMonth === 'Masih Berjalan') {
+                    $endStr = 'Masih Berjalan';
+                } else {
+                    $endStr = trim($eMonth . ' ' . $eYear);
+                }
+
+                $period = '';
+                if ($startStr !== '' && $endStr !== '') {
+                    $period = $startStr . ' - ' . $endStr;
+                } elseif ($startStr !== '') {
+                    $period = $startStr;
+                } elseif ($endStr !== '') {
+                    $period = $endStr;
+                } else {
+                    $period = date('Y');
+                }
+
+                $summary = trim((string)($_POST["project_summary"][$idx] ?? ""));
+
                 $itemFiles = [];
                 $urlRows = $_POST["portfolio_file_url"][$idx] ?? [];
-                $nameRows = $_POST["portfolio_file_name"][$idx] ?? [];
-                $typeRows = $_POST["portfolio_file_type"][$idx] ?? [];
                 if (is_array($urlRows)) {
                     foreach ($urlRows as $fIdx => $rawUrl) {
                         $fu = trim((string)$rawUrl);
                         if ($fu === '' || $fu === '#') {
                             continue;
                         }
-                        $fn = trim((string)($nameRows[$fIdx] ?? ''));
-                        $ft = trim((string)($typeRows[$fIdx] ?? 'Dokumen/Link'));
                         $itemFiles[] = [
-                            'name' => $fn !== '' ? $fn : 'Link Deliverable ' . ($fIdx + 1),
-                            'type' => $ft !== '' ? $ft : 'Dokumen/Link',
-                            'size' => 'Akses Web / File',
+                            'name' => 'Link Deliverable ' . ($fIdx + 1),
+                            'type' => 'Dokumen/Link Output Proyek',
+                            'size' => 'Akses Web / Link',
                             'url'  => $fu
                         ];
                     }
                 }
 
-                // Fallback if legacy portfolio_url field was filled
-                if (empty($itemFiles) && !empty($_POST["portfolio_url"][$idx])) {
-                    $fu = trim((string)$_POST["portfolio_url"][$idx]);
-                    if ($fu !== "") {
-                        $itemFiles[] = [
-                            'name' => 'Berkas_Deliverable_Utama',
-                            'type' => trim((string)($_POST["portfolio_type"][$idx] ?? 'Dokumen PDF')),
-                            'size' => 'Akses Web',
-                            'url'  => $fu
-                        ];
-                    }
+                $portTitle = trim((string)($_POST["portfolio_title"][$idx] ?? ""));
+                if ($portTitle === '' && $t !== '') {
+                    $portTitle = 'Output Proyek: ' . $t;
                 }
 
-                $portfolios[] = [
-                    'id'          => 'port-' . uniqid(),
-                    'title'       => $pt,
-                    'type'        => trim((string)($_POST["portfolio_type"][$idx] ?? "Proyek Portfolio")),
-                    'deliverable' => trim((string)($_POST["portfolio_desc"][$idx] ?? "")),
-                    'url'         => !empty($itemFiles[0]['url']) ? $itemFiles[0]['url'] : '',
-                    'client'      => 'Klien Terverifikasi',
-                    'year'        => date('Y'),
-                    'files'       => $itemFiles
+                $projects[] = [
+                    'role'        => $t,
+                    'project'     => $comp !== '' ? $comp : $t,
+                    'company'     => $comp,
+                    'period'      => $period,
+                    'start_month' => $sMonth,
+                    'start_year'  => $sYear,
+                    'end_month'   => $eMonth,
+                    'end_year'    => $eYear,
+                    'summary'     => $summary,
+                    'output_title'=> $portTitle,
+                    'files'       => $itemFiles,
                 ];
+
+                if (!empty($itemFiles)) {
+                    $portfolios[] = [
+                        'id'          => 'port-' . uniqid(),
+                        'title'       => $portTitle !== '' ? $portTitle : ($t . ' Output'),
+                        'type'        => 'Proyek Deliverable',
+                        'deliverable' => $summary,
+                        'url'         => $itemFiles[0]['url'] ?? '',
+                        'client'      => $comp !== '' ? $comp : 'Klien Terverifikasi',
+                        'year'        => $sYear !== '' ? $sYear : date('Y'),
+                        'files'       => $itemFiles
+                    ];
+                }
             }
         }
     }
@@ -621,68 +624,190 @@ $backHref = $isEditMode
 
       <div class="form-divider"></div>
 
-      <!-- BAGIAN 2: PENGALAMAN -->
+      <?php
+        $monthsList = [
+          'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+          'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+      ?>
+
+      <!-- BAGIAN 2: PENGALAMAN & PORTOFOLIO -->
       <div class="form-section-header">
-        <h2 class="form-section-title">2. PENGALAMAN</h2>
-        <p class="form-section-subtitle">Data pengalaman ditarik dari SIAPKerja, dan Anda dapat menambah atau menghapus pengalaman sesuai kebutuhan.</p>
+        <h2 class="form-section-title">2. PENGALAMAN &amp; PORTOFOLIO</h2>
+        <p class="form-section-subtitle">Data pengalaman dan portofolio ditarik dari SIAPKerja. Anda dapat menambah, memperbarui, serta melampirkan hasil karya/portofolio pada tiap pengalaman.</p>
       </div>
 
       <div id="projectContainer">
         <?php if (!empty($currentProjects) && is_array($currentProjects)): ?>
           <?php foreach ($currentProjects as $projIdx => $proj): ?>
+            <?php
+              $pTitle = $proj['role'] ?? ($proj['project'] ?? '');
+              $pCompany = $proj['company'] ?? ($proj['project'] ?? '');
+              if ($pCompany === $pTitle) {
+                $pCompany = $proj['company'] ?? '';
+              }
+              $sMonth = $proj['start_month'] ?? '';
+              $sYear = $proj['start_year'] ?? '';
+              $eMonth = $proj['end_month'] ?? '';
+              $eYear = $proj['end_year'] ?? '';
+              $summary = $proj['summary'] ?? '';
+              $outTitle = $proj['output_title'] ?? ($proj['portfolio_title'] ?? '');
+              $files = !empty($proj['files']) && is_array($proj['files']) ? $proj['files'] : [];
+              if (empty($files) && !empty($proj['url'])) {
+                $files = [['url' => $proj['url']]];
+              }
+              if (empty($files) && isset($currentPortfolio[$projIdx]['files'])) {
+                $files = $currentPortfolio[$projIdx]['files'];
+              }
+              if (empty($files)) {
+                $files = [['url' => '']];
+              }
+            ?>
             <div class="dynamic-item" id="proj-item-<?php echo $projIdx; ?>">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed #cbd5e1;">
-                <strong style="font-size:0.95rem;color:#0f172a;">Pengalaman #<?php echo $projIdx + 1; ?></strong>
+                <strong style="font-size:0.95rem;color:#0f172a;">Pengalaman &amp; Portofolio #<?php echo $projIdx + 1; ?></strong>
                 <?php if ($projIdx > 0): ?>
                   <button type="button" class="btn-remove-item" onclick="document.getElementById('proj-item-<?php echo $projIdx; ?>').remove()">Hapus Pengalaman</button>
                 <?php endif; ?>
               </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
+              
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
                 <div class="form-group">
-                  <label class="form-label">Nama Proyek / Perusahaan</label>
-                  <input type="text" name="project_title[]" class="form-input" value="<?php echo htmlspecialchars((string)($proj['project'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: Portal E-Government" />
+                  <label class="form-label">Nama Pekerjaan / Proyek <span style="color:#ef4444;">*</span></label>
+                  <input type="text" name="project_title[]" class="form-input" value="<?php echo htmlspecialchars((string)$pTitle, ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: Redesign UI/UX Mobile App" required />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Peran / Posisi Anda</label>
-                  <input type="text" name="project_role[]" class="form-input" value="<?php echo htmlspecialchars((string)($proj['role'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: UI Designer / Web Dev" />
+                  <label class="form-label">Nama Perusahaan <span style="color:#ef4444;">*</span></label>
+                  <input type="text" name="project_company[]" class="form-input" value="<?php echo htmlspecialchars((string)$pCompany, ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: PT Solusi Digital Nusantara" required />
                 </div>
               </div>
-              <div style="display:grid;grid-template-columns:1fr 2fr;gap:12px;">
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
                 <div class="form-group">
-                  <label class="form-label">Periode Waktu</label>
-                  <input type="text" name="project_period[]" class="form-input" value="<?php echo htmlspecialchars((string)($proj['period'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: 2025 (6 Bulan)" />
+                  <label class="form-label">Bulan Mulai</label>
+                  <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:8px;">
+                    <select name="start_month[]" class="form-select">
+                      <option value="">-- Pilih Bulan --</option>
+                      <?php foreach ($monthsList as $mOpt): ?>
+                        <option value="<?php echo $mOpt; ?>" <?php echo $sMonth === $mOpt ? 'selected' : ''; ?>><?php echo $mOpt; ?></option>
+                      <?php endforeach; ?>
+                    </select>
+                    <input type="text" name="start_year[]" class="form-input" value="<?php echo htmlspecialchars((string)$sYear, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Tahun (2024)" maxlength="4" />
+                  </div>
                 </div>
+
                 <div class="form-group">
-                  <label class="form-label">Ringkasan Tugas &amp; Hasil</label>
-                  <input type="text" name="project_summary[]" class="form-input" value="<?php echo htmlspecialchars((string)($proj['summary'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" placeholder="Deskripsikan peran dan pencapaian Anda" />
+                  <label class="form-label">Bulan Selesai</label>
+                  <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:8px;">
+                    <select name="end_month[]" class="form-select">
+                      <option value="">-- Pilih Bulan --</option>
+                      <option value="Masih Berjalan" <?php echo $eMonth === 'Masih Berjalan' ? 'selected' : ''; ?>>Masih Berjalan</option>
+                      <?php foreach ($monthsList as $mOpt): ?>
+                        <option value="<?php echo $mOpt; ?>" <?php echo $eMonth === $mOpt ? 'selected' : ''; ?>><?php echo $mOpt; ?></option>
+                      <?php endforeach; ?>
+                    </select>
+                    <input type="text" name="end_year[]" class="form-input" value="<?php echo htmlspecialchars((string)$eYear, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Tahun (2025)" maxlength="4" />
+                  </div>
                 </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:14px;">
+                <label class="form-label">Ringkasan Tugas</label>
+                <textarea name="project_summary[]" class="form-input" rows="3" style="resize:vertical;" placeholder="Deskripsikan peran, tugas, dan hasil pencapaian Anda dalam proyek ini..."><?php echo htmlspecialchars((string)$summary, ENT_QUOTES, 'UTF-8'); ?></textarea>
+              </div>
+
+              <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-top:10px;">
+                <div style="font-size:0.86rem;font-weight:700;color:#0f172a;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;">
+                  <span>📁 Output Proyek / Portofolio</span>
+                  <span style="font-size:0.75rem;color:#64748b;font-weight:500;">Link Figma, GitHub, Google Drive, Dribbble, PDF, dll.</span>
+                </div>
+                <div class="form-group" style="margin-bottom:10px;">
+                  <label class="form-label" style="font-size:0.78rem;">Judul / Nama Output Proyek</label>
+                  <input type="text" name="portfolio_title[<?php echo $projIdx; ?>]" class="form-input" style="font-size:0.85rem;" value="<?php echo htmlspecialchars((string)$outTitle, ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: Wireframe &amp; Design System Figma" />
+                </div>
+                <div id="file-list-<?php echo $projIdx; ?>">
+                  <?php foreach ($files as $fIdx => $f): ?>
+                    <div class="file-item-row" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+                      <input type="url" name="portfolio_file_url[<?php echo $projIdx; ?>][]" class="form-input" style="font-size:0.85rem;flex:1;" value="<?php echo htmlspecialchars((string)($f['url'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://... (Masukkan Tautan Link Output Proyek)" />
+                      <button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;color:#ef4444;font-size:1.2rem;font-weight:bold;cursor:pointer;padding:0 4px;" title="Hapus link ini">&times;</button>
+                    </div>
+                  <?php endforeach; ?>
+                </div>
+                <button type="button" class="btn-add-item" style="font-size:0.78rem;padding:5px 12px;margin-top:4px;" onclick="addFileToPortfolio(<?php echo $projIdx; ?>)">
+                  + Tambah Link Tautan Output Proyek
+                </button>
               </div>
             </div>
           <?php endforeach; ?>
         <?php else: ?>
           <div class="dynamic-item" id="proj-item-0">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed #cbd5e1;">
-              <strong style="font-size:0.95rem;color:#0f172a;">Pengalaman #1</strong>
+              <strong style="font-size:0.95rem;color:#0f172a;">Pengalaman &amp; Portofolio #1</strong>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
+            
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
               <div class="form-group">
-                <label class="form-label">Nama Proyek / Perusahaan</label>
-                <input type="text" name="project_title[]" class="form-input" placeholder="contoh: Portal E-Government" />
+                <label class="form-label">Nama Pekerjaan / Proyek <span style="color:#ef4444;">*</span></label>
+                <input type="text" name="project_title[]" class="form-input" placeholder="contoh: Redesign UI/UX Mobile App" required />
               </div>
               <div class="form-group">
-                <label class="form-label">Peran / Posisi Anda</label>
-                <input type="text" name="project_role[]" class="form-input" placeholder="contoh: UI Designer / Web Dev" />
+                <label class="form-label">Nama Perusahaan <span style="color:#ef4444;">*</span></label>
+                <input type="text" name="project_company[]" class="form-input" placeholder="contoh: PT Solusi Digital Nusantara" required />
               </div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 2fr;gap:12px;">
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
               <div class="form-group">
-                <label class="form-label">Periode Waktu</label>
-                <input type="text" name="project_period[]" class="form-input" placeholder="contoh: 2025 (6 Bulan)" />
+                <label class="form-label">Bulan Mulai</label>
+                <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:8px;">
+                  <select name="start_month[]" class="form-select">
+                    <option value="">-- Pilih Bulan --</option>
+                    <?php foreach ($monthsList as $mOpt): ?>
+                      <option value="<?php echo $mOpt; ?>"><?php echo $mOpt; ?></option>
+                    <?php endforeach; ?>
+                  </select>
+                  <input type="text" name="start_year[]" class="form-input" placeholder="Tahun (2024)" maxlength="4" />
+                </div>
               </div>
+
               <div class="form-group">
-                <label class="form-label">Ringkasan Tugas &amp; Hasil</label>
-                <input type="text" name="project_summary[]" class="form-input" placeholder="Deskripsikan peran dan pencapaian Anda" />
+                <label class="form-label">Bulan Selesai</label>
+                <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:8px;">
+                  <select name="end_month[]" class="form-select">
+                    <option value="">-- Pilih Bulan --</option>
+                    <option value="Masih Berjalan">Masih Berjalan</option>
+                    <?php foreach ($monthsList as $mOpt): ?>
+                      <option value="<?php echo $mOpt; ?>"><?php echo $mOpt; ?></option>
+                    <?php endforeach; ?>
+                  </select>
+                  <input type="text" name="end_year[]" class="form-input" placeholder="Tahun (2025)" maxlength="4" />
+                </div>
               </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Ringkasan Tugas</label>
+              <textarea name="project_summary[]" class="form-input" rows="3" style="resize:vertical;" placeholder="Deskripsikan peran, tugas, dan hasil pencapaian Anda dalam proyek ini..."></textarea>
+            </div>
+
+            <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-top:10px;">
+              <div style="font-size:0.86rem;font-weight:700;color:#0f172a;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;">
+                <span>📁 Output Proyek / Portofolio</span>
+                <span style="font-size:0.75rem;color:#64748b;font-weight:500;">Link Figma, GitHub, Google Drive, Dribbble, PDF, dll.</span>
+              </div>
+              <div class="form-group" style="margin-bottom:10px;">
+                <label class="form-label" style="font-size:0.78rem;">Judul / Nama Output Proyek</label>
+                <input type="text" name="portfolio_title[0]" class="form-input" style="font-size:0.85rem;" placeholder="contoh: Prototype Figma / Repositori GitHub" />
+              </div>
+              <div id="file-list-0">
+                <div class="file-item-row" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+                  <input type="url" name="portfolio_file_url[0][]" class="form-input" style="font-size:0.85rem;flex:1;" placeholder="https://... (Masukkan Tautan Link Output Proyek)" />
+                  <button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;color:#ef4444;font-size:1.2rem;font-weight:bold;cursor:pointer;padding:0 4px;" title="Hapus link ini">&times;</button>
+                </div>
+              </div>
+              <button type="button" class="btn-add-item" style="font-size:0.78rem;padding:5px 12px;margin-top:4px;" onclick="addFileToPortfolio(0)">
+                + Tambah Link Tautan Output Proyek
+              </button>
             </div>
           </div>
         <?php endif; ?>
@@ -734,121 +859,9 @@ $backHref = $isEditMode
 
       <div class="form-divider"></div>
 
-      <!-- BAGIAN 4: PORTOFOLIO -->
+      <!-- BAGIAN 4: LINK VIDEO PROFIL -->
       <div class="form-section-header">
-        <h2 class="form-section-title">4. PORTOFOLIO HASIL PEKERJAAN</h2>
-        <p class="form-section-subtitle">
-          Tampilkan contoh hasil proyek terbaik Anda (link berkas, desain Figma, atau repositori code) agar calon Pemberi Kerja dapat menilai kualitas kerja Anda.
-        </p>
-      </div>
-
-      <div id="portfolioContainer">
-        <?php if (!empty($currentPortfolio) && is_array($currentPortfolio)): ?>
-          <?php foreach ($currentPortfolio as $pIdx => $pItem): ?>
-            <div class="dynamic-item" id="port-item-<?php echo $pIdx; ?>">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed #cbd5e1;">
-                <strong style="font-size: 0.95rem; color: #0f172a;">Portofolio #<?php echo $pIdx + 1; ?></strong>
-                <?php if ($pIdx > 0): ?>
-                  <button type="button" class="btn-remove-item" onclick="document.getElementById('port-item-<?php echo $pIdx; ?>').remove()">Hapus Portofolio</button>
-                <?php endif; ?>
-              </div>
-
-              <div class="form-grid-2col" style="margin-bottom: 12px;">
-                <div class="form-group">
-                  <label class="form-label">Judul Portofolio <span style="color:#ef4444;">*</span></label>
-                  <input type="text" name="portfolio_title[]" class="form-input" value="<?php echo htmlspecialchars($pItem['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: Redesign Mobile App E-Commerce" required />
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Tipe / Kategori Deliverable <span style="color:#ef4444;">*</span></label>
-                  <input type="text" name="portfolio_type[]" class="form-input" value="<?php echo htmlspecialchars($pItem['type'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: Figma UI Kit / Web Prototype" required />
-                </div>
-              </div>
-
-              <div class="form-group" style="margin-bottom: 14px;">
-                <label class="form-label">Deskripsi Singkat Portofolio</label>
-                <input type="text" name="portfolio_desc[]" class="form-input" value="<?php echo htmlspecialchars($pItem['deliverable'] ?? ($pItem['desc'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" placeholder="Ringkasan deliverable dan peran Anda" />
-              </div>
-
-              <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-top: 10px;">
-                <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-                  <span>🔗 Tautan Link Portofolio / Deliverable</span>
-                  <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">Link Figma, GitHub, Google Drive, Dribbble, Video, dll.</span>
-                </div>
-
-                <div id="file-list-<?php echo $pIdx; ?>">
-                  <?php 
-                    $files = !empty($pItem['files']) && is_array($pItem['files']) ? $pItem['files'] : [];
-                    if (empty($files) && !empty($pItem['url'])) {
-                        $files = [['url' => $pItem['url']]];
-                    }
-                    if (empty($files)) {
-                        $files = [['url' => '']];
-                    }
-                  ?>
-                  <?php foreach ($files as $fIdx => $f): ?>
-                    <div class="file-item-row" style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
-                      <input type="url" name="portfolio_file_url[<?php echo $pIdx; ?>][]" class="form-input" style="font-size:0.85rem; flex:1;" value="<?php echo htmlspecialchars($f['url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://... (Masukkan Tautan Link Deliverable)" />
-                      <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer; padding:0 4px;" title="Hapus link ini">&times;</button>
-                    </div>
-                  <?php endforeach; ?>
-                </div>
-
-                <button type="button" class="btn-add-item" style="font-size: 0.78rem; padding: 5px 12px; margin-top: 4px;" onclick="addFileToPortfolio(<?php echo $pIdx; ?>)">
-                  + Tambah Link Tautan Lainnya
-                </button>
-              </div>
-            </div>
-          <?php endforeach; ?>
-        <?php else: ?>
-          <div class="dynamic-item" id="port-item-0">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed #cbd5e1;">
-              <strong style="font-size: 0.95rem; color: #0f172a;">Portofolio #1</strong>
-            </div>
-            <div class="form-grid-2col" style="margin-bottom: 12px;">
-              <div class="form-group">
-                <label class="form-label">Judul Portofolio <span style="color:#ef4444;">*</span></label>
-                <input type="text" name="portfolio_title[]" class="form-input" placeholder="contoh: Redesign Mobile App E-Commerce" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Tipe / Kategori Deliverable <span style="color:#ef4444;">*</span></label>
-                <input type="text" name="portfolio_type[]" class="form-input" placeholder="contoh: Figma UI Kit / Web Prototype" required />
-              </div>
-            </div>
-            <div class="form-group" style="margin-bottom: 14px;">
-              <label class="form-label">Deskripsi Singkat Portofolio</label>
-              <input type="text" name="portfolio_desc[]" class="form-input" placeholder="Ringkasan deliverable dan peran Anda" />
-            </div>
-
-            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-top: 10px;">
-              <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-                <span>🔗 Tautan Link Portofolio / Deliverable</span>
-                <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">Link Figma, GitHub, Google Drive, Dribbble, Video, dll.</span>
-              </div>
-
-              <div id="file-list-0">
-                <div class="file-item-row" style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
-                  <input type="url" name="portfolio_file_url[0][]" class="form-input" style="font-size:0.85rem; flex:1;" placeholder="https://... (Masukkan Tautan Link Deliverable)" />
-                  <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer; padding:0 4px;" title="Hapus link ini">&times;</button>
-                </div>
-              </div>
-
-              <button type="button" class="btn-add-item" style="font-size: 0.78rem; padding: 5px 12px; margin-top: 4px;" onclick="addFileToPortfolio(0)">
-                + Tambah Link Tautan Lainnya
-              </button>
-            </div>
-          </div>
-        <?php endif; ?>
-      </div>
-
-      <button type="button" class="btn-add-item" onclick="addPortfolioItem()" style="margin-top: 8px; align-self: flex-start;">
-        + Tambah Portofolio
-      </button>
-
-      <div class="form-divider"></div>
-
-      <!-- BAGIAN 5: LINK VIDEO PROFIL -->
-      <div class="form-section-header">
-        <h2 class="form-section-title">5. LINK VIDEO PROFIL GIG WORKER</h2>
+        <h2 class="form-section-title">4. LINK VIDEO PROFIL GIG WORKER</h2>
         <p class="form-section-subtitle">
           Sampaikan perkenalan singkat diri dan keahlian Anda melalui video (misal: YouTube, Loom, atau Google Drive Video).
         </p>
@@ -899,79 +912,103 @@ $backHref = $isEditMode
     }
 
     let projectCount = <?php echo max(1, is_array($currentProjects) ? count($currentProjects) : 1); ?>;
+    const monthsOptionsHtml = `
+      <option value="">-- Pilih Bulan --</option>
+      <option value="Januari">Januari</option>
+      <option value="Februari">Februari</option>
+      <option value="Maret">Maret</option>
+      <option value="April">April</option>
+      <option value="Mei">Mei</option>
+      <option value="Juni">Juni</option>
+      <option value="Juli">Juli</option>
+      <option value="Agustus">Agustus</option>
+      <option value="September">September</option>
+      <option value="Oktober">Oktober</option>
+      <option value="November">November</option>
+      <option value="Desember">Desember</option>
+    `;
+
     function addProjectItem() {
+      const pIdx = projectCount;
       projectCount++;
       const container = document.getElementById('projectContainer');
       const div = document.createElement('div');
       div.className = 'dynamic-item';
-      div.id = 'proj-item-' + projectCount;
+      div.id = 'proj-item-' + pIdx;
       div.innerHTML = `
-        <button type="button" class="btn-remove-item" onclick="document.getElementById('proj-item-${projectCount}').remove()">Hapus</button>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed #cbd5e1;">
+          <strong style="font-size:0.95rem;color:#0f172a;">Pengalaman & Portofolio #${pIdx + 1}</strong>
+          <button type="button" class="btn-remove-item" onclick="document.getElementById('proj-item-${pIdx}').remove()">Hapus Pengalaman</button>
+        </div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
           <div class="form-group">
-            <label class="form-label">Nama Proyek / Perusahaan</label>
-            <input type="text" name="project_title[]" class="form-input" placeholder="contoh: Portal E-Government" required />
+            <label class="form-label">Nama Pekerjaan / Proyek <span style="color:#ef4444;">*</span></label>
+            <input type="text" name="project_title[]" class="form-input" placeholder="contoh: Redesign UI/UX Mobile App" required />
           </div>
           <div class="form-group">
-            <label class="form-label">Peran / Posisi Anda</label>
-            <input type="text" name="project_role[]" class="form-input" placeholder="contoh: UI Designer / Web Dev" />
+            <label class="form-label">Nama Perusahaan <span style="color:#ef4444;">*</span></label>
+            <input type="text" name="project_company[]" class="form-input" placeholder="contoh: PT Solusi Digital Nusantara" required />
           </div>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 12px;">
-          <div class="form-group">
-            <label class="form-label">Periode Waktu</label>
-            <input type="text" name="project_period[]" class="form-input" placeholder="contoh: 2025 (6 Bulan)" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Ringkasan Tugas & Hasil</label>
-            <input type="text" name="project_summary[]" class="form-input" placeholder="Deskripsikan peran dan pencapaian Anda" />
-          </div>
-        </div>
-      `;
-      container.appendChild(div);
-    }
 
-    let portfolioCount = <?php echo !empty($currentPortfolio) && is_array($currentPortfolio) ? count($currentPortfolio) : 1; ?>;
-
-    function addPortfolioItem() {
-      const pIdx = portfolioCount;
-      portfolioCount++;
-      const container = document.getElementById('portfolioContainer');
-      const div = document.createElement('div');
-      div.className = 'dynamic-item';
-      div.id = 'port-item-' + pIdx;
-      div.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed var(--border-subtle);">
-          <strong style="font-size: 0.95rem; color: var(--kemnaker-navy);">Portofolio #${pIdx + 1}</strong>
-          <button type="button" class="btn-remove-item" onclick="document.getElementById('port-item-${pIdx}').remove()">Hapus Portofolio</button>
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
           <div class="form-group">
-            <label class="form-label">Judul Portofolio <span style="color:#ef4444;">*</span></label>
-            <input type="text" name="portfolio_title[]" class="form-input" placeholder="contoh: Web App Dashboard" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Tipe / Kategori Deliverable <span style="color:#ef4444;">*</span></label>
-            <input type="text" name="portfolio_type[]" class="form-input" placeholder="contoh: React Code / Figma Spec" required />
-          </div>
-        </div>
-        <div class="form-group" style="margin-bottom: 14px;">
-          <label class="form-label">Deskripsi Singkat Portofolio</label>
-          <input type="text" name="portfolio_desc[]" class="form-input" placeholder="Ringkasan deliverable dan fitur utama" />
-        </div>
-        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 14px; margin-top: 10px;">
-          <div style="font-size: 0.85rem; font-weight: 700; color: var(--kemnaker-navy); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-            <span>🔗 Link / Tautan File Deliverable</span>
-            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Link Figma, GitHub, Google Drive, Dribbble, Video, dll.</span>
-          </div>
-          <div id="file-list-${pIdx}">
-            <div class="file-item-row" style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
-              <input type="url" name="portfolio_file_url[${pIdx}][]" class="form-input" style="font-size:0.85rem; flex:1;" placeholder="https://... (Masukkan Tautan Link Deliverable)" />
-              <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:1.2rem; font-weight:bold; cursor:pointer; padding:0 4px;" title="Hapus link ini">&times;</button>
+            <label class="form-label">Bulan Mulai</label>
+            <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:8px;">
+              <select name="start_month[]" class="form-select">
+                ${monthsOptionsHtml}
+              </select>
+              <input type="text" name="start_year[]" class="form-input" placeholder="Tahun (2024)" maxlength="4" />
             </div>
           </div>
-          <button type="button" class="btn-add-item" style="font-size: 0.78rem; padding: 5px 12px; margin-top: 4px; background: #eff6ff; color: var(--primary-blue); border: 1px dashed var(--primary-blue);" onclick="addFileToPortfolio(${pIdx})">
-            + Tambah Link Tautan Lainnya
+
+          <div class="form-group">
+            <label class="form-label">Bulan Selesai</label>
+            <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:8px;">
+              <select name="end_month[]" class="form-select">
+                <option value="">-- Pilih Bulan --</option>
+                <option value="Masih Berjalan">Masih Berjalan</option>
+                <option value="Januari">Januari</option>
+                <option value="Februari">Februari</option>
+                <option value="Maret">Maret</option>
+                <option value="April">April</option>
+                <option value="Mei">Mei</option>
+                <option value="Juni">Juni</option>
+                <option value="Juli">Juli</option>
+                <option value="Agustus">Agustus</option>
+                <option value="September">September</option>
+                <option value="Oktober">Oktober</option>
+                <option value="November">November</option>
+                <option value="Desember">Desember</option>
+              </select>
+              <input type="text" name="end_year[]" class="form-input" placeholder="Tahun (2025)" maxlength="4" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label">Ringkasan Tugas</label>
+          <textarea name="project_summary[]" class="form-input" rows="3" style="resize:vertical;" placeholder="Deskripsikan peran, tugas, dan hasil pencapaian Anda dalam proyek ini..."></textarea>
+        </div>
+
+        <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-top:10px;">
+          <div style="font-size:0.86rem;font-weight:700;color:#0f172a;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;">
+            <span>📁 Output Proyek / Portofolio</span>
+            <span style="font-size:0.75rem;color:#64748b;font-weight:500;">Link Figma, GitHub, Google Drive, Dribbble, PDF, dll.</span>
+          </div>
+          <div class="form-group" style="margin-bottom:10px;">
+            <label class="form-label" style="font-size:0.78rem;">Judul / Nama Output Proyek</label>
+            <input type="text" name="portfolio_title[${pIdx}]" class="form-input" style="font-size:0.85rem;" placeholder="contoh: Prototype Figma / Repositori GitHub" />
+          </div>
+          <div id="file-list-${pIdx}">
+            <div class="file-item-row" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+              <input type="url" name="portfolio_file_url[${pIdx}][]" class="form-input" style="font-size:0.85rem;flex:1;" placeholder="https://... (Masukkan Tautan Link Output Proyek)" />
+              <button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;color:#ef4444;font-size:1.2rem;font-weight:bold;cursor:pointer;padding:0 4px;" title="Hapus link ini">&times;</button>
+            </div>
+          </div>
+          <button type="button" class="btn-add-item" style="font-size:0.78rem;padding:5px 12px;margin-top:4px;" onclick="addFileToPortfolio(${pIdx})">
+            + Tambah Link Tautan Output Proyek
           </button>
         </div>
       `;
