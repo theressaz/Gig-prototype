@@ -134,12 +134,33 @@ $lanes = [
 foreach ($jobApplications as $app) {
     $status = (string)($app['status'] ?? 'applied');
     $lane = $statusToLane[$status] ?? 'incoming';
-    $workerId = strtolower(trim((string)($app['worker_id'] ?? '')));
+    $workerIdRaw = trim((string)($app['worker_id'] ?? ''));
     $workerName = strtolower(trim((string)($app['worker_name'] ?? '')));
-    $profile = $workerById[$workerId]
-        ?? $workerByEmail[$workerId]
+    
+    $profile = gig_find_worker($workerIdRaw)
+        ?? $workerById[strtolower($workerIdRaw)]
+        ?? $workerByEmail[strtolower($workerIdRaw)]
         ?? $workerByName[$workerName]
         ?? null;
+
+    if ($profile === null) {
+        $profile = [
+            'id' => $workerIdRaw !== '' ? $workerIdRaw : 'tessa',
+            'name' => (string)($app['worker_name'] ?? 'Gig Worker'),
+            'title' => 'Gig Worker',
+            'location' => 'Lokasi belum diisi',
+            'rating' => 5.0,
+            'reviews_count' => 0,
+            'completed_projects' => 0,
+            'skills' => [],
+            'proposal' => 'Gig Worker belum menambahkan deskripsi diri.',
+            'contact' => ['wa' => '', 'email' => ''],
+            'experience' => [],
+            'portfolio' => [],
+            'reviews' => [],
+            'category' => 'general',
+        ];
+    }
 
     $statusUi = match ($status) {
         'reviewing' => 'reviewing',
@@ -158,48 +179,6 @@ foreach ($jobApplications as $app) {
     };
     $appliedAt = trim((string)($app['created_at'] ?? ''));
     $appliedLabel = $appliedAt !== '' ? date('d M Y', strtotime($appliedAt)) : '-';
-    $about = trim((string)($profile['proposal'] ?? ''));
-    if ($about === '') {
-        $about = 'Gig Worker belum menambahkan deskripsi diri.';
-    }
-    $tags = implode(', ', array_slice((array)($profile['skills'] ?? []), 0, 3));
-    if ($tags === '') {
-        $tags = 'Belum ada tag seleksi';
-    }
-    $resumeUrl = '#';
-    if (!empty($profile['portfolio'][0]['files'][0]['url'])) {
-        $resumeUrl = (string)$profile['portfolio'][0]['files'][0]['url'];
-    }
-    $portfolioRows = [];
-    foreach (array_slice((array)($profile['portfolio'] ?? []), 0, 3) as $pf) {
-        $pt = trim((string)($pf['title'] ?? ''));
-        $pc = trim((string)($pf['client'] ?? ''));
-        if ($pt !== '') {
-            $portfolioRows[] = $pt . ($pc !== '' ? (' - ' . $pc) : '');
-        }
-    }
-    $portfolioSummary = implode(' || ', $portfolioRows);
-    $expRows = [];
-    foreach (array_slice((array)($profile['experience'] ?? []), 0, 3) as $exp) {
-        $period = trim((string)($exp['period'] ?? ''));
-        $role = trim((string)($exp['role'] ?? ''));
-        $inst = trim((string)($exp['institution'] ?? $exp['project'] ?? ''));
-        $line = trim(($period !== '' ? ($period . ' - ') : '') . $role . ($inst !== '' ? (' (' . $inst . ')') : ''));
-        if ($line !== '') {
-            $expRows[] = $line;
-        }
-    }
-    $experienceSummary = implode(' || ', $expRows);
-    $titleInfo = trim((string)($profile['title'] ?? 'Gig Worker'));
-    $projectsInfo = (string)($profile['completed_projects'] ?? 0) . ' proyek selesai';
-    $reviewsInfo = (string)($profile['reviews_count'] ?? 0) . ' ulasan';
-    $bidangMap = [
-        'ui-ux' => 'UI/UX & Desain',
-        'backend' => 'IT & Pemrograman',
-        'marketing' => 'Pemasaran & Konten',
-        'general' => 'Gig Worker Professional',
-    ];
-    $bidangLabel = $bidangMap[(string)($profile['category'] ?? 'general')] ?? $titleInfo;
     $contactUnlocked = gig_is_hired_status($status);
 
     $lanes[$lane][] = [
@@ -209,24 +188,12 @@ foreach ($jobApplications as $app) {
         'title' => (string)($profile['title'] ?? 'Gig Worker'),
         'location' => (string)($profile['location'] ?? 'Lokasi belum diisi'),
         'rating' => (float)($profile['rating'] ?? 0),
-        'bid' => (string)($app['bid_amount'] ?? $job['budget'] ?? '-'),
         'status' => $status,
         'status_ui' => $statusUi,
         'status_text' => $statusText,
         'applied_label' => $appliedLabel,
-        'about' => $about,
-        'tags' => $tags,
-        'resume_url' => $resumeUrl,
-        'contact_email' => (string)($profile['contact']['email'] ?? ''),
-        'contact_wa' => (string)($profile['contact']['wa'] ?? ''),
         'contact_unlocked' => $contactUnlocked ? '1' : '0',
-        'bidang_label' => $bidangLabel,
-        'portfolio_lines' => $portfolioSummary,
-        'title_info' => $titleInfo,
-        'projects_info' => $projectsInfo,
-        'reviews_info' => $reviewsInfo,
-        'experience_lines' => $experienceSummary,
-        'activity_note' => (string)($profile['experience'][0]['summary'] ?? 'Belum ada aktivitas terbaru.'),
+        'profile' => $profile,
     ];
 }
 
@@ -347,23 +314,11 @@ require __DIR__ . '/includes/employer-layout-start.php';
                 data-worker-id="<?php echo htmlspecialchars($c['worker_id'], ENT_QUOTES, 'UTF-8'); ?>"
                 data-name="<?php echo htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8'); ?>"
                 data-title="<?php echo htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-location="<?php echo htmlspecialchars($c['location'], ENT_QUOTES, 'UTF-8'); ?>"
                 data-status-text="<?php echo htmlspecialchars($c['status_text'], ENT_QUOTES, 'UTF-8'); ?>"
                 data-status-ui="<?php echo htmlspecialchars($c['status_ui'], ENT_QUOTES, 'UTF-8'); ?>"
                 data-applied="<?php echo htmlspecialchars($c['applied_label'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-about="<?php echo htmlspecialchars($c['about'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-tags="<?php echo htmlspecialchars($c['tags'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-resume="<?php echo htmlspecialchars($c['resume_url'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-contact-email="<?php echo htmlspecialchars($c['contact_email'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-contact-wa="<?php echo htmlspecialchars($c['contact_wa'], ENT_QUOTES, 'UTF-8'); ?>"
                 data-contact-unlocked="<?php echo htmlspecialchars($c['contact_unlocked'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-bidang-label="<?php echo htmlspecialchars($c['bidang_label'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-portfolio-lines="<?php echo htmlspecialchars($c['portfolio_lines'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-title-info="<?php echo htmlspecialchars($c['title_info'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-projects-info="<?php echo htmlspecialchars($c['projects_info'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-reviews-info="<?php echo htmlspecialchars($c['reviews_info'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-experience-lines="<?php echo htmlspecialchars($c['experience_lines'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-activity="<?php echo htmlspecialchars($c['activity_note'], ENT_QUOTES, 'UTF-8'); ?>"
+                data-profile-json="<?php echo htmlspecialchars(json_encode($c['profile'], JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8'); ?>"
               >
                 <div class="jobd-card-name"><?php echo htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8'); ?></div>
                 <div class="jobd-card-sub"><?php echo htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8'); ?></div>
@@ -398,19 +353,24 @@ require __DIR__ . '/includes/employer-layout-start.php';
 <div id="candidateOverlay" class="cand-overlay" onclick="closeCandidateDrawer()"></div>
 <aside id="candidateDrawer" class="cand-drawer" aria-hidden="true">
   <div class="cand-head">
-    <div style="display:flex;gap:10px;align-items:flex-start;">
-      <div id="candAvatar" style="width:48px;height:48px;border-radius:9999px;background:#1d4ed8;color:#fff;font-weight:800;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">G</div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div id="candAvatar" style="width:44px;height:44px;border-radius:9999px;background:#2563eb;color:#fff;font-weight:800;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">G</div>
       <div>
-        <div id="candName" style="font-size:1.02rem;font-weight:800;color:#0f172a;">Nama Gig Worker</div>
-        <div style="font-size:0.8rem;color:#64748b;">Mendaftar: <span id="candApplied">-</span></div>
-        <div style="font-size:0.8rem;color:#64748b;">Status: <span id="candStatusText" style="font-weight:800;color:#ea580c;">Lamaran Masuk</span></div>
+        <div id="candName" style="font-size:1rem;font-weight:800;color:#0f172a;">Nama Gig Worker</div>
+        <div style="font-size:0.78rem;color:#64748b;">Mendaftar: <span id="candApplied">-</span> · Status: <span id="candStatusText" style="font-weight:800;color:#ea580c;">Lamaran Masuk</span></div>
       </div>
     </div>
-    <button type="button" class="cand-close" onclick="closeCandidateDrawer()">✕</button>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <a id="candFullProfileBtn" href="#" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;font-size:0.76rem;font-weight:700;text-decoration:none;">
+        <span>Profil Lengkap</span> ↗
+      </a>
+      <button type="button" class="cand-close" onclick="closeCandidateDrawer()">✕</button>
+    </div>
   </div>
+
   <div class="cand-body">
     <div class="cand-row"><div class="cand-label">📍 Lokasi</div><div id="candLocation" class="cand-value">-</div></div>
-    <div class="cand-row"><div class="cand-label">🏷️ Tag Seleksi</div><div id="candTags" class="cand-value">-</div></div>
+    <div class="cand-row"><div class="cand-label">🏷️ Bidang Keahlian</div><div id="candSkillsBadges" class="cand-value" style="display:flex;gap:6px;flex-wrap:wrap;">-</div></div>
     <div class="cand-row"><div class="cand-label">🧩 Bidang</div><div id="candBidang" class="cand-value">-</div></div>
     <div class="cand-row"><div class="cand-label">ℹ️ Tentang</div><div id="candAbout" class="cand-value" style="font-weight:500;line-height:1.45;">-</div></div>
     <div class="cand-row">
@@ -419,36 +379,49 @@ require __DIR__ . '/includes/employer-layout-start.php';
         <a id="candResumeLink" href="#" target="_blank" style="color:#2563eb;text-decoration:none;font-weight:700;">Buka dokumen</a>
       </div>
     </div>
-    <div class="cand-tabline">
-      <span id="candTabProfileBtn" class="active" style="cursor:pointer;">Profil</span>
-      <span id="candTabActivityBtn" style="cursor:pointer;">Riwayat Aktivitas</span>
+
+    <div class="cand-tabline" style="margin-top:8px;">
+      <span id="candTabProfileBtn" class="active" style="cursor:pointer;">Profil Overview</span>
+      <span id="candTabExpBtn" style="cursor:pointer;">Pengalaman</span>
+      <span id="candTabPortBtn" style="cursor:pointer;">Portofolio</span>
+      <span id="candTabRevBtn" style="cursor:pointer;">Ulasan</span>
     </div>
+
+    <!-- Panel 1: Profil Overview -->
     <div id="candProfilePanel">
-      <div class="cand-row">
+      <div class="cand-row" style="margin-top:10px;">
         <div class="cand-label">👤 Informasi Profil</div>
         <div class="cand-value" style="font-weight:500;">
           <div style="margin-bottom:6px;color:#0f172a;"><strong id="candTitleInfo">Gig Worker</strong></div>
-          <div style="margin-bottom:6px;color:#64748b;"><span id="candProjectsInfo">0 proyek selesai</span> · <span id="candReviewsInfo">0 ulasan</span></div>
-          <div style="color:#64748b;">Kontak email kandidat: <strong id="candContactEmail">tidak tersedia</strong></div>
+          <div style="margin-bottom:8px;color:#64748b;"><span id="candProjectsInfo">0 proyek selesai</span> · <span id="candReviewsInfo">0 ulasan</span></div>
+          <div style="color:#64748b;margin-bottom:4px;">Kontak email kandidat: <strong id="candContactEmail">tidak tersedia</strong></div>
           <div style="color:#64748b;">WhatsApp kandidat: <strong id="candContactWa">tidak tersedia</strong></div>
         </div>
       </div>
-      <div class="cand-row">
-        <div class="cand-label">🕘 Aktivitas</div>
-        <div id="candActivity" class="cand-value" style="font-weight:500;">Belum ada aktivitas.</div>
+    </div>
+
+    <!-- Panel 2: Pengalaman -->
+    <div id="candExpPanel" style="display:none;">
+      <div id="candExperienceList" style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
+        <!-- Rendered by JS -->
       </div>
     </div>
-    <div id="candActivityPanel" style="display:none;">
-      <div class="cand-row">
-        <div class="cand-label">📚 Riwayat Pengalaman</div>
-        <div id="candExperienceList" class="cand-value" style="font-weight:500;line-height:1.5;">Belum ada riwayat pengalaman.</div>
+
+    <!-- Panel 3: Portofolio -->
+    <div id="candPortPanel" style="display:none;">
+      <div id="candPortfolioList" style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
+        <!-- Rendered by JS -->
       </div>
-      <div class="cand-row">
-        <div class="cand-label">🗂️ Portofolio</div>
-        <div id="candPortfolioList" class="cand-value" style="font-weight:500;line-height:1.5;">Belum ada data portofolio.</div>
+    </div>
+
+    <!-- Panel 4: Ulasan -->
+    <div id="candRevPanel" style="display:none;">
+      <div id="candReviewList" style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
+        <!-- Rendered by JS -->
       </div>
     </div>
   </div>
+
   <div class="cand-foot">
     <form method="post" action="" class="cand-status-form">
       <input type="hidden" name="app_id" id="candAppIdInput" value="">
@@ -490,17 +463,28 @@ require __DIR__ . '/includes/employer-layout-start.php';
       });
     }
 
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     const overlay = document.getElementById('candidateOverlay');
     const drawer = document.getElementById('candidateDrawer');
     const appIdInput = document.getElementById('candAppIdInput');
     const statusSelect = document.getElementById('candStatusSelect');
+    const fullProfileBtn = document.getElementById('candFullProfileBtn');
+
     const fields = {
       avatar: document.getElementById('candAvatar'),
       name: document.getElementById('candName'),
       applied: document.getElementById('candApplied'),
       statusText: document.getElementById('candStatusText'),
       location: document.getElementById('candLocation'),
-      tags: document.getElementById('candTags'),
+      skillsBadges: document.getElementById('candSkillsBadges'),
       bidang: document.getElementById('candBidang'),
       about: document.getElementById('candAbout'),
       resume: document.getElementById('candResumeLink'),
@@ -509,64 +493,162 @@ require __DIR__ . '/includes/employer-layout-start.php';
       titleInfo: document.getElementById('candTitleInfo'),
       projectsInfo: document.getElementById('candProjectsInfo'),
       reviewsInfo: document.getElementById('candReviewsInfo'),
-      activity: document.getElementById('candActivity'),
       experienceList: document.getElementById('candExperienceList'),
       portfolioList: document.getElementById('candPortfolioList'),
+      reviewList: document.getElementById('candReviewList'),
     };
-    const tabProfileBtn = document.getElementById('candTabProfileBtn');
-    const tabActivityBtn = document.getElementById('candTabActivityBtn');
-    const profilePanel = document.getElementById('candProfilePanel');
-    const activityPanel = document.getElementById('candActivityPanel');
 
-    function setDrawerTab(tab) {
-      const isProfile = tab !== 'activity';
-      if (tabProfileBtn) tabProfileBtn.classList.toggle('active', isProfile);
-      if (tabActivityBtn) tabActivityBtn.classList.toggle('active', !isProfile);
-      if (profilePanel) profilePanel.style.display = isProfile ? '' : 'none';
-      if (activityPanel) activityPanel.style.display = isProfile ? 'none' : '';
+    const tabBtns = {
+      profile: document.getElementById('candTabProfileBtn'),
+      exp: document.getElementById('candTabExpBtn'),
+      port: document.getElementById('candTabPortBtn'),
+      rev: document.getElementById('candTabRevBtn'),
+    };
+    const panels = {
+      profile: document.getElementById('candProfilePanel'),
+      exp: document.getElementById('candExpPanel'),
+      port: document.getElementById('candPortPanel'),
+      rev: document.getElementById('candRevPanel'),
+    };
+
+    function setDrawerTab(activeTab) {
+      Object.keys(tabBtns).forEach(function(key) {
+        if (tabBtns[key]) tabBtns[key].classList.toggle('active', key === activeTab);
+        if (panels[key]) panels[key].style.display = (key === activeTab) ? 'block' : 'none';
+      });
     }
+
+    const bidangMap = {
+      'ui-ux': 'UI/UX & Desain',
+      'backend': 'IT & Pemrograman',
+      'marketing': 'Pemasaran & Konten',
+      'general': 'Gig Worker Professional',
+    };
 
     function openCandidateDrawer(card) {
       if (!card || !overlay || !drawer) return;
-      const name = card.getAttribute('data-name') || 'Gig Worker';
+      
+      let profile = {};
+      try {
+        profile = JSON.parse(card.getAttribute('data-profile-json') || '{}');
+      } catch (e) {
+        profile = {};
+      }
+
+      const name = profile.name || card.getAttribute('data-name') || 'Gig Worker';
+      const workerId = profile.id || card.getAttribute('data-worker-id') || 'tessa';
       const statusText = card.getAttribute('data-status-text') || 'Lamaran Masuk';
-      const resume = card.getAttribute('data-resume') || '#';
+
       if (fields.avatar) fields.avatar.textContent = (name || 'G').trim().charAt(0).toUpperCase();
       if (fields.name) fields.name.textContent = name;
       if (fields.applied) fields.applied.textContent = card.getAttribute('data-applied') || '-';
       if (fields.statusText) fields.statusText.textContent = statusText;
-      if (fields.location) fields.location.textContent = card.getAttribute('data-location') || '-';
-      if (fields.tags) fields.tags.textContent = card.getAttribute('data-tags') || '-';
-      if (fields.bidang) fields.bidang.textContent = card.getAttribute('data-bidang-label') || '-';
-      if (fields.about) fields.about.textContent = card.getAttribute('data-about') || '-';
-      if (fields.resume) fields.resume.setAttribute('href', resume);
+      if (fields.location) fields.location.textContent = profile.location || 'Lokasi belum diisi';
+      if (fields.bidang) fields.bidang.textContent = bidangMap[profile.category] || profile.title || 'Gig Worker Professional';
+      if (fields.about) fields.about.textContent = profile.proposal || 'Gig Worker belum menambahkan deskripsi diri.';
+
+      if (fullProfileBtn) {
+        fullProfileBtn.setAttribute('href', 'worker-profile.php?id=' + encodeURIComponent(workerId) + '&from=kandidat');
+      }
+
+      let resumeUrl = '#';
+      if (profile.portfolio && profile.portfolio[0] && profile.portfolio[0].files && profile.portfolio[0].files[0]) {
+        resumeUrl = profile.portfolio[0].files[0].url || '#';
+      }
+      if (fields.resume) fields.resume.setAttribute('href', resumeUrl);
+
+      // Skills badges
+      if (fields.skillsBadges) {
+        if (Array.isArray(profile.skills) && profile.skills.length > 0) {
+          fields.skillsBadges.innerHTML = profile.skills.map(function(s) {
+            return '<span style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:9999px;padding:3px 10px;font-size:0.78rem;font-weight:700;">' + escapeHtml(s) + '</span>';
+          }).join('');
+        } else {
+          fields.skillsBadges.textContent = 'Belum ada keahlian.';
+        }
+      }
+
       const contactUnlocked = (card.getAttribute('data-contact-unlocked') || '0') === '1';
       if (fields.contactEmail) {
         fields.contactEmail.textContent = contactUnlocked
-          ? (card.getAttribute('data-contact-email') || 'tidak tersedia')
+          ? (profile.contact && profile.contact.email ? profile.contact.email : 'tidak tersedia')
           : 'Terkunci sampai kandidat diterima';
       }
       if (fields.contactWa) {
         fields.contactWa.textContent = contactUnlocked
-          ? (card.getAttribute('data-contact-wa') || 'tidak tersedia')
+          ? (profile.contact && profile.contact.wa ? profile.contact.wa : 'tidak tersedia')
           : 'Terkunci sampai kandidat diterima';
       }
-      if (fields.titleInfo) fields.titleInfo.textContent = card.getAttribute('data-title-info') || 'Gig Worker';
-      if (fields.projectsInfo) fields.projectsInfo.textContent = card.getAttribute('data-projects-info') || '0 proyek selesai';
-      if (fields.reviewsInfo) fields.reviewsInfo.textContent = card.getAttribute('data-reviews-info') || '0 ulasan';
-      if (fields.activity) fields.activity.textContent = card.getAttribute('data-activity') || 'Belum ada aktivitas.';
+
+      if (fields.titleInfo) fields.titleInfo.textContent = profile.title || 'Gig Worker';
+      if (fields.projectsInfo) fields.projectsInfo.textContent = (profile.completed_projects || 0) + ' proyek selesai';
+      if (fields.reviewsInfo) fields.reviewsInfo.textContent = (profile.reviews_count || (profile.reviews ? profile.reviews.length : 0)) + ' ulasan';
+
+      // Experience timeline
       if (fields.experienceList) {
-        const lines = (card.getAttribute('data-experience-lines') || '').split(' || ').filter(Boolean);
-        fields.experienceList.innerHTML = lines.length
-          ? lines.map(function(line) { return '<div style="margin-bottom:6px;">• ' + line + '</div>'; }).join('')
-          : 'Belum ada riwayat pengalaman.';
+        if (Array.isArray(profile.experience) && profile.experience.length > 0) {
+          fields.experienceList.innerHTML = profile.experience.map(function(exp) {
+            return '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;">' +
+              '<div style="font-weight:800;font-size:0.88rem;color:#0f172a;">' + escapeHtml(exp.role || '') + '</div>' +
+              '<div style="font-size:0.78rem;color:#64748b;margin:2px 0 6px 0;">' + escapeHtml(exp.project || exp.institution || '') + ' · ' + escapeHtml(exp.period || '') + '</div>' +
+              '<div style="font-size:0.82rem;color:#334155;line-height:1.4;">' + escapeHtml(exp.summary || '') + '</div>' +
+              '</div>';
+          }).join('');
+        } else {
+          fields.experienceList.innerHTML = '<div style="color:#94a3b8;font-size:0.84rem;">Belum ada data pengalaman.</div>';
+        }
       }
+
+      // Portfolio list
       if (fields.portfolioList) {
-        const pfLines = (card.getAttribute('data-portfolio-lines') || '').split(' || ').filter(Boolean);
-        fields.portfolioList.innerHTML = pfLines.length
-          ? pfLines.map(function(line) { return '<div style="margin-bottom:6px;">• ' + line + '</div>'; }).join('')
-          : 'Belum ada data portofolio.';
+        if (Array.isArray(profile.portfolio) && profile.portfolio.length > 0) {
+          fields.portfolioList.innerHTML = profile.portfolio.map(function(port) {
+            let filesHtml = '';
+            if (Array.isArray(port.files) && port.files.length > 0) {
+              filesHtml = '<div style="margin-top:8px;padding-top:8px;border-top:1px dashed #e2e8f0;">' +
+                '<div style="font-size:0.75rem;font-weight:700;color:#64748b;margin-bottom:4px;">Berkas Deliverable:</div>' +
+                port.files.map(function(f) {
+                  return '<div style="font-size:0.78rem;color:#2563eb;display:flex;align-items:center;gap:6px;margin-bottom:3px;">' +
+                    '<span>📎 ' + escapeHtml(f.name || '') + ' (' + escapeHtml(f.size || '') + ')</span>' +
+                    '</div>';
+                }).join('') +
+                '</div>';
+            }
+            return '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;">' +
+              '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">' +
+              '<div style="font-weight:800;font-size:0.88rem;color:#0f172a;">' + escapeHtml(port.title || '') + '</div>' +
+              '<span style="font-size:0.72rem;background:#e0f2fe;color:#0369a1;padding:2px 8px;border-radius:9999px;font-weight:700;flex-shrink:0;">' + escapeHtml(port.type || '') + '</span>' +
+              '</div>' +
+              '<div style="font-size:0.78rem;color:#64748b;margin:2px 0 6px 0;">' + escapeHtml(port.client || '') + ' · ' + escapeHtml(port.year || '') + '</div>' +
+              '<div style="font-size:0.82rem;color:#334155;line-height:1.4;">' + escapeHtml(port.deliverable || '') + '</div>' +
+              filesHtml +
+              '</div>';
+          }).join('');
+        } else {
+          fields.portfolioList.innerHTML = '<div style="color:#94a3b8;font-size:0.84rem;">Belum ada data portofolio.</div>';
+        }
       }
+
+      // Reviews list
+      if (fields.reviewList) {
+        if (Array.isArray(profile.reviews) && profile.reviews.length > 0) {
+          fields.reviewList.innerHTML = profile.reviews.map(function(rev) {
+            return '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;">' +
+              '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">' +
+              '<div>' +
+              '<div style="font-weight:800;font-size:0.86rem;color:#0f172a;">' + escapeHtml(rev.employer || '') + '</div>' +
+              '<div style="font-size:0.78rem;color:#64748b;">' + escapeHtml(rev.project || '') + ' · ' + escapeHtml(rev.date || '') + '</div>' +
+              '</div>' +
+              '<div style="color:#f59e0b;font-weight:800;font-size:0.84rem;flex-shrink:0;">★ ' + escapeHtml(String(rev.rating || 5)) + '.0</div>' +
+              '</div>' +
+              '<div style="font-size:0.82rem;color:#334155;line-height:1.4;margin-top:6px;">"' + escapeHtml(rev.comment || '') + '"</div>' +
+              '</div>';
+          }).join('');
+        } else {
+          fields.reviewList.innerHTML = '<div style="color:#94a3b8;font-size:0.84rem;">Belum ada ulasan pemberi kerja.</div>';
+        }
+      }
+
       if (appIdInput) appIdInput.value = card.getAttribute('data-app-id') || '';
       if (statusSelect) statusSelect.value = card.getAttribute('data-status-ui') || 'applied';
 
@@ -589,12 +671,11 @@ require __DIR__ . '/includes/employer-layout-start.php';
       document.body.style.overflow = '';
     };
 
-    if (tabProfileBtn) {
-      tabProfileBtn.addEventListener('click', function() { setDrawerTab('profile'); });
-    }
-    if (tabActivityBtn) {
-      tabActivityBtn.addEventListener('click', function() { setDrawerTab('activity'); });
-    }
+    Object.keys(tabBtns).forEach(function(key) {
+      if (tabBtns[key]) {
+        tabBtns[key].addEventListener('click', function() { setDrawerTab(key); });
+      }
+    });
   })();
 </script>
 
