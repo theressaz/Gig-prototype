@@ -96,13 +96,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
     $comment        = trim((string)($_POST['comment'] ?? ''));
     $selectedBadges = is_array($_POST['badges'] ?? null) ? $_POST['badges'] : [];
     $recommend      = !empty($_POST['recommend_employer']);
-    $confirmDone    = !empty($_POST['confirm_deliverables']);
-    $confirmGiven   = !empty($_POST['confirm_given_deliverables']);
-
     if (!$canSubmitReview) {
         $errorMessage = 'Ulasan belum bisa dikirim. Kedua pihak harus mengonfirmasi bahwa proyek selesai terlebih dahulu.';
-    } elseif (!$confirmDone || !$confirmGiven) {
-        $errorMessage = 'Centang seluruh konfirmasi proyek yang wajib untuk mengirim ulasan.';
     } elseif ($comment === '') {
         $errorMessage = 'Mohon tuliskan ulasan atau testimoni singkat untuk pemberi kerja.';
     } else {
@@ -325,26 +320,12 @@ require __DIR__ . '/includes/worker-layout-start.php';
         <textarea name="comment" rows="4" required placeholder="Contoh: Pemberi kerja sangat kooperatif, memberikan brief yang jelas, dan pembayaran diproses tepat waktu setelah deliverables disetujui." style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:0.88rem;line-height:1.5;outline:none;font-family:inherit;resize:vertical;"></textarea>
       </section>
 
-      <!-- Card 5: Mandatory Confirmations & Submit -->
-      <section style="background:#fff;border:1px solid var(--border-subtle);border-radius:14px;padding:20px;box-shadow:var(--shadow-xs);">
-        <h3 style="font-size:0.95rem;font-weight:800;color:#0f172a;margin-bottom:12px;">
-          Konfirmasi Persyaratan Penyelesaian
-        </h3>
-
-        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;">
-          <label style="display:flex;align-items:flex-start;gap:10px;font-size:0.84rem;color:#334155;cursor:pointer;line-height:1.45;">
-            <input type="checkbox" name="confirm_deliverables" value="1" required style="accent-color:#2563eb;margin-top:2px;" />
-            <span>Saya mengonfirmasi bahwa seluruh hasil kerja (deliverables) proyek telah diserahkan sesuai kesepakatan.</span>
-          </label>
-          <label style="display:flex;align-items:flex-start;gap:10px;font-size:0.84rem;color:#334155;cursor:pointer;line-height:1.45;">
-            <input type="checkbox" name="confirm_given_deliverables" value="1" required style="accent-color:#2563eb;margin-top:2px;" />
-            <span>Saya menyatakan ulasan ini dibuat secara jujur dan profesional.</span>
-          </label>
+        <div style="margin-top:16px;display:flex;gap:12px;align-items:center;">
+          <button type="submit" name="submit_review" value="1" class="btn-create-post" style="text-decoration:none;padding:8px 20px;font-size:0.86rem;font-weight:700;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;border:none;background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%);color:#fff;" <?php echo !$canSubmitReview ? 'disabled style="padding:8px 20px;font-size:0.86rem;font-weight:700;border-radius:8px;opacity:0.55;cursor:not-allowed;background:#cbd5e1;color:#64748b;border:none;"' : ''; ?>>
+            Kirim Ulasan Pemberi Kerja
+          </button>
+          <a href="worker-tugas.php" style="font-size:0.84rem;font-weight:600;color:#64748b;text-decoration:none;padding:8px 16px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;">Batal</a>
         </div>
-
-        <button type="submit" name="submit_review" value="1" class="btn-create-post" style="width:100%;padding:12px;font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%);color:#fff;border:none;border-radius:10px;cursor:pointer;" <?php echo !$canSubmitReview ? 'disabled style="opacity:0.55;cursor:not-allowed;"' : ''; ?>>
-          Kirim Ulasan Pemberi Kerja
-        </button>
       </section>
 
     </div>
