@@ -405,9 +405,9 @@ require __DIR__ . '/includes/worker-layout-start.php';
         <?php endif; ?>
       </section>
 
-      <!-- 4. KUALIFIKASI -->
+      <!-- 4. PERSYARATAN -->
       <section class="detail-section-card">
-        <h3>Kualifikasi</h3>
+        <h3>Persyaratan</h3>
         <div style="margin-bottom: 14px;">
           <div style="font-size: 0.82rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">KEAHLIAN &amp; SKILL UTAMA</div>
           <div style="display: flex; flex-wrap: wrap; gap: 8px;">

@@ -474,7 +474,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
               <?php elseif ($appStatus === 'declined_by_worker'): ?>
                 Anda telah menolak penawaran proyek ini.
               <?php else: ?>
-                Penawaran dikirimkan pemberi kerja. Buka detail proyek untuk meninjau kualifikasi.
+                Penawaran dikirimkan pemberi kerja. Buka detail proyek untuk meninjau persyaratan.
               <?php endif; ?>
             </div>
 

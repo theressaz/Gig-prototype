@@ -631,7 +631,7 @@ a.proyek-card-item:hover .apply-cta {
               $employerDisplayName = (string)($job['employer'] ?? ($job['client'] ?? 'PT SIAPKerja Partner'));
               $skillsToShow = array_slice($job['skills'], 0, 3);
               $remainingCount = count($job['skills']) - count($skillsToShow);
-              $cleanBudget = trim(preg_replace('/\s*\/\s*bulan/i', '', (string)($job['budget'] ?? '')));
+              $cleanBudget = trim(preg_replace('/\s*\/\s*bulan/i', '', gig_vacancy_budget_range((string)($job['budget'] ?? ''))));
             ?>
             <a class="proyek-card-item" href="worker-project-detail.php?id=<?php echo urlencode($job['id']); ?>">
               <div>

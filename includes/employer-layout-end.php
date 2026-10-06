@@ -390,7 +390,7 @@ declare(strict_types=1);
                   <span class="gig-section-icon">2</span>
                   <div>
                     <div class="gig-section-title">Kriteria Gig Worker</div>
-                    <div class="gig-section-sub">Atur skill wajib dan kualifikasi kandidat.</div>
+                    <div class="gig-section-sub">Atur skill wajib dan persyaratan kandidat.</div>
                   </div>
                 </div>
 
@@ -400,7 +400,7 @@ declare(strict_types=1);
                 </div>
 
                 <div class="form-row">
-                  <label for="proj_kualifikasi">Kualifikasi Tambahan</label>
+                  <label for="proj_kualifikasi">Persyaratan Tambahan</label>
                   <textarea id="proj_kualifikasi" rows="3" placeholder="Contoh: Pernah mengerjakan dashboard analytics, paham handoff ke developer, terbiasa kerja sprint."></textarea>
                 </div>
               </section>
