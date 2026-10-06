@@ -684,36 +684,36 @@ $backHref = $isEditMode
 
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
                 <div class="form-group">
-                  <label class="form-label">Bulan Mulai</label>
+                  <label class="form-label">Bulan Mulai <span style="color:#ef4444;">*</span></label>
                   <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:8px;">
-                    <select name="start_month[]" class="form-select">
+                    <select name="start_month[]" class="form-select" required>
                       <option value="">-- Pilih Bulan --</option>
                       <?php foreach ($monthsList as $mOpt): ?>
                         <option value="<?php echo $mOpt; ?>" <?php echo $sMonth === $mOpt ? 'selected' : ''; ?>><?php echo $mOpt; ?></option>
                       <?php endforeach; ?>
                     </select>
-                    <input type="text" name="start_year[]" class="form-input" value="<?php echo htmlspecialchars((string)$sYear, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Tahun (2024)" maxlength="4" />
+                    <input type="text" name="start_year[]" class="form-input" value="<?php echo htmlspecialchars((string)$sYear, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Tahun (2024)" maxlength="4" required />
                   </div>
                 </div>
 
                 <div class="form-group">
-                  <label class="form-label">Bulan Selesai</label>
+                  <label class="form-label">Bulan Selesai <span style="color:#ef4444;">*</span></label>
                   <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:8px;">
-                    <select name="end_month[]" class="form-select">
+                    <select name="end_month[]" class="form-select" required>
                       <option value="">-- Pilih Bulan --</option>
                       <option value="Masih Berjalan" <?php echo $eMonth === 'Masih Berjalan' ? 'selected' : ''; ?>>Masih Berjalan</option>
                       <?php foreach ($monthsList as $mOpt): ?>
                         <option value="<?php echo $mOpt; ?>" <?php echo $eMonth === $mOpt ? 'selected' : ''; ?>><?php echo $mOpt; ?></option>
                       <?php endforeach; ?>
                     </select>
-                    <input type="text" name="end_year[]" class="form-input" value="<?php echo htmlspecialchars((string)$eYear, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Tahun (2025)" maxlength="4" />
+                    <input type="text" name="end_year[]" class="form-input" value="<?php echo htmlspecialchars((string)$eYear, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Tahun (2025)" maxlength="4" required />
                   </div>
                 </div>
               </div>
 
               <div class="form-group" style="margin-bottom:14px;">
-                <label class="form-label">Ringkasan Tugas</label>
-                <textarea name="project_summary[]" class="form-input" rows="3" style="resize:vertical;" placeholder="Deskripsikan peran, tugas, dan hasil pencapaian Anda dalam proyek ini..."><?php echo htmlspecialchars((string)$summary, ENT_QUOTES, 'UTF-8'); ?></textarea>
+                <label class="form-label">Ringkasan Tugas <span style="color:#ef4444;">*</span></label>
+                <textarea name="project_summary[]" class="form-input" rows="3" style="resize:vertical;" placeholder="Deskripsikan peran, tugas, dan hasil pencapaian Anda dalam proyek ini..." required><?php echo htmlspecialchars((string)$summary, ENT_QUOTES, 'UTF-8'); ?></textarea>
               </div>
 
               <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-top:10px;">
@@ -758,36 +758,36 @@ $backHref = $isEditMode
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
               <div class="form-group">
-                <label class="form-label">Bulan Mulai</label>
+                <label class="form-label">Bulan Mulai <span style="color:#ef4444;">*</span></label>
                 <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:8px;">
-                  <select name="start_month[]" class="form-select">
+                  <select name="start_month[]" class="form-select" required>
                     <option value="">-- Pilih Bulan --</option>
                     <?php foreach ($monthsList as $mOpt): ?>
                       <option value="<?php echo $mOpt; ?>"><?php echo $mOpt; ?></option>
                     <?php endforeach; ?>
                   </select>
-                  <input type="text" name="start_year[]" class="form-input" placeholder="Tahun (2024)" maxlength="4" />
+                  <input type="text" name="start_year[]" class="form-input" placeholder="Tahun (2024)" maxlength="4" required />
                 </div>
               </div>
 
               <div class="form-group">
-                <label class="form-label">Bulan Selesai</label>
+                <label class="form-label">Bulan Selesai <span style="color:#ef4444;">*</span></label>
                 <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:8px;">
-                  <select name="end_month[]" class="form-select">
+                  <select name="end_month[]" class="form-select" required>
                     <option value="">-- Pilih Bulan --</option>
                     <option value="Masih Berjalan">Masih Berjalan</option>
                     <?php foreach ($monthsList as $mOpt): ?>
                       <option value="<?php echo $mOpt; ?>"><?php echo $mOpt; ?></option>
                     <?php endforeach; ?>
                   </select>
-                  <input type="text" name="end_year[]" class="form-input" placeholder="Tahun (2025)" maxlength="4" />
+                  <input type="text" name="end_year[]" class="form-input" placeholder="Tahun (2025)" maxlength="4" required />
                 </div>
               </div>
             </div>
 
             <div class="form-group" style="margin-bottom:14px;">
-              <label class="form-label">Ringkasan Tugas</label>
-              <textarea name="project_summary[]" class="form-input" rows="3" style="resize:vertical;" placeholder="Deskripsikan peran, tugas, dan hasil pencapaian Anda dalam proyek ini..."></textarea>
+              <label class="form-label">Ringkasan Tugas <span style="color:#ef4444;">*</span></label>
+              <textarea name="project_summary[]" class="form-input" rows="3" style="resize:vertical;" placeholder="Deskripsikan peran, tugas, dan hasil pencapaian Anda dalam proyek ini..." required></textarea>
             </div>
 
             <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-top:10px;">
@@ -814,7 +814,7 @@ $backHref = $isEditMode
       </div>
 
       <button type="button" class="btn-add-item" onclick="addProjectItem()" style="margin-top:8px;align-self:flex-start;">
-        + Tambah Pengalaman
+        + Tambah Pengalaman Gig Workers
       </button>
 
       <div class="form-divider"></div>
@@ -954,19 +954,19 @@ $backHref = $isEditMode
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
           <div class="form-group">
-            <label class="form-label">Bulan Mulai</label>
+            <label class="form-label">Bulan Mulai <span style="color:#ef4444;">*</span></label>
             <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:8px;">
-              <select name="start_month[]" class="form-select">
+              <select name="start_month[]" class="form-select" required>
                 ${monthsOptionsHtml}
               </select>
-              <input type="text" name="start_year[]" class="form-input" placeholder="Tahun (2024)" maxlength="4" />
+              <input type="text" name="start_year[]" class="form-input" placeholder="Tahun (2024)" maxlength="4" required />
             </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Bulan Selesai</label>
+            <label class="form-label">Bulan Selesai <span style="color:#ef4444;">*</span></label>
             <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:8px;">
-              <select name="end_month[]" class="form-select">
+              <select name="end_month[]" class="form-select" required>
                 <option value="">-- Pilih Bulan --</option>
                 <option value="Masih Berjalan">Masih Berjalan</option>
                 <option value="Januari">Januari</option>
@@ -982,14 +982,14 @@ $backHref = $isEditMode
                 <option value="November">November</option>
                 <option value="Desember">Desember</option>
               </select>
-              <input type="text" name="end_year[]" class="form-input" placeholder="Tahun (2025)" maxlength="4" />
+              <input type="text" name="end_year[]" class="form-input" placeholder="Tahun (2025)" maxlength="4" required />
             </div>
           </div>
         </div>
 
         <div class="form-group" style="margin-bottom:14px;">
-          <label class="form-label">Ringkasan Tugas</label>
-          <textarea name="project_summary[]" class="form-input" rows="3" style="resize:vertical;" placeholder="Deskripsikan peran, tugas, dan hasil pencapaian Anda dalam proyek ini..."></textarea>
+          <label class="form-label">Ringkasan Tugas <span style="color:#ef4444;">*</span></label>
+          <textarea name="project_summary[]" class="form-input" rows="3" style="resize:vertical;" placeholder="Deskripsikan peran, tugas, dan hasil pencapaian Anda dalam proyek ini..." required></textarea>
         </div>
 
         <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-top:10px;">
