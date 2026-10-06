@@ -94,15 +94,6 @@ if ($role === 'worker') {
       </div>
     </section>
 
-    <section class="section-card">
-      <h2>Keterampilan</h2>
-      <div class="skill-row">
-        <?php foreach ($worker['skills'] as $skill): ?>
-          <span class="skill-tag"><?php echo htmlspecialchars((string)$skill, ENT_QUOTES, 'UTF-8'); ?></span>
-        <?php endforeach; ?>
-      </div>
-    </section>
-
     <?php
       $regData = gig_get_worker_registration((string)($worker['id'] ?? '')) ?? [];
       $rawVideoStr = !empty($regData['video_url']) ? $regData['video_url'] : ($worker['video_url'] ?? '');
@@ -113,48 +104,38 @@ if ($role === 'worker') {
       } elseif (!empty($worker['social_media']) && is_array($worker['social_media'])) {
           $socialMediaList = $worker['social_media'];
       }
-      $profileSummary = trim((string)($regData['profile_summary'] ?? ($worker['proposal'] ?? '')));
       $bidangValue = trim((string)($regData['bidang_keahlian'] ?? ($worker['title'] ?? '')));
+      $skillsList = !empty($regData['skills']) && is_array($regData['skills']) ? $regData['skills'] : ($worker['skills'] ?? []);
     ?>
 
-    <?php if ($bidangValue !== '' || $profileSummary !== ''): ?>
+    <!-- SEGMENT 2: MEDIA SOSIAL GIG WORKER -->
+    <?php if ($socialMediaList !== []): ?>
       <section class="section-card">
-        <h2>Bidang Keahlian</h2>
-        <?php if ($bidangValue !== ''): ?>
-          <div style="margin-bottom:10px;">
-            <span class="chip gold"><?php echo htmlspecialchars($bidangValue, ENT_QUOTES, 'UTF-8'); ?></span>
-          </div>
-        <?php endif; ?>
-        <?php if ($profileSummary !== ''): ?>
-          <p style="font-size:0.88rem;line-height:1.55;color:#334155;"><?php echo htmlspecialchars($profileSummary, ENT_QUOTES, 'UTF-8'); ?></p>
-        <?php endif; ?>
-      </section>
-    <?php endif; ?>
-    <?php if ($videoUrlsList !== []): ?>
-      <section class="section-card">
-        <h2>Video Profil Gig Worker</h2>
-        <p style="font-size:0.84rem; color: var(--text-muted); margin-bottom: 12px;">Perkenalan singkat dan paparan keahlian dari Gig Worker.</p>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-          <?php foreach ($videoUrlsList as $vIdx => $vUrlItem): ?>
-            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
-              <div style="display: flex; align-items: center; gap: 14px;">
-                <div style="width: 44px; height: 44px; border-radius: 50%; background: #ef4444; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
-                  ▶
-                </div>
-                <div>
-                  <strong style="font-size: 0.9rem; color: #0f172a;">Video Perkenalan &amp; Demo Portofolio <?php echo count($videoUrlsList) > 1 ? '#' . ($vIdx + 1) : ''; ?></strong>
-                  <div style="font-size: 0.78rem; color: #64748b;"><?php echo htmlspecialchars($vUrlItem, ENT_QUOTES, 'UTF-8'); ?></div>
-                </div>
-              </div>
-              <a href="<?php echo htmlspecialchars($vUrlItem, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" style="background: #2563eb; color: #fff; padding: 8px 16px; border-radius: 9999px; text-decoration: none; font-size: 0.82rem; font-weight: 700; flex-shrink: 0;">
-                Putar Video ↗
+        <h2>Media Sosial &amp; Jejak Profesional</h2>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;">
+          <?php foreach ($socialMediaList as $sm): ?>
+            <?php
+              $smPlatform = trim((string)($sm['platform'] ?? 'Media Sosial'));
+              $smUrl = trim((string)($sm['url'] ?? ''));
+              if ($smPlatform === '' && $smUrl === '') {
+                  continue;
+              }
+            ?>
+            <?php if ($smUrl !== ''): ?>
+              <a href="<?php echo htmlspecialchars($smUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:999px;padding:8px 14px;text-decoration:none;color:#0f172a;font-size:0.82rem;font-weight:700;">
+                🌐 <?php echo htmlspecialchars($smPlatform, ENT_QUOTES, 'UTF-8'); ?> ↗
               </a>
-            </div>
+            <?php else: ?>
+              <span style="display:inline-flex;align-items:center;background:#f8fafc;border:1px solid #cbd5e1;border-radius:999px;padding:8px 14px;color:#0f172a;font-size:0.82rem;font-weight:700;">
+                🌐 <?php echo htmlspecialchars($smPlatform, ENT_QUOTES, 'UTF-8'); ?>
+              </span>
+            <?php endif; ?>
           <?php endforeach; ?>
         </div>
       </section>
     <?php endif; ?>
 
+    <!-- SEGMENT 3: PENGALAMAN & PORTOFOLIO -->
     <section class="section-card">
       <h2>Pengalaman</h2>
       <div class="timeline">
@@ -217,27 +198,48 @@ if ($role === 'worker') {
       </div>
     </section>
 
-    <?php if ($socialMediaList !== []): ?>
+    <!-- SEGMENT 4: BIDANG KEAHLIAN & SKILL SPESIFIK -->
+    <section class="section-card">
+      <h2>Bidang Keahlian &amp; Skill Spesifik</h2>
+      <?php if ($bidangValue !== ''): ?>
+        <div style="margin-bottom:14px;">
+          <div style="font-size:0.78rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Bidang Keahlian Utama</div>
+          <span class="chip gold" style="font-size:0.88rem;padding:6px 14px;"><?php echo htmlspecialchars($bidangValue, ENT_QUOTES, 'UTF-8'); ?></span>
+        </div>
+      <?php endif; ?>
+      <?php if ($skillsList !== []): ?>
+        <div>
+          <div style="font-size:0.78rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Skill / Keahlian Spesifik</div>
+          <div class="skill-row">
+            <?php foreach ($skillsList as $skill): ?>
+              <span class="skill-tag"><?php echo htmlspecialchars((string)$skill, ENT_QUOTES, 'UTF-8'); ?></span>
+            <?php endforeach; ?>
+          </div>
+        </div>
+      <?php endif; ?>
+    </section>
+
+    <!-- SEGMENT 5: LINK VIDEO PROFIL GIG WORKER -->
+    <?php if ($videoUrlsList !== []): ?>
       <section class="section-card">
-        <h2>Media Sosial &amp; Jejak Profesional</h2>
-        <div style="display:flex;flex-wrap:wrap;gap:10px;">
-          <?php foreach ($socialMediaList as $sm): ?>
-            <?php
-              $smPlatform = trim((string)($sm['platform'] ?? 'Media Sosial'));
-              $smUrl = trim((string)($sm['url'] ?? ''));
-              if ($smPlatform === '' && $smUrl === '') {
-                  continue;
-              }
-            ?>
-            <?php if ($smUrl !== ''): ?>
-              <a href="<?php echo htmlspecialchars($smUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:999px;padding:8px 14px;text-decoration:none;color:#0f172a;font-size:0.82rem;font-weight:700;">
-                <?php echo htmlspecialchars($smPlatform, ENT_QUOTES, 'UTF-8'); ?> ↗
+        <h2>Video Profil Gig Worker</h2>
+        <p style="font-size:0.84rem; color: var(--text-muted); margin-bottom: 12px;">Perkenalan singkat dan paparan keahlian dari Gig Worker.</p>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <?php foreach ($videoUrlsList as $vIdx => $vUrlItem): ?>
+            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+              <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 44px; height: 44px; border-radius: 50%; background: #ef4444; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+                  ▶
+                </div>
+                <div>
+                  <strong style="font-size: 0.9rem; color: #0f172a;">Video Perkenalan &amp; Demo Portofolio <?php echo count($videoUrlsList) > 1 ? '#' . ($vIdx + 1) : ''; ?></strong>
+                  <div style="font-size: 0.78rem; color: #64748b;"><?php echo htmlspecialchars($vUrlItem, ENT_QUOTES, 'UTF-8'); ?></div>
+                </div>
+              </div>
+              <a href="<?php echo htmlspecialchars($vUrlItem, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" style="background: #2563eb; color: #fff; padding: 8px 16px; border-radius: 9999px; text-decoration: none; font-size: 0.82rem; font-weight: 700; flex-shrink: 0;">
+                Putar Video ↗
               </a>
-            <?php else: ?>
-              <span style="display:inline-flex;align-items:center;background:#f8fafc;border:1px solid #cbd5e1;border-radius:999px;padding:8px 14px;color:#0f172a;font-size:0.82rem;font-weight:700;">
-                <?php echo htmlspecialchars($smPlatform, ENT_QUOTES, 'UTF-8'); ?>
-              </span>
-            <?php endif; ?>
+            </div>
           <?php endforeach; ?>
         </div>
       </section>

@@ -98,8 +98,14 @@ function gig_worker_profiles(): array
             'applied_project' => 'Redesign UI/UX Dashboard Prototype KarirHub',
             'bid' => 'Rp 8.000.000',
             'eta' => '14 Hari Kerja',
-            'proposal' => 'Berpengalaman 4+ tahun merancang antarmuka sistem web pemerintahan dan B2B SaaS dengan design system yang rapi di Figma.',
+            'proposal' => '',
             'skills' => ['Figma Design', 'UI/UX Prototyping', 'Design System', 'Usability Testing', 'Wireframing'],
+            'social_media' => [
+                ['platform' => 'LinkedIn', 'url' => 'https://linkedin.com/in/theressaz'],
+                ['platform' => 'GitHub', 'url' => 'https://github.com/theressaz'],
+                ['platform' => 'Instagram', 'url' => 'https://instagram.com/theressaz']
+            ],
+            'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
             'contact' => [
                 'wa' => '0812-3456-7890',
                 'email' => 'theressaz@pasker.id',
