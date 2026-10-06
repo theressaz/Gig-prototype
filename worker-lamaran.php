@@ -39,15 +39,15 @@ usort($applications, static function (array $a, array $b): int {
 
 $statusMeta = [
     'applied' => ['label' => 'Lamaran Masuk', 'group' => 'incoming', 'chipBg' => '#fff7ed', 'chipColor' => '#c2410c', 'border' => '#ffedd5'],
-    'reviewing' => ['label' => 'Sedang Dipelajari', 'group' => 'reviewing', 'chipBg' => '#eff6ff', 'chipColor' => '#1d4ed8', 'border' => '#dbeafe'],
-    'interview' => ['label' => 'Wawancara', 'group' => 'interview', 'chipBg' => '#ecfeff', 'chipColor' => '#0e7490', 'border' => '#cff4fc'],
+    'reviewing' => ['label' => 'Lamaran Masuk', 'group' => 'incoming', 'chipBg' => '#fff7ed', 'chipColor' => '#c2410c', 'border' => '#ffedd5'],
+    'interview' => ['label' => 'Lamaran Masuk', 'group' => 'incoming', 'chipBg' => '#fff7ed', 'chipColor' => '#c2410c', 'border' => '#ffedd5'],
     'confirmed_by_worker' => ['label' => 'Diterima', 'group' => 'accepted', 'chipBg' => '#ecfdf5', 'chipColor' => '#047857', 'border' => '#d1fae5'],
     'accepted_by_employer' => ['label' => 'Diterima', 'group' => 'accepted', 'chipBg' => '#ecfdf5', 'chipColor' => '#047857', 'border' => '#d1fae5'],
     'rejected_by_employer' => ['label' => 'Ditolak', 'group' => 'rejected', 'chipBg' => '#fef2f2', 'chipColor' => '#b91c1c', 'border' => '#fee2e2'],
     'declined_by_worker' => ['label' => 'Ditolak', 'group' => 'rejected', 'chipBg' => '#fef2f2', 'chipColor' => '#b91c1c', 'border' => '#fee2e2'],
 ];
 
-$counts = ['all' => count($applications), 'incoming' => 0, 'reviewing' => 0, 'interview' => 0, 'accepted' => 0, 'rejected' => 0];
+$counts = ['all' => count($applications), 'incoming' => 0, 'accepted' => 0, 'rejected' => 0];
 foreach ($applications as $row) {
     $st = (string)($row['status'] ?? 'applied');
     $meta = $statusMeta[$st] ?? $statusMeta['applied'];
@@ -73,8 +73,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
 <div class="toolbar-filter" style="margin-bottom: 20px; flex-wrap: wrap;">
   <button class="filter-btn-pill active" type="button" onclick="filterLamaran('all', this)">Semua (<?php echo (int)$counts['all']; ?>)</button>
   <button class="filter-btn-pill" type="button" onclick="filterLamaran('incoming', this)">Lamaran Masuk (<?php echo (int)$counts['incoming']; ?>)</button>
-  <button class="filter-btn-pill" type="button" onclick="filterLamaran('reviewing', this)">Sedang Dipelajari (<?php echo (int)$counts['reviewing']; ?>)</button>
-  <button class="filter-btn-pill" type="button" onclick="filterLamaran('interview', this)">Wawancara (<?php echo (int)$counts['interview']; ?>)</button>
   <button class="filter-btn-pill" type="button" onclick="filterLamaran('accepted', this)">Diterima (<?php echo (int)$counts['accepted']; ?>)</button>
   <button class="filter-btn-pill" type="button" onclick="filterLamaran('rejected', this)">Ditolak (<?php echo (int)$counts['rejected']; ?>)</button>
   
@@ -100,7 +98,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
         $vacancy = gig_find_vacancy((string)($app['vacancy_id'] ?? ''));
         $title = (string)($vacancy['title'] ?? ('Proyek #' . (string)($app['vacancy_id'] ?? '-')));
         $company = (string)($vacancy['employer'] ?? $app['employer_username'] ?? 'Pemberi Kerja');
-        $deadline = (string)($vacancy['deadline'] ?? '-');
         $rawBid = (string)($app['bid_amount'] ?? ($vacancy['budget'] ?? ''));
         $cleanBid = gig_vacancy_budget_range($rawBid);
         $detailUrl = 'worker-project-detail.php?id=' . urlencode((string)($app['vacancy_id'] ?? ''));
@@ -126,7 +123,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;margin-top:14px;">
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;margin-top:14px;">
           <div>
             <div style="font-size:0.74rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;">Tanggal Lamar</div>
             <div style="font-size:0.9rem;font-weight:700;color:var(--text-main);margin-top:2px;"><?php echo htmlspecialchars(date('d M Y, H:i', strtotime((string)($app['created_at'] ?? 'now'))), ENT_QUOTES, 'UTF-8'); ?></div>
@@ -138,10 +135,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
           <div>
             <div style="font-size:0.74rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;">Gaji</div>
             <div style="font-size:0.9rem;font-weight:800;color:#2563eb;margin-top:2px;"><?php echo htmlspecialchars($cleanBid, ENT_QUOTES, 'UTF-8'); ?></div>
-          </div>
-          <div>
-            <div style="font-size:0.74rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;">Lamar Sebelum</div>
-            <div style="font-size:0.9rem;font-weight:700;color:var(--text-main);margin-top:2px;"><?php echo htmlspecialchars($deadline, ENT_QUOTES, 'UTF-8'); ?></div>
           </div>
         </div>
       </div>
