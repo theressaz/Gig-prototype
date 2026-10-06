@@ -175,9 +175,8 @@ function gig_vacancy_ensure_schema(?PDO $pdo = null): void
 
 function gig_vacancy_cleanup_removed_entries(PDO $pdo): void
 {
-    // Product request: remove legacy vacancy card
-    // "Senior Frontend Developer (Full Time)" from all vacancy sources.
-    $removedIds = ['JOB-2026-09-001'];
+    // Product request: remove specific vacancy cards from all vacancy sources.
+    $removedIds = ['JOB-2026-09-001', 'JOB-2026-09-006'];
     foreach ($removedIds as $id) {
         try {
             $stmt = $pdo->prepare("DELETE FROM `project_vacancies` WHERE `id` = :id");
@@ -190,14 +189,20 @@ function gig_vacancy_cleanup_removed_entries(PDO $pdo): void
     }
 
     // Safety net for old records that used title-based rows with different IDs.
-    try {
-        $stmt = $pdo->prepare("DELETE FROM `project_vacancies` WHERE `title` = :title");
-        $stmt->execute([':title' => 'Senior Frontend Developer (Full Time)']);
-    } catch (Throwable $e) {}
-    try {
-        $stmt = $pdo->prepare("DELETE FROM `project_vacancy_submissions` WHERE `title` = :title");
-        $stmt->execute([':title' => 'Senior Frontend Developer (Full Time)']);
-    } catch (Throwable $e) {}
+    $removedTitles = [
+        'Senior Frontend Developer (Full Time)',
+        'Tutor Privat Pemrograman Python & Data Science',
+    ];
+    foreach ($removedTitles as $title) {
+        try {
+            $stmt = $pdo->prepare("DELETE FROM `project_vacancies` WHERE `title` = :title");
+            $stmt->execute([':title' => $title]);
+        } catch (Throwable $e) {}
+        try {
+            $stmt = $pdo->prepare("DELETE FROM `project_vacancy_submissions` WHERE `title` = :title");
+            $stmt->execute([':title' => $title]);
+        } catch (Throwable $e) {}
+    }
 }
 
 function gig_vacancy_seed_catalog_if_empty(PDO $pdo): void
