@@ -95,34 +95,36 @@ $breadcrumbCurrent = 'Cari Proyek';
 require __DIR__ . '/includes/worker-layout-start.php';
 ?>
 
-<style>
+<<style>
 .cari-proyek-container {
-  max-width: 1500px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
 .page-title-block {
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 }
 
 .page-title {
   margin: 0;
-  font-size: 2.2rem;
-  line-height: 1.1;
+  font-size: 1.85rem;
+  line-height: 1.2;
   color: #0f172a;
   font-weight: 800;
+  letter-spacing: -0.3px;
 }
 
 .page-title-sub {
-  margin: 7px 0 0 0;
+  margin: 4px 0 0 0;
   color: #64748b;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  font-weight: 500;
 }
 
 .bursa-layout {
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 18px;
+  grid-template-columns: 280px 1fr;
+  gap: 20px;
   align-items: start;
 }
 
@@ -130,31 +132,33 @@ require __DIR__ . '/includes/worker-layout-start.php';
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
-  padding: 18px 14px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+  padding: 18px 16px;
   position: sticky;
   top: 86px;
 }
 
 .filter-panel h2 {
-  margin: 0 0 14px 0;
-  font-size: 2rem;
+  margin: 0 0 12px 0;
+  font-size: 1.15rem;
   font-weight: 800;
   color: #0f172a;
+  letter-spacing: -0.2px;
 }
 
 .filter-search-box {
   display: flex;
   align-items: center;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #cbd5e1;
   border-radius: 10px;
   background: #f8fafc;
-  padding: 8px 10px;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
 }
 
 .filter-search-box:focus-within {
-  border-color: #60a5fa;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
   background: #fff;
 }
 
@@ -163,21 +167,24 @@ require __DIR__ . '/includes/worker-layout-start.php';
   background: transparent;
   outline: none;
   width: 100%;
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   color: #0f172a;
   margin-left: 8px;
+  font-family: inherit;
 }
 
 .filter-group {
-  border-top: 1px solid #eef2f7;
+  border-top: 1px solid #f1f5f9;
   padding-top: 12px;
   margin-top: 12px;
 }
 
 .filter-group-title {
-  font-size: 0.9rem;
+  font-size: 0.78rem;
   font-weight: 800;
-  color: #1e293b;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   margin-bottom: 8px;
 }
 
@@ -186,32 +193,33 @@ require __DIR__ . '/includes/worker-layout-start.php';
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 4px;
+  gap: 3px;
 }
 
 .filter-link {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 7px 8px;
+  padding: 7px 10px;
   border-radius: 8px;
   border: 1px solid transparent;
   color: #475569;
-  font-size: 0.92rem;
+  font-size: 0.84rem;
   font-weight: 600;
   text-decoration: none;
   gap: 8px;
+  transition: all 0.15s ease;
 }
 
 .filter-link:hover {
   background: #f8fafc;
-  color: #1e293b;
+  color: #0f172a;
 }
 
 .filter-link.active {
-  background: #f8fbff;
-  border-color: #cfe3ff;
-  color: #1d4ed8;
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0284c7;
   font-weight: 700;
 }
 
@@ -226,15 +234,15 @@ require __DIR__ . '/includes/worker-layout-start.php';
 }
 
 .filter-link.active .filter-radio-dot {
-  border-color: #60a5fa;
+  border-color: #0284c7;
 }
 
 .filter-link.active .filter-radio-dot::after {
   content: "";
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 999px;
-  background: #3b82f6;
+  background: #0284c7;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -243,18 +251,25 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
 .filter-pill-count {
   font-size: 0.7rem;
-  background: #eef2f7;
+  background: #e2e8f0;
   color: #475569;
   border-radius: 999px;
-  padding: 1px 7px;
+  padding: 2px 7px;
+  font-weight: 700;
 }
 
 .filter-reset {
   display: inline-flex;
-  margin-top: 12px;
-  font-size: 0.78rem;
+  align-items: center;
+  gap: 4px;
+  margin-top: 14px;
+  font-size: 0.8rem;
   font-weight: 700;
-  color: #2563eb;
+  color: #0284c7;
+  text-decoration: none;
+}
+.filter-reset:hover {
+  text-decoration: underline;
 }
 
 .results-pane {
@@ -264,27 +279,25 @@ require __DIR__ . '/includes/worker-layout-start.php';
 .proyek-cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  gap: 16px;
 }
 
-@media (max-width: 992px) {
-  .page-title {
-    font-size: 1.7rem;
+@media (max-width: 1100px) {
+  .proyek-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
+}
+
+@media (max-width: 840px) {
   .bursa-layout {
     grid-template-columns: 1fr;
   }
   .filter-panel {
     position: static;
   }
-  .proyek-cards-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
-@media (max-width: 640px) {
-  .filter-panel h2 {
-    font-size: 1.6rem;
-  }
+
+@media (max-width: 580px) {
   .proyek-cards-grid {
     grid-template-columns: 1fr;
   }
@@ -294,34 +307,32 @@ require __DIR__ . '/includes/worker-layout-start.php';
   background: #ffffff;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
   border: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 16px 16px 14px;
-  transition: all 0.2s ease;
+  padding: 18px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
   color: inherit;
   cursor: pointer;
   height: 100%;
-  min-height: 330px;
 }
 
 a.proyek-card-item:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   border-color: #93c5fd;
-  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.09);
+  box-shadow: 0 10px 22px -4px rgba(37, 99, 235, 0.1);
   color: inherit;
 }
 
 .card-employer-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 12px;
   gap: 8px;
-  height: 38px;
 }
 
 .card-employer-left {
@@ -337,26 +348,24 @@ a.proyek-card-item:hover {
   flex: 1;
 }
 
-/* Same profile picture avatar as Penawaran Proyek */
 .employer-avatar-circle-sm {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
-  background: #f1f5f9;
-  color: #0f172a;
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.95rem;
   flex-shrink: 0;
-  border: 1px solid #e2e8f0;
 }
 
 .card-employer-name {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: #0f172a;
-  line-height: 1.25;
+  line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -366,19 +375,17 @@ a.proyek-card-item:hover {
   font-size: 0.75rem;
   color: #64748b;
   margin-top: 2px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: 500;
 }
 
 .card-cat-badge {
-  background: #f8fafc;
-  color: #64748b;
+  background: #f1f5f9;
+  color: #475569;
   font-size: 0.7rem;
-  font-weight: 700;
+  font-weight: 600;
   padding: 3px 9px;
   border-radius: 9999px;
   white-space: nowrap;
@@ -390,103 +397,103 @@ a.proyek-card-item:hover {
   font-size: 1rem;
   font-weight: 800;
   color: #0f172a;
-  margin: 0 0 10px 0;
+  margin: 0 0 12px 0;
   line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  height: 2.7em;
-}
-
-.card-company-line {
-  margin: 0 0 8px 0;
-  font-size: 0.82rem;
-  color: #334155;
-  font-weight: 600;
+  min-height: 2.7em;
 }
 
 .card-meta-detail {
-  display: block;
-  background: transparent;
-  padding: 0;
-  border-radius: 0;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 10px;
+  padding: 10px 12px;
   margin-bottom: 12px;
-  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.card-salary {
-  font-size: 0.76rem;
+.card-salary-label {
+  font-size: 0.68rem;
+  font-weight: 700;
   color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
   margin-bottom: 2px;
 }
 
 .card-salary-value {
-  font-size: 1.08rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: #0f172a;
+  line-height: 1.2;
 }
 
-.meta-pill-info {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: #64748b;
-  font-size: 0.76rem;
-  margin-top: 4px;
-}
-
-.card-apply-deadline {
-  font-size: 0.76rem;
-  color: #64748b;
-  font-weight: 500;
-  margin-top: auto;
-  padding-top: 10px;
-  border-top: 1px solid #f1f5f9;
+.meta-pill-duration {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #0284c7;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  padding: 3px 9px;
+  border-radius: 6px;
+  white-space: nowrap;
 }
 
 .card-skills-row {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  height: 58px;
-  align-content: flex-start;
-  margin-bottom: 8px;
-  overflow: hidden;
+  margin-bottom: 14px;
+  min-height: 28px;
 }
 
 .skill-pill-sm {
-  background: #f8fafc;
-  color: #475569;
-  font-size: 0.72rem;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 0.74rem;
   font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 8px;
+  padding: 3px 9px;
+  border-radius: 6px;
   border: 1px solid #e2e8f0;
 }
 
 .skill-pill-more {
-  background: #f1f5f9;
+  background: #e2e8f0;
   color: #334155;
   font-size: 0.72rem;
   font-weight: 700;
-  padding: 4px 9px;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
+  padding: 3px 8px;
+  border-radius: 6px;
 }
 
 .card-action-footer {
-  padding-top: 10px;
+  padding-top: 12px;
   border-top: 1px solid #f1f5f9;
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   font-size: 0.76rem;
-  font-weight: 700;
-  color: #2563eb;
-  gap: 6px;
 }
 
+.deadline-text {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.apply-cta {
+  font-weight: 700;
+  color: #0284c7;
+  transition: transform 0.15s ease;
+}
+
+a.proyek-card-item:hover .apply-cta {
+  transform: translateX(3px);
+}
 </style>
 
 <div class="cari-proyek-container">
@@ -544,7 +551,7 @@ a.proyek-card-item:hover {
         <input type="hidden" name="budget" value="<?php echo htmlspecialchars($selectedBudget, ENT_QUOTES, 'UTF-8'); ?>">
         <div class="filter-search-box">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" name="q" placeholder="Cari lowongan..." value="<?php echo htmlspecialchars($q, ENT_QUOTES, 'UTF-8'); ?>" />
+          <input type="text" name="q" placeholder="Cari kata kunci lowongan..." value="<?php echo htmlspecialchars($q, ENT_QUOTES, 'UTF-8'); ?>" />
         </div>
       </form>
 
@@ -582,7 +589,7 @@ a.proyek-card-item:hover {
             <li>
               <a class="filter-link <?php echo $isActive ? 'active' : ''; ?>" href="?<?php echo htmlspecialchars(http_build_query(['category' => $catKey, 'budget' => $selectedBudget, 'q' => $q, 'location' => $selectedLocation]), ENT_QUOTES, 'UTF-8'); ?>">
                 <span class="filter-radio-dot"></span>
-                <span><?php echo htmlspecialchars($catLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                <span style="flex:1;"><?php echo htmlspecialchars($catLabel, ENT_QUOTES, 'UTF-8'); ?></span>
                 <span class="filter-pill-count"><?php echo (int)($catCounts[$catKey] ?? 0); ?></span>
               </a>
             </li>
@@ -605,12 +612,12 @@ a.proyek-card-item:hover {
         </ul>
       </div>
 
-      <a class="filter-reset" href="worker-bursa.php">Reset semua filter</a>
+      <a class="filter-reset" href="worker-bursa.php">↺ Reset semua filter</a>
     </aside>
 
     <section class="results-pane">
       <?php if (empty($vacancies)): ?>
-        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 48px 20px; text-align: center; color: #64748b;">
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 48px 20px; text-align: center; color: #64748b;">
           <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; color: #94a3b8;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <h3 style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 6px;">Tidak ada proyek yang cocok</h3>
           <p style="font-size: 0.9rem;">Coba sesuaikan kata kunci pencarian atau pilih kategori lain.</p>
@@ -624,6 +631,7 @@ a.proyek-card-item:hover {
               $employerDisplayName = (string)($job['employer'] ?? ($job['client'] ?? 'PT SIAPKerja Partner'));
               $skillsToShow = array_slice($job['skills'], 0, 3);
               $remainingCount = count($job['skills']) - count($skillsToShow);
+              $cleanBudget = trim(preg_replace('/\s*\/\s*bulan/i', '', (string)($job['budget'] ?? '')));
             ?>
             <a class="proyek-card-item" href="worker-project-detail.php?id=<?php echo urlencode($job['id']); ?>">
               <div>
@@ -647,9 +655,11 @@ a.proyek-card-item:hover {
                 <h3 class="card-project-title"><?php echo htmlspecialchars($job['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
 
                 <div class="card-meta-detail">
-                  <div class="card-salary">Gaji</div>
-                  <div class="card-salary-value"><?php echo htmlspecialchars($job['budget'], ENT_QUOTES, 'UTF-8'); ?></div>
-                  <div class="meta-pill-info">Durasi: <?php echo htmlspecialchars($job['duration'], ENT_QUOTES, 'UTF-8'); ?></div>
+                  <div>
+                    <div class="card-salary-label">Gaji</div>
+                    <div class="card-salary-value"><?php echo htmlspecialchars($cleanBudget, ENT_QUOTES, 'UTF-8'); ?></div>
+                  </div>
+                  <div class="meta-pill-duration"><?php echo htmlspecialchars((string)($job['duration'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></div>
                 </div>
 
                 <div class="card-skills-row">
@@ -662,14 +672,16 @@ a.proyek-card-item:hover {
                 </div>
               </div>
 
-              <div class="card-apply-deadline">Lamar sebelum <?php echo htmlspecialchars((string)($job['deadline'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
+              <div class="card-action-footer">
+                <span class="deadline-text">Tenggat: <?php echo htmlspecialchars((string)($job['deadline'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></span>
+                <span class="apply-cta">Lamar Proyek &rarr;</span>
+              </div>
             </a>
           <?php endforeach; ?>
         </div>
       <?php endif; ?>
     </section>
   </div>
-
 </div>
 
 <?php require __DIR__ . '/includes/worker-layout-end.php'; ?>
