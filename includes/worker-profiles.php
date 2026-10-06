@@ -768,7 +768,7 @@ function gig_find_worker(string $id): ?array
 
         // If registration data exists for this user, merge registered data
         $reg = gig_get_worker_registration($cleanId);
-        if ($reg !== null) {
+        if ($reg !== null && $cleanId !== 'tessa') {
             if (!empty($reg['display_name'])) {
                 $profiles[$cleanId]['name'] = $reg['display_name'];
             }
@@ -801,9 +801,11 @@ function gig_find_worker(string $id): ?array
         if (!empty($profiles[$cleanId]['experience']) && is_array($profiles[$cleanId]['experience'])) {
             gig_sort_experience_timeline($profiles[$cleanId]['experience']);
         }
-        $stats = gig_worker_project_stats($cleanId);
-        $profiles[$cleanId]['completed_projects'] = $stats['completed_projects'];
-        $profiles[$cleanId]['total_projects'] = $stats['total_projects'];
+        if ($cleanId !== 'tessa') {
+            $stats = gig_worker_project_stats($cleanId);
+            $profiles[$cleanId]['completed_projects'] = $stats['completed_projects'];
+            $profiles[$cleanId]['total_projects'] = $stats['total_projects'];
+        }
         if (!function_exists('gig_avatar_url_for_worker_id')) {
             require_once __DIR__ . '/user-avatars.php';
         }

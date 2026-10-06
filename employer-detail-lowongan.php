@@ -373,12 +373,6 @@ require __DIR__ . '/includes/employer-layout-start.php';
     <div class="cand-row"><div class="cand-label">🏷️ Bidang Keahlian</div><div id="candSkillsBadges" class="cand-value" style="display:flex;gap:6px;flex-wrap:wrap;">-</div></div>
     <div class="cand-row"><div class="cand-label">🧩 Bidang</div><div id="candBidang" class="cand-value">-</div></div>
     <div class="cand-row"><div class="cand-label">ℹ️ Tentang</div><div id="candAbout" class="cand-value" style="font-weight:500;line-height:1.45;">-</div></div>
-    <div class="cand-row">
-      <div class="cand-label">📎 Resume</div>
-      <div class="cand-value">
-        <a id="candResumeLink" href="#" target="_blank" style="color:#2563eb;text-decoration:none;font-weight:700;">Buka dokumen</a>
-      </div>
-    </div>
 
     <div class="cand-tabline" style="margin-top:8px;">
       <span id="candTabProfileBtn" class="active" style="cursor:pointer;">Profil Overview</span>
@@ -487,7 +481,6 @@ require __DIR__ . '/includes/employer-layout-start.php';
       skillsBadges: document.getElementById('candSkillsBadges'),
       bidang: document.getElementById('candBidang'),
       about: document.getElementById('candAbout'),
-      resume: document.getElementById('candResumeLink'),
       contactEmail: document.getElementById('candContactEmail'),
       contactWa: document.getElementById('candContactWa'),
       titleInfo: document.getElementById('candTitleInfo'),
@@ -550,12 +543,6 @@ require __DIR__ . '/includes/employer-layout-start.php';
       if (fullProfileBtn) {
         fullProfileBtn.setAttribute('href', 'worker-profile.php?id=' + encodeURIComponent(workerId) + '&from=kandidat');
       }
-
-      let resumeUrl = '#';
-      if (profile.portfolio && profile.portfolio[0] && profile.portfolio[0].files && profile.portfolio[0].files[0]) {
-        resumeUrl = profile.portfolio[0].files[0].url || '#';
-      }
-      if (fields.resume) fields.resume.setAttribute('href', resumeUrl);
 
       // Skills badges
       if (fields.skillsBadges) {
