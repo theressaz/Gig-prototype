@@ -795,6 +795,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
                   $statusClass = 'is-blue';
                   if ($statusKey === 'revision') {
                       $statusClass = 'is-amber';
+                      $deadlineLabel = '-';
                   } elseif ($statusKey === 'active' || $statusKey === 'approved') {
                       $statusClass = 'is-green';
                       $statusText = 'Disetujui';
