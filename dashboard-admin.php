@@ -735,25 +735,25 @@ require __DIR__ . '/includes/admin-layout-start.php';
 
         <div class="project-toolbar" style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap;">
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex:1;">
-            <form method="get" class="project-search-form" style="margin:0;">
+            <form method="get" class="project-search-form" style="margin:0;" onsubmit="return false;">
               <input type="hidden" name="tab" value="projects">
               <input type="hidden" name="state" value="<?php echo htmlspecialchars($state, ENT_QUOTES, 'UTF-8'); ?>">
               <input type="hidden" name="entity" value="<?php echo htmlspecialchars($entityFilter, ENT_QUOTES, 'UTF-8'); ?>">
               <input type="text" name="q" value="<?php echo htmlspecialchars($searchQ, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Cari lowongan..." />
             </form>
 
-            <div class="entity-pills-group" style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap;">
-              <a class="entity-pill <?php echo $entityFilter === 'all' ? 'active' : ''; ?>" style="display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:9999px;font-size:0.86rem;font-weight:700;text-decoration:none;<?php echo $entityFilter === 'all' ? 'background:#ffffff;color:#0284c7;border:1.5px solid #0284c7;box-shadow:0 2px 8px rgba(2,132,199,0.16);' : 'background:#ffffff;color:#475569;border:1.5px solid #e2e8f0;'; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'all'), ENT_QUOTES, 'UTF-8'); ?>">
-                Semua <span class="pill-badge" style="display:inline-flex;align-items:center;justify-content:center;padding:2px 8px;border-radius:9999px;font-size:0.76rem;font-weight:800;<?php echo $entityFilter === 'all' ? 'background:#e0f2fe;color:#0284c7;' : 'background:#f1f5f9;color:#475569;'; ?>"><?php echo (int)$entityCounts['all']; ?></span>
+            <div class="entity-pills-group">
+              <a class="entity-pill <?php echo $entityFilter === 'all' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'all'), ENT_QUOTES, 'UTF-8'); ?>">
+                Semua <span class="pill-badge"><?php echo (int)$entityCounts['all']; ?></span>
               </a>
-              <a class="entity-pill <?php echo $entityFilter === 'perusahaan' ? 'active' : ''; ?>" style="display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:9999px;font-size:0.86rem;font-weight:700;text-decoration:none;<?php echo $entityFilter === 'perusahaan' ? 'background:#ffffff;color:#0284c7;border:1.5px solid #0284c7;box-shadow:0 2px 8px rgba(2,132,199,0.16);' : 'background:#ffffff;color:#475569;border:1.5px solid #e2e8f0;'; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'perusahaan'), ENT_QUOTES, 'UTF-8'); ?>">
-                Perusahaan <span class="pill-badge" style="display:inline-flex;align-items:center;justify-content:center;padding:2px 8px;border-radius:9999px;font-size:0.76rem;font-weight:800;<?php echo $entityFilter === 'perusahaan' ? 'background:#e0f2fe;color:#0284c7;' : 'background:#f1f5f9;color:#475569;'; ?>"><?php echo (int)$entityCounts['perusahaan']; ?></span>
+              <a class="entity-pill <?php echo $entityFilter === 'perusahaan' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'perusahaan'), ENT_QUOTES, 'UTF-8'); ?>">
+                Perusahaan <span class="pill-badge"><?php echo (int)$entityCounts['perusahaan']; ?></span>
               </a>
-              <a class="entity-pill <?php echo $entityFilter === 'individual' ? 'active' : ''; ?>" style="display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:9999px;font-size:0.86rem;font-weight:700;text-decoration:none;<?php echo $entityFilter === 'individual' ? 'background:#ffffff;color:#0284c7;border:1.5px solid #0284c7;box-shadow:0 2px 8px rgba(2,132,199,0.16);' : 'background:#ffffff;color:#475569;border:1.5px solid #e2e8f0;'; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'individual'), ENT_QUOTES, 'UTF-8'); ?>">
-                Individual <span class="pill-badge" style="display:inline-flex;align-items:center;justify-content:center;padding:2px 8px;border-radius:9999px;font-size:0.76rem;font-weight:800;<?php echo $entityFilter === 'individual' ? 'background:#e0f2fe;color:#0284c7;' : 'background:#f1f5f9;color:#475569;'; ?>"><?php echo (int)$entityCounts['individual']; ?></span>
+              <a class="entity-pill <?php echo $entityFilter === 'individual' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'individual'), ENT_QUOTES, 'UTF-8'); ?>">
+                Individual <span class="pill-badge"><?php echo (int)$entityCounts['individual']; ?></span>
               </a>
-              <a class="entity-pill <?php echo $entityFilter === 'gig_worker' ? 'active' : ''; ?>" style="display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:9999px;font-size:0.86rem;font-weight:700;text-decoration:none;<?php echo $entityFilter === 'gig_worker' ? 'background:#ffffff;color:#0284c7;border:1.5px solid #0284c7;box-shadow:0 2px 8px rgba(2,132,199,0.16);' : 'background:#ffffff;color:#475569;border:1.5px solid #e2e8f0;'; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'gig_worker'), ENT_QUOTES, 'UTF-8'); ?>">
-                Gig Workers <span class="pill-badge" style="display:inline-flex;align-items:center;justify-content:center;padding:2px 8px;border-radius:9999px;font-size:0.76rem;font-weight:800;<?php echo $entityFilter === 'gig_worker' ? 'background:#e0f2fe;color:#0284c7;' : 'background:#f1f5f9;color:#475569;'; ?>"><?php echo (int)$entityCounts['gig_worker']; ?></span>
+              <a class="entity-pill <?php echo $entityFilter === 'gig_worker' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'gig_worker'), ENT_QUOTES, 'UTF-8'); ?>">
+                Gig Workers <span class="pill-badge"><?php echo (int)$entityCounts['gig_worker']; ?></span>
               </a>
             </div>
           </div>
@@ -775,11 +775,9 @@ require __DIR__ . '/includes/admin-layout-start.php';
               </tr>
             </thead>
             <tbody>
-              <?php if ($projectRows === []): ?>
-                <tr><td colspan="7"><div class="empty-state">Tidak ada lowongan pada kategori/status ini.</div></td></tr>
-              <?php endif; ?>
-              <?php foreach ($projectRows as $job): ?>
-                <?php
+              <?php
+                $hasVisible = false;
+                foreach ($vacancies as $job):
                   $submittedTs = strtotime((string)($job['posted'] ?? ''));
                   if (!$submittedTs) {
                       $submittedTs = time();
@@ -811,8 +809,29 @@ require __DIR__ . '/includes/admin-layout-start.php';
                       'gig_worker' => 'Gig Worker',
                       default => 'Perusahaan',
                   };
+
+                  $matchState = ($state === 'all') ||
+                                ($state === 'pending' && $statusKey === 'review') ||
+                                ($state === 'approved' && in_array($statusKey, ['active', 'approved'], true)) ||
+                                ($state === $statusKey);
+
+                  $matchEntity = ($entityFilter === 'all') || ($entityKey === $entityFilter);
+
+                  $matchSearch = true;
+                  if ($searchQ !== '') {
+                      $haystack = strtolower(($job['title'] ?? '') . ' ' . ($job['employer'] ?? '') . ' ' . ($job['desc'] ?? ''));
+                      $matchSearch = str_contains($haystack, strtolower($searchQ));
+                  }
+
+                  $isVisible = $matchState && $matchEntity && $matchSearch;
+                  if ($isVisible) {
+                      $hasVisible = true;
+                  }
                 ?>
-                <tr>
+                <tr data-status="<?php echo htmlspecialchars($statusKey, ENT_QUOTES, 'UTF-8'); ?>"
+                    data-entity="<?php echo htmlspecialchars($entityKey, ENT_QUOTES, 'UTF-8'); ?>"
+                    data-search="<?php echo htmlspecialchars(strtolower(($job['title'] ?? '') . ' ' . ($job['employer'] ?? '') . ' ' . ($job['desc'] ?? '')), ENT_QUOTES, 'UTF-8'); ?>"
+                    style="<?php echo $isVisible ? '' : 'display:none;'; ?>">
                   <td class="project-col-title">
                     <div class="project-title-wrap">
                       <div class="project-title-avatar"><?php echo htmlspecialchars(strtoupper(substr((string)$job['title'], 0, 1)), ENT_QUOTES, 'UTF-8'); ?></div>
@@ -832,10 +851,149 @@ require __DIR__ . '/includes/admin-layout-start.php';
                   </td>
                 </tr>
               <?php endforeach; ?>
+              <tr class="empty-row-js" style="<?php echo $hasVisible ? 'display:none;' : ''; ?>">
+                <td colspan="7"><div class="empty-state">Tidak ada lowongan pada kategori/status ini.</div></td>
+              </tr>
             </tbody>
           </table>
         </div>
       </section>
+
+      <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const statusTabs = document.querySelectorAll('.project-status-tabs a');
+        const entityPills = document.querySelectorAll('.entity-pills-group a');
+        const searchInput = document.querySelector('.project-search-form input[name="q"]');
+        const tableRows = document.querySelectorAll('.project-verify-table tbody tr[data-status]');
+        const emptyRow = document.querySelector('.project-verify-table tbody tr.empty-row-js');
+
+        let currentState = '<?php echo htmlspecialchars($state, ENT_QUOTES, 'UTF-8'); ?>';
+        let currentEntity = '<?php echo htmlspecialchars($entityFilter, ENT_QUOTES, 'UTF-8'); ?>';
+
+        function filterVacancies() {
+          const searchQ = searchInput ? searchInput.value.toLowerCase().trim() : '';
+          let visibleCount = 0;
+
+          const stateCounts = { all: 0, pending: 0, revision: 0, approved: 0, rejected: 0 };
+          const entityCounts = { all: 0, perusahaan: 0, individual: 0, gig_worker: 0 };
+
+          tableRows.forEach(row => {
+            const st = row.getAttribute('data-status');
+            const ent = row.getAttribute('data-entity');
+            const haystack = row.getAttribute('data-search') || '';
+
+            const matchSearch = searchQ === '' || haystack.includes(searchQ);
+            if (!matchSearch) {
+              row.style.display = 'none';
+              return;
+            }
+
+            const matchState = (currentState === 'all') ||
+                               (currentState === 'pending' && st === 'review') ||
+                               (currentState === 'approved' && (st === 'active' || st === 'approved')) ||
+                               (currentState === st);
+
+            const matchEntity = (currentEntity === 'all') || (currentEntity === ent);
+
+            if (matchEntity) {
+              stateCounts.all++;
+              if (st === 'review') stateCounts.pending++;
+              if (st === 'revision') stateCounts.revision++;
+              if (st === 'active' || st === 'approved') stateCounts.approved++;
+              if (st === 'rejected') stateCounts.rejected++;
+            }
+
+            if (matchState) {
+              entityCounts.all++;
+              if (ent === 'perusahaan') entityCounts.perusahaan++;
+              if (ent === 'individual') entityCounts.individual++;
+              if (ent === 'gig_worker') entityCounts.gig_worker++;
+            }
+
+            if (matchState && matchEntity) {
+              row.style.display = '';
+              visibleCount++;
+            } else {
+              row.style.display = 'none';
+            }
+          });
+
+          statusTabs.forEach(tab => {
+            const href = tab.getAttribute('href') || '';
+            const stateMatch = href.match(/state=([^&]+)/);
+            const tabState = stateMatch ? stateMatch[1] : 'all';
+            const badge = tab.querySelector('span');
+            if (badge && stateCounts[tabState] !== undefined) {
+              badge.textContent = stateCounts[tabState];
+            }
+            if (tabState === currentState) {
+              tab.classList.add('active');
+            } else {
+              tab.classList.remove('active');
+            }
+          });
+
+          entityPills.forEach(pill => {
+            const href = pill.getAttribute('href') || '';
+            const entityMatch = href.match(/entity=([^&]+)/);
+            const pillEntity = entityMatch ? entityMatch[1] : 'all';
+            const badge = pill.querySelector('.pill-badge');
+            if (badge && entityCounts[pillEntity] !== undefined) {
+              badge.textContent = entityCounts[pillEntity];
+            }
+
+            if (pillEntity === currentEntity) {
+              pill.classList.add('active');
+            } else {
+              pill.classList.remove('active');
+            }
+          });
+
+          if (emptyRow) {
+            emptyRow.style.display = visibleCount === 0 ? '' : 'none';
+          }
+
+          const url = new URL(window.location.href);
+          url.searchParams.set('tab', 'projects');
+          url.searchParams.set('state', currentState);
+          url.searchParams.set('entity', currentEntity);
+          if (searchQ) {
+            url.searchParams.set('q', searchQ);
+          } else {
+            url.searchParams.delete('q');
+          }
+          window.history.pushState(null, '', url.toString());
+        }
+
+        statusTabs.forEach(tab => {
+          tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            const href = this.getAttribute('href') || '';
+            const stateMatch = href.match(/state=([^&]+)/);
+            if (stateMatch) {
+              currentState = stateMatch[1];
+              filterVacancies();
+            }
+          });
+        });
+
+        entityPills.forEach(pill => {
+          pill.addEventListener('click', function(e) {
+            e.preventDefault();
+            const href = this.getAttribute('href') || '';
+            const entityMatch = href.match(/entity=([^&]+)/);
+            if (entityMatch) {
+              currentEntity = entityMatch[1];
+              filterVacancies();
+            }
+          });
+        });
+
+        if (searchInput) {
+          searchInput.addEventListener('input', filterVacancies);
+        }
+      });
+      </script>
     <?php endif; ?>
 
 <?php require __DIR__ . '/includes/admin-layout-end.php'; ?>

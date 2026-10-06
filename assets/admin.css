@@ -1125,12 +1125,15 @@ a, a:hover, a:focus, a:active, a:visited {
   background: #dc2626;
 }
 
-/* Entity Section Filter Pills for Lowongan Verification */
+/* Segmented Entity Section Filter Bar for Lowongan Verification */
 .entity-pills-group {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 10px !important;
-  flex-wrap: wrap !important;
+  gap: 4px !important;
+  padding: 4px !important;
+  background: #f1f5f9 !important;
+  border-radius: 9999px !important;
+  border: 1px solid #e2e8f0 !important;
 }
 
 .entity-pill {
@@ -1140,48 +1143,49 @@ a, a:hover, a:focus, a:active, a:visited {
   gap: 8px !important;
   padding: 8px 18px !important;
   border-radius: 9999px !important;
-  font-size: 0.86rem !important;
-  font-weight: 700 !important;
-  color: #475569 !important;
-  background: #ffffff !important;
-  border: 1.5px solid #e2e8f0 !important;
+  font-size: 0.88rem !important;
+  font-weight: 600 !important;
+  color: #5b6b7c !important;
+  background: transparent !important;
+  border: none !important;
   text-decoration: none !important;
-  transition: all 0.2s ease !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: none !important;
   cursor: pointer !important;
   line-height: 1.2 !important;
 }
 
 .entity-pill:hover {
-  background: #f8fafc !important;
-  border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
 
 .entity-pill.active {
   background: #ffffff !important;
-  color: #0284c7 !important;
-  border: 1.5px solid #0284c7 !important;
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.16) !important;
+  color: #0b192c !important;
+  font-weight: 700 !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
 }
 
 .entity-pill .pill-badge {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  background: #f1f5f9 !important;
-  color: #475569 !important;
+  background: #e2e8f0 !important;
+  color: #1e293b !important;
   font-size: 0.76rem !important;
-  font-weight: 800 !important;
+  font-weight: 700 !important;
   padding: 2px 8px !important;
   border-radius: 9999px !important;
-  min-width: 20px !important;
+  min-width: 18px !important;
   line-height: 1 !important;
+  transition: all 0.2s ease !important;
 }
 
 .entity-pill.active .pill-badge {
-  background: #e0f2fe !important;
-  color: #0284c7 !important;
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+  font-weight: 800 !important;
 }
 
 
