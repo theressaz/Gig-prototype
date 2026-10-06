@@ -95,7 +95,7 @@ $breadcrumbCurrent = 'Cari Proyek';
 require __DIR__ . '/includes/worker-layout-start.php';
 ?>
 
-<<style>
+<style>
 .cari-proyek-container {
   max-width: 1400px;
   margin: 0 auto;

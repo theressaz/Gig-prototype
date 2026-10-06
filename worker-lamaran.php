@@ -3,8 +3,35 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/worker-auth.php';
 require_once __DIR__ . '/includes/project-applications.php';
 require_once __DIR__ . '/includes/project-vacancies.php';
+require_once __DIR__ . '/includes/worker-profiles.php';
 
-$applications = gig_get_applications_for_worker($username);
+/**
+ * Collect worker applications using all known identity keys
+ * (username, profile id, SIAPKerja email, profile email, display name),
+ * so historical records remain visible even if IDs differ.
+ */
+$workerProfile = gig_find_worker($username) ?? gig_find_worker('tessa');
+$identityKeys = array_values(array_unique(array_filter(array_map(
+    static fn($v) => strtolower(trim((string)$v)),
+    [
+        $username,
+        $_SESSION['username'] ?? '',
+        $_SESSION['siapkerja_email'] ?? '',
+        $_SESSION['siapkerja_name'] ?? '',
+        $workerProfile['id'] ?? '',
+        $workerProfile['name'] ?? '',
+        $workerProfile['contact']['email'] ?? '',
+    ]
+), static fn($v) => $v !== '')));
+
+$applications = [];
+foreach (gig_get_all_applications() as $app) {
+    $wid = strtolower(trim((string)($app['worker_id'] ?? '')));
+    $wname = strtolower(trim((string)($app['worker_name'] ?? '')));
+    if (in_array($wid, $identityKeys, true) || in_array($wname, $identityKeys, true)) {
+        $applications[] = $app;
+    }
+}
 usort($applications, static function (array $a, array $b): int {
     return strtotime((string)($b['updated_at'] ?? '')) <=> strtotime((string)($a['updated_at'] ?? ''));
 });
@@ -36,12 +63,12 @@ require __DIR__ . '/includes/worker-layout-start.php';
 ?>
 
 <style>
-.lamaran-wrap { max-width: 1120px; margin: 0 auto; }
+.lamaran-wrap { max-width: 1220px; margin: 0 auto; }
 .lamaran-toolbar { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
-.lamaran-title { margin:0; font-size:2rem; line-height:1.1; color:#0f172a; font-weight:800; }
+.lamaran-title { margin:0; font-size:2.1rem; line-height:1.1; color:#0f172a; font-weight:800; letter-spacing:-0.02em; }
 .lamaran-sub { margin:7px 0 0 0; color:#64748b; font-size:0.9rem; }
-.lamaran-filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
-.lamaran-filter-btn { border:1px solid #dbe2ef; background:#fff; color:#475569; border-radius:9999px; padding:7px 12px; font-size:0.78rem; font-weight:700; cursor:pointer; }
+.lamaran-filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+.lamaran-filter-btn { border:1px solid #dbe2ef; background:#fff; color:#475569; border-radius:9999px; padding:7px 12px; font-size:0.8rem; font-weight:700; cursor:pointer; }
 .lamaran-filter-btn.active { border-color:#93c5fd; background:#eff6ff; color:#1d4ed8; }
 .lamaran-card-list { display:flex; flex-direction:column; gap:12px; }
 .lamaran-card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; box-shadow:0 2px 7px rgba(15,23,42,0.04); padding:16px 18px; }
@@ -52,8 +79,13 @@ require __DIR__ . '/includes/worker-layout-start.php';
 .lamaran-meta-label { font-size:0.72rem; color:#64748b; display:block; margin-bottom:2px; }
 .lamaran-meta-value { font-size:0.84rem; color:#0f172a; font-weight:700; }
 .lamaran-empty { background:#fff; border:1px solid #e2e8f0; border-radius:14px; text-align:center; padding:44px 18px; color:#64748b; }
+.lamaran-kpis { display:grid; grid-template-columns:repeat(5,minmax(130px,1fr)); gap:10px; margin-bottom:14px; }
+.lamaran-kpi { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:12px; box-shadow:0 2px 6px rgba(15,23,42,0.03); }
+.lamaran-kpi .lbl { font-size:0.74rem; color:#64748b; font-weight:700; margin-bottom:4px; }
+.lamaran-kpi .num { font-size:1.2rem; font-weight:800; color:#0f172a; line-height:1; }
 @media (max-width: 900px) {
   .lamaran-meta-grid { grid-template-columns:repeat(2,minmax(120px,1fr)); }
+  .lamaran-kpis { grid-template-columns:repeat(2,minmax(130px,1fr)); }
 }
 </style>
 
@@ -74,6 +106,14 @@ require __DIR__ . '/includes/worker-layout-start.php';
     <button class="lamaran-filter-btn" type="button" onclick="filterLamaran('accepted', this)">Diterima (<?php echo (int)$counts['accepted']; ?>)</button>
     <button class="lamaran-filter-btn" type="button" onclick="filterLamaran('rejected', this)">Ditolak (<?php echo (int)$counts['rejected']; ?>)</button>
   </div>
+
+  <section class="lamaran-kpis">
+    <article class="lamaran-kpi"><div class="lbl">Total Lamaran</div><div class="num"><?php echo (int)$counts['all']; ?></div></article>
+    <article class="lamaran-kpi"><div class="lbl">Diproses</div><div class="num"><?php echo (int)$counts['incoming'] + (int)$counts['reviewing'] + (int)$counts['interview']; ?></div></article>
+    <article class="lamaran-kpi"><div class="lbl">Diterima</div><div class="num" style="color:#047857;"><?php echo (int)$counts['accepted']; ?></div></article>
+    <article class="lamaran-kpi"><div class="lbl">Ditolak</div><div class="num" style="color:#b91c1c;"><?php echo (int)$counts['rejected']; ?></div></article>
+    <article class="lamaran-kpi"><div class="lbl">Wawancara</div><div class="num" style="color:#0e7490;"><?php echo (int)$counts['interview']; ?></div></article>
+  </section>
 
   <?php if ($applications === []): ?>
     <div class="lamaran-empty">
