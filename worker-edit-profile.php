@@ -645,7 +645,26 @@ require __DIR__ . '/includes/worker-layout-start.php';
     </div>
 
     <div style="margin-bottom:28px;">
-      <h2 style="font-size:1.1rem;font-weight:800;color:#0f172a;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #f1f5f9;">3. Pengalaman & Portofolio</h2>
+      <h2 style="font-size:1.1rem;font-weight:800;color:#0f172a;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #f1f5f9;">3. Bidang Keahlian & Skill</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <label style="display:block;font-size:0.82rem;font-weight:700;color:#1e293b;margin-bottom:6px;">Bidang Keahlian <span style="color:#ef4444;">*</span></label>
+          <select name="bidang_keahlian" required style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;">
+            <option value="">-- Pilih Bidang Keahlian --</option>
+            <?php foreach (['Desain UI/UX','Digital Marketing','Pengembangan Website','Pengembangan Aplikasi Mobile','Data Entry & Administrasi','Penulisan Konten','Video Editing & Motion Graphic','Fotografi & Videografi','Penerjemah','Tutor/Instruktur','Customer Service','Lainnya'] as $b): ?>
+              <option value="<?php echo htmlspecialchars($b, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $currentBidang === $b ? 'selected' : ''; ?>><?php echo htmlspecialchars($b, ENT_QUOTES, 'UTF-8'); ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:0.82rem;font-weight:700;color:#1e293b;margin-bottom:6px;">Skill / Keahlian Spesifik <span style="color:#ef4444;">*</span></label>
+          <input type="text" name="skills" required value="<?php echo htmlspecialchars((string)$currentSkillsRaw, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Contoh: Figma, React, Node.js" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;">
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:28px;">
+      <h2 style="font-size:1.1rem;font-weight:800;color:#0f172a;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #f1f5f9;">4. Pengalaman & Portofolio</h2>
       <div id="projectContainer" style="display:flex;flex-direction:column;gap:14px;">
         <?php foreach ($currentProjects as $idx => $proj): ?>
           <?php $isSk = !empty($proj['is_siapkerja']); ?>
@@ -724,25 +743,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
         <?php endforeach; ?>
       </div>
       <button type="button" onclick="addProjectItem()" style="margin-top:10px;border:1px dashed #2563eb;background:#eff6ff;color:#1d4ed8;padding:8px 12px;border-radius:8px;font-weight:700;">+ Tambah Pengalaman & Portofolio</button>
-    </div>
-
-    <div style="margin-bottom:28px;">
-      <h2 style="font-size:1.1rem;font-weight:800;color:#0f172a;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #f1f5f9;">4. Bidang Keahlian & Skill</h2>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div>
-          <label style="display:block;font-size:0.82rem;font-weight:700;color:#1e293b;margin-bottom:6px;">Bidang Keahlian <span style="color:#ef4444;">*</span></label>
-          <select name="bidang_keahlian" required style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;">
-            <option value="">-- Pilih Bidang Keahlian --</option>
-            <?php foreach (['Desain UI/UX','Digital Marketing','Pengembangan Website','Pengembangan Aplikasi Mobile','Data Entry & Administrasi','Penulisan Konten','Video Editing & Motion Graphic','Fotografi & Videografi','Penerjemah','Tutor/Instruktur','Customer Service','Lainnya'] as $b): ?>
-              <option value="<?php echo htmlspecialchars($b, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $currentBidang === $b ? 'selected' : ''; ?>><?php echo htmlspecialchars($b, ENT_QUOTES, 'UTF-8'); ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <div>
-          <label style="display:block;font-size:0.82rem;font-weight:700;color:#1e293b;margin-bottom:6px;">Skill / Keahlian Spesifik <span style="color:#ef4444;">*</span></label>
-          <input type="text" name="skills" required value="<?php echo htmlspecialchars((string)$currentSkillsRaw, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Contoh: Figma, React, Node.js" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;">
-        </div>
-      </div>
     </div>
 
     <div style="margin-bottom:28px;">

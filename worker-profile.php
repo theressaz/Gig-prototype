@@ -135,7 +135,28 @@ if ($role === 'worker') {
       </section>
     <?php endif; ?>
 
-    <!-- SEGMENT 3: PENGALAMAN & PORTOFOLIO -->
+    <!-- SEGMENT 3: BIDANG KEAHLIAN & SKILL SPESIFIK -->
+    <section class="section-card">
+      <h2>Bidang Keahlian &amp; Skill Spesifik</h2>
+      <?php if ($bidangValue !== ''): ?>
+        <div style="margin-bottom:14px;">
+          <div style="font-size:0.78rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Bidang Keahlian Utama</div>
+          <span class="chip gold" style="font-size:0.88rem;padding:6px 14px;"><?php echo htmlspecialchars($bidangValue, ENT_QUOTES, 'UTF-8'); ?></span>
+        </div>
+      <?php endif; ?>
+      <?php if ($skillsList !== []): ?>
+        <div>
+          <div style="font-size:0.78rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Skill / Keahlian Spesifik</div>
+          <div class="skill-row">
+            <?php foreach ($skillsList as $skill): ?>
+              <span class="skill-tag"><?php echo htmlspecialchars((string)$skill, ENT_QUOTES, 'UTF-8'); ?></span>
+            <?php endforeach; ?>
+          </div>
+        </div>
+      <?php endif; ?>
+    </section>
+
+    <!-- SEGMENT 4: PENGALAMAN -->
     <section class="section-card">
       <h2>Pengalaman</h2>
       <div class="timeline">
@@ -173,50 +194,6 @@ if ($role === 'worker') {
           </article>
         <?php endforeach; ?>
       </div>
-    </section>
-
-    <section class="section-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h2>Portofolio</h2>
-        <span style="font-size:0.8rem;color:var(--primary-blue);font-weight:600;">Klik item untuk melihat berkas deliverable</span>
-      </div>
-      <div class="portfolio-grid" style="margin-top:14px;">
-        <?php foreach ($worker['portfolio'] as $item): ?>
-          <article class="portfolio-card" onclick="openDeliverableModal('<?php echo htmlspecialchars($item['id'], ENT_QUOTES, 'UTF-8'); ?>')" style="cursor:pointer;transition:transform 0.2s, box-shadow 0.2s;">
-            <div class="portfolio-cover" style="background:linear-gradient(135deg, <?php echo htmlspecialchars($worker['color'], ENT_QUOTES, 'UTF-8'); ?>, #1e293b);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;text-align:center;">
-              <span style="font-size:1.1rem;font-weight:700;color:#fff;"><?php echo htmlspecialchars($item['type'], ENT_QUOTES, 'UTF-8'); ?></span>
-              <span style="font-size:0.75rem;color:rgba(255,255,255,0.8);margin-top:4px;">📂 Lihat <?php echo count($item['files'] ?? []); ?> Berkas Deliverable</span>
-            </div>
-            <div class="portfolio-body">
-              <h3><?php echo htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
-              <div class="muted"><?php echo htmlspecialchars($item['client'], ENT_QUOTES, 'UTF-8'); ?> · <?php echo htmlspecialchars($item['year'], ENT_QUOTES, 'UTF-8'); ?></div>
-              <p style="margin-top:6px;font-size:0.84rem;line-height:1.4;"><?php echo htmlspecialchars($item['deliverable'], ENT_QUOTES, 'UTF-8'); ?></p>
-              <div style="margin-top:10px;font-size:0.78rem;color:var(--primary-blue);font-weight:700;">🔍 Buka Berkas Hasil Pekerjaan →</div>
-            </div>
-          </article>
-        <?php endforeach; ?>
-      </div>
-    </section>
-
-    <!-- SEGMENT 4: BIDANG KEAHLIAN & SKILL SPESIFIK -->
-    <section class="section-card">
-      <h2>Bidang Keahlian &amp; Skill Spesifik</h2>
-      <?php if ($bidangValue !== ''): ?>
-        <div style="margin-bottom:14px;">
-          <div style="font-size:0.78rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Bidang Keahlian Utama</div>
-          <span class="chip gold" style="font-size:0.88rem;padding:6px 14px;"><?php echo htmlspecialchars($bidangValue, ENT_QUOTES, 'UTF-8'); ?></span>
-        </div>
-      <?php endif; ?>
-      <?php if ($skillsList !== []): ?>
-        <div>
-          <div style="font-size:0.78rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Skill / Keahlian Spesifik</div>
-          <div class="skill-row">
-            <?php foreach ($skillsList as $skill): ?>
-              <span class="skill-tag"><?php echo htmlspecialchars((string)$skill, ENT_QUOTES, 'UTF-8'); ?></span>
-            <?php endforeach; ?>
-          </div>
-        </div>
-      <?php endif; ?>
     </section>
 
     <!-- SEGMENT 5: LINK VIDEO PROFIL GIG WORKER -->
