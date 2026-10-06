@@ -31,6 +31,7 @@ function gig_project_vacancies_base(): array
             'deadline' => '20 Sep 2026',
             'adminNote' => 'Lowongan telah diverifikasi dan disetujui oleh Admin KarirHub pada 01 Sep 2026.',
             'employer' => 'PT ABC',
+            'entity_type' => 'perusahaan',
         ],
         [
             'id' => 'GIG-2026-09-002',
@@ -50,6 +51,7 @@ function gig_project_vacancies_base(): array
             'deadline' => '20 Sep 2026',
             'adminNote' => 'Lowongan disetujui Admin pada 03 Sep 2026.',
             'employer' => 'PT ABC',
+            'entity_type' => 'perusahaan',
         ],
         [
             'id' => 'GIG-2026-09-003',
@@ -68,6 +70,8 @@ function gig_project_vacancies_base(): array
             'desc' => 'Menyusun strategi konten peluncuran fitur Gig Worker untuk meningkatkan awareness.',
             'deadline' => '28 Sep 2026',
             'adminNote' => 'Permohonan lowongan dalam antrean verifikasi Admin. Estimasi waktu 1x24 jam.',
+            'employer' => 'PT ABC',
+            'entity_type' => 'perusahaan',
         ],
         [
             'id' => 'GIG-2026-09-004',
@@ -86,6 +90,8 @@ function gig_project_vacancies_base(): array
             'desc' => 'Audit aksesibilitas standar WCAG 2.1 AA untuk komponen dashboard internal perusahaan.',
             'deadline' => '30 Sep 2026',
             'adminNote' => 'Revisi dari Admin: Harap perjelas cakupan rincian kriteria pengujian aksesibilitas dan format laporan yang diharapkan.',
+            'employer' => 'Wendy Danendra',
+            'entity_type' => 'individual',
         ],
         [
             'id' => 'GIG-2026-09-005',
@@ -104,13 +110,15 @@ function gig_project_vacancies_base(): array
             'desc' => 'Melakukan pengumpulan data massal dari platform eksternal.',
             'deadline' => '15 Sep 2026',
             'adminNote' => 'Penolakan dari Admin: Lowongan tidak memenuhi Syarat & Ketentuan KarirHub terkait perlindungan data pribadi dan hak cipta.',
+            'employer' => 'Vino',
+            'entity_type' => 'individual',
         ],
         [
             'id' => 'GIG-2026-09-006',
-            'title' => 'Penyusunan Modul Pelatihan Internal Gig Worker',
-            'category' => 'Pemasaran & Konten',
-            'status' => 'draft',
-            'statusLabel' => 'Draft',
+            'title' => 'Subkontrak Modul Frontend Dashboard (React Component)',
+            'category' => 'Desain & Kreatif',
+            'status' => 'review',
+            'statusLabel' => 'Menunggu Verifikasi',
             'budget' => 'Rp 5.000.000',
             'duration' => '3 Minggu',
             'applicantsCount' => 0,
@@ -118,10 +126,12 @@ function gig_project_vacancies_base(): array
             'quota' => 1,
             'location' => 'Jakarta',
             'posted' => '09 Sep 2026',
-            'skills' => ['Technical Writing', 'Instructional Design'],
-            'desc' => 'Draft materi pelatihan onboarding mitra freelancer baru.',
+            'skills' => ['React.js', 'Tailwind', 'Frontend Component'],
+            'desc' => 'Subkontrak pengembangan UI komponen React untuk dashboard klien.',
             'deadline' => '05 Okt 2026',
-            'adminNote' => 'Draft lowongan belum dikirim ke Admin.',
+            'adminNote' => 'Permohonan lowongan dalam antrean verifikasi Admin.',
+            'employer' => 'Theressa Zaratrusha',
+            'entity_type' => 'gig_worker',
         ],
         [
             'id' => 'GIG-2026-09-007',
@@ -141,6 +151,7 @@ function gig_project_vacancies_base(): array
             'deadline' => '10 Okt 2026',
             'adminNote' => 'Disetujui Admin KarirHub pada 10 Sep 2026.',
             'employer' => 'PT Talenta Digital Indonesia',
+            'entity_type' => 'perusahaan',
             'deliverables' => 'Source code React Native, dokumentasi build APK/IPA, dan panduan integrasi API.',
         ],
         [
@@ -161,6 +172,7 @@ function gig_project_vacancies_base(): array
             'deadline' => '26 Sep 2026',
             'adminNote' => 'Disetujui Admin pada 12 Sep 2026.',
             'employer' => 'CV Kreasi Visual Nusantara',
+            'entity_type' => 'perusahaan',
             'deliverables' => 'File vector logo (.AI/.SVG), brand guidelines PDF, dan template Canva/Figma.',
         ],
         [
@@ -180,7 +192,8 @@ function gig_project_vacancies_base(): array
             'desc' => 'Penulisan naskah landing page yang persuasif untuk produk SaaS B2B, mencakup value proposition, FAQ, dan call to action.',
             'deadline' => '24 Sep 2026',
             'adminNote' => 'Disetujui Admin pada 14 Sep 2026.',
-            'employer' => 'PT Solusi Awan Indonesia',
+            'employer' => 'Rian Ardiansyah',
+            'entity_type' => 'gig_worker',
             'deliverables' => 'Dokumen copy landing page (Google Docs/PDF) dan peta kata kunci SEO.',
         ],
         [
@@ -201,6 +214,7 @@ function gig_project_vacancies_base(): array
             'deadline' => '22 Sep 2026',
             'adminNote' => 'Disetujui Admin pada 15 Sep 2026.',
             'employer' => 'PT Analytics Indonesia Jaya',
+            'entity_type' => 'perusahaan',
             'deliverables' => 'Dataset tersaring (.CSV/.XLSX) dan ringkasan metode validasi data.',
         ],
         [
@@ -220,7 +234,8 @@ function gig_project_vacancies_base(): array
             'desc' => 'Audit teknis SEO on-page, riset kata kunci potensial, dan panduan optimasi struktur URL serta meta deskripsi.',
             'deadline' => '07 Okt 2026',
             'adminNote' => 'Disetujui Admin pada 16 Sep 2026.',
-            'employer' => 'PT Media Informasi Terpadu',
+            'employer' => 'Hendra Saputra',
+            'entity_type' => 'individual',
             'deliverables' => 'Laporan audit teknis SEO, spreadsheet kata kunci, dan panduan redaksi konten.',
         ],
         [
@@ -240,7 +255,8 @@ function gig_project_vacancies_base(): array
             'desc' => 'Refactoring arsitektur backend monolith menjadi microservices modular berbasis Docker dan Redis cache.',
             'deadline' => '30 Okt 2026',
             'adminNote' => 'Disetujui Admin pada 18 Sep 2026.',
-            'employer' => 'PT Infrastruktur Cloud Utama',
+            'employer' => 'Fajar Ramadhan',
+            'entity_type' => 'gig_worker',
             'deliverables' => 'Repository backend, Docker compose file, dan spesifikasi OpenAPI 3.0.',
         ],
         [

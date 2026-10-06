@@ -275,9 +275,12 @@ function admin_render_chart(string $title, array $segments): void
     echo '</div></article>';
 }
 
-function admin_state_tab_url(string $tab, string $state, string $q): string
+function admin_state_tab_url(string $tab, string $state, string $q, string $entity = 'all'): string
 {
     $params = ['tab' => $tab, 'state' => $state];
+    if ($entity !== 'all') {
+        $params['entity'] = $entity;
+    }
     if ($q !== '') {
         $params['q'] = $q;
     }
@@ -633,46 +636,105 @@ require __DIR__ . '/includes/admin-layout-start.php';
 
     <?php if ($tab === 'projects'): ?>
       <?php
+        $entityFilter = strtolower(trim((string)($_GET['entity'] ?? 'all')));
+        if (!in_array($entityFilter, ['all', 'perusahaan', 'individual', 'gig_worker'], true)) {
+            $entityFilter = 'all';
+        }
+
+        $getEntityType = static function (array $v): string {
+            if (!empty($v['entity_type'])) {
+                return strtolower((string)$v['entity_type']);
+            }
+            $emp = strtolower((string)($v['employer'] ?? ''));
+            if (preg_match('/(pt|cv|inc|corp|ltd|tbk|group|bumn|analytics|solusi|media|infrastruktur|talenta|mutualplus|indo hr)/i', $emp)) {
+                return 'perusahaan';
+            }
+            if (str_contains($emp, 'worker') || str_contains($emp, 'tessa') || str_contains($emp, 'rian') || str_contains($emp, 'fajar')) {
+                return 'gig_worker';
+            }
+            if ($emp !== '') {
+                return 'individual';
+            }
+            return 'perusahaan';
+        };
+
+        // Filter vacancies matching search query first
+        $vacanciesSearchFiltered = array_values(array_filter($vacancies, static function (array $v) use ($searchQ): bool {
+            if ($searchQ === '') return true;
+            $haystack = strtolower(($v['title'] ?? '') . ' ' . ($v['employer'] ?? '') . ' ' . ($v['desc'] ?? ''));
+            return str_contains($haystack, strtolower($searchQ));
+        }));
+
+        // Counts for status tabs
         $projectStateCounts = [
-            'all' => count($vacancies),
-            'pending' => count(array_filter($vacancies, static fn($v) => (string)($v['status'] ?? '') === 'review')),
-            'revision' => count(array_filter($vacancies, static fn($v) => (string)($v['status'] ?? '') === 'revision')),
-            'approved' => count(array_filter($vacancies, static fn($v) => (string)($v['status'] ?? '') === 'active')),
-            'rejected' => count(array_filter($vacancies, static fn($v) => (string)($v['status'] ?? '') === 'rejected')),
+            'all' => count($vacanciesSearchFiltered),
+            'pending' => count(array_filter($vacanciesSearchFiltered, static fn($v) => (string)($v['status'] ?? '') === 'review')),
+            'revision' => count(array_filter($vacanciesSearchFiltered, static fn($v) => (string)($v['status'] ?? '') === 'revision')),
+            'approved' => count(array_filter($vacanciesSearchFiltered, static fn($v) => in_array((string)($v['status'] ?? ''), ['active', 'approved'], true))),
+            'rejected' => count(array_filter($vacanciesSearchFiltered, static fn($v) => (string)($v['status'] ?? '') === 'rejected')),
         ];
-        $projectRows = array_values(array_filter($vacancies, static function (array $v) use ($state): bool {
+
+        // Filter by state first
+        $vacanciesStateFiltered = array_values(array_filter($vacanciesSearchFiltered, static function (array $v) use ($state): bool {
             $st = (string)($v['status'] ?? '');
-            if ($state === 'all') {
-                return true;
-            }
-            if ($state === 'pending') {
-                return $st === 'review';
-            }
-            if ($state === 'approved') {
-                return $st === 'active';
-            }
+            if ($state === 'all') return true;
+            if ($state === 'pending') return $st === 'review';
+            if ($state === 'approved') return in_array($st, ['active', 'approved'], true);
             return $st === $state;
+        }));
+
+        // Entity section counts under current active state
+        $entityCounts = [
+            'all' => count($vacanciesStateFiltered),
+            'perusahaan' => count(array_filter($vacanciesStateFiltered, static fn($v) => $getEntityType($v) === 'perusahaan')),
+            'individual' => count(array_filter($vacanciesStateFiltered, static fn($v) => $getEntityType($v) === 'individual')),
+            'gig_worker' => count(array_filter($vacanciesStateFiltered, static fn($v) => $getEntityType($v) === 'gig_worker')),
+        ];
+
+        // Final filtered rows
+        $projectRows = array_values(array_filter($vacanciesStateFiltered, static function (array $v) use ($entityFilter, $getEntityType): bool {
+            if ($entityFilter === 'all') return true;
+            return $getEntityType($v) === $entityFilter;
         }));
       ?>
       <section class="verify-board project-verify-board">
         <div class="verify-board-head">
           <h2>Verifikasi Lowongan</h2>
           <div class="verify-status-tabs project-status-tabs">
-            <a class="<?php echo $state === 'all' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'all', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Semua</a>
-            <a class="<?php echo $state === 'pending' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'pending', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Menunggu Verifikasi <span><?php echo (int)$projectStateCounts['pending']; ?></span></a>
-            <a class="<?php echo $state === 'revision' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'revision', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Revisi</a>
-            <a class="<?php echo $state === 'approved' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'approved', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Disetujui</a>
-            <a class="<?php echo $state === 'rejected' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'rejected', $searchQ), ENT_QUOTES, 'UTF-8'); ?>">Ditolak</a>
+            <a class="<?php echo $state === 'all' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'all', $searchQ, $entityFilter), ENT_QUOTES, 'UTF-8'); ?>">Semua <span><?php echo (int)$projectStateCounts['all']; ?></span></a>
+            <a class="<?php echo $state === 'pending' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'pending', $searchQ, $entityFilter), ENT_QUOTES, 'UTF-8'); ?>">Menunggu Verifikasi <span><?php echo (int)$projectStateCounts['pending']; ?></span></a>
+            <a class="<?php echo $state === 'revision' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'revision', $searchQ, $entityFilter), ENT_QUOTES, 'UTF-8'); ?>">Revisi <span><?php echo (int)$projectStateCounts['revision']; ?></span></a>
+            <a class="<?php echo $state === 'approved' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'approved', $searchQ, $entityFilter), ENT_QUOTES, 'UTF-8'); ?>">Disetujui <span><?php echo (int)$projectStateCounts['approved']; ?></span></a>
+            <a class="<?php echo $state === 'rejected' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', 'rejected', $searchQ, $entityFilter), ENT_QUOTES, 'UTF-8'); ?>">Ditolak <span><?php echo (int)$projectStateCounts['rejected']; ?></span></a>
           </div>
         </div>
 
-        <div class="project-toolbar">
-          <form method="get" class="project-search-form">
-            <input type="hidden" name="tab" value="projects">
-            <input type="hidden" name="state" value="<?php echo htmlspecialchars($state, ENT_QUOTES, 'UTF-8'); ?>">
-            <input type="text" name="q" value="<?php echo htmlspecialchars($searchQ, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Cari lowongan..." />
-          </form>
-          <a class="project-filter-btn" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, ''), ENT_QUOTES, 'UTF-8'); ?>">Filter</a>
+        <div class="project-toolbar" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;">
+            <form method="get" class="project-search-form" style="margin:0;">
+              <input type="hidden" name="tab" value="projects">
+              <input type="hidden" name="state" value="<?php echo htmlspecialchars($state, ENT_QUOTES, 'UTF-8'); ?>">
+              <input type="hidden" name="entity" value="<?php echo htmlspecialchars($entityFilter, ENT_QUOTES, 'UTF-8'); ?>">
+              <input type="text" name="q" value="<?php echo htmlspecialchars($searchQ, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Cari lowongan..." />
+            </form>
+
+            <div class="entity-pills-group">
+              <a class="entity-pill <?php echo $entityFilter === 'all' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'all'), ENT_QUOTES, 'UTF-8'); ?>">
+                Semua <span class="pill-badge"><?php echo (int)$entityCounts['all']; ?></span>
+              </a>
+              <a class="entity-pill <?php echo $entityFilter === 'perusahaan' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'perusahaan'), ENT_QUOTES, 'UTF-8'); ?>">
+                Perusahaan <span class="pill-badge"><?php echo (int)$entityCounts['perusahaan']; ?></span>
+              </a>
+              <a class="entity-pill <?php echo $entityFilter === 'individual' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'individual'), ENT_QUOTES, 'UTF-8'); ?>">
+                Individual <span class="pill-badge"><?php echo (int)$entityCounts['individual']; ?></span>
+              </a>
+              <a class="entity-pill <?php echo $entityFilter === 'gig_worker' ? 'active' : ''; ?>" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, $searchQ, 'gig_worker'), ENT_QUOTES, 'UTF-8'); ?>">
+                Gig Workers <span class="pill-badge"><?php echo (int)$entityCounts['gig_worker']; ?></span>
+              </a>
+            </div>
+          </div>
+
+          <a class="project-filter-btn" href="<?php echo htmlspecialchars(admin_state_tab_url('projects', $state, '', 'all'), ENT_QUOTES, 'UTF-8'); ?>">Filter</a>
         </div>
 
         <div class="verify-table-wrap">
@@ -690,7 +752,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
             </thead>
             <tbody>
               <?php if ($projectRows === []): ?>
-                <tr><td colspan="7"><div class="empty-state">Tidak ada lowongan pada status ini.</div></td></tr>
+                <tr><td colspan="7"><div class="empty-state">Tidak ada lowongan pada kategori/status ini.</div></td></tr>
               <?php endif; ?>
               <?php foreach ($projectRows as $job): ?>
                 <?php
@@ -717,6 +779,13 @@ require __DIR__ . '/includes/admin-layout-start.php';
                       $statusClass = 'is-red';
                       $deadlineLabel = '-';
                   }
+
+                  $entityKey = $getEntityType($job);
+                  $entityLabel = match($entityKey) {
+                      'individual' => 'Individual',
+                      'gig_worker' => 'Gig Worker',
+                      default => 'Perusahaan',
+                  };
                 ?>
                 <tr>
                   <td class="project-col-title">
@@ -728,7 +797,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
                       </div>
                     </div>
                   </td>
-                  <td class="project-col-entity">Perusahaan</td>
+                  <td class="project-col-entity"><?php echo htmlspecialchars($entityLabel, ENT_QUOTES, 'UTF-8'); ?></td>
                   <td class="project-col-status"><span class="project-status-chip <?php echo htmlspecialchars($statusClass, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($statusText, ENT_QUOTES, 'UTF-8'); ?></span></td>
                   <td class="project-col-deadline"><?php echo $deadlineLabel === '-' ? '-' : '<span class="project-deadline-chip">' . htmlspecialchars($deadlineLabel, ENT_QUOTES, 'UTF-8') . '</span>'; ?></td>
                   <td class="project-col-blacklist"><span class="project-safe-chip">Aman</span></td>

@@ -1125,4 +1125,55 @@ a, a:hover, a:focus, a:active, a:visited {
   background: #dc2626;
 }
 
+/* Entity Section Filter Pills for Lowongan Verification */
+.entity-pills-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.entity-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #64748b;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  text-decoration: none !important;
+  transition: all 0.18s ease;
+}
+
+.entity-pill:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.entity-pill.active {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1.5px solid #0284c7;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.12);
+}
+
+.entity-pill .pill-badge {
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: 9999px;
+}
+
+.entity-pill.active .pill-badge {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+
 
