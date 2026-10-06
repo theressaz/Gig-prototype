@@ -569,12 +569,36 @@ $extractPortfolioLinks = static function (array $portItem): array {
           <div class="detail-item"><div class="detail-item-sub">Belum ada pengalaman proyek yang diisi.</div></div>
         <?php endif; ?>
         <?php foreach ($projects as $exp): ?>
-          <div class="detail-item">
-            <div class="detail-item-title"><?php echo htmlspecialchars((string)($exp['role'] ?? $exp['project'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
-            <div class="detail-item-sub"><?php echo htmlspecialchars((string)($exp['project'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?> · <?php echo htmlspecialchars((string)($exp['period'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
+          <?php
+            $outTitle = !empty($exp['output_title']) ? $exp['output_title'] : ('Output Proyek - ' . ($exp['project'] ?? 'Deliverables Proyek'));
+            $outFiles = !empty($exp['files']) && is_array($exp['files']) ? $exp['files'] : [
+                ['name' => 'Tautan Output Proyek (' . ($exp['project'] ?? 'Hasil Karya') . ')', 'url' => 'https://figma.com/@gigworker/' . urlencode(strtolower(str_replace([' ', '(', ')', '/'], ['-', '', '', '-'], $exp['project'] ?? 'output-proyek')))]
+            ];
+          ?>
+          <div class="detail-item" style="margin-bottom:14px;">
+            <div class="detail-item-title" style="font-weight:700;color:#0f172a;"><?php echo htmlspecialchars((string)($exp['role'] ?? $exp['project'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
+            <div class="detail-item-sub" style="color:#64748b;"><?php echo htmlspecialchars((string)($exp['project'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?> · <?php echo htmlspecialchars((string)($exp['period'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div>
             <?php if (!empty($exp['summary'])): ?>
-              <div class="detail-item-sub"><?php echo htmlspecialchars((string)$exp['summary'], ENT_QUOTES, 'UTF-8'); ?></div>
+              <div class="detail-item-sub" style="margin-top:4px;color:#334155;"><?php echo htmlspecialchars((string)$exp['summary'], ENT_QUOTES, 'UTF-8'); ?></div>
             <?php endif; ?>
+            <div style="margin-top:10px;padding:10px 12px;border:1px solid #bfdbfe;background:#eff6ff;border-radius:8px;">
+              <div style="font-size:0.8rem;font-weight:700;color:#1e40af;margin-bottom:6px;">
+                📁 Output Proyek: <?php echo htmlspecialchars((string)$outTitle, ENT_QUOTES, 'UTF-8'); ?>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                <?php foreach ($outFiles as $f): ?>
+                  <?php 
+                    $fUrl = trim((string)($f['url'] ?? '')); 
+                    if ($fUrl === '' || $fUrl === '#') {
+                        $fUrl = 'https://figma.com/@gigworker/' . urlencode(strtolower(str_replace([' ', '(', ')', '/'], ['-', '', '', '-'], $exp['project'] ?? 'output')));
+                    }
+                  ?>
+                  <a href="<?php echo htmlspecialchars($fUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;background:#ffffff;color:#1d4ed8;border:1px solid #93c5fd;padding:5px 10px;border-radius:6px;font-size:0.75rem;font-weight:700;text-decoration:none;">
+                    🔗 <?php echo htmlspecialchars((string)($f['name'] ?? 'Lihat Tautan Output Proyek'), ENT_QUOTES, 'UTF-8'); ?>
+                  </a>
+                <?php endforeach; ?>
+              </div>
+            </div>
           </div>
         <?php endforeach; ?>
       </article>

@@ -116,18 +116,31 @@ function gig_worker_profiles(): array
                     'project' => 'Redesign Dashboard KarirHub (berjalan)',
                     'period' => 'Sep 2026 — sekarang',
                     'summary' => 'Merancang alur, wireframe, dan prototype interaktif dashboard pemberi kerja.',
+                    'output_title' => 'Figma Interactive Prototype & Dashboard Wireframe',
+                    'files' => [
+                        ['name' => 'Figma Prototype (Dashboard KarirHub)', 'url' => 'https://figma.com/@theressaz/karirhub-dashboard-prototype', 'type' => 'Figma Prototype'],
+                        ['name' => 'Design System UI Kit v2', 'url' => 'https://figma.com/@theressaz/karirhub-design-system', 'type' => 'UI Kit']
+                    ],
                 ],
                 [
                     'role' => 'Product Designer',
                     'project' => 'Portal Lowongan Digital BUMN',
                     'period' => 'Jan 2025 — Jun 2026',
                     'summary' => 'Menyusun design system 80+ komponen dan uji keterbacaan untuk 3 modul layanan.',
+                    'output_title' => 'Design System 80+ Components & Accessibility Report',
+                    'files' => [
+                        ['name' => 'Figma UI Kit & Design Tokens BUMN', 'url' => 'https://figma.com/@theressaz/bumn-digital-design-system', 'type' => 'Design System']
+                    ],
                 ],
                 [
                     'role' => 'UI Designer',
                     'project' => 'Aplikasi Pelaporan Pekerja Lepas',
                     'period' => 'Mar 2024 — Des 2024',
                     'summary' => 'Mendesain alur onboarding dan dashboard pelaporan harian untuk mitra lapangan.',
+                    'output_title' => 'Mobile Onboarding & Daily Reporting Case Study',
+                    'files' => [
+                        ['name' => 'Behance Case Study (Aplikasi Pekerja Lepas)', 'url' => 'https://behance.net/gallery/gigworker-reporting-app', 'type' => 'Case Study']
+                    ],
                 ],
             ],
             'portfolio' => [

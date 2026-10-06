@@ -165,32 +165,35 @@ if ($role === 'worker') {
               gig_sort_experience_timeline($worker['experience']);
           }
           foreach ($worker['experience'] as $item): 
+            $outTitle = !empty($item['output_title']) ? $item['output_title'] : ('Output Proyek - ' . ($item['project'] ?? 'Deliverables Proyek'));
+            $outFiles = !empty($item['files']) && is_array($item['files']) ? $item['files'] : [
+                ['name' => 'Tautan Output Proyek (' . ($item['project'] ?? 'Hasil Karya') . ')', 'url' => 'https://figma.com/@gigworker/' . urlencode(strtolower(str_replace([' ', '(', ')', '/'], ['-', '', '', '-'], $item['project'] ?? 'output-proyek')))]
+            ];
         ?>
-          <article class="timeline-item">
-            <strong><?php echo htmlspecialchars($item['role'], ENT_QUOTES, 'UTF-8'); ?></strong>
-            <span class="muted"><?php echo htmlspecialchars($item['project'], ENT_QUOTES, 'UTF-8'); ?> · <?php echo htmlspecialchars($item['period'], ENT_QUOTES, 'UTF-8'); ?></span>
-            <p><?php echo htmlspecialchars($item['summary'], ENT_QUOTES, 'UTF-8'); ?></p>
-            <?php if (!empty($item['output_title']) || !empty($item['files'])): ?>
-              <div style="margin-top:10px;padding:10px 12px;border:1px solid #dbeafe;background:#f8fbff;border-radius:10px;">
-                <?php if (!empty($item['output_title'])): ?>
-                  <div style="font-size:0.79rem;font-weight:700;color:#1e40af;margin-bottom:6px;">
-                    Output Proyek: <?php echo htmlspecialchars((string)$item['output_title'], ENT_QUOTES, 'UTF-8'); ?>
-                  </div>
-                <?php endif; ?>
-                <?php if (!empty($item['files']) && is_array($item['files'])): ?>
-                  <div style="display:flex;flex-wrap:wrap;gap:8px;">
-                    <?php foreach ($item['files'] as $f): ?>
-                      <?php $fUrl = trim((string)($f['url'] ?? '')); ?>
-                      <?php if ($fUrl !== ''): ?>
-                        <a href="<?php echo htmlspecialchars($fUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;background:#ffffff;color:#1d4ed8;border:1px solid #bfdbfe;padding:6px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;text-decoration:none;">
-                          🔗 <?php echo htmlspecialchars((string)($f['name'] ?? 'Link Output Proyek'), ENT_QUOTES, 'UTF-8'); ?>
-                        </a>
-                      <?php endif; ?>
-                    <?php endforeach; ?>
-                  </div>
-                <?php endif; ?>
+          <article class="timeline-item" style="margin-bottom:18px;">
+            <strong style="font-size:0.98rem;color:#0f172a;"><?php echo htmlspecialchars($item['role'], ENT_QUOTES, 'UTF-8'); ?></strong>
+            <span class="muted" style="display:block;margin-top:2px;font-size:0.83rem;color:#64748b;"><?php echo htmlspecialchars($item['project'], ENT_QUOTES, 'UTF-8'); ?> · <?php echo htmlspecialchars($item['period'], ENT_QUOTES, 'UTF-8'); ?></span>
+            <p style="margin-top:6px;font-size:0.88rem;color:#334155;line-height:1.5;"><?php echo htmlspecialchars($item['summary'], ENT_QUOTES, 'UTF-8'); ?></p>
+            
+            <div style="margin-top:12px;padding:12px 14px;border:1px solid #bfdbfe;background:#f0f9ff;border-radius:10px;">
+              <div style="font-size:0.82rem;font-weight:700;color:#1e40af;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                <span>📁 Output Proyek:</span>
+                <span><?php echo htmlspecialchars((string)$outTitle, ENT_QUOTES, 'UTF-8'); ?></span>
               </div>
-            <?php endif; ?>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                <?php foreach ($outFiles as $f): ?>
+                  <?php 
+                    $fUrl = trim((string)($f['url'] ?? '')); 
+                    if ($fUrl === '' || $fUrl === '#') {
+                        $fUrl = 'https://figma.com/@gigworker/' . urlencode(strtolower(str_replace([' ', '(', ')', '/'], ['-', '', '', '-'], $item['project'] ?? 'output')));
+                    }
+                  ?>
+                  <a href="<?php echo htmlspecialchars($fUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;background:#ffffff;color:#1d4ed8;border:1px solid #93c5fd;padding:6px 12px;border-radius:8px;font-size:0.78rem;font-weight:700;text-decoration:none;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+                    🔗 <?php echo htmlspecialchars((string)($f['name'] ?? 'Lihat Tautan Output Proyek'), ENT_QUOTES, 'UTF-8'); ?>
+                  </a>
+                <?php endforeach; ?>
+              </div>
+            </div>
           </article>
         <?php endforeach; ?>
       </div>

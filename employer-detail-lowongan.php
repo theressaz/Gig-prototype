@@ -575,10 +575,26 @@ require __DIR__ . '/includes/employer-layout-start.php';
       if (fields.experienceList) {
         if (Array.isArray(profile.experience) && profile.experience.length > 0) {
           fields.experienceList.innerHTML = profile.experience.map(function(exp) {
-            return '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;">' +
-              '<div style="font-weight:800;font-size:0.88rem;color:#0f172a;">' + escapeHtml(exp.role || '') + '</div>' +
-              '<div style="font-size:0.78rem;color:#64748b;margin:2px 0 6px 0;">' + escapeHtml(exp.project || exp.institution || '') + ' · ' + escapeHtml(exp.period || '') + '</div>' +
-              '<div style="font-size:0.82rem;color:#334155;line-height:1.4;">' + escapeHtml(exp.summary || '') + '</div>' +
+            let outTitle = exp.output_title || ('Output Proyek - ' + (exp.project || 'Deliverables Proyek'));
+            let files = (Array.isArray(exp.files) && exp.files.length > 0) ? exp.files : [
+              { name: 'Tautan Output Proyek (' + (exp.project || 'Hasil Karya') + ')', url: 'https://figma.com/@gigworker/' + encodeURIComponent((exp.project || 'output-proyek').toLowerCase().replace(/ /g, '-')) }
+            ];
+
+            let filesHtml = files.map(function(f) {
+              let url = f.url && f.url !== '#' ? f.url : ('https://figma.com/@gigworker/' + encodeURIComponent((exp.project || 'output-proyek').toLowerCase().replace(/ /g, '-')));
+              return '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;background:#ffffff;color:#1d4ed8;border:1px solid #93c5fd;padding:6px 12px;border-radius:8px;font-size:0.78rem;font-weight:700;text-decoration:none;box-shadow:0 1px 2px rgba(0,0,0,0.05);">' +
+                '🔗 ' + escapeHtml(f.name || 'Lihat Output Proyek') +
+                '</a>';
+            }).join(' ');
+
+            return '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-bottom:12px;">' +
+              '<div style="font-weight:800;font-size:0.92rem;color:#0f172a;">' + escapeHtml(exp.role || '') + '</div>' +
+              '<div style="font-size:0.8rem;color:#64748b;margin:2px 0 6px 0;">' + escapeHtml(exp.project || exp.institution || '') + ' · ' + escapeHtml(exp.period || '') + '</div>' +
+              '<div style="font-size:0.84rem;color:#334155;line-height:1.4;margin-bottom:10px;">' + escapeHtml(exp.summary || '') + '</div>' +
+              '<div style="padding:10px 12px;background:#eff6ff;border:1px solid #dbeafe;border-radius:8px;">' +
+                '<div style="font-size:0.8rem;font-weight:700;color:#1e40af;margin-bottom:6px;">📁 Output Proyek: ' + escapeHtml(outTitle) + '</div>' +
+                '<div style="display:flex;flex-wrap:wrap;gap:8px;">' + filesHtml + '</div>' +
+              '</div>' +
               '</div>';
           }).join('');
         } else {
