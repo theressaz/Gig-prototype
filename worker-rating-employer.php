@@ -222,77 +222,65 @@ require __DIR__ . '/includes/worker-layout-start.php';
   <?php endif; ?>
 
   <?php if (!$canSubmitReview): ?>
-    <div style="background:#fffbebf5;border:1px solid #fde68a;color:#92400e;padding:14px 18px;border-radius:12px;margin-bottom:20px;font-size:0.88rem;line-height:1.5;">
-      ℹ️ <strong>Informasi Verifikasi:</strong> Tombol pengiriman ulasan akan aktif setelah kedua pihak (Gig Worker dan Pemberi Kerja) mengonfirmasi bahwa pengerjaan proyek telah selesai.
-    </div>
-  <?php endif; ?>
-
-  <?php if ($alreadyRated): ?>
-    <div style="background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;padding:14px 18px;border-radius:12px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-      <div style="font-size:0.88rem;">
-        ✓ <strong>Anda sudah memberikan ulasan untuk pemberi kerja ini.</strong> Mengirim ulang form di bawah akan memperbarui ulasan sebelumnya.
+    <div class="white-card" style="max-width:760px;margin:0 auto;padding:34px 24px;border:1px solid #bfdbfe;background:#eff6ff;">
+      <h2 style="margin:0 0 8px 0;font-size:1.2rem;font-weight:800;color:#1e3a8a;">Menunggu Konfirmasi Selesai dari Kedua Pihak</h2>
+      <p style="font-size:0.9rem;color:#1e40af;line-height:1.55;margin-bottom:14px;">
+        Ulasan baru dapat diberikan setelah <strong>Pemberi Kerja</strong> dan <strong>Gig Worker</strong> sama-sama menekan tombol konfirmasi proyek selesai di halaman Proyek Aktif masing-masing.
+      </p>
+      <div style="font-size:0.84rem;color:#334155;background:#ffffff;border:1px solid #dbeafe;border-radius:10px;padding:12px 14px;margin-bottom:16px;">
+        Status saat ini:
+        <ul style="margin:8px 0 0 18px;padding:0;line-height:1.6;">
+          <li>Pemberi Kerja: <?php echo !empty($completionState['employer_confirmed']) ? 'Sudah konfirmasi' : 'Belum konfirmasi'; ?></li>
+          <li>Gig Worker: <?php echo !empty($completionState['worker_confirmed']) ? 'Sudah konfirmasi' : 'Belum konfirmasi'; ?></li>
+        </ul>
       </div>
-      <a href="<?php echo htmlspecialchars($undoLink, ENT_QUOTES, 'UTF-8'); ?>" style="font-size:0.82rem;font-weight:700;color:#dc2626;text-decoration:none;" onclick="return confirm('Apakah Anda yakin ingin menghapus ulasan ini?');">
-        [Hapus Ulasan Saya]
+      <a href="worker-tugas.php" class="btn-action-sm" style="text-decoration:none;display:inline-flex;">
+        Kembali ke Proyek Aktif
       </a>
     </div>
-  <?php endif; ?>
+  <?php else: ?>
 
-  <form method="POST" style="display:grid;grid-template-columns:1fr 340px;gap:20px;">
-    <!-- LEFT COLUMN: Form Fields -->
-    <div style="display:flex;flex-direction:column;gap:20px;">
-      
-      <!-- Card 1: Target Employer Info -->
-      <section style="background:#fff;border:1px solid var(--border-subtle);border-radius:14px;padding:20px;box-shadow:var(--shadow-xs);">
-        <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;">
-          Pemberi Kerja yang Dinilai
+    <?php if ($alreadyRated): ?>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;padding:14px 18px;border-radius:12px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div style="font-size:0.88rem;">
+          ✓ <strong>Anda sudah memberikan ulasan untuk pemberi kerja ini.</strong> Mengirim ulang form di bawah akan memperbarui ulasan sebelumnya.
         </div>
-        <div style="display:flex;align-items:center;gap:14px;">
-          <div style="width:52px;height:52px;border-radius:12px;background:#e0e7ff;color:#3730a3;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;flex-shrink:0;">
-            🏢
-          </div>
-          <div>
-            <h2 style="font-size:1.05rem;font-weight:800;color:#0f172a;margin-bottom:2px;">
-              <?php echo htmlspecialchars($employerName, ENT_QUOTES, 'UTF-8'); ?>
-            </h2>
-            <div style="font-size:0.82rem;color:var(--text-muted);">
-              <?php echo htmlspecialchars($employerCat, ENT_QUOTES, 'UTF-8'); ?>
-            </div>
-          </div>
+        <a href="<?php echo htmlspecialchars($undoLink, ENT_QUOTES, 'UTF-8'); ?>" style="font-size:0.82rem;font-weight:700;color:#dc2626;text-decoration:none;" onclick="return confirm('Apakah Anda yakin ingin menghapus ulasan ini?');">
+          [Hapus Ulasan Saya]
+        </a>
+      </div>
+    <?php endif; ?>
+
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;">
+      <form method="post" action="" class="white-card" style="padding:28px;">
+        <div style="padding-bottom:18px;border-bottom:1px solid var(--border-subtle);margin-bottom:24px;">
+          <h2 style="font-size:1.2rem;font-weight:800;color:var(--text-main);display:flex;align-items:center;gap:8px;">
+            <span>⭐</span> Form Evaluasi &amp; Rating Pemberi Kerja
+          </h2>
+          <p style="font-size:0.84rem;color:var(--text-muted);margin-top:4px;">
+            Penilaian Anda membantu menjaga kualitas ekosistem kerja Gig dan transparansi reputasi pemberi kerja.
+          </p>
         </div>
-      </section>
 
-      <!-- Card 2: Rating Star -->
-      <section style="background:#fff;border:1px solid var(--border-subtle);border-radius:14px;padding:20px;box-shadow:var(--shadow-xs);">
-        <h3 style="font-size:0.95rem;font-weight:800;color:#0f172a;margin-bottom:6px;">
-          Skor Penilaian Keseluruhan <span style="color:#ef4444;">*</span>
-        </h3>
-        <p style="font-size:0.83rem;color:var(--text-muted);margin-bottom:16px;">
-          Berikan rating bintang untuk pengalaman kerja sama, kejelasan instruksi, dan ketepatan pembayaran.
-        </p>
-
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-          <div style="display:flex;gap:6px;" id="star-rating-box">
-            <?php for ($s = 1; $s <= 5; $s++): ?>
-              <button type="button" class="star-btn" data-val="<?php echo $s; ?>" style="background:none;border:none;font-size:1.8rem;cursor:pointer;color:#f59e0b;padding:0;">★</button>
-            <?php endfor; ?>
+        <div style="margin-bottom:28px;text-align:center;background:#f8fafc;border:1px solid var(--border-subtle);border-radius:14px;padding:24px 16px;">
+          <label style="display:block;font-size:0.95rem;font-weight:800;color:var(--text-main);margin-bottom:6px;">Rating Keseluruhan <span style="color:#ef4444;">*</span></label>
+          <span style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:14px;">Klik bintang untuk memberikan skor (1–5)</span>
+          <input type="hidden" name="overall_rating" id="overall_rating" value="5" />
+          <div id="starContainer" style="display:inline-flex;gap:8px;font-size:2.6rem;cursor:pointer;user-select:none;color:#f59e0b;">
+            <span class="star-item" data-val="1">★</span>
+            <span class="star-item" data-val="2">★</span>
+            <span class="star-item" data-val="3">★</span>
+            <span class="star-item" data-val="4">★</span>
+            <span class="star-item" data-val="5">★</span>
           </div>
-          <input type="hidden" name="overall_rating" id="overall_rating_input" value="5" />
-          <span id="rating_label_text" style="font-size:0.95rem;font-weight:800;color:#d97706;">5.0 — SANGAT PUAS</span>
+          <div id="ratingLabel" style="font-size:0.92rem;font-weight:700;color:#059669;margin-top:10px;">★★★★★ 5.0 · Sangat Memuaskan (Luar Biasa)</div>
         </div>
-      </section>
 
-      <!-- Card 3: Badges -->
-      <section style="background:#fff;border:1px solid var(--border-subtle);border-radius:14px;padding:20px;box-shadow:var(--shadow-xs);">
-        <h3 style="font-size:0.95rem;font-weight:800;color:#0f172a;margin-bottom:6px;">
-          Lencana Apresiasi Pemberi Kerja (Opsional)
-        </h3>
-        <p style="font-size:0.83rem;color:var(--text-muted);margin-bottom:14px;">
-          Pilih hal positif utama selama bekerja sama dengan Pemberi Kerja ini:
-        </p>
-
-        <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          <?php
+        <div style="margin-bottom:28px;">
+          <label style="display:block;font-size:0.92rem;font-weight:800;color:var(--text-main);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Lencana Apresiasi (Opsional)</label>
+          <span style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:12px;">Pilih apresiasi yang paling sesuai terhadap pemberi kerja:</span>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <?php
             $badgesList = [
                 'Pembayaran Tepat Waktu',
                 'Instruksi Jelas & Detail',
@@ -300,106 +288,148 @@ require __DIR__ . '/includes/worker-layout-start.php';
                 'Lingkungan Kerja Positif',
                 'Umpan Balik Membantu',
             ];
-            foreach ($badgesList as $bIdx => $bName):
-          ?>
-            <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #cbd5e1;border-radius:999px;font-size:0.8rem;font-weight:700;color:#334155;cursor:pointer;background:#f8fafc;user-select:none;">
-              <input type="checkbox" name="badges[]" value="<?php echo htmlspecialchars($bName, ENT_QUOTES, 'UTF-8'); ?>" style="accent-color:#2563eb;" />
-              <span><?php echo htmlspecialchars($bName, ENT_QUOTES, 'UTF-8'); ?></span>
-            </label>
-          <?php endforeach; ?>
+            foreach ($badgesList as $bName): ?>
+              <label style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;background:#f1f5f9;border:1px solid #cbd5e1;padding:6px 12px;border-radius:9999px;font-size:0.8rem;font-weight:600;color:#334155;transition:all 0.15s;">
+                <input type="checkbox" name="badges[]" value="<?php echo htmlspecialchars($bName, ENT_QUOTES, 'UTF-8'); ?>" style="accent-color:#2563eb;"
+                  onchange="this.parentElement.style.background=this.checked?'#eff6ff':'#f1f5f9';this.parentElement.style.borderColor=this.checked?'#3b82f6':'#cbd5e1';this.parentElement.style.color=this.checked?'#1d4ed8':'#334155';" />
+                <?php echo htmlspecialchars($bName, ENT_QUOTES, 'UTF-8'); ?>
+              </label>
+            <?php endforeach; ?>
+          </div>
         </div>
-      </section>
 
-      <!-- Card 4: Comment -->
-      <section style="background:#fff;border:1px solid var(--border-subtle);border-radius:14px;padding:20px;box-shadow:var(--shadow-xs);">
-        <h3 style="font-size:0.95rem;font-weight:800;color:#0f172a;margin-bottom:6px;">
-          Testimoni &amp; Catatan Pengalaman Kerja <span style="color:#ef4444;">*</span>
-        </h3>
-        <p style="font-size:0.83rem;color:var(--text-muted);margin-bottom:12px;">
-          Tuliskan ulasan jujur mengenai profesionalitas, kejelasan brief, dan proses kerja sama.
-        </p>
-        <textarea name="comment" rows="4" required placeholder="Contoh: Pemberi kerja sangat kooperatif, memberikan brief yang jelas, dan pembayaran diproses tepat waktu setelah deliverables disetujui." style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:0.88rem;line-height:1.5;outline:none;font-family:inherit;resize:vertical;"></textarea>
-      </section>
+        <div style="margin-bottom:28px;">
+          <label for="comment" style="display:block;font-size:0.92rem;font-weight:800;color:var(--text-main);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">
+            Ulasan &amp; Testimoni <span style="color:#ef4444;">*</span>
+          </label>
+          <textarea id="comment" name="comment" rows="4" required placeholder="Tuliskan pengalaman Anda bekerja bersama pemberi kerja ini..." style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:8px;font-size:0.88rem;line-height:1.5;outline:none;font-family:inherit;resize:vertical;"></textarea>
+        </div>
 
-        <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:12px;align-items:center;">
-          <a href="worker-tugas.php" style="font-size:0.84rem;font-weight:600;color:#64748b;text-decoration:none;padding:8px 16px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;">Batal</a>
-          <button type="submit" name="submit_review" value="1" class="btn-create-post" style="text-decoration:none;padding:8px 20px;font-size:0.86rem;font-weight:700;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;border:none;background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%);color:#fff;" <?php echo !$canSubmitReview ? 'disabled style="padding:8px 20px;font-size:0.86rem;font-weight:700;border-radius:8px;opacity:0.55;cursor:not-allowed;background:#cbd5e1;color:#64748b;border:none;"' : ''; ?>>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:28px;display:flex;flex-direction:column;gap:12px;">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--text-dark);line-height:1.4;">
+            <input type="checkbox" required id="confirm_given_deliverables" name="confirm_given_deliverables" value="1" style="accent-color:#2563eb;margin-top:2px;" />
+            <span><strong>Konfirmasi Gig Worker Sudah Menyerahkan Deliverable <span style="color:#ef4444;">*</span>:</strong> Saya menyatakan seluruh deliverable telah saya serahkan kepada pemberi kerja.</span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--text-dark);line-height:1.4;">
+            <input type="checkbox" required id="confirm_deliverables" name="confirm_deliverables" value="1" style="accent-color:#2563eb;margin-top:2px;" />
+            <span><strong>Konfirmasi Pemberi Kerja Sudah Menerima Deliverable <span style="color:#ef4444;">*</span>:</strong> Saya menyatakan pemberi kerja telah menerima deliverable dengan baik.</span>
+          </label>
+        </div>
+
+        <div style="display:flex;gap:12px;justify-content:flex-end;align-items:center;">
+          <a href="worker-tugas.php" class="filter-btn-pill" style="text-decoration:none;padding:10px 18px;font-size:0.88rem;">Batal</a>
+          <button type="submit" id="submit_review_btn" name="submit_review" value="1" class="btn-create-post" disabled aria-disabled="true" style="padding:10px 24px;font-size:0.9rem;background:#9ca3af;border:none;color:#ffffff;cursor:not-allowed;opacity:0.9;border-radius:8px;font-weight:700;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             Kirim Ulasan Pemberi Kerja
           </button>
         </div>
-      </section>
+      </form>
 
-    </div>
-
-    <!-- RIGHT COLUMN: Project Info Sidebar -->
-    <div>
-      <aside style="background:#fff;border:1px solid var(--border-subtle);border-radius:14px;padding:18px;box-shadow:var(--shadow-xs);position:sticky;top:20px;">
-        <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;">
-          Ringkasan Proyek
-        </div>
-        <h3 style="font-size:0.95rem;font-weight:800;color:#0f172a;margin-bottom:8px;line-height:1.35;">
-          <?php echo htmlspecialchars((string)($projectData['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>
-        </h3>
-        <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:14px;">
-          ID Kontrak: <code><?php echo htmlspecialchars($contractKey, ENT_QUOTES, 'UTF-8'); ?></code>
+      <aside style="display:flex;flex-direction:column;gap:18px;">
+        <div class="white-card" style="padding:20px;">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;">Pemberi Kerja yang Dinilai</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+            <div style="width:50px;height:50px;border-radius:50%;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem;flex-shrink:0;">🏢</div>
+            <div>
+              <h3 style="font-size:1.05rem;font-weight:800;margin:0;color:var(--text-main);"><?php echo htmlspecialchars($employerName, ENT_QUOTES, 'UTF-8'); ?></h3>
+              <span style="font-size:0.78rem;color:var(--text-muted);"><?php echo htmlspecialchars($employerCat, ENT_QUOTES, 'UTF-8'); ?></span>
+            </div>
+          </div>
+          <a href="employer-profile.php?employer=<?php echo urlencode($employerName); ?>" target="_blank" style="font-size:0.8rem;color:var(--primary-blue);text-decoration:none;font-weight:700;">Lihat Profil Pemberi Kerja ↗</a>
         </div>
 
-        <div style="border-top:1px solid #f1f5f9;padding-top:12px;display:flex;flex-direction:column;gap:8px;font-size:0.83rem;">
-          <div style="display:flex;justify-space-between;">
-            <span style="color:var(--text-muted);">Status:</span>
-            <span style="font-weight:700;color:#059669;">Selesai Dikerjakan</span>
+        <div class="white-card" style="padding:20px;">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;">Detail Proyek</div>
+          <div style="margin-bottom:12px;">
+            <span style="font-size:0.74rem;color:var(--text-muted);display:block;">Judul Proyek:</span>
+            <strong style="font-size:0.88rem;color:var(--text-main);line-height:1.4;"><?php echo htmlspecialchars((string)($projectData['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></strong>
           </div>
-          <div style="display:flex;justify-space-between;">
-            <span style="color:var(--text-muted);">Durasi Kerja:</span>
-            <span style="font-weight:700;color:#0f172a;"><?php echo htmlspecialchars((string)($projectData['duration'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></span>
+          <div style="padding-top:10px;border-top:1px solid #f1f5f9;margin-bottom:12px;">
+            <div>
+              <span style="font-size:0.72rem;color:var(--text-muted);display:block;">Gaji:</span>
+              <span style="font-size:0.85rem;font-weight:800;color:var(--primary-blue);"><?php echo htmlspecialchars((string)($projectData['budget'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></span>
+            </div>
           </div>
-          <div style="display:flex;justify-space-between;">
-            <span style="color:var(--text-muted);">Nilai Proyek:</span>
-            <span style="font-weight:700;color:#0f172a;"><?php echo htmlspecialchars((string)($projectData['budget'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></span>
+          <div style="padding-top:10px;border-top:1px solid #f1f5f9;">
+            <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-bottom:4px;">Deliverable yang Diterima:</span>
+            <p style="font-size:0.78rem;color:#334155;background:#f8fafc;padding:8px 10px;border-radius:6px;margin:0;"><?php echo htmlspecialchars($deliverablesText, ENT_QUOTES, 'UTF-8'); ?></p>
           </div>
-        </div>
-
-        <div style="margin-top:14px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:0.78rem;color:#475569;line-height:1.4;">
-          <strong>Deliverable Diserahkan:</strong><br />
-          <?php echo htmlspecialchars($deliverablesText, ENT_QUOTES, 'UTF-8'); ?>
         </div>
       </aside>
     </div>
-  </form>
+  <?php endif; ?>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const starBtns = document.querySelectorAll('.star-btn');
-      const input = document.getElementById('overall_rating_input');
-      const labelText = document.getElementById('rating_label_text');
+    (function() {
+      const starContainer = document.getElementById('starContainer');
+      const hiddenInput   = document.getElementById('overall_rating');
+      const ratingLabel   = document.getElementById('ratingLabel');
+      const confirmGivenDeliverables = document.getElementById('confirm_given_deliverables');
+      const confirmDeliverables = document.getElementById('confirm_deliverables');
+      const submitBtn = document.getElementById('submit_review_btn');
 
-      const labels = {
-        1: '1.0 — SANGAT KURANG',
-        2: '2.0 — KURANG',
-        3: '3.0 — CUKUP',
-        4: '4.0 — BAGUS & PUAS',
-        5: '5.0 — SANGAT PUAS'
-      };
+      if (starContainer && hiddenInput && ratingLabel) {
+        const stars = starContainer.querySelectorAll('.star-item');
+        const labels = {
+          1: '★☆☆☆☆ 1.0 · Buruk (Tidak Memuaskan)',
+          2: '★★☆☆☆ 2.0 · Kurang (Perlu Perbaikan)',
+          3: '★★★☆☆ 3.0 · Cukup (Sesuai Standar)',
+          4: '★★★★☆ 4.0 · Baik (Memuaskan)',
+          5: '★★★★★ 5.0 · Sangat Memuaskan (Luar Biasa)',
+        };
 
-      function updateStars(val) {
-        input.value = val;
-        starBtns.forEach((btn, idx) => {
-          btn.style.color = (idx < val) ? '#f59e0b' : '#cbd5e1';
-        });
-        if (labelText) {
-          labelText.textContent = labels[val] || (val + '.0');
+        function updateStars(val) {
+          val = parseInt(val, 10);
+          stars.forEach(function(star, idx) {
+            star.innerText = idx < val ? '★' : '☆';
+            star.style.color = idx < val ? '#f59e0b' : '#cbd5e1';
+          });
+          ratingLabel.innerText = labels[val] || '';
         }
+
+        stars.forEach(function(star) {
+          star.addEventListener('click', function() {
+            hiddenInput.value = this.getAttribute('data-val');
+            updateStars(hiddenInput.value);
+          });
+          star.addEventListener('mouseenter', function() {
+            updateStars(this.getAttribute('data-val'));
+          });
+        });
+        starContainer.addEventListener('mouseleave', function() {
+          updateStars(hiddenInput.value);
+        });
+
+        updateStars(hiddenInput.value);
       }
 
-      starBtns.forEach((btn) => {
-        btn.addEventListener('click', function() {
-          const val = parseInt(this.getAttribute('data-val') || '5', 10);
-          updateStars(val);
-        });
-      });
+      if (confirmDeliverables && confirmGivenDeliverables && submitBtn) {
+        const enabledStyles = {
+          background: 'linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%)',
+          cursor: 'pointer',
+          opacity: '1',
+        };
 
-      updateStars(5);
-    });
+        function syncSubmitState() {
+          const isChecked = !!confirmDeliverables.checked && !!confirmGivenDeliverables.checked;
+          submitBtn.disabled = !isChecked;
+          submitBtn.setAttribute('aria-disabled', isChecked ? 'false' : 'true');
+          if (isChecked) {
+            submitBtn.style.background = enabledStyles.background;
+            submitBtn.style.cursor = enabledStyles.cursor;
+            submitBtn.style.opacity = enabledStyles.opacity;
+            return;
+          }
+          submitBtn.style.background = '#9ca3af';
+          submitBtn.style.cursor = 'not-allowed';
+          submitBtn.style.opacity = '0.9';
+        }
+
+        confirmDeliverables.addEventListener('change', syncSubmitState);
+        confirmGivenDeliverables.addEventListener('change', syncSubmitState);
+        syncSubmitState();
+      }
+    })();
   </script>
 
 <?php endif; ?>
