@@ -771,6 +771,51 @@ $backHref = $isEditMode
         </div>
       </div>
 
+      <!-- BAGIAN 2: MEDIA SOSIAL GIG WORKER -->
+      <div class="form-section-header">
+        <h2 class="form-section-title">2. MEDIA SOSIAL GIG WORKER</h2>
+        <p class="form-section-subtitle">
+          Tautkan akun media sosial Anda (misal: LinkedIn, GitHub, Instagram, Twitter/X, YouTube, TikTok, Behance, Dribbble, atau Website Personal). Anda dapat menambahkan lebih dari satu akun media sosial.
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Tautan / Akun Media Sosial</label>
+        <div id="social-media-container" style="display: flex; flex-direction: column; gap: 12px;">
+          <?php foreach ($currentSocialMedia as $sIdx => $smItem): ?>
+            <?php
+              $pVal = (string)($smItem['platform'] ?? 'LinkedIn');
+              $uVal = (string)($smItem['url'] ?? '');
+            ?>
+            <div class="social-media-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <div style="width: 200px; flex-shrink: 0;">
+                <select name="social_media_platform[]" class="form-select">
+                  <?php
+                    $platforms = ['LinkedIn', 'GitHub', 'Instagram', 'Twitter / X', 'YouTube', 'TikTok', 'Behance', 'Dribbble', 'Website Personal', 'Lainnya'];
+                    foreach ($platforms as $pOpt):
+                  ?>
+                    <option value="<?php echo htmlspecialchars($pOpt, ENT_QUOTES, 'UTF-8'); ?>" <?php echo strcasecmp($pVal, $pOpt) === 0 ? 'selected' : ''; ?>>
+                      <?php echo htmlspecialchars($pOpt, ENT_QUOTES, 'UTF-8'); ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+              </div>
+              <div style="flex: 1; min-width: 220px;">
+                <input type="text" name="social_media_url[]" class="form-input" value="<?php echo htmlspecialchars($uVal, ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://... atau username" />
+              </div>
+              <button type="button" class="btn-remove-social" onclick="removeSocialRow(this)" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 11px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.84rem; flex-shrink: 0;" title="Hapus Media Sosial">
+                Hapus
+              </button>
+            </div>
+          <?php endforeach; ?>
+        </div>
+        <div style="margin-top: 12px;">
+          <button type="button" onclick="addSocialRow()" style="background: #f0f9ff; color: #0284c7; border: 1px solid #0284c7; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 0.86rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            + Tambah Media Sosial
+          </button>
+        </div>
+      </div>
+
       <div class="form-divider"></div>
 
       <?php
@@ -780,9 +825,9 @@ $backHref = $isEditMode
         ];
       ?>
 
-      <!-- BAGIAN 2: PENGALAMAN & PORTOFOLIO -->
+      <!-- BAGIAN 3: PENGALAMAN & PORTOFOLIO -->
       <div class="form-section-header">
-        <h2 class="form-section-title">2. PENGALAMAN &amp; PORTOFOLIO</h2>
+        <h2 class="form-section-title">3. PENGALAMAN &amp; PORTOFOLIO</h2>
         <p class="form-section-subtitle">Data pengalaman dan portofolio ditarik dari SIAPKerja. Anda dapat menambah, memperbarui, serta melampirkan hasil karya/portofolio pada tiap pengalaman.</p>
       </div>
 
@@ -1003,9 +1048,9 @@ $backHref = $isEditMode
 
       <div class="form-divider"></div>
 
-      <!-- BAGIAN 3: BIDANG KEAHLIAN & SKILL -->
+      <!-- BAGIAN 4: BIDANG KEAHLIAN & SKILL -->
       <div class="form-section-header">
-        <h2 class="form-section-title">3. BIDANG KEAHLIAN &amp; SKILL SPESIFIK</h2>
+        <h2 class="form-section-title">4. BIDANG KEAHLIAN &amp; SKILL SPESIFIK</h2>
         <p class="form-section-subtitle">Tentukan spesialisasi utama dan daftar keahlian teknis Anda.</p>
       </div>
 
@@ -1043,9 +1088,9 @@ $backHref = $isEditMode
 
       <div class="form-divider"></div>
 
-      <!-- BAGIAN 4: LINK VIDEO PROFIL -->
+      <!-- BAGIAN 5: LINK VIDEO PROFIL -->
       <div class="form-section-header">
-        <h2 class="form-section-title">4. LINK VIDEO PROFIL GIG WORKER</h2>
+        <h2 class="form-section-title">5. LINK VIDEO PROFIL GIG WORKER</h2>
         <p class="form-section-subtitle">
           Sampaikan perkenalan singkat diri dan keahlian Anda melalui video (misal: YouTube, Loom, atau Google Drive Video). Anda dapat menambahkan lebih dari satu tautan video.
         </p>
@@ -1068,53 +1113,6 @@ $backHref = $isEditMode
         <div style="margin-top: 12px;">
           <button type="button" onclick="addVideoRow()" style="background: #f0f9ff; color: #0284c7; border: 1px solid #0284c7; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 0.86rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
             + Tambah Link Video Profil
-          </button>
-        </div>
-      </div>
-
-      <div class="form-divider"></div>
-
-      <!-- BAGIAN 5: MEDIA SOSIAL GIG WORKER -->
-      <div class="form-section-header">
-        <h2 class="form-section-title">5. MEDIA SOSIAL GIG WORKER</h2>
-        <p class="form-section-subtitle">
-          Tautkan akun media sosial Anda (misal: LinkedIn, GitHub, Instagram, Twitter/X, YouTube, TikTok, Behance, Dribbble, atau Website Personal). Anda dapat menambahkan lebih dari satu akun media sosial.
-        </p>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Tautan / Akun Media Sosial</label>
-        <div id="social-media-container" style="display: flex; flex-direction: column; gap: 12px;">
-          <?php foreach ($currentSocialMedia as $sIdx => $smItem): ?>
-            <?php
-              $pVal = (string)($smItem['platform'] ?? 'LinkedIn');
-              $uVal = (string)($smItem['url'] ?? '');
-            ?>
-            <div class="social-media-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-              <div style="width: 200px; flex-shrink: 0;">
-                <select name="social_media_platform[]" class="form-select">
-                  <?php
-                    $platforms = ['LinkedIn', 'GitHub', 'Instagram', 'Twitter / X', 'YouTube', 'TikTok', 'Behance', 'Dribbble', 'Website Personal', 'Lainnya'];
-                    foreach ($platforms as $pOpt):
-                  ?>
-                    <option value="<?php echo htmlspecialchars($pOpt, ENT_QUOTES, 'UTF-8'); ?>" <?php echo strcasecmp($pVal, $pOpt) === 0 ? 'selected' : ''; ?>>
-                      <?php echo htmlspecialchars($pOpt, ENT_QUOTES, 'UTF-8'); ?>
-                    </option>
-                  <?php endforeach; ?>
-                </select>
-              </div>
-              <div style="flex: 1; min-width: 220px;">
-                <input type="text" name="social_media_url[]" class="form-input" value="<?php echo htmlspecialchars($uVal, ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://... atau username" />
-              </div>
-              <button type="button" class="btn-remove-social" onclick="removeSocialRow(this)" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 11px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.84rem; flex-shrink: 0;" title="Hapus Media Sosial">
-                Hapus
-              </button>
-            </div>
-          <?php endforeach; ?>
-        </div>
-        <div style="margin-top: 12px;">
-          <button type="button" onclick="addSocialRow()" style="background: #f0f9ff; color: #0284c7; border: 1px solid #0284c7; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 0.86rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-            + Tambah Media Sosial
           </button>
         </div>
       </div>

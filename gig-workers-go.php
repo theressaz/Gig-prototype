@@ -42,7 +42,9 @@ if ($isWorkerAccount) {
     }
     if ($isWorkerRegistered) {
         $_SESSION['gig_worker_registered_' . $_SESSION['username']] = true;
-        header('Location: worker-bursa.php');
+        $profileId = strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $_SESSION['username'])[0] ?? $_SESSION['username']));
+        if ($profileId === '') $profileId = 'tessa';
+        header('Location: worker-profile.php?id=' . urlencode($profileId));
         exit;
     }
     header('Location: welcome-screen.php');

@@ -7,7 +7,9 @@ if (isset($_SESSION["username"]) && isset($_SESSION["role"])) {
         header("Location: dashboard-employer.php");
         exit;
     } elseif ($_SESSION["role"] === 'worker') {
-        header("Location: worker-bursa.php");
+        $profileId = strtolower(preg_replace('/[^a-z0-9]+/i', '', explode(' ', $_SESSION['username'])[0] ?? $_SESSION['username']));
+        if ($profileId === '') $profileId = 'tessa';
+        header("Location: worker-profile.php?id=" . urlencode($profileId));
         exit;
     }
 }

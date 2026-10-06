@@ -42,7 +42,7 @@ $navItems = [
 <body>
 <div class="app-layout">
   <aside class="app-sidebar">
-    <a href="worker-bursa.php" class="sidebar-logo" title="KarirHub">K</a>
+    <a href="<?php echo htmlspecialchars($profileUrl, ENT_QUOTES, 'UTF-8'); ?>" class="sidebar-logo" title="KarirHub">K</a>
     <div class="sidebar-menu">
       <?php foreach ($navItems as $key => $item): ?>
         <a href="<?php echo htmlspecialchars($item['href'], ENT_QUOTES, 'UTF-8'); ?>" class="sidebar-icon<?php echo $pageKey === $key ? ' active' : ''; ?>" title="<?php echo htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8'); ?>">
@@ -65,7 +65,7 @@ $navItems = [
           <svg class="nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onclick="history.back()"><polyline points="15 18 9 12 15 6"/></svg>
           <svg class="nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onclick="history.forward()"><polyline points="9 18 15 12 9 6"/></svg>
           <span style="margin: 0 4px; color: var(--border-light);">|</span>
-          <a href="worker-bursa.php" style="color: inherit; text-decoration: none;">Beranda</a>
+          <a href="<?php echo htmlspecialchars($profileUrl, ENT_QUOTES, 'UTF-8'); ?>" style="color: inherit; text-decoration: none;">Beranda</a>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
           <span class="current"><?php echo htmlspecialchars($breadcrumbCurrent, ENT_QUOTES, 'UTF-8'); ?></span>
         </div>
