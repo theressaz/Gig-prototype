@@ -14,23 +14,25 @@ require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/project-history.php';
 require_once __DIR__ . '/includes/project-schedule.php';
 
-function gig_ensure_employer_reviews_table(PDO $pdo): void
-{
-    $pdo->exec("
-        CREATE TABLE IF NOT EXISTS `employer_reviews` (
-            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            `contract_id` VARCHAR(50) NOT NULL,
-            `worker_id` VARCHAR(50) NOT NULL,
-            `employer_username` VARCHAR(100) NOT NULL,
-            `project_title` VARCHAR(255) NOT NULL,
-            `overall_rating` TINYINT UNSIGNED NOT NULL DEFAULT 5,
-            `comment` TEXT NOT NULL,
-            `badges` TEXT NOT NULL DEFAULT '',
-            `recommend_employer` TINYINT(1) NOT NULL DEFAULT 1,
-            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE KEY `uniq_contract_worker` (`contract_id`, `worker_id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    ");
+if (!function_exists('gig_ensure_employer_reviews_table')) {
+    function gig_ensure_employer_reviews_table(PDO $pdo): void
+    {
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS `employer_reviews` (
+                `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `contract_id` VARCHAR(50) NOT NULL,
+                `worker_id` VARCHAR(50) NOT NULL,
+                `employer_username` VARCHAR(100) NOT NULL,
+                `project_title` VARCHAR(255) NOT NULL,
+                `overall_rating` TINYINT UNSIGNED NOT NULL DEFAULT 5,
+                `comment` TEXT NOT NULL,
+                `badges` TEXT NOT NULL DEFAULT '',
+                `recommend_employer` TINYINT(1) NOT NULL DEFAULT 1,
+                `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY `uniq_contract_worker` (`contract_id`, `worker_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ");
+    }
 }
 
 // ── Active contracts ─────────────────────────────────────────────────────────

@@ -26,23 +26,25 @@ require_once __DIR__ . '/includes/project-schedule.php';
  * Store worker -> employer ratings separately so they don't overwrite
  * employer -> worker reputation data.
  */
-function gig_ensure_employer_reviews_table(PDO $pdo): void
-{
-    $pdo->exec("
-        CREATE TABLE IF NOT EXISTS `employer_reviews` (
-            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            `contract_id` VARCHAR(50) NOT NULL,
-            `worker_id` VARCHAR(50) NOT NULL,
-            `employer_username` VARCHAR(100) NOT NULL,
-            `project_title` VARCHAR(255) NOT NULL,
-            `overall_rating` TINYINT UNSIGNED NOT NULL DEFAULT 5,
-            `comment` TEXT NOT NULL,
-            `badges` TEXT NOT NULL DEFAULT '',
-            `recommend_employer` TINYINT(1) NOT NULL DEFAULT 1,
-            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE KEY `uniq_contract_worker` (`contract_id`, `worker_id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    ");
+if (!function_exists('gig_ensure_employer_reviews_table')) {
+    function gig_ensure_employer_reviews_table(PDO $pdo): void
+    {
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS `employer_reviews` (
+                `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `contract_id` VARCHAR(50) NOT NULL,
+                `worker_id` VARCHAR(50) NOT NULL,
+                `employer_username` VARCHAR(100) NOT NULL,
+                `project_title` VARCHAR(255) NOT NULL,
+                `overall_rating` TINYINT UNSIGNED NOT NULL DEFAULT 5,
+                `comment` TEXT NOT NULL,
+                `badges` TEXT NOT NULL DEFAULT '',
+                `recommend_employer` TINYINT(1) NOT NULL DEFAULT 1,
+                `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY `uniq_contract_worker` (`contract_id`, `worker_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ");
+    }
 }
 
 // ── Active contracts ─────────────────────────────────────────────────────────
@@ -77,8 +79,16 @@ $contractKey = (string)($projectData['contract_id'] ?? $projectData['id']);
 $completionState = gig_project_completion_status($contractKey);
 $canSubmitReview = !empty($completionState['both_confirmed']);
 
-$workerId = trim((string)($_GET['worker'] ?? $projectData['workerId']));
-$worker   = gig_find_worker($workerId) ?? gig_find_worker($projectData['workerId']);
+$workerId = trim((string)($_GET['worker'] ?? ($projectData['workerId'] ?? ($projectData['worker_id'] ?? 'tessa'))));
+$worker   = ($workerId !== '') ? gig_find_worker($workerId) : null;
+if (!$worker) {
+    $worker = [
+        'id'     => $workerId ?: 'tessa',
+        'name'   => (string)($projectData['workerName'] ?? ($projectData['worker_name'] ?? 'Theressa Zaratrusha')),
+        'title'  => (string)($projectData['workerRole'] ?? ($projectData['worker_role'] ?? 'Lead UI/UX Designer')),
+        'avatar' => (string)($projectData['workerAvatar'] ?? 'https://api.dicebear.com/9.x/notionists/svg?seed=Theressa&backgroundColor=dbeafe'),
+    ];
+}
 
 $pdo          = gig_db();
 $submitted    = false;
