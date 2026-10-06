@@ -457,7 +457,7 @@ $displayComment = $submitted
 
       <!-- 1. OVERALL STAR RATING -->
       <div style="margin-bottom:28px;text-align:center;background:#f8fafc;border:1px solid var(--border-subtle);border-radius:14px;padding:24px 16px;">
-        <label style="display:block;font-size:0.95rem;font-weight:800;color:var(--text-main);margin-bottom:6px;">Rating Keseluruhan</label>
+        <label style="display:block;font-size:0.95rem;font-weight:800;color:var(--text-main);margin-bottom:6px;">Rating Keseluruhan <span style="color:#ef4444;">*</span></label>
         <span style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:14px;">Klik bintang untuk memberikan skor (1–5)</span>
         <input type="hidden" name="overall_rating" id="overall_rating" value="5" />
         <div id="starContainer" style="display:inline-flex;gap:8px;font-size:2.6rem;cursor:pointer;user-select:none;color:#f59e0b;">

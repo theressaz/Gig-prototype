@@ -263,7 +263,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
       <!-- Card 2: Rating Star -->
       <section style="background:#fff;border:1px solid var(--border-subtle);border-radius:14px;padding:20px;box-shadow:var(--shadow-xs);">
         <h3 style="font-size:0.95rem;font-weight:800;color:#0f172a;margin-bottom:6px;">
-          Skor Penilaian Keseluruhan
+          Skor Penilaian Keseluruhan <span style="color:#ef4444;">*</span>
         </h3>
         <p style="font-size:0.83rem;color:var(--text-muted);margin-bottom:16px;">
           Berikan rating bintang untuk pengalaman kerja sama, kejelasan instruksi, dan ketepatan pembayaran.
