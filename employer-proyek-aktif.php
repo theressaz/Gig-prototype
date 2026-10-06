@@ -542,8 +542,8 @@ require __DIR__ . '/includes/employer-layout-start.php';
             if (!iso) return;
             const start = startIso ? new Date(startIso).getTime() : NaN;
             const end = new Date(iso).getTime();
-            let ms = end - Date.now();
-            if (ms < 0) ms = 0;
+            const remainingMs = Math.max(0, end - Date.now());
+            let ms = remainingMs;
             const days = Math.floor(ms / 86400000);
             ms -= days * 86400000;
             const hours = Math.floor(ms / 3600000);
@@ -564,8 +564,8 @@ require __DIR__ . '/includes/employer-layout-start.php';
               const total = Number.isFinite(start) && end > start ? (end - start) : 0;
               let pct = 0;
               if (total > 0) {
-                pct = (ms / total) * 100;
-              } else if (ms > 0) {
+                pct = (remainingMs / total) * 100;
+              } else if (remainingMs > 0) {
                 pct = 100;
               }
               if (pct < 0) pct = 0;
