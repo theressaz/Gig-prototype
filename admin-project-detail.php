@@ -220,7 +220,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
     <article class="req-card">
       <h3>Informasi Keputusan dan Verifikasi</h3>
       <div class="req-summary-grid">
-        <div><div class="req-label">Deadline Verifikasi</div><div class="req-value"><?php echo htmlspecialchars(date('d M Y, H:i', $verifyDeadlineTs), ENT_QUOTES, 'UTF-8'); ?></div></div>
+        <div><div class="req-label">Deadline Verifikasi</div><div class="req-value"><?php echo in_array((string)($vacancy['status'] ?? ''), ['active', 'approved', 'rejected'], true) ? '-' : htmlspecialchars(date('d M Y, H:i', $verifyDeadlineTs), ENT_QUOTES, 'UTF-8'); ?></div></div>
         <div><div class="req-label">Pemeriksaan pada</div><div class="req-value"><?php echo htmlspecialchars(date('d M Y, H:i', $postedStamp), ENT_QUOTES, 'UTF-8'); ?></div></div>
         <div><div class="req-label">Nama Petugas</div><div class="req-value"><?php echo htmlspecialchars((string)($adminName ?? 'Admin KarirHub'), ENT_QUOTES, 'UTF-8'); ?></div></div>
         <div><div class="req-label">Email Petugas</div><div class="req-value"><?php echo htmlspecialchars((string)($_SESSION['admin_email'] ?? 'admin@kemnaker.go.id'), ENT_QUOTES, 'UTF-8'); ?></div></div>

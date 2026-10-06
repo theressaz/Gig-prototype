@@ -709,11 +709,13 @@ require __DIR__ . '/includes/admin-layout-start.php';
                   $statusClass = 'is-blue';
                   if ($statusKey === 'revision') {
                       $statusClass = 'is-amber';
-                  } elseif ($statusKey === 'active') {
+                  } elseif ($statusKey === 'active' || $statusKey === 'approved') {
                       $statusClass = 'is-green';
                       $statusText = 'Disetujui';
+                      $deadlineLabel = '-';
                   } elseif ($statusKey === 'rejected') {
                       $statusClass = 'is-red';
+                      $deadlineLabel = '-';
                   }
                 ?>
                 <tr>
@@ -728,7 +730,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
                   </td>
                   <td class="project-col-entity">Perusahaan</td>
                   <td class="project-col-status"><span class="project-status-chip <?php echo htmlspecialchars($statusClass, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($statusText, ENT_QUOTES, 'UTF-8'); ?></span></td>
-                  <td class="project-col-deadline"><span class="project-deadline-chip"><?php echo htmlspecialchars($deadlineLabel, ENT_QUOTES, 'UTF-8'); ?></span></td>
+                  <td class="project-col-deadline"><?php echo $deadlineLabel === '-' ? '-' : '<span class="project-deadline-chip">' . htmlspecialchars($deadlineLabel, ENT_QUOTES, 'UTF-8') . '</span>'; ?></td>
                   <td class="project-col-blacklist"><span class="project-safe-chip">Aman</span></td>
                   <td class="project-col-date"><?php echo htmlspecialchars(date('d M Y, H:i', $submittedTs), ENT_QUOTES, 'UTF-8'); ?></td>
                   <td class="project-col-action verify-sticky-action">
