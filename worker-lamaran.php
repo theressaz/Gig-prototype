@@ -70,39 +70,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
   </div>
 </div>
 
-<div class="mini-stats" style="grid-template-columns: repeat(5, 1fr); margin-bottom: 20px;">
-  <div class="mini-stat">
-    <div>
-      <div style="font-size:0.74rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;">Total Lamaran</div>
-      <div style="font-size:1.6rem;font-weight:800;color:var(--text-main);margin-top:4px;"><?php echo (int)$counts['all']; ?></div>
-    </div>
-  </div>
-  <div class="mini-stat">
-    <div>
-      <div style="font-size:0.74rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;">Dipproses</div>
-      <div style="font-size:1.6rem;font-weight:800;color:#0284c7;margin-top:4px;"><?php echo (int)$counts['incoming'] + (int)$counts['reviewing'] + (int)$counts['interview']; ?></div>
-    </div>
-  </div>
-  <div class="mini-stat">
-    <div>
-      <div style="font-size:0.74rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;">Diterima</div>
-      <div style="font-size:1.6rem;font-weight:800;color:#047857;margin-top:4px;"><?php echo (int)$counts['accepted']; ?></div>
-    </div>
-  </div>
-  <div class="mini-stat">
-    <div>
-      <div style="font-size:0.74rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;">Ditolak</div>
-      <div style="font-size:1.6rem;font-weight:800;color:#b91c1c;margin-top:4px;"><?php echo (int)$counts['rejected']; ?></div>
-    </div>
-  </div>
-  <div class="mini-stat">
-    <div>
-      <div style="font-size:0.74rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;">Wawancara</div>
-      <div style="font-size:1.6rem;font-weight:800;color:#0e7490;margin-top:4px;"><?php echo (int)$counts['interview']; ?></div>
-    </div>
-  </div>
-</div>
-
 <div class="toolbar-filter" style="margin-bottom: 20px; flex-wrap: wrap;">
   <button class="filter-btn-pill active" type="button" onclick="filterLamaran('all', this)">Semua (<?php echo (int)$counts['all']; ?>)</button>
   <button class="filter-btn-pill" type="button" onclick="filterLamaran('incoming', this)">Lamaran Masuk (<?php echo (int)$counts['incoming']; ?>)</button>
