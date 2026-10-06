@@ -437,7 +437,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
             <div class="penawaran-meta-sub">
               Kategori: <strong><?php echo htmlspecialchars($badgeLabel, ENT_QUOTES, 'UTF-8'); ?></strong> &bull;
               Durasi: <strong><?php echo htmlspecialchars((string)$offer['duration'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull;
-              Gaji Proyek: <strong style="color:#1d4ed8;font-weight:800;"><?php echo htmlspecialchars((string)$offer['budget'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull;
+              Gaji: <strong style="color:#1d4ed8;font-weight:800;"><?php echo htmlspecialchars((string)$offer['budget'], ENT_QUOTES, 'UTF-8'); ?></strong> &bull;
               Ditawarkan: <strong><?php echo htmlspecialchars($createdLabel, ENT_QUOTES, 'UTF-8'); ?></strong>
             </div>
           </div>

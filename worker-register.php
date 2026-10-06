@@ -80,7 +80,17 @@ $currentSkills = $_POST['skills'] ?? (is_array($existingReg['skills'] ?? null) ?
 $currentContactChoice = $_POST['contact_choice'] ?? ($existingReg['contact_choice'] ?? 'siapkerja');
 $currentContactEmail = $_POST['contact_email_new'] ?? ($existingReg['contact_email'] ?? '');
 $currentContactWa = $_POST['contact_wa_new'] ?? ($existingReg['contact_wa'] ?? '');
-$currentVideoUrl = $_POST['video_url'] ?? ($existingReg['video_url'] ?? ($workerProfile['video_url'] ?? ''));
+
+$rawVideoStr = $_POST['video_url'] ?? ($existingReg['video_url'] ?? ($workerProfile['video_url'] ?? ''));
+if (isset($_POST['video_urls']) && is_array($_POST['video_urls'])) {
+    $currentVideoUrls = array_values(array_filter(array_map('trim', $_POST['video_urls']), static fn($u) => $u !== ''));
+} else {
+    $currentVideoUrls = array_values(array_filter(array_map('trim', preg_split('/[\r\n]+/', (string)$rawVideoStr)), static fn($u) => $u !== ''));
+}
+if ($currentVideoUrls === []) {
+    $currentVideoUrls = [''];
+}
+$currentVideoUrl = implode("\n", $currentVideoUrls);
 
 $currentPortfolio = !empty($existingReg['portfolio']) && is_array($existingReg['portfolio']) ? $existingReg['portfolio'] : ($workerProfile['portfolio'] ?? []);
 
@@ -154,7 +164,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
     $contactChoice = trim((string)($_POST["contact_choice"] ?? "siapkerja"));
     $contactEmail = $contactChoice === 'new' ? trim((string)($_POST["contact_email_new"] ?? "")) : $siapkerja['email'];
     $contactWa = $contactChoice === 'new' ? trim((string)($_POST["contact_wa_new"] ?? "")) : $siapkerja['wa'];
-    $videoUrl = trim((string)($_POST["video_url"] ?? ""));
+    if (isset($_POST['video_urls']) && is_array($_POST['video_urls'])) {
+        $videoUrlsArr = array_values(array_filter(array_map('trim', $_POST['video_urls']), static fn($u) => $u !== ''));
+        $videoUrl = implode("\n", $videoUrlsArr);
+    } else {
+        $videoUrl = trim((string)($_POST["video_url"] ?? ""));
+    }
 
     // Process previous projects & integrated portfolios
     $projects = [];
@@ -996,14 +1011,29 @@ $backHref = $isEditMode
       <div class="form-section-header">
         <h2 class="form-section-title">4. LINK VIDEO PROFIL GIG WORKER</h2>
         <p class="form-section-subtitle">
-          Sampaikan perkenalan singkat diri dan keahlian Anda melalui video (misal: YouTube, Loom, atau Google Drive Video).
+          Sampaikan perkenalan singkat diri dan keahlian Anda melalui video (misal: YouTube, Loom, atau Google Drive Video). Anda dapat menambahkan lebih dari satu tautan video.
         </p>
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="video_url">Tautan / URL Video Profil</label>
-        <input type="url" id="video_url" name="video_url" class="form-input" value="<?php echo htmlspecialchars($currentVideoUrl, ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://www.youtube.com/watch?v=... atau https://www.loom.com/share/..." oninput="checkVideoPreview(this.value)" />
-        <div id="videoPreviewStatus" style="font-size: 0.8rem; margin-top: 4px; display: none;"></div>
+        <label class="form-label">Tautan / URL Video Profil</label>
+        <div id="video-links-container" style="display: flex; flex-direction: column; gap: 12px;">
+          <?php foreach ($currentVideoUrls as $vIdx => $vUrl): ?>
+            <div class="video-url-row" style="display: flex; gap: 10px; align-items: center;">
+              <div style="flex: 1;">
+                <input type="url" name="video_urls[]" class="form-input video-url-input" value="<?php echo htmlspecialchars($vUrl, ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://www.youtube.com/watch?v=... atau https://www.loom.com/share/..." />
+              </div>
+              <button type="button" class="btn-remove-video" onclick="removeVideoRow(this)" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 11px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.84rem; flex-shrink: 0;" title="Hapus Link Video">
+                Hapus
+              </button>
+            </div>
+          <?php endforeach; ?>
+        </div>
+        <div style="margin-top: 12px;">
+          <button type="button" onclick="addVideoRow()" style="background: #f0f9ff; color: #0284c7; border: 1.5px dashed #0284c7; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 0.86rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            + Tambah Link Video Profil
+          </button>
+        </div>
       </div>
 
       <!-- SUBMIT -->
@@ -1174,6 +1204,35 @@ $backHref = $isEditMode
       } else {
         statusDiv.style.color = '#d97706';
         statusDiv.innerHTML = 'ℹ Tautan video terdaftar. Pastikan akses video diset ke Publik/Unlisted.';
+      }
+    }
+
+    function addVideoRow() {
+      const container = document.getElementById('video-links-container');
+      if (!container) return;
+      const div = document.createElement('div');
+      div.className = 'video-url-row';
+      div.style.cssText = 'display: flex; gap: 10px; align-items: center;';
+      div.innerHTML = `
+        <div style="flex: 1;">
+          <input type="url" name="video_urls[]" class="form-input video-url-input" placeholder="https://www.youtube.com/watch?v=... atau https://www.loom.com/share/..." />
+        </div>
+        <button type="button" class="btn-remove-video" onclick="removeVideoRow(this)" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 11px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.84rem; flex-shrink: 0;" title="Hapus Link Video">
+          Hapus
+        </button>
+      `;
+      container.appendChild(div);
+    }
+
+    function removeVideoRow(btn) {
+      const container = document.getElementById('video-links-container');
+      if (!container) return;
+      const rows = container.querySelectorAll('.video-url-row');
+      if (rows.length > 1) {
+        btn.closest('.video-url-row').remove();
+      } else {
+        const input = rows[0].querySelector('input');
+        if (input) input.value = '';
       }
     }
 

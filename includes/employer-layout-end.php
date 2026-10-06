@@ -430,7 +430,7 @@ declare(strict_types=1);
                 </div>
 
                 <div class="form-row">
-                  <label for="proj_salary">Gaji Proyek (Rp) *</label>
+                  <label for="proj_salary">Gaji (Rp) *</label>
                   <input type="text" id="proj_salary" required placeholder="Contoh: 7500000" />
                 </div>
 

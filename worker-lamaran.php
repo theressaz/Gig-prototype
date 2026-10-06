@@ -68,7 +68,6 @@ require __DIR__ . '/includes/worker-layout-start.php';
     <h1 style="font-size:1.7rem;font-weight:800;color:var(--text-main);margin:0;letter-spacing:-0.03em;">Lamaran Saya</h1>
     <p style="font-size:0.86rem;color:var(--text-muted);margin-top:4px;">Pantau status seluruh lamaran proyek Anda secara real-time.</p>
   </div>
-  <a class="btn-primary-add" href="worker-bursa.php" style="text-decoration:none;display:inline-flex;">+ Lamar Proyek Baru</a>
 </div>
 
 <div class="mini-stats" style="grid-template-columns: repeat(5, 1fr); margin-bottom: 20px;">
@@ -170,7 +169,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
             <div style="font-size:0.9rem;font-weight:700;color:var(--text-main);margin-top:2px;"><?php echo htmlspecialchars(date('d M Y, H:i', strtotime((string)($app['updated_at'] ?? 'now'))), ENT_QUOTES, 'UTF-8'); ?></div>
           </div>
           <div>
-            <div style="font-size:0.74rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;">Gaji Proyek</div>
+            <div style="font-size:0.74rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;">Gaji</div>
             <div style="font-size:0.9rem;font-weight:800;color:#2563eb;margin-top:2px;"><?php echo htmlspecialchars($cleanBid, ENT_QUOTES, 'UTF-8'); ?></div>
           </div>
           <div>
