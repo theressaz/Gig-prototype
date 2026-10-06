@@ -696,6 +696,11 @@ function gig_worker_soonest_active_project(string $username, string $email = '')
     return $list[0];
 }
 
+function gig_worker_active_project_limit(): int
+{
+    return 2;
+}
+
 function gig_worker_project_completions_map(): array
 {
     $completed = [];
@@ -764,7 +769,7 @@ function gig_worker_ongoing_active_projects(string $username, string $email = ''
         }
         $out[] = $proj;
     }
-    return $out;
+    return array_slice($out, 0, gig_worker_active_project_limit());
 }
 
 function gig_worker_active_project_count(string $username, string $email = ''): int

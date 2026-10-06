@@ -542,6 +542,17 @@ function gig_get_applications_for_employer(string $employerName): array
     return $out;
 }
 
+function gig_worker_has_active_project_capacity(string $workerId): bool
+{
+    if (!function_exists('gig_worker_active_project_count')) {
+        require_once __DIR__ . '/project-schedule.php';
+    }
+    if (!function_exists('gig_worker_active_project_limit')) {
+        return true;
+    }
+    return gig_worker_active_project_count($workerId, $workerId) < gig_worker_active_project_limit();
+}
+
 function gig_apply_for_project(string $workerId, string $workerName, string $vacancyId, string $note = ''): array
 {
     gig_apps_session_start();
@@ -636,6 +647,9 @@ function gig_employer_respond_application(string $appId, string $decision, strin
     if ($decision === 'accept' && $vacancy && gig_vacancy_hired_application((string)$vacancy['id'], $appId) !== null) {
         return ['ok' => false, 'error' => 'Lowongan ini sudah memiliki Gig Worker terpilih.'];
     }
+    if ($decision === 'accept' && !gig_worker_has_active_project_capacity((string)$app['worker_id'])) {
+        return ['ok' => false, 'error' => 'Gig Worker sudah memiliki 2 proyek aktif. Selesaikan salah satu proyek aktif terlebih dahulu.'];
+    }
 
     $newStatus = ($decision === 'accept') ? 'confirmed_by_worker' : 'rejected_by_employer';
     $app['status'] = $newStatus;
@@ -698,6 +712,9 @@ function gig_worker_confirm_application(string $appId, string $action, string $w
 
     if ($action === 'confirm' && $vacancy && gig_vacancy_hired_application((string)$vacancy['id'], $appId) !== null) {
         return ['ok' => false, 'error' => 'Proyek ini sudah terisi oleh Gig Worker lain.'];
+    }
+    if ($action === 'confirm' && !gig_worker_has_active_project_capacity((string)$workerId)) {
+        return ['ok' => false, 'error' => 'Anda sudah memiliki 2 proyek aktif. Selesaikan salah satu proyek aktif terlebih dahulu.'];
     }
 
     if ($action === 'confirm') {
