@@ -185,6 +185,8 @@ function gig_vacancy_normalize(array $vacancy): array
         $vacancy['location'] = gig_random_location($idSeed);
     }
 
+    $vacancy['vacancy_type'] = (string)($vacancy['vacancy_type'] ?? 'project');
+    $vacancy['entity_type'] = (string)($vacancy['entity_type'] ?? 'perusahaan');
     return $vacancy;
 }
 

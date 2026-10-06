@@ -642,20 +642,38 @@ require __DIR__ . '/includes/admin-layout-start.php';
         }
 
         $getEntityType = static function (array $v): string {
-            if (!empty($v['entity_type'])) {
-                return strtolower((string)$v['entity_type']);
+            $vacancyType = strtolower((string)($v['vacancy_type'] ?? ''));
+            $entityType  = strtolower((string)($v['entity_type'] ?? ''));
+
+            if ($vacancyType === '') {
+                $id = strtolower((string)($v['id'] ?? ''));
+                $vacancyType = str_starts_with($id, 'job-') ? 'job' : 'project';
             }
-            $emp = strtolower((string)($v['employer'] ?? ''));
-            if (preg_match('/(pt|cv|inc|corp|ltd|tbk|group|bumn|analytics|solusi|media|infrastruktur|talenta|mutualplus|indo hr)/i', $emp)) {
+
+            if ($entityType === '') {
+                $emp = strtolower((string)($v['employer'] ?? ''));
+                if (preg_match('/(pt|cv|inc|corp|ltd|tbk|group|bumn|analytics|solusi|media|infrastruktur|talenta|mutualplus|indo hr|yayasan)/i', $emp)) {
+                    $entityType = 'perusahaan';
+                } elseif ($emp !== '') {
+                    $entityType = 'individual';
+                } else {
+                    $entityType = 'perusahaan';
+                }
+            }
+
+            // User classification rules:
+            // Semua : all job and project vacancies
+            // Perusahaan: JOB Vacancies from companies
+            // Individual: JOB Vacancies from individuals
+            // Gig Workers: PROJECT Vacancies from companies
+            if ($vacancyType === 'job') {
+                if ($entityType === 'individual') {
+                    return 'individual';
+                }
                 return 'perusahaan';
             }
-            if (str_contains($emp, 'worker') || str_contains($emp, 'tessa') || str_contains($emp, 'rian') || str_contains($emp, 'fajar')) {
-                return 'gig_worker';
-            }
-            if ($emp !== '') {
-                return 'individual';
-            }
-            return 'perusahaan';
+
+            return 'gig_worker';
         };
 
         // Filter vacancies matching search query first
@@ -665,16 +683,22 @@ require __DIR__ . '/includes/admin-layout-start.php';
             return str_contains($haystack, strtolower($searchQ));
         }));
 
-        // Counts for status tabs
+        // Filter search set by active entity pill selection to calculate status tab counts
+        $vacanciesEntityFiltered = array_values(array_filter($vacanciesSearchFiltered, static function (array $v) use ($entityFilter, $getEntityType): bool {
+            if ($entityFilter === 'all') return true;
+            return $getEntityType($v) === $entityFilter;
+        }));
+
+        // Counts for top status tabs under active entity pill selection
         $projectStateCounts = [
-            'all' => count($vacanciesSearchFiltered),
-            'pending' => count(array_filter($vacanciesSearchFiltered, static fn($v) => (string)($v['status'] ?? '') === 'review')),
-            'revision' => count(array_filter($vacanciesSearchFiltered, static fn($v) => (string)($v['status'] ?? '') === 'revision')),
-            'approved' => count(array_filter($vacanciesSearchFiltered, static fn($v) => in_array((string)($v['status'] ?? ''), ['active', 'approved'], true))),
-            'rejected' => count(array_filter($vacanciesSearchFiltered, static fn($v) => (string)($v['status'] ?? '') === 'rejected')),
+            'all' => count($vacanciesEntityFiltered),
+            'pending' => count(array_filter($vacanciesEntityFiltered, static fn($v) => (string)($v['status'] ?? '') === 'review')),
+            'revision' => count(array_filter($vacanciesEntityFiltered, static fn($v) => (string)($v['status'] ?? '') === 'revision')),
+            'approved' => count(array_filter($vacanciesEntityFiltered, static fn($v) => in_array((string)($v['status'] ?? ''), ['active', 'approved'], true))),
+            'rejected' => count(array_filter($vacanciesEntityFiltered, static fn($v) => (string)($v['status'] ?? '') === 'rejected')),
         ];
 
-        // Filter by state first
+        // Filter search set by active status state to calculate entity section pill counts
         $vacanciesStateFiltered = array_values(array_filter($vacanciesSearchFiltered, static function (array $v) use ($state): bool {
             $st = (string)($v['status'] ?? '');
             if ($state === 'all') return true;
@@ -683,7 +707,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
             return $st === $state;
         }));
 
-        // Entity section counts under current active state
+        // Entity section counts under current active status state
         $entityCounts = [
             'all' => count($vacanciesStateFiltered),
             'perusahaan' => count(array_filter($vacanciesStateFiltered, static fn($v) => $getEntityType($v) === 'perusahaan')),
@@ -691,7 +715,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
             'gig_worker' => count(array_filter($vacanciesStateFiltered, static fn($v) => $getEntityType($v) === 'gig_worker')),
         ];
 
-        // Final filtered rows
+        // Final filtered rows matching both active status state and active entity filter
         $projectRows = array_values(array_filter($vacanciesStateFiltered, static function (array $v) use ($entityFilter, $getEntityType): bool {
             if ($entityFilter === 'all') return true;
             return $getEntityType($v) === $entityFilter;
