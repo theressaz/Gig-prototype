@@ -902,11 +902,11 @@ $backHref = $isEditMode
 
               <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-top:10px;">
                 <div style="font-size:0.86rem;font-weight:700;color:#0f172a;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;">
-                  <span>📁 Output Proyek / Portofolio</span>
+                  <span>📁 Output Proyek</span>
                   <span style="font-size:0.75rem;color:#64748b;font-weight:500;">Link Figma, GitHub, Google Drive, Dribbble, dll.</span>
                 </div>
                 <div class="form-group" style="margin-bottom:10px;">
-                  <label class="form-label" style="font-size:0.78rem;">Judul / Nama Output Proyek</label>
+                  <label class="form-label" style="font-size:0.78rem;">Nama Output Proyek</label>
                   <input type="text" name="portfolio_title[<?php echo $projIdx; ?>]" class="form-input" style="font-size:0.85rem;" value="<?php echo htmlspecialchars((string)$outTitle, ENT_QUOTES, 'UTF-8'); ?>" placeholder="contoh: Wireframe &amp; Design System Figma" />
                 </div>
                 <div id="file-list-<?php echo $projIdx; ?>">
@@ -976,11 +976,11 @@ $backHref = $isEditMode
 
             <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-top:10px;">
               <div style="font-size:0.86rem;font-weight:700;color:#0f172a;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;">
-                <span>📁 Output Proyek / Portofolio</span>
+                <span>📁 Output Proyek</span>
                 <span style="font-size:0.75rem;color:#64748b;font-weight:500;">Link Figma, GitHub, Google Drive, Dribbble, dll.</span>
               </div>
               <div class="form-group" style="margin-bottom:10px;">
-                <label class="form-label" style="font-size:0.78rem;">Judul / Nama Output Proyek</label>
+                <label class="form-label" style="font-size:0.78rem;">Nama Output Proyek</label>
                 <input type="text" name="portfolio_title[0]" class="form-input" style="font-size:0.85rem;" placeholder="contoh: Prototype Figma / Repositori GitHub" />
               </div>
               <div id="file-list-0">
@@ -1240,11 +1240,11 @@ $backHref = $isEditMode
 
         <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-top:10px;">
           <div style="font-size:0.86rem;font-weight:700;color:#0f172a;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;">
-            <span>📁 Output Proyek / Portofolio</span>
+            <span>📁 Output Proyek</span>
             <span style="font-size:0.75rem;color:#64748b;font-weight:500;">Link Figma, GitHub, Google Drive, Dribbble, dll.</span>
           </div>
           <div class="form-group" style="margin-bottom:10px;">
-            <label class="form-label" style="font-size:0.78rem;">Judul / Nama Output Proyek</label>
+            <label class="form-label" style="font-size:0.78rem;">Nama Output Proyek</label>
             <input type="text" name="portfolio_title[${pIdx}]" class="form-input" style="font-size:0.85rem;" placeholder="contoh: Prototype Figma / Repositori GitHub" />
           </div>
           <div id="file-list-${pIdx}">
