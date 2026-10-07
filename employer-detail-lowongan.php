@@ -197,6 +197,17 @@ foreach ($jobApplications as $app) {
     ];
 }
 
+$rawJobStatus = (string)($job['status'] ?? 'draft');
+$isTayang = ($rawJobStatus === 'active');
+
+$lockedMessageMap = [
+    'draft' => 'Proses seleksi belum dapat dilakukan karena lowongan belum berstatus Tayang. Lowongan masih dalam tahap penyusunan dan belum diajukan untuk diverifikasi.',
+    'review' => 'Proses seleksi belum dapat dilakukan karena lowongan belum berstatus Tayang. Lowongan saat ini sedang dalam proses verifikasi oleh Admin KarirHub.',
+    'revision' => 'Proses seleksi belum dapat dilakukan karena lowongan belum berstatus Tayang. Lowongan memerlukan perbaikan sesuai catatan revisi dari Admin.',
+    'rejected' => 'Proses seleksi tidak dapat dilakukan karena lowongan ditolak oleh Admin KarirHub.',
+];
+$lockedMessage = $lockedMessageMap[$rawJobStatus] ?? 'Proses seleksi belum dapat dilakukan karena lowongan belum berstatus Tayang. Lowongan masih dalam tahap penyusunan dan belum diajukan untuk diverifikasi.';
+
 $statusLabel = (string)($job['statusLabel'] ?? 'Draft');
 $pageTitle = 'Detail Lowongan · ' . $job['title'];
 $pageKey = 'lowongan';
@@ -285,51 +296,71 @@ require __DIR__ . '/includes/employer-layout-start.php';
         <?php echo htmlspecialchars((string)$flash['message'], ENT_QUOTES, 'UTF-8'); ?>
       </div>
     <?php endif; ?>
-    <div class="jobd-tools">
-      <div class="jobd-search">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input id="candidateSearchInput" type="text" placeholder="Cari pelamar..." />
-      </div>
-      <div style="display:flex;gap:8px;">
-        <button class="filter-btn-pill" type="button">Filter</button>
-      </div>
-    </div>
 
-    <div class="jobd-board" id="kanbanBoard" style="margin-top:10px;">
-      <?php foreach ($lanes as $key => $cards): ?>
-        <div class="jobd-col" data-lane="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
-          <div class="jobd-col-head">
-            <span><span class="jobd-dot" style="background:<?php echo htmlspecialchars($laneMeta[$key]['dot'], ENT_QUOTES, 'UTF-8'); ?>"></span><?php echo htmlspecialchars($laneMeta[$key]['label'], ENT_QUOTES, 'UTF-8'); ?></span>
-            <span><?php echo count($cards); ?></span>
-          </div>
-          <div class="jobd-col-body">
-            <?php if (count($cards) === 0): ?>
-              <div class="jobd-empty">Tidak ada data.</div>
-            <?php endif; ?>
-            <?php foreach ($cards as $c): ?>
-              <div
-                class="jobd-card candidate-card"
-                data-search="<?php echo htmlspecialchars(strtolower($c['name'] . ' ' . $c['title']), ENT_QUOTES, 'UTF-8'); ?>"
-                data-app-id="<?php echo htmlspecialchars($c['id'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-worker-id="<?php echo htmlspecialchars($c['worker_id'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-name="<?php echo htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-title="<?php echo htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-status-text="<?php echo htmlspecialchars($c['status_text'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-status-ui="<?php echo htmlspecialchars($c['status_ui'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-applied="<?php echo htmlspecialchars($c['applied_label'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-contact-unlocked="<?php echo htmlspecialchars($c['contact_unlocked'], ENT_QUOTES, 'UTF-8'); ?>"
-                data-profile-json="<?php echo htmlspecialchars(json_encode($c['profile'], JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8'); ?>"
-              >
-                <div class="jobd-card-name"><?php echo htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8'); ?></div>
-                <div class="jobd-card-sub"><?php echo htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8'); ?></div>
-                <div class="jobd-card-meta">
-                  <span>★ <?php echo number_format((float)$c['rating'], 1); ?></span>
-                </div>
-              </div>
-            <?php endforeach; ?>
+    <div style="position:relative; min-height:460px; border-radius:14px; overflow:hidden;">
+      <?php if (!$isTayang): ?>
+        <div style="position:absolute; inset:0; background:rgba(148, 163, 184, 0.45); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); z-index:20; display:flex; align-items:center; justify-content:center; padding:24px;">
+          <div style="background:#ffffff; border-radius:18px; padding:38px 36px; max-width:480px; width:100%; text-align:center; box-shadow:0 20px 45px rgba(15,23,42,0.18);">
+            <div style="font-size:2.5rem; color:#1e293b; margin-bottom:14px; display:flex; justify-content:center; align-items:center;">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+            <h2 style="font-size:1.35rem; font-weight:800; color:#0f172a; margin:0 0 10px 0; letter-spacing:-0.01em;">Proses seleksi terkunci</h2>
+            <p style="font-size:0.86rem; color:#64748b; line-height:1.55; margin:0;">
+              <?php echo htmlspecialchars($lockedMessage, ENT_QUOTES, 'UTF-8'); ?>
+            </p>
           </div>
         </div>
-      <?php endforeach; ?>
+      <?php endif; ?>
+
+      <div class="jobd-tools" style="<?php echo !$isTayang ? 'filter:blur(3px); opacity:0.45; pointer-events:none;' : ''; ?>">
+        <div class="jobd-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="candidateSearchInput" type="text" placeholder="Cari pelamar..." <?php echo !$isTayang ? 'disabled' : ''; ?> />
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="filter-btn-pill" type="button" <?php echo !$isTayang ? 'disabled' : ''; ?>>Filter</button>
+        </div>
+      </div>
+
+      <div class="jobd-board" id="kanbanBoard" style="margin-top:10px; <?php echo !$isTayang ? 'filter:blur(3px); opacity:0.45; pointer-events:none;' : ''; ?>">
+        <?php foreach ($lanes as $key => $cards): ?>
+          <div class="jobd-col" data-lane="<?php echo htmlspecialchars($key, ENT_QUOTES, 'UTF-8'); ?>">
+            <div class="jobd-col-head">
+              <span><span class="jobd-dot" style="background:<?php echo htmlspecialchars($laneMeta[$key]['dot'], ENT_QUOTES, 'UTF-8'); ?>"></span><?php echo htmlspecialchars($laneMeta[$key]['label'], ENT_QUOTES, 'UTF-8'); ?></span>
+              <span><?php echo count($cards); ?></span>
+            </div>
+            <div class="jobd-col-body">
+              <?php if (count($cards) === 0): ?>
+                <div class="jobd-empty">Tidak ada data.</div>
+              <?php endif; ?>
+              <?php foreach ($cards as $c): ?>
+                <div
+                  class="jobd-card candidate-card"
+                  data-search="<?php echo htmlspecialchars(strtolower($c['name'] . ' ' . $c['title']), ENT_QUOTES, 'UTF-8'); ?>"
+                  data-app-id="<?php echo htmlspecialchars($c['id'], ENT_QUOTES, 'UTF-8'); ?>"
+                  data-worker-id="<?php echo htmlspecialchars($c['worker_id'], ENT_QUOTES, 'UTF-8'); ?>"
+                  data-name="<?php echo htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8'); ?>"
+                  data-title="<?php echo htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8'); ?>"
+                  data-status-text="<?php echo htmlspecialchars($c['status_text'], ENT_QUOTES, 'UTF-8'); ?>"
+                  data-status-ui="<?php echo htmlspecialchars($c['status_ui'], ENT_QUOTES, 'UTF-8'); ?>"
+                  data-applied="<?php echo htmlspecialchars($c['applied_label'], ENT_QUOTES, 'UTF-8'); ?>"
+                  data-contact-unlocked="<?php echo htmlspecialchars($c['contact_unlocked'], ENT_QUOTES, 'UTF-8'); ?>"
+                  data-profile-json="<?php echo htmlspecialchars(json_encode($c['profile'], JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8'); ?>"
+                >
+                  <div class="jobd-card-name"><?php echo htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8'); ?></div>
+                  <div class="jobd-card-sub"><?php echo htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8'); ?></div>
+                  <div class="jobd-card-meta">
+                    <span>★ <?php echo number_format((float)$c['rating'], 1); ?></span>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      </div>
     </div>
   </section>
 
@@ -663,7 +694,10 @@ require __DIR__ . '/includes/employer-layout-start.php';
     }
 
     document.querySelectorAll('.candidate-card').forEach(function(card) {
-      card.addEventListener('click', function() { openCandidateDrawer(card); });
+      card.addEventListener('click', function() {
+        if (!<?php echo json_encode($isTayang); ?>) return;
+        openCandidateDrawer(card);
+      });
     });
 
     window.closeCandidateDrawer = function() {
