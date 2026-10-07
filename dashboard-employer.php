@@ -182,7 +182,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
         <div class="card-header-flex">
           <div class="card-title-group">
             <h2>Pelamar Terbaru</h2>
-            <p>Klik untuk membuka profil akun</p>
+            <p>Klik untuk membuka detail lowongan</p>
           </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;">
@@ -190,22 +190,33 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <?php
             $wKey = strtolower(trim((string)($recent['id'] ?? '')));
             $appData = $appMapByWorker[$wKey] ?? null;
-            $vacId = (string)($appData['vacancy_id'] ?? '');
+            $vacId = (string)($appData['vacancy_id'] ?? 'GIG-2026-09-001');
+            if ($vacId === '') {
+                $vacId = 'GIG-2026-09-001';
+            }
             $appliedTitle = $vacancyTitleMap[$vacId] ?? 'Redesign UI/UX Dashboard Prototype KarirHub';
           ?>
-          <a class="recent-applicant-row" href="worker-profile.php?id=<?php echo urlencode($recent['id']); ?>&from=cari-mitra">
-            <div class="recent-applicant-left">
-              <div class="recent-avatar" style="background:<?php echo htmlspecialchars($recent['color'], ENT_QUOTES, 'UTF-8'); ?>;display:flex;align-items:center;justify-content:center;color:#ffffff;font-weight:800;font-size:1.05rem;border-radius:50%;">
-                <?php echo htmlspecialchars(strtoupper(substr((string)$recent['name'], 0, 1)), ENT_QUOTES, 'UTF-8'); ?>
-              </div>
-              <div>
-                <div style="font-size:0.88rem;font-weight:800;"><?php echo htmlspecialchars($recent['name'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <div class="recent-applicant-row" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;gap:12px;">
+            <div class="recent-applicant-left" style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
+              <a href="employer-detail-lowongan.php?id=<?php echo urlencode($vacId); ?>" style="text-decoration:none;">
+                <div class="recent-avatar" style="background:<?php echo htmlspecialchars($recent['color'], ENT_QUOTES, 'UTF-8'); ?>;display:flex;align-items:center;justify-content:center;color:#ffffff;font-weight:800;font-size:1.05rem;border-radius:50%;width:40px;height:40px;flex-shrink:0;">
+                  <?php echo htmlspecialchars(strtoupper(substr((string)$recent['name'], 0, 1)), ENT_QUOTES, 'UTF-8'); ?>
+                </div>
+              </a>
+              <div style="min-width:0;flex:1;">
+                <a href="employer-detail-lowongan.php?id=<?php echo urlencode($vacId); ?>" style="font-size:0.88rem;font-weight:800;color:#0f172a;text-decoration:none;display:block;">
+                  <?php echo htmlspecialchars($recent['name'], ENT_QUOTES, 'UTF-8'); ?>
+                </a>
                 <div style="font-size:0.74rem;color:var(--text-muted);"><?php echo htmlspecialchars($recent['title'], ENT_QUOTES, 'UTF-8'); ?> · ★ <?php echo (int)$recent['rating']; ?></div>
-                <div style="font-size:0.75rem;color:#2563eb;font-weight:700;margin-top:2px;">📋 Melamar: <?php echo htmlspecialchars($appliedTitle, ENT_QUOTES, 'UTF-8'); ?></div>
+                <div style="margin-top:3px;">
+                  <a href="employer-detail-lowongan.php?id=<?php echo urlencode($vacId); ?>" style="font-size:0.78rem;color:#2563eb;font-weight:700;text-decoration:underline;display:inline-flex;align-items:center;gap:4px;" title="Buka Detail Lowongan Proyek">
+                    📋 Melamar: <?php echo htmlspecialchars($appliedTitle, ENT_QUOTES, 'UTF-8'); ?>
+                  </a>
+                </div>
               </div>
             </div>
-            <span class="btn-action-sm">Lihat Profil</span>
-          </a>
+            <a class="btn-action-sm" href="employer-detail-lowongan.php?id=<?php echo urlencode($vacId); ?>" style="text-decoration:none;white-space:nowrap;flex-shrink:0;">Lihat Profil</a>
+          </div>
           <?php endforeach; ?>
         </div>
       </section>
