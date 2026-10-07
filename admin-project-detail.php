@@ -134,7 +134,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
   .req-kicker { font-size:.7rem;color:#64748b;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px; }
   .req-title { margin:0 0 4px 0;font-size:1.35rem;font-weight:800;color:#0f172a;line-height:1.2; }
   .req-meta { display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:.8rem;color:#64748b; }
-  .req-badge { display:inline-flex;padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:800; }
+  .req-badge { display:inline-flex;align-items:center;padding:4px 12px;border-radius:999px;font-size:.72rem;font-weight:800;white-space:nowrap; }
   .req-badge.is-blue { background:#dbeafe;color:#1d4ed8; }
   .req-badge.is-green { background:#dcfce7;color:#166534; }
   .req-badge.is-red { background:#fee2e2;color:#991b1b; }

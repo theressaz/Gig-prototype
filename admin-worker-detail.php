@@ -214,7 +214,7 @@ $editStatusBadge = static function (string $st): string {
         'rejected' => ['Ditolak', '#fee2e2', '#991b1b'],
     ];
     $item = $map[$st] ?? [$st, '#f1f5f9', '#334155'];
-    return '<span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;background:' . $item[1] . ';color:' . $item[2] . ';">' . htmlspecialchars($item[0], ENT_QUOTES, 'UTF-8') . '</span>';
+    return '<span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;white-space:nowrap;background:' . $item[1] . ';color:' . $item[2] . ';">' . htmlspecialchars($item[0], ENT_QUOTES, 'UTF-8') . '</span>';
 };
 
 $statusLabel = 'Belum Terverifikasi';
@@ -652,7 +652,7 @@ $extractPortfolioLinks = static function (array $portItem): array {
         <div class="profile-row"><div class="k">Skill</div><div class="v"><?php echo htmlspecialchars($skills !== [] ? implode(', ', $skills) : '-', ENT_QUOTES, 'UTF-8'); ?></div></div>
         <div class="profile-row"><div class="k">Video</div><div class="v"><?php echo !empty($worker['video_url']) ? '<a href="' . htmlspecialchars((string)$worker['video_url'], ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener">Lihat video</a>' : '-'; ?></div></div>
         <div class="profile-row"><div class="k">Dikirim</div><div class="v"><?php echo htmlspecialchars((string)($worker['created_at'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div></div>
-        <div class="profile-row"><div class="k">Status</div><div class="v"><span style="background:<?php echo htmlspecialchars($statusBg, ENT_QUOTES, 'UTF-8'); ?>;color:<?php echo htmlspecialchars($statusColor, ENT_QUOTES, 'UTF-8'); ?>;padding:3px 8px;border-radius:999px;font-size:0.74rem;font-weight:800;"><?php echo htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8'); ?></span></div></div>
+        <div class="profile-row"><div class="k">Status</div><div class="v"><span style="background:<?php echo htmlspecialchars($statusBg, ENT_QUOTES, 'UTF-8'); ?>;color:<?php echo htmlspecialchars($statusColor, ENT_QUOTES, 'UTF-8'); ?>;padding:4px 10px;border-radius:999px;font-size:0.74rem;font-weight:800;white-space:nowrap;"><?php echo htmlspecialchars($statusLabel, ENT_QUOTES, 'UTF-8'); ?></span></div></div>
         <div class="profile-row"><div class="k">Edit Profil</div><div class="v"><?php echo count($relatedEdits); ?> pengajuan</div></div>
 
         <?php if (!empty($worker['admin_note'])): ?>

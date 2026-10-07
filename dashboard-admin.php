@@ -204,7 +204,7 @@ function admin_status_badge(string $status): string
         'review' => ['Verifikasi', '#dbeafe', '#1e40af'],
     ];
     $item = $map[$status] ?? [$status, '#f1f5f9', '#334155'];
-    return '<span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;background:' . $item[1] . ';color:' . $item[2] . ';">' . htmlspecialchars($item[0], ENT_QUOTES, 'UTF-8') . '</span>';
+    return '<span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;white-space:nowrap;background:' . $item[1] . ';color:' . $item[2] . ';">' . htmlspecialchars($item[0], ENT_QUOTES, 'UTF-8') . '</span>';
 }
 
 function admin_worker_status_badge(array $row): string
@@ -216,10 +216,10 @@ function admin_worker_status_badge(array $row): string
 
     $isRevisionRequested = trim((string)($row['reviewed_at'] ?? '')) !== '';
     if ($isRevisionRequested) {
-        return '<span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;background:#fef3c7;color:#92400e;">Menunggu Verifikasi</span>';
+        return '<span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;white-space:nowrap;background:#fef3c7;color:#92400e;">Menunggu Verifikasi</span>';
     }
 
-    return '<span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;background:#e2e8f0;color:#334155;">Belum Terverifikasi</span>';
+    return '<span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;white-space:nowrap;background:#e2e8f0;color:#334155;">Belum Terverifikasi</span>';
 }
 
 function admin_bar_height(int $value, int $max, int $cap = 130): int

@@ -139,15 +139,15 @@ $colors = ['#2563eb', '#0891b2', '#7c3aed', '#059669', '#ea580c', '#db2777'];
             </td>
             <td>
               <?php if ($job['status'] === 'active'): ?>
-                <span class="badge-status active">Tayang Aktif</span>
+                <span class="badge-status active" style="white-space:nowrap;">Tayang Aktif</span>
               <?php elseif ($job['status'] === 'review'): ?>
-                <span style="display:inline-block;padding:3px 8px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#eff6ff;color:#2563eb;">Menunggu Verifikasi</span>
+                <span style="display:inline-flex;align-items:center;white-space:nowrap;padding:4px 12px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;">Menunggu Verifikasi</span>
               <?php elseif ($job['status'] === 'revision'): ?>
-                <span style="display:inline-block;padding:3px 8px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#fff7ed;color:#c2410c;">Perlu Revisi</span>
+                <span style="display:inline-flex;align-items:center;white-space:nowrap;padding:4px 12px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;">Perlu Revisi</span>
               <?php elseif ($job['status'] === 'rejected'): ?>
-                <span style="display:inline-block;padding:3px 8px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#fef2f2;color:#dc2626;">Ditolak</span>
+                <span style="display:inline-flex;align-items:center;white-space:nowrap;padding:4px 12px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;">Ditolak</span>
               <?php else: ?>
-                <span style="display:inline-block;padding:3px 8px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#f1f5f9;color:#64748b;">Draft</span>
+                <span style="display:inline-flex;align-items:center;white-space:nowrap;padding:4px 12px;border-radius:9999px;font-size:0.75rem;font-weight:700;background:#f1f5f9;color:#64748b;border:1px solid #cbd5e1;">Draft</span>
               <?php endif; ?>
             </td>
             <td>
