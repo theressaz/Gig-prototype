@@ -89,7 +89,6 @@ require __DIR__ . '/includes/employer-layout-start.php';
           <h2 class="hero-title">Halo, <a href="employer-profile.php" style="color:inherit;text-decoration:none;" title="Lihat Profil Perusahaan"><?php echo htmlspecialchars($username, ENT_QUOTES, 'UTF-8'); ?></a></h2>
           <p class="hero-desc">
             Pantau lowongan, pelamar, dan proyek berjalan dari satu tempat.
-            <a href="employer-profile.php" style="color:#ffffff;font-weight:700;margin-left:8px;text-decoration:none;background:rgba(255,255,255,0.2);padding:4px 12px;border-radius:9999px;font-size:0.78rem;display:inline-flex;align-items:center;gap:4px;">🏢 Lihat Profil Perusahaan &rarr;</a>
           </p>
         </div>
         <div class="hero-quick-stats">
