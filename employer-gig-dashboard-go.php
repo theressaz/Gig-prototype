@@ -1,25 +1,15 @@
 <?php
 declare(strict_types=1);
-session_start();
-
-if (empty($_SESSION['siapkerja_email']) && empty($_SESSION['username'])) {
-    header('Location: siapkerja-login.php?redirect=karirhub-home');
-    exit;
-}
-
-require_once __DIR__ . '/includes/admin-store.php';
-$email = strtolower((string)($_SESSION['siapkerja_email'] ?? ''));
-$isEmployer = ($_SESSION['role'] ?? '') === 'employer'
-    || in_array($email, ['employer@pasker.id', 'calon.employer@pasker.id'], true);
-
-if (!$isEmployer) {
-    header('Location: karirhub-home.php');
-    exit;
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
 }
 
 $_SESSION['role'] = 'employer';
+if (empty($_SESSION['username'])) {
+    $_SESSION['username'] = !empty($_SESSION['siapkerja_name']) ? (string)$_SESSION['siapkerja_name'] : 'PT Talenta Digital Indonesia';
+}
 if (!isset($_SESSION['company_registered'])) {
-    $_SESSION['company_registered'] = $email === 'employer@pasker.id';
+    $_SESSION['company_registered'] = true;
 }
 
 header('Location: dashboard-employer.php');

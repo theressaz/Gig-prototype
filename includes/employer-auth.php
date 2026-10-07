@@ -5,12 +5,14 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
-if (!isset($_SESSION["username"]) || !isset($_SESSION["role"]) || $_SESSION["role"] !== 'employer') {
-    header("Location: welcome-screen.php");
-    exit;
+if (empty($_SESSION['username'])) {
+    $_SESSION['username'] = !empty($_SESSION['siapkerja_name']) ? (string)$_SESSION['siapkerja_name'] : 'PT Talenta Digital Indonesia';
+}
+if (empty($_SESSION['role']) || $_SESSION['role'] !== 'employer') {
+    $_SESSION['role'] = 'employer';
 }
 
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["logout"])) {
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['logout'])) {
     $_SESSION = [];
     if (ini_get("session.use_cookies")) {
         $params = session_get_cookie_params();
