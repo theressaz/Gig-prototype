@@ -22,6 +22,18 @@ $workerProfiles = array_filter($rawWorkerProfiles, function($w) use ($appMapByWo
 });
 
 $vacancies = gig_project_vacancies();
+$vacancyTitleMap = [
+    'GIG-2026-09-001' => 'Redesign UI/UX Dashboard Prototype KarirHub',
+    'GIG-2026-09-002' => 'Integrasi REST API Modul Notifikasi SMS & WhatsApp',
+    'GIG-2026-09-003' => 'Social Media Campaign & Copywriting Manager',
+    'GIG-2026-09-005' => 'Desain UI/UX Mobile App E-Commerce UMKM',
+    'GIG-2026-09-012' => 'Audit Design System & Aksesibilitas Web Portal',
+];
+foreach ($vacancies as $v) {
+    if (!empty($v['id']) && !empty($v['title'])) {
+        $vacancyTitleMap[(string)$v['id']] = (string)$v['title'];
+    }
+}
 $p1 = gig_demo_active_project_by_id('GIG-2026-09-001');
 $p2 = gig_demo_active_project_by_id('GIG-2026-09-002');
 
@@ -94,10 +106,10 @@ require __DIR__ . '/includes/employer-layout-start.php';
         <div class="stat-number"><?php echo count($vacancies); ?></div>
         <div class="stat-caption"><span class="stat-trend-positive">2 tayang aktif</span> · 1 verifikasi · 1 revisi</div>
       </a>
-      <a class="stat-card" href="employer-pelamar.php">
-        <div class="stat-card-header"><span class="stat-label">TOTAL PELAMAR</span></div>
+      <a class="stat-card" href="employer-cari-mitra.php">
+        <div class="stat-card-header"><span class="stat-label">CARI MITRA GIG</span></div>
         <div class="stat-number"><?php echo count($workerProfiles); ?></div>
-        <div class="stat-caption"><span class="stat-trend-positive">+4 proposal baru</span> minggu ini</div>
+        <div class="stat-caption"><span class="stat-trend-positive">Tersedia siap kerja</span> di bursa</div>
       </a>
       <a class="stat-card" href="employer-proyek-aktif.php">
         <div class="stat-card-header"><span class="stat-label">PROYEK AKTIF</span></div>
@@ -176,7 +188,13 @@ require __DIR__ . '/includes/employer-layout-start.php';
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;">
           <?php foreach (array_slice($workerProfiles, 0, 3) as $recent): ?>
-          <a class="recent-applicant-row" href="worker-profile.php?id=<?php echo urlencode($recent['id']); ?>">
+          <?php
+            $wKey = strtolower(trim((string)($recent['id'] ?? '')));
+            $appData = $appMapByWorker[$wKey] ?? null;
+            $vacId = (string)($appData['vacancy_id'] ?? '');
+            $appliedTitle = $vacancyTitleMap[$vacId] ?? 'Redesign UI/UX Dashboard Prototype KarirHub';
+          ?>
+          <a class="recent-applicant-row" href="worker-profile.php?id=<?php echo urlencode($recent['id']); ?>&from=cari-mitra">
             <div class="recent-applicant-left">
               <div class="recent-avatar" style="background:<?php echo htmlspecialchars($recent['color'], ENT_QUOTES, 'UTF-8'); ?>;display:flex;align-items:center;justify-content:center;color:#ffffff;font-weight:800;font-size:1.05rem;border-radius:50%;">
                 <?php echo htmlspecialchars(strtoupper(substr((string)$recent['name'], 0, 1)), ENT_QUOTES, 'UTF-8'); ?>
@@ -184,6 +202,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
               <div>
                 <div style="font-size:0.88rem;font-weight:800;"><?php echo htmlspecialchars($recent['name'], ENT_QUOTES, 'UTF-8'); ?></div>
                 <div style="font-size:0.74rem;color:var(--text-muted);"><?php echo htmlspecialchars($recent['title'], ENT_QUOTES, 'UTF-8'); ?> · ★ <?php echo (int)$recent['rating']; ?></div>
+                <div style="font-size:0.75rem;color:#2563eb;font-weight:700;margin-top:2px;">📋 Melamar: <?php echo htmlspecialchars($appliedTitle, ENT_QUOTES, 'UTF-8'); ?></div>
               </div>
             </div>
             <span class="btn-action-sm">Lihat Profil</span>
@@ -215,7 +234,7 @@ require __DIR__ . '/includes/employer-layout-start.php';
           </h3>
           <p class="project-card-desc"><?php echo htmlspecialchars($proj['desc'], ENT_QUOTES, 'UTF-8'); ?></p>
           <div class="project-card-footer">
-            <a class="applicants-count-badge" href="employer-pelamar.php"><?php echo (int)$proj['applicantsCount']; ?> Pelamar</a>
+            <span class="applicants-count-badge" style="cursor:default;"><?php echo (int)$proj['applicantsCount']; ?> Pelamar</span>
             <a class="btn-action-sm" href="employer-detail-lowongan.php?id=<?php echo urlencode($proj['id']); ?>">Detail →</a>
           </div>
         </article>
