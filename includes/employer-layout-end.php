@@ -297,11 +297,11 @@ declare(strict_types=1);
           <div class="modal-header">
             <div>
               <div class="gig-post-head-title">Tambah Lowongan Proyek</div>
-              <div class="gig-post-head-sub">Lengkapi form untuk mempublikasikan proyek dan merekrut 1 Gig Worker.</div>
+              <div class="gig-post-head-sub">Lengkapi form untuk mempublikasikan proyek dan merekrut 1 Gig Workers.</div>
               <div class="gig-stepper">
                 <span class="gig-step-item active"><span class="gig-step-dot">1</span>Informasi Proyek</span>
                 <span class="gig-step-sep"></span>
-                <span class="gig-step-item"><span class="gig-step-dot">2</span>Kriteria Gig Worker</span>
+                <span class="gig-step-item"><span class="gig-step-dot">2</span>Kriteria Gig Workers</span>
                 <span class="gig-step-sep"></span>
                 <span class="gig-step-item"><span class="gig-step-dot">3</span>Tambahan</span>
               </div>
@@ -312,7 +312,7 @@ declare(strict_types=1);
             <div class="modal-body">
 
               <div class="gig-form-callout">
-                &#9432; Lowongan akan diverifikasi Admin terlebih dahulu sebelum tayang ke Gig Worker.
+                &#9432; Lowongan akan diverifikasi Admin terlebih dahulu sebelum tayang ke Gig Workers.
               </div>
 
               <section class="gig-section-card">

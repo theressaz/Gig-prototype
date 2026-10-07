@@ -285,7 +285,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
             <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
               <span>📅 Diposting <?php echo htmlspecialchars($job['posted'], ENT_QUOTES, 'UTF-8'); ?></span>
               <span>&bull;</span>
-              <span>👤 Penempatan: <strong>1 Gig Worker</strong></span>
+              <span>👤 Penempatan: <strong>1 Gig Workers</strong></span>
             </div>
             <div style="display: flex; align-items: center; gap: 6px; color: #dc2626; font-weight: 600;">
               <span>🔔</span> Batas Lamaran: <strong><?php echo htmlspecialchars($job['deadline'] ?? '31 Des 2026', ENT_QUOTES, 'UTF-8'); ?></strong>

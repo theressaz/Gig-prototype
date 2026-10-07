@@ -16,7 +16,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
 
     <section class="white-card settings-card">
       <div class="card-title-group" style="margin-bottom:16px;">
-        <h2>Akun Gig Worker</h2>
+        <h2>Akun Gig Workers</h2>
         <p>Kelola identitas Anda di KarirHub</p>
       </div>
       <?php 
@@ -41,7 +41,7 @@ require __DIR__ . '/includes/worker-layout-start.php';
       <div class="settings-row">
         <div>
           <strong>Sesi</strong>
-          <div style="font-size:0.84rem;color:var(--text-muted);">Keluar dari dashboard Gig Worker</div>
+          <div style="font-size:0.84rem;color:var(--text-muted);">Keluar dari dashboard Gig Workers</div>
         </div>
         <form method="post" action="">
           <a class="btn-action-sm" href="karirhub-logout.php" style="text-decoration:none;display:inline-flex;align-items:center;">Keluar</a>

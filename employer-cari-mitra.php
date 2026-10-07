@@ -16,9 +16,9 @@ foreach ($activeVacancies as $v) {
 }
 $alreadyOfferedMap = gig_employer_offered_map($username);
 
-$pageTitle = 'Cari Mitra Gig Worker';
+    $pageTitle = 'Cari Mitra Gig Workers';
 $pageKey = 'cari-mitra';
-$breadcrumbCurrent = 'Cari Mitra Gig';
+$breadcrumbCurrent = 'Cari Mitra Gig Workers';
 require __DIR__ . '/includes/employer-layout-start.php';
 ?>
 
@@ -303,8 +303,8 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
     <div class="page-toolbar">
       <div>
-        <h1>Cari Mitra Gig Worker</h1>
-        <p style="font-size:0.86rem;color:var(--text-muted);margin-top:4px;">Jelajahi profil keahlian Gig Worker dan tawarkan lowongan proyek aktif Anda langsung. Klik kartu untuk melihat rincian portofolio lengkap.</p>
+        <h1>Cari Mitra Gig Workers</h1>
+        <p style="font-size:0.86rem;color:var(--text-muted);margin-top:4px;">Jelajahi profil keahlian Gig Workers dan tawarkan lowongan proyek aktif Anda langsung melalui profil detail. Klik kartu untuk melihat profil portofolio lengkap.</p>
       </div>
     </div>
 
@@ -324,14 +324,14 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding:0 2px;">
       <p style="font-size:0.82rem;color:var(--text-muted);">
-        Menampilkan <strong id="worker-count" style="color:var(--text-main);"><?php echo count($workerProfiles); ?></strong> Gig Worker siap kerja
+        Menampilkan <strong id="worker-count" style="color:var(--text-main);"><?php echo count($workerProfiles); ?></strong> Gig Workers siap kerja
       </p>
       <span style="font-size:0.75rem;color:#64748b;background:#f1f5f9;padding:4px 10px;border-radius:6px;">
         💡 Maks. 3 penawaran per lowongan aktif
       </span>
     </div>
 
-    <!-- Marketplace Grid of Gig Worker Boxes -->
+    <!-- Marketplace Grid of Gig Workers Boxes -->
     <div class="mitra-grid" id="workers-grid">
       <?php foreach ($workerProfiles as $w): 
         // Compute cover banner gradient based on profile color
@@ -401,13 +401,11 @@ require __DIR__ . '/includes/employer-layout-start.php';
           </div>
         </div>
 
-        <!-- Box Footer with Tawarkan Proyek Button -->
-        <div class="mitra-box-footer" onclick="event.stopPropagation();">
-          <button type="button" class="btn-tawarkan-card"
-            onclick="openOfferModal('<?php echo htmlspecialchars($w['id'], ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes($w['name']), ENT_QUOTES, 'UTF-8'); ?>')">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            Tawarkan Proyek
-          </button>
+        <!-- Box Footer with Lihat Profil Button -->
+        <div class="mitra-box-footer">
+          <div class="btn-tawarkan-card" style="background:#f8fafc;color:#1d4ed8;border:1px solid #bfdbfe;font-weight:700;">
+            Lihat Profil Detail →
+          </div>
         </div>
 
       </div>
@@ -415,10 +413,10 @@ require __DIR__ . '/includes/employer-layout-start.php';
 
       <div id="no-mitra-match" class="mitra-empty-state" style="display:none;">
         <div style="font-size:2.2rem;margin-bottom:8px;">🔍</div>
-        <div style="font-weight:700;font-size:0.95rem;color:#1e293b;margin-bottom:4px;">Gig Worker Tidak Ditemukan</div>
+        <div style="font-weight:700;font-size:0.95rem;color:#1e293b;margin-bottom:4px;">Gig Workers Tidak Ditemukan</div>
         <p style="font-size:0.84rem;color:var(--text-muted);">Coba ubah kata kunci pencarian atau pilih kategori bidang lainnya.</p>
       </div>
-    </div>
+    </div>    </div>
 
     <!-- Offer Project Modal -->
     <div class="modal-backdrop" id="offerProjectModal" onclick="if(event.target.id==='offerProjectModal') closeOfferModal();">
