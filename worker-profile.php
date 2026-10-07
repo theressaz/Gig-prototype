@@ -55,8 +55,9 @@ if ($role === 'employer') {
     $alreadyOfferedMap = gig_employer_offered_map($username);
 }
 
+$from = (string)($_GET['from'] ?? '');
 $pageTitle = $worker['name'] . ' · Profil Gig Workers';
-$pageKey = $role === 'worker' ? 'profil' : 'pelamar';
+$pageKey = ($role === 'employer' && $from === 'cari-mitra') ? 'cari-mitra' : ($role === 'worker' ? 'profil' : 'pelamar');
 $breadcrumbCurrent = $worker['name'];
 
 if ($role === 'worker') {
@@ -71,14 +72,8 @@ if ($role === 'worker') {
       <div style="display:flex;gap:10px;align-items:center;">
         <?php if ($role === 'worker'): ?>
           <a class="btn-primary-add" href="worker-edit-profile.php">✏️ Edit Profil</a>
-        <?php elseif ($role === 'employer'): ?>
-          <button type="button" class="btn-primary-add" style="background:var(--primary-blue);color:#ffffff;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:700;" onclick="openOfferModal('<?php echo htmlspecialchars((string)$worker['id'], ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes((string)$worker['name']), ENT_QUOTES, 'UTF-8'); ?>')">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            Tawarkan Proyek
-          </button>
         <?php endif; ?>
         <?php 
-          $from = $_GET['from'] ?? '';
           $backUrl = $from === 'cari-mitra' ? 'employer-cari-mitra.php' : ($from === 'kandidat' ? 'employer-pelamar.php' : 'javascript:history.back()');
           $backLabel = $from === 'cari-mitra' ? '← Kembali ke Cari Mitra' : ($from === 'kandidat' ? '← Kembali ke Kandidat' : '← Kembali');
         ?>
@@ -102,8 +97,16 @@ if ($role === 'worker') {
       <div class="profile-photo-wrap">
         <div class="profile-photo" style="width:80px;height:80px;border-radius:50%;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:2.2rem;box-shadow:0 4px 14px rgba(37,99,235,0.3);flex-shrink:0;"><?php echo htmlspecialchars(strtoupper(substr((string)$worker['name'], 0, 1)), ENT_QUOTES, 'UTF-8'); ?></div>
       </div>
-      <div class="profile-id">
-        <div class="worker-display-name"><?php echo htmlspecialchars($worker['name'], ENT_QUOTES, 'UTF-8'); ?></div>
+      <div class="profile-id" style="flex:1;">
+        <div style="display:flex;justify-content:space-between;align-items:center;width:100%;flex-wrap:wrap;gap:12px;">
+          <div class="worker-display-name"><?php echo htmlspecialchars($worker['name'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <?php if ($role === 'employer'): ?>
+            <button type="button" class="btn-primary-add" style="background:var(--primary-blue);color:#ffffff;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:700;padding:8px 18px;border-radius:10px;box-shadow:0 4px 12px rgba(37,99,235,0.25);" onclick="openOfferModal('<?php echo htmlspecialchars((string)$worker['id'], ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes((string)$worker['name']), ENT_QUOTES, 'UTF-8'); ?>')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Tawarkan Proyek
+            </button>
+          <?php endif; ?>
+        </div>
         <div class="profile-title"><?php echo htmlspecialchars($worker['title'], ENT_QUOTES, 'UTF-8'); ?> · <?php echo htmlspecialchars($worker['location'], ENT_QUOTES, 'UTF-8'); ?></div>
         <div class="profile-meta">
           <span class="stars"><?php echo gig_stars($worker['rating']); ?></span>
