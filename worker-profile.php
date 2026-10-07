@@ -111,14 +111,6 @@ if ($role === 'worker') {
           <span class="chip gold"><?php echo (int)$worker['reviews_count']; ?> ulasan pemberi kerja</span>
           <span class="chip"><?php echo (int)$worker['completed_projects']; ?> dari <?php echo (int)($worker['total_projects'] ?? $worker['completed_projects']); ?> proyek selesai</span>
         </div>
-        <?php if ($role === 'employer'): ?>
-          <div style="margin-top:14px;">
-            <button type="button" class="btn-primary-add" style="background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%);color:#ffffff;border:none;padding:8px 18px;font-size:0.86rem;font-weight:700;border-radius:10px;box-shadow:0 4px 12px rgba(37,99,235,0.25);cursor:pointer;display:inline-flex;align-items:center;gap:8px;" onclick="openOfferModal('<?php echo htmlspecialchars((string)$worker['id'], ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars(addslashes((string)$worker['name']), ENT_QUOTES, 'UTF-8'); ?>')">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-              Tawarkan Proyek Langsung
-            </button>
-          </div>
-        <?php endif; ?>
       </div>
     </section>
 

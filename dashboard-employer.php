@@ -70,13 +70,6 @@ require __DIR__ . '/includes/employer-layout-start.php';
       <h1>Ringkasan</h1>
     </div>
 
-    <div class="system-info-notice">
-      <div class="notice-icon-text">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        <span><strong>Privasi pelamar:</strong> kontak WhatsApp dan email terbuka setelah Anda menerima lamaran, atau setelah Gig Worker menerima penawaran langsung.</span>
-      </div>
-    </div>
-
     <section class="hero-banner">
       <div class="hero-header">
         <div>
