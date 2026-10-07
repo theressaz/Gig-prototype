@@ -340,9 +340,9 @@ declare(strict_types=1);
                     <input type="text" id="proj_kbji" required placeholder="Contoh: 2512 - Pengembang Perangkat Lunak" />
                   </div>
                   <div class="form-row">
-                    <label for="proj_category">Bidang Pekerjaan *</label>
+                    <label for="proj_category">Bidang *</label>
                     <select id="proj_category" required>
-                      <option value="">-- Pilih bidang pekerjaan --</option>
+                      <option value="">-- Pilih bidang --</option>
                       <option value="IT &amp; Pemrograman">IT &amp; Pemrograman</option>
                       <option value="Desain &amp; Kreatif">Desain &amp; Kreatif</option>
                       <option value="Pemasaran &amp; Konten">Pemasaran &amp; Konten</option>

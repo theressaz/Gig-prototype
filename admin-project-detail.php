@@ -262,7 +262,7 @@ require __DIR__ . '/includes/admin-layout-start.php';
 
       <div class="req-section-title">Detail Lowongan</div>
       <div class="req-detail-grid">
-        <div><div class="req-label">Bidang Pekerjaan</div><div class="req-value"><?php echo htmlspecialchars((string)($vacancy['category'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div></div>
+        <div><div class="req-label">Bidang</div><div class="req-value"><?php echo htmlspecialchars((string)($vacancy['category'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div></div>
         <div><div class="req-label">Mode Kerja</div><div class="req-value"><?php echo htmlspecialchars($workType !== '' ? $workType : '-', ENT_QUOTES, 'UTF-8'); ?></div></div>
         <div><div class="req-label">Durasi Proyek</div><div class="req-value"><?php echo htmlspecialchars((string)($vacancy['duration'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div></div>
         <div><div class="req-label">Batas Lamaran</div><div class="req-value"><?php echo htmlspecialchars((string)($vacancy['deadline'] ?? '-'), ENT_QUOTES, 'UTF-8'); ?></div></div>
